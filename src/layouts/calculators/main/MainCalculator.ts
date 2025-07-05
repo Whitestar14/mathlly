@@ -200,7 +200,7 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
           return calculator.value.formatResult(result)
         }
       } catch {
-        return '0'
+        return '' // String should be kept empty to indicate error with evaluation
       }
     }
   )
