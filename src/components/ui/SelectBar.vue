@@ -5,7 +5,7 @@
       @update:model-value="$emit('update:model-value', $event)"
     >
       <SelectTrigger
-        class="inline-flex items-center text-gray-700 dark:text-gray-300 justify-between w-full font-medium px-2.5 py-1.5 text-sm bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700/30 focus-colors"
+        class="inline-flex items-center text-foreground dark:text-muted-foreground justify-between w-full font-medium px-2.5 py-1.5 text-sm bg-background dark:bg-background border border-border dark:border-border rounded-md hover:bg-muted dark:hover:bg-accent/30 focus-colors"
       >
         <SelectValue :placeholder="placeholder" />
         <ChevronDownIcon class="h-4 w-4 flex-shrink-0" />
@@ -13,7 +13,7 @@
 
       <SelectPortal>
         <SelectContent
-          class="select-content z-20 overflow-hidden text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md"
+          class="select-content z-20 overflow-hidden text-foreground dark:text-muted-foreground bg-background dark:bg-background rounded-lg border border-border dark:border-border shadow-md"
           :position="position"
           :side-offset="5"
           :align="align"
@@ -31,7 +31,7 @@
                 v-for="option in options"
                 :key="option.value"
                 :value="option.value"
-                class="outline-none flex w-full items-center text-gray-700 dark:text-gray-300 px-2.5 py-1.5 text-sm hover:bg-gray-100 dark:hover:bg-gray-700/50 select-none rounded"
+                class="outline-none flex w-full items-center text-foreground dark:text-muted-foreground px-2.5 py-1.5 text-sm hover:bg-muted dark:hover:bg-accent/50 select-none rounded"
               >
                 <SelectItemText>{{ option.label }}</SelectItemText>
               </SelectItem>

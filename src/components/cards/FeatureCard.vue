@@ -1,19 +1,17 @@
 <template>
-  <div class="relative bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-colors duration-300">
+  <div class="relative bg-card dark:bg-card p-6 rounded-lg border border-border dark:border-border hover:shadow-lg transition-colors duration-300">
     <div class="flex items-center gap-2 mb-4">
-      <div class="p-2 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg">
+      <div class="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg">
         <component
           :is="getFeatureIcon(icon)"
-          class="h-6 w-6 text-indigo-600 dark:text-indigo-400"
+          class="h-6 w-6 text-primary dark:text-primary"
         />
       </div>
-      <h4
-        class="font-medium text-lg"
-      >
+      <h4 class="font-medium text-lg text-card-foreground dark:text-card-foreground">
         {{ title }}
       </h4>
     </div>
-    <p class="text-gray-600 dark:text-gray-300">
+    <p class="text-muted-foreground dark:text-muted-foreground">
       {{ description }}
     </p>
   </div>
@@ -68,4 +66,3 @@ const getFeatureIcon = (iconName) => {
   return iconMap[iconName] || CalculatorIcon;
 };
 </script>
-

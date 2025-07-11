@@ -59,10 +59,10 @@
     >
       <slot name="fallback">
         <div
-          class="flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded-md"
+          class="flex items-center justify-center bg-muted dark:bg-background rounded-md"
           :style="`width: ${width}px; height: ${height}px;`"
         >
-          <ImageIcon class="h-6 w-6 text-gray-400 dark:text-gray-600" />
+          <ImageIcon class="h-6 w-6 text-muted-foreground dark:text-muted-foreground" />
         </div>
       </slot>
     </div>

@@ -12,8 +12,8 @@ export interface BadgeConfig {
 const BADGE_CONFIGS: Record<BadgeVariant, Omit<BadgeConfig, 'shouldPulse'>> = {
   soon: {
     text: 'Coming Soon',
-    classes: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400',
-    notch: 'bg-gray-400 dark:bg-gray-500',
+    classes: 'bg-muted dark:bg-muted text-muted-foreground dark:text-muted-foreground',
+    notch: 'bg-muted-foreground dark:bg-muted-foreground',
   },
   new: {
     text: 'New',
@@ -22,8 +22,8 @@ const BADGE_CONFIGS: Record<BadgeVariant, Omit<BadgeConfig, 'shouldPulse'>> = {
   },
   custom: {
     text: '',
-    classes: 'bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/30',
-    notch: 'bg-indigo-500 dark:bg-indigo-400',
+    classes: 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary border border-primary/20 dark:border-primary/30',
+    notch: 'bg-primary dark:bg-primary',
   },
   special: {
     text: 'Special',

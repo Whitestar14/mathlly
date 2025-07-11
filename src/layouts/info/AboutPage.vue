@@ -4,16 +4,16 @@
     :show-footer="true"
   >
     <!-- Team & Vision Section -->
-    <section class="mb-16 pattern-grid overflow-hidden bg-gradient-to-b from-indigo-50/20 to-white dark:from-gray-900 dark:to-gray-800/80">
+    <section class="mb-16 pattern-grid overflow-hidden bg-gradient-to-b from-primary/5 to-background">
       <div class="container mx-auto px-4 pt-20 pb-16 md:py-24 relative">
-        <h2 class="text-5xl md:text-6xl lg:text-7xl font-mono font-bold tracking-tight">
+        <h2 class="text-5xl md:text-6xl lg:text-7xl font-mono font-bold tracking-tight text-foreground">
           Built with passion,
-          <span class="block mb-4 text-indigo-600 dark:text-indigo-400">
+          <span class="block mb-4 text-primary">
             driven by community
           </span>
         </h2>
 
-        <p class="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-lg self-center md:self-start">
+        <p class="text-base md:text-lg text-muted-foreground max-w-lg self-center md:self-start">
           Started as a developer's side project, Mathlly has grown into a community-driven platform 
           that pushes the boundaries of development tools.
         </p>
@@ -22,7 +22,7 @@
 
     <!-- Core Values -->
     <section class="space-y-8 mb-16">
-      <h3 class="text-2xl font-medium tracking-tight">
+      <h3 class="text-2xl font-medium tracking-tight text-foreground">
         Core Values
       </h3>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -38,10 +38,10 @@
 
     <!-- Development Process -->
     <section class="space-y-6 mb-16">
-      <h3 class="text-2xl font-medium tracking-tight">
+      <h3 class="text-2xl font-medium tracking-tight text-foreground">
         Development Process
       </h3>
-      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div class="bg-background dark:bg-background rounded-lg border border-border dark:border-border p-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div
             v-for="(phase, index) in devProcess"
@@ -51,13 +51,13 @@
             <div class="flex items-center gap-2">
               <component
                 :is="phase.icon"
-                class="h-5 w-5 text-indigo-600 dark:text-indigo-400"
+                class="h-5 w-5 text-primary dark:text-primary"
               />
-              <h4 class="font-medium">
+              <h4 class="font-medium text-foreground">
                 {{ phase.title }}
               </h4>
             </div>
-            <p class="text-sm text-gray-600 dark:text-gray-300">
+            <p class="text-sm text-muted-foreground">
               {{ phase.description }}
             </p>
           </div>
@@ -67,12 +67,12 @@
 
     <!-- Contributing Section -->
     <section class="space-y-6">
-      <h3 class="text-2xl font-medium tracking-tight">
+      <h3 class="text-2xl font-medium tracking-tight text-foreground">
         Contributing
       </h3>
-      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div class="bg-background dark:bg-background rounded-lg border border-border dark:border-border p-6">
         <div class="space-y-4">
-          <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+          <p class="text-sm text-muted-foreground leading-relaxed">
             Mathlly is open source and welcomes contributions from developers worldwide. Whether you're fixing bugs, 
             adding features, or improving documentation, your help makes Mathlly better for everyone.
           </p>

@@ -4,8 +4,8 @@
     class="group relative flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
     :class="[
       active 
-        ? 'bg-indigo-500 text-white shadow-lg' 
-        : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/70 hover:text-white'
+        ? 'bg-primary text-foreground shadow-lg' 
+        : 'bg-muted/50 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
     ]"
     @click="$emit('click')"
   >
@@ -21,7 +21,7 @@
     <!-- Active indicator dot (no pulse) -->
     <div
       v-if="active"
-      class="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-gray-900"
+      class="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-border"
     />
   </button>
 </template>

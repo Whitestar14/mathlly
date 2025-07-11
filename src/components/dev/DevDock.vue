@@ -49,7 +49,7 @@
     >
       <button
         v-tippy="{ content: 'Try Developer Tools Beta', placement: 'left' }"
-        class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 group"
+        class="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-foreground p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 group"
         @click="showBetaModal = true"
       >
         <CodeIcon class="h-5 w-5 group-hover:rotate-12 transition-transform duration-200" />

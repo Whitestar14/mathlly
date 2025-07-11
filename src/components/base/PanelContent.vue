@@ -3,9 +3,9 @@
     <!-- Header -->
     <div
       v-show="showHeader"
-      class="flex-shrink-0 h-14 px-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between"
+      class="flex-shrink-0 h-14 px-3 border-b border-border dark:border-border flex items-center justify-between"
     >
-      <h2 class="text-base font-medium text-gray-800 dark:text-gray-200">
+      <h2 class="text-base font-medium text-foreground dark:text-foreground">
         {{ title }}
       </h2>
       <div class="flex items-center gap-2 justify-between">
@@ -32,7 +32,7 @@
     <!-- Footer -->
     <div
       v-if="showFooter && $slots.footer"
-      class="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 p-3 lg:min-h-14"
+      class="flex-shrink-0 border-t border-border dark:border-border p-3 lg:min-h-14"
     >
       <slot name="footer" />
     </div>

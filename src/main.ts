@@ -7,6 +7,7 @@ import { useDeviceStore } from '@/stores/device'
 import { MotionPlugin } from '@vueuse/motion'
 import '@/assets/css/main.css'
 import 'tippy.js/dist/tippy.css'
+import 'tippy.js/dist/border.css'
 import 'tippy.js/animations/scale.css'
 
 if (process.env.NODE_ENV === 'development') {

@@ -6,14 +6,14 @@
     >
       <template #trigger>
         <div
-          class="rounded-lg bg-gray-100 dark:bg-gray-800 sm:dark:bg-gray-700 p-3 hover:bg-gray-200 dark:hover:bg-gray-700 sm:dark:hover:bg-gray-600 transition-colors cursor-pointer"
+          class="rounded-lg bg-muted dark:bg-background sm:dark:bg-muted p-3 hover:bg-muted dark:hover:bg-accent sm:dark:hover:bg-muted/60 transition-colors cursor-pointer"
           :class="{ 'animate-highlight': selectedItemId === item.id }"
           @click="$emit('select', item)"
         >
-          <div class="text-sm text-gray-700/75 dark:text-gray-300/75 break-all">
+          <div class="text-sm text-foreground/75 dark:text-muted-foreground/75 break-all">
             {{ item.expression }}
           </div>
-          <div class="text-lg font-medium text-gray-700 dark:text-gray-300 break-all">
+          <div class="text-lg font-medium text-foreground dark:text-muted-foreground break-all">
             {{ item.result }}
           </div>
 
@@ -54,7 +54,7 @@
         <span>Copy as JSON</span>
       </ContextMenuItem>
 
-      <ContextMenuSeparator class="h-px bg-gray-200 dark:bg-gray-700 my-1" />
+      <ContextMenuSeparator class="h-px bg-muted dark:bg-muted my-1" />
 
       <ContextMenuItem
         class="context-menu-item-danger"
@@ -101,10 +101,10 @@ defineEmits(["select", "delete", "copy", "copy-json"]);
 
 @keyframes highlight {
   0% {
-    @apply bg-gray-300 dark:bg-gray-600;
+    @apply bg-muted/30 dark:bg-muted;
   }
   100% {
-    @apply bg-gray-100 dark:bg-gray-700;
+    @apply bg-muted dark:bg-muted;
   }
 }
 </style>

@@ -11,7 +11,7 @@
     <!-- Content -->
     <div class="flex-1 overflow-hidden relative">
       <!-- Tab Navigation -->
-      <div class="sticky backdrop-blur-sm top-0 z-10 border-b border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-700/50">
+      <div class="sticky backdrop-blur-sm top-0 z-10 border-b border-border dark:border-border bg-muted/50 dark:bg-muted/50">
         <div class="flex relative justify-evenly">
           <Indicator :position="indicatorStyle" />                   
           <div
@@ -22,8 +22,8 @@
             class="px-4 py-3 text-sm font-medium transition-colors relative cursor-pointer"
             :class="[
               currentTab === tab.value
-                ? 'text-indigo-600 dark:text-indigo-400'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300',
+                ? 'text-primary dark:text-primary'
+                : 'text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground',
             ]"
             @click="handleTabChange(tab.value, $event.target as HTMLElement)"
           >
@@ -50,11 +50,11 @@
             v-show="currentTab === 'memory'"
             class="text-center py-4 flex flex-col items-center justify-center h-full"
           >
-            <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-700/30 mb-3 font-medium min-w-[80%] flex flex-col items-center">
-              <p class="text-gray-500 dark:text-gray-400 font-medium">
+            <div class="p-3 rounded-lg bg-muted dark:bg-muted/30 mb-3 font-medium min-w-[80%] flex flex-col items-center">
+              <p class="text-muted-foreground dark:text-muted-foreground font-medium">
                 Memory feature coming soon
               </p>
-              <p class="text-gray-400 dark:text-gray-500 text-xs">
+              <p class="text-muted-foreground dark:text-muted-foreground text-xs">
                 Save and recall values for your calculations
               </p>
             </div>
@@ -63,11 +63,11 @@
 
         <!-- Scrollbar -->
         <ScrollAreaScrollbar
-          class="flex select-none touch-none p-0.5 bg-gray-100/50 dark:bg-gray-800/50 transition-colors duration-150 ease-out hover:bg-gray-200/50 dark:hover:bg-gray-700/50 data-[orientation=vertical]:w-2 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2"
+          class="flex select-none touch-none p-0.5 bg-muted/50 dark:bg-background/50 transition-colors duration-150 ease-out hover:bg-muted/50 dark:hover:bg-accent/50 data-[orientation=vertical]:w-2 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2"
           orientation="vertical"
         >
           <ScrollAreaThumb
-            class="flex-1 bg-gray-300 dark:bg-gray-600 rounded-full relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]"
+            class="flex-1 bg-muted/50 dark:bg-muted rounded-full relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]"
           />
         </ScrollAreaScrollbar>
       </ScrollAreaRoot>
@@ -83,7 +83,7 @@
           v-tippy="{ content: 'Clear History' }"
           variant="ghost"
           size="icon"
-          class="hidden md:flex text-red-400 hover:text-red-500 hover:bg-red-300/30 dark:hover:text-red-400"
+          class="hidden md:flex text-red-400 hover:text-destructive hover:bg-red-300/30 dark:hover:text-red-400"
           @click="showClearConfirmation = true"
         >
           <TrashIcon class="w-4 h-4" />
@@ -107,18 +107,18 @@
   >
     <template #title>
       <div class="flex items-center">
-        <AlertTriangleIcon class="h-5 w-5 text-red-500 dark:text-gray-300 mr-2" />
+        <AlertTriangleIcon class="h-5 w-5 text-destructive dark:text-muted-foreground mr-2" />
         Clear History
       </div>
     </template>
-    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+    <p class="text-sm text-muted-foreground dark:text-muted-foreground mb-4">
       Are you sure you want to clear all history items? This action cannot
       be undone.
     </p>
     <div class="flex justify-end space-x-2">
       <Button
         variant="outline"
-        class="dark:text-gray-300 transition-colors"
+        class="dark:text-muted-foreground transition-colors"
         @click="showClearConfirmation = false"
       >
         Cancel

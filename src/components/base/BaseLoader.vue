@@ -13,15 +13,15 @@
           <div class="relative text-6xl inline-flex">
             <span
               ref="bracketLeft"
-              class="text-indigo-500 dark:text-indigo-400 font-medium opacity-0"
+              class="text-primary dark:text-primary font-medium opacity-0"
             >{</span>
-            <span class="inline-flex *:text-gray-800 *:dark:text-gray-100 *:opacity-0">
+            <span class="inline-flex *:text-foreground *:dark:text-foreground *:opacity-0">
               <span ref="letterM">m</span>
               <span ref="letterA">a</span>
               <span ref="letterT">t</span>
               <span ref="letterH">h</span>
             </span>
-            <span class="relative inline-flex items-center justify-center w-[1.2em] *:left-1/2 *:-translate-x-1/2 *:text-indigo-500 *:dark:text-indigo-400 *:font-black *:opacity-0">
+            <span class="relative inline-flex items-center justify-center w-[1.2em] *:left-1/2 *:-translate-x-1/2 *:text-primary *:dark:text-primary *:font-black *:opacity-0">
               <span
                 ref="slashTop"
                 class="top-0 origin-bottom"
@@ -33,11 +33,11 @@
             </span>
             <span
               ref="letterY"
-              class="text-gray-800 dark:text-gray-100 opacity-0"
+              class="text-foreground dark:text-foreground opacity-0"
             >y</span>
             <span
               ref="bracketRight"
-              class="text-indigo-500 dark:text-indigo-400 font-medium opacity-0"
+              class="text-primary dark:text-primary font-medium opacity-0"
             >}</span>
           </div>
         </div>

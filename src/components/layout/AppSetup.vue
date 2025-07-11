@@ -20,7 +20,7 @@
         <template #fallback>
           <div 
             v-if="panelStates.sidebar.isOpen" 
-            class="w-64 h-screen hidden md:flex fixed top-0 left-0 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 z-20"
+            class="w-64 h-screen hidden md:flex fixed top-0 left-0 bg-muted dark:bg-background border-r border-border dark:border-border z-20"
           />
         </template>
       </Suspense>
@@ -33,7 +33,7 @@
       />
       <template #fallback>
         <div class="flex-grow flex items-center justify-center">
-          <div class="w-20 h-20 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+          <div class="w-20 h-20 rounded-full bg-muted dark:bg-muted animate-pulse" />
         </div>
       </template>
     </Suspense>
@@ -44,7 +44,7 @@
         <template #fallback>
           <div 
             v-if="panelStates.menu.isOpen" 
-            class="w-64 h-screen fixed hidden md:flex top-0 right-0 bg-gray-50 dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700 z-20"
+            class="w-64 h-screen fixed hidden md:flex top-0 right-0 bg-muted dark:bg-background border-l border-border dark:border-border z-20"
           />
         </template>
       </Suspense>

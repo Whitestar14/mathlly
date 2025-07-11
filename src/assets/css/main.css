@@ -14,7 +14,10 @@
   :root {
     @apply font-sans font-normal;
     
-    /* Default theme variables (Classic Light) */
+    /* Border radius variable - default to sharp */
+    --radius: 0px;
+    
+    /* Default theme variables (Classic Light) - restored original brightness */
     --color-background: 255 255 255;
     --color-foreground: 15 23 42;
     --color-card: 255 255 255;
@@ -23,40 +26,49 @@
     --color-popover-foreground: 15 23 42;
     --color-primary: 79 70 229;
     --color-primary-foreground: 248 250 252;
-    --color-secondary: 241 245 249;
-    --color-secondary-foreground: 15 23 42;
-    --color-muted: 241 245 249;
-    --color-muted-foreground: 100 116 139;
-    --color-accent: 241 245 249;
+    --color-secondary: 244 244 245;
+    --color-secondary-foreground: 24 24 27;
+    --color-muted: 249 250 251;
+    --color-muted-foreground: 107 114 128;
+    --color-accent: 244 244 245;
     --color-accent-foreground: 15 23 42;
     --color-destructive: 239 68 68;
     --color-destructive-foreground: 248 250 252;
-    --color-border: 226 232 240;
-    --color-input: 226 232 240;
+    --color-border: 229 231 235;
+    --color-input: 229 231 235;
     --color-ring: 79 70 229;
   }
 
   .dark {
-    /* Default dark theme variables (Classic Dark) */
-    --color-background: 2 6 23;
-    --color-foreground: 248 250 252;
-    --color-card: 2 6 23;
-    --color-card-foreground: 248 250 252;
-    --color-popover: 2 6 23;
-    --color-popover-foreground: 248 250 252;
-    --color-primary: 129 140 248;
-    --color-primary-foreground: 15 23 42;
-    --color-secondary: 30 41 59;
-    --color-secondary-foreground: 248 250 252;
-    --color-muted: 30 41 59;
-    --color-muted-foreground: 148 163 184;
-    --color-accent: 30 41 59;
-    --color-accent-foreground: 248 250 252;
-    --color-destructive: 220 38 38;
-    --color-destructive-foreground: 248 250 252;
-    --color-border: 30 41 59;
-    --color-input: 30 41 59;
-    --color-ring: 129 140 248;
+  /* Classic Dark - slightly lighter for better contrast */
+  --color-background: 15 23 42;        /* Lighter than 2 6 23 */
+  --color-foreground: 248 250 252;
+  --color-card: 30 41 59;              /* Lighter card background */
+  --color-card-foreground: 248 250 252;
+  --color-popover: 30 41 59;           /* Lighter popover */
+  --color-popover-foreground: 248 250 252;
+  --color-primary: 129 140 248;
+  --color-primary-foreground: 15 23 42;
+  --color-secondary: 51 65 85;         /* Lighter secondary */
+  --color-secondary-foreground: 248 250 252;
+  --color-muted: 51 65 85;             /* Lighter muted */
+  --color-muted-foreground: 148 163 184;
+  --color-accent: 51 65 85;            /* Lighter accent */
+  --color-accent-foreground: 248 250 252;
+  --color-destructive: 220 38 38;
+  --color-destructive-foreground: 248 250 252;
+  --color-border: 51 65 85;            /* Lighter border */
+  --color-input: 51 65 85;             /* Lighter input */
+  --color-ring: 129 140 248;
+}
+
+  /* Border radius variants */
+  .border-style-sharp {
+    --radius: 0px;
+  }
+  
+  .border-style-rounded {
+    --radius: 0.5rem;
   }
 
   /* Text size utilities */
@@ -320,135 +332,133 @@
     @apply fixed inset-0 z-50 bg-background/95;
   }
 
-  /* Syntax highlighting classes - now theme-aware */
-  .syntax-number {
-    @apply text-blue-600 dark:text-blue-400;
-  }
+/* Syntax highlighting classes - now theme-aware */
+.syntax-number {
+  @apply text-blue-600 dark:text-blue-400;
+}
 
-  .syntax-operator,
-  .syntax-programmer-operator {
-    @apply text-purple-600 dark:text-purple-400;
-  }
+.syntax-operator,
+.syntax-programmer-operator {
+  @apply text-purple-600 dark:text-purple-400;
+}
 
-  .syntax-parenthesis {
-    @apply text-muted-foreground font-semibold;
-  }
+.syntax-parenthesis {
+  @apply text-muted-foreground font-semibold;
+}
 
-  .syntax-function {
-    @apply text-pink-600 dark:text-pink-400;
-  }
+.syntax-function {
+  @apply text-pink-600 dark:text-pink-400;
+}
 
-  .syntax-decimal {
-    @apply text-primary font-bold;
-  }
+.syntax-decimal {
+  @apply text-primary font-bold;
+}
 
-  .syntax-text {
-    @apply text-foreground;
-  }
+.syntax-text {
+  @apply text-foreground;
+}
 
-  .syntax-ghost {
-    @apply text-muted-foreground opacity-40;
-  }
+.syntax-ghost {
+  @apply text-muted-foreground opacity-40;
+}
 
-  /* Scientific mode specific syntax highlighting */
-  .syntax-scientific-function {
-    @apply text-pink-600 dark:text-pink-400 font-medium;
-  }
+/* Scientific mode specific syntax highlighting */
+.syntax-scientific-function {
+  @apply text-pink-600 dark:text-pink-400 font-medium;
+}
 
-  .syntax-trig-function {
-    @apply text-emerald-600 dark:text-emerald-400 font-medium;
-  }
+.syntax-trig-function {
+  @apply text-emerald-600 dark:text-emerald-400 font-medium;
+}
 
-  .syntax-hyperbolic-function {
-    @apply text-teal-600 dark:text-teal-400 font-medium;
-  }
+.syntax-hyperbolic-function {
+  @apply text-teal-600 dark:text-teal-400 font-medium;
+}
 
-  .syntax-log-function {
-    @apply text-orange-600 dark:text-orange-400 font-medium;
-  }
+.syntax-log-function {
+  @apply text-orange-600 dark:text-orange-400 font-medium;
+}
 
-  .syntax-root-function {
-    @apply text-cyan-600 dark:text-cyan-400 font-bold;
-  }
+.syntax-root-function {
+  @apply text-cyan-600 dark:text-cyan-400 font-bold;
+}
 
-  .syntax-constant {
-    @apply text-amber-600 dark:text-amber-400 font-semibold;
-  }
+.syntax-constant {
+  @apply text-amber-600 dark:text-amber-400 font-semibold;
+}
 
-  .syntax-power-operator {
-    @apply text-red-600 dark:text-red-400 font-bold;
-  }
+.syntax-power-operator {
+  @apply text-red-600 dark:text-red-400 font-bold;
+}
 
-  .syntax-factorial {
-    @apply text-violet-600 dark:text-violet-400 font-bold;
-  }
+.syntax-factorial {
+  @apply text-violet-600 dark:text-violet-400 font-bold;
+}
 
-  .syntax-modulo-operator {
-    @apply text-indigo-600 dark:text-indigo-400 font-medium;
-  }
+.syntax-modulo-operator {
+  @apply text-indigo-600 dark:text-indigo-400 font-medium;
+}
 
-  /* Parentheses nesting levels for scientific mode */
-  .paren-level-0 {
-    @apply text-blue-600 dark:text-blue-400;
-  }
+/* Parentheses nesting levels for scientific mode */
+.paren-level-0 {
+  @apply text-blue-600 dark:text-blue-400;
+}
 
-  .paren-level-1 {
-    @apply text-green-600 dark:text-green-400;
-  }
+.paren-level-1 {
+  @apply text-green-600 dark:text-green-400;
+}
 
-  .paren-level-2 {
-    @apply text-purple-600 dark:text-purple-400;
-  }
+.paren-level-2 {
+  @apply text-purple-600 dark:text-purple-400;
+}
 
-  .paren-level-3 {
-    @apply text-orange-600 dark:text-orange-400;
-  }
+.paren-level-3 {
+  @apply text-orange-600 dark:text-orange-400;
+}
 
-  .paren-level-4 {
-    @apply text-pink-600 dark:text-pink-400;
-  }
+.paren-level-4 {
+  @apply text-pink-600 dark:text-pink-400;
+}
 
-  .paren-level-5 {
-    @apply text-cyan-600 dark:text-cyan-400;
-  }
+.paren-level-5 {
+  @apply text-cyan-600 dark:text-cyan-400;
+}
 
-  /* Fallback for deeper nesting */
-  .paren-level-deep {
-    @apply text-muted-foreground;
-  }
+/* Fallback for deeper nesting */
+.paren-level-deep {
+  @apply text-muted-foreground;
+}
 
-  /* Scientific mode expression highlighting */
-  .scientific-expression {
-    @apply font-mono text-sm leading-relaxed;
-  }
+/* Scientific mode expression highlighting */
+.scientific-expression {
+  @apply font-mono text-sm leading-relaxed;
+}
 
-  .scientific-expression .syntax-constant {
-    @apply bg-amber-50 dark:bg-amber-900/20 px-1 rounded;
-  }
+.scientific-expression .syntax-constant {
+  @apply bg-amber-50 dark:bg-amber-900/20 px-1 rounded;
+}
 
-  .scientific-expression .syntax-root-function {
-    @apply bg-cyan-50 dark:bg-cyan-900/20 px-1 rounded;
-  }
+.scientific-expression .syntax-root-function {
+  @apply bg-cyan-50 dark:bg-cyan-900/20 px-1 rounded;
+}
 
-  .scientific-expression .syntax-power-operator {
-    @apply bg-red-50 dark:bg-red-900/20 px-0.5 rounded;
-  }
+.scientific-expression .syntax-power-operator {
+  @apply bg-red-50 dark:bg-red-900/20 px-0.5 rounded;
+}
 
-  .paren-ghost {
-    @apply opacity-40;
-    color: rgb(var(--color-muted-foreground));
-    margin-left: 0.125rem;
-  }
+.paren-ghost {
+  @apply opacity-40 text-muted-foreground ml-0.5;
+}
 
-  .paren-open,
-  .paren-close {
-    position: relative;
-    margin: 0 0.125rem;
-  }
+.paren-open,
+.paren-close {
+  position: relative;
+  margin: 0 0.125rem;
+}
 
-  .paren-open {
-    margin-right: 0.25rem;
-  }
+.paren-open {
+  margin-right: 0.25rem;
+}
 
   /* Scrollbar hiding utility */
   .scrollbar-hide {
@@ -465,26 +475,22 @@
    Tooltip Styles
    ========================================================================== */
 .tippy-box[data-theme~='custom'] {
-  @apply text-xs p-0.5 rounded-lg;
+  @apply text-xs p-0.5 rounded-lg shadow-lg border;
   background-color: rgb(var(--color-popover));
   color: rgb(var(--color-popover-foreground));
+  border: 1px solid rgb(var(--color-border));
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
-.tippy-box[data-theme~='custom'][data-placement^='top'] > .tippy-arrow::before {
-  border-top-color: rgb(var(--color-popover));
+/* Dark mode specific shadow */
+.dark .tippy-box[data-theme~='custom'] {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2), 0 0 0 1px rgb(var(--color-border));
 }
 
-.tippy-box[data-theme~='custom'][data-placement^='bottom'] > .tippy-arrow::before {
-  border-bottom-color: rgb(var(--color-popover));
-}
-
-.tippy-box[data-theme~='custom'][data-placement^='left'] > .tippy-arrow::before {
-  border-left-color: rgb(var(--color-popover));
-}
-
-.tippy-box[data-theme~='custom'][data-placement^='right'] > .tippy-arrow::before {
-  border-right-color: rgb(var(--color-popover));
-}
+.tippy-box[data-theme~='custom'][data-placement^='top'] > .tippy-arrow::before { border-top-color: rgb(var(--color-popover)); }
+.tippy-box[data-theme~='custom'][data-placement^='bottom'] > .tippy-arrow::before { border-bottom-color: rgb(var(--color-popover)); }
+.tippy-box[data-theme~='custom'][data-placement^='left'] > .tippy-arrow::before { border-left-color: rgb(var(--color-popover)); }
+.tippy-box[data-theme~='custom'][data-placement^='right'] > .tippy-arrow::before { border-right-color: rgb(var(--color-popover)); }
 
 /* ==========================================================================
    Transition Animations

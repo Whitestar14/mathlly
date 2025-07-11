@@ -2,21 +2,21 @@
   <kbd
     :class="[
       'font-medium monospace pointer-events-none',
-      'bg-gray-100 dark:bg-gray-800',
-      'text-gray-800 dark:text-gray-200',
-      'border border-gray-200 dark:border-gray-700 rounded-md shadow-sm',
+      'bg-muted dark:bg-background',
+      'text-foreground',
+      'border border-border rounded-md shadow-sm',
       sizeClasses[size],
     ]"
     :aria-hidden="hideFromScreenReaders"
   >
     <span v-if="!clipped">
       {math<span
-        class="dark:text-indigo-400 font-black text-indigo-600 inline-block mx-0.5"
+        class="font-black text-primary/50 inline-block mx-0.5"
       >//</span>y}
     </span>
     <span v-else>
       {<span
-        class="dark:text-indigo-400 font-black text-indigo-600 inline-block mx-0.5"
+        class="font-black text-primary/50 inline-block mx-0.5"
       >//</span>}
     </span>
   </kbd>

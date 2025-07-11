@@ -12,16 +12,16 @@
       <span
         :class="[
           activeBase === base
-            ? 'text-indigo-600 dark:text-indigo-300'
-            : 'text-gray-600 dark:text-gray-400',
+            ? 'text-primary dark:text-primary'
+            : 'text-muted-foreground dark:text-muted-foreground',
         ]"
       >{{ base }}</span>
       <span
         :class="[
           'monospace truncate ml-1',
           activeBase === base
-            ? 'text-indigo-500 dark:text-indigo-300 font-medium'
-            : 'text-gray-800 dark:text-gray-300',
+            ? 'text-primary dark:text-primary font-medium'
+            : 'text-foreground dark:text-muted-foreground',
         ]"
       >{{ formattedValues[base] }}</span>
     </button>
@@ -83,7 +83,7 @@ const formattedValues: ComputedRef<FormattedValues> = computed(() => {
  */
 const baseButtonClasses = (base: string): string => {
   return props.activeBase === base
-    ? 'bg-indigo-50 dark:bg-gray-700/70 text-gray-500 border border-indigo-300 dark:border-indigo-300/25 dark:text-gray-200'
-    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30'
+    ? 'bg-indigo-50 dark:bg-muted/70 text-muted-foreground border border-indigo-300 dark:border-indigo-300/25 dark:text-foreground'
+    : 'bg-background dark:bg-background border border-border dark:border-border hover:bg-muted dark:hover:bg-accent/30'
 }
 </script>

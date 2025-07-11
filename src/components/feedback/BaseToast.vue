@@ -60,7 +60,7 @@
             class="rounded-full p-1 h-auto"
             @click="removeToast(toast.id)"
           >
-            <XIcon class="h-3.5 w-3.5 text-gray-500 dark:text-gray-400" />
+            <XIcon class="h-3.5 w-3.5 text-muted-foreground dark:text-muted-foreground" />
           </Button>
         </div>
       </div>
@@ -87,31 +87,31 @@ type ToastIcons = Record<ToastType, Component>;
 type DefaultTitles = Record<ToastType, string>;
 
 const toastTypeClasses: ToastTypeClasses = {
-  info: 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600/70',
+  info: 'bg-muted dark:bg-background border-border dark:border-border/70',
   success: 'bg-emerald-50 dark:bg-emerald-950/95 border-emerald-200 dark:border-emerald-800',
   warning: 'bg-amber-50 dark:bg-amber-950/95 border-amber-200 dark:border-amber-800',
   error: 'bg-rose-50 dark:bg-rose-950/95 border-rose-200 dark:border-rose-800'
 };
 
 const titleClasses: ToastTypeClasses = {
-  info: 'text-gray-900 dark:text-gray-100',
+  info: 'text-foreground dark:text-foreground',
   success: 'text-green-700 dark:text-green-400',
   warning: 'text-yellow-700 dark:text-yellow-400',
-  error: 'text-red-700 dark:text-red-400'
+  error: 'text-red-700 dark:text-destructive'
 };
 
 const messageClasses: ToastTypeClasses = {
-  info: 'text-gray-600 dark:text-gray-300',
+  info: 'text-muted-foreground dark:text-muted-foreground',
   success: 'text-green-600 dark:text-green-300',
   warning: 'text-yellow-600 dark:text-yellow-300',
-  error: 'text-red-600 dark:text-red-300'
+  error: 'text-destructive dark:text-red-300'
 };
 
 const iconClasses: ToastTypeClasses = {
-  info: 'text-gray-700 dark:text-gray-300',
+  info: 'text-foreground dark:text-muted-foreground',
   success: 'text-green-700 dark:text-green-400',
   warning: 'text-yellow-700 dark:text-yellow-400', 
-  error: 'text-red-700 dark:text-red-400'
+  error: 'text-red-700 dark:text-destructive'
 };
 
 const toastIcons: ToastIcons = {

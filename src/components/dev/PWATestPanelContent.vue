@@ -3,10 +3,10 @@
     <!-- Status Grid -->
     <div class="grid grid-cols-2 gap-3">
       <!-- Current Version -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-1">Current</span>
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Current</span>
         <div class="flex items-center justify-between">
-          <span class="text-sm text-gray-900 dark:text-gray-100 font-mono">{{ currentVersion || 'Unknown' }}</span>
+          <span class="text-sm text-foreground dark:text-foreground font-mono">{{ currentVersion || 'Unknown' }}</span>
           <BaseButton
             variant="ghost"
             size="icon"
@@ -19,10 +19,10 @@
       </div>
 
       <!-- Latest Version -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-1">Latest</span>
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Latest</span>
         <div class="flex items-center justify-between">
-          <span class="text-sm text-gray-900 dark:text-gray-100 font-mono">{{ latestVersion || 'Unknown' }}</span>
+          <span class="text-sm text-foreground dark:text-foreground font-mono">{{ latestVersion || 'Unknown' }}</span>
           <BaseButton
             variant="ghost"
             size="icon"
@@ -35,8 +35,8 @@
       </div>
 
       <!-- Needs Refresh Status -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-1">Needs Refresh</span>
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Needs Refresh</span>
         <div class="flex items-center gap-2">
           <BaseBadge
             :variant="needRefresh ? 'success' : 'info'"
@@ -51,8 +51,8 @@
       </div>
 
       <!-- Should Show Update -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-1">Should Show</span>
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Should Show</span>
         <div class="flex items-center gap-2">
           <BaseBadge
             :variant="shouldShowUpdate ? 'success' : 'info'"
@@ -68,10 +68,10 @@
     </div>
 
     <!-- Features Info -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+    <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Update Features</span>
-        <span class="text-xs text-gray-500 dark:text-gray-400">{{ updateFeatures.length }} items</span>
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Update Features</span>
+        <span class="text-xs text-muted-foreground dark:text-muted-foreground">{{ updateFeatures.length }} items</span>
       </div>
       
       <div
@@ -81,27 +81,27 @@
         <div
           v-for="(feature, index) in updateFeatures"
           :key="index"
-          class="text-xs text-gray-600 dark:text-gray-400 flex items-start gap-2"
+          class="text-xs text-muted-foreground dark:text-muted-foreground flex items-start gap-2"
         >
-          <div class="w-1 h-1 bg-indigo-500 rounded-full mt-2 shrink-0" />
+          <div class="w-1 h-1 bg-primary rounded-full mt-2 shrink-0" />
           <span class="leading-relaxed">{{ feature }}</span>
         </div>
       </div>
       
       <div
         v-else
-        class="text-xs text-gray-500 dark:text-gray-400 italic"
+        class="text-xs text-muted-foreground dark:text-muted-foreground italic"
       >
         No features available
       </div>
     </div>
 
     <!-- PWA State -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-      <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-2">PWA State</span>
+    <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
+      <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-2">PWA State</span>
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Offline Ready</span>
+          <span class="text-muted-foreground dark:text-muted-foreground block">Offline Ready</span>
           <BaseBadge
             :variant="offlineReady ? 'success' : 'info'"
             :text="offlineReady ? 'Ready' : 'Not Ready'"
@@ -109,7 +109,7 @@
           />
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Updates Enabled</span>
+          <span class="text-muted-foreground dark:text-muted-foreground block">Updates Enabled</span>
           <BaseBadge
             :variant="updatesEnabled ? 'success' : 'warning'"
             :text="updatesEnabled ? 'Enabled' : 'Disabled'"
@@ -167,7 +167,7 @@
     </div>
 
     <!-- Debug Info -->
-    <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+    <div class="pt-3 border-t border-border dark:border-border">
       <div class="flex gap-2">
         <BaseButton
           variant="ghost"

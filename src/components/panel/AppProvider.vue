@@ -41,6 +41,7 @@ const globalClasses: ComputedRef<string[]> = computed(() => {
   if (settings.appearance.animationDisabled) {
     classes.push('animation-disabled');
   }
+  classes.push(`border-style-${settings.appearance.borderRadius}`);
   return classes;
 });
 

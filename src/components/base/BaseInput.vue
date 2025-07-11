@@ -3,7 +3,7 @@
     <slot name="prefix">
       <div
         v-if="$slots.icon || icon"
-        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 dark:text-gray-400"
+        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground dark:text-muted-foreground"
       >
         <slot name="icon">
           <component
@@ -26,8 +26,8 @@
       :aria-invalid="!!error"
       :aria-describedby="error ? `${id}-error` : undefined"
       :class="[
-        'w-full rounded-lg border bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
-        error ? 'border-red-500 dark:border-red-400' : 'border-gray-200 dark:border-gray-700',
+        'w-full rounded-lg border bg-background dark:bg-background text-foreground dark:text-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
+        error ? 'border-destructive dark:border-destructive' : 'border-border dark:border-border',
         $slots.icon || icon ? 'pl-10' : 'pl-4',
         $slots.suffix ? 'pr-10' : 'pr-4',
         'py-2'
@@ -43,7 +43,7 @@
     <div
       v-if="error"
       :id="`${id}-error`"
-      class="mt-1 text-sm text-red-500 dark:text-red-400"
+      class="mt-1 text-sm text-destructive dark:text-destructive"
     >
       {{ error }}
     </div>

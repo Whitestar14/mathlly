@@ -6,10 +6,10 @@
     <template #title>
       <div class="flex items-center">
         <div>
-          <h2 class="text-xl font-medium text-gray-900 dark:text-white">
+          <h2 class="text-xl font-medium text-foreground dark:text-foreground">
             Keyboard Shortcuts
           </h2>
-          <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          <p class="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
             Quick access to available shortcuts
           </p>
         </div>
@@ -17,7 +17,7 @@
     </template>
 
     <div class="mt-4">
-      <div class="flex border-b border-gray-200 dark:border-gray-800 relative">
+      <div class="flex border-b border-border dark:border-border relative">
         <Indicator :position="indicatorStyle" />
         <button
           v-for="category in Object.keys(shortcutGroups)"
@@ -27,8 +27,8 @@
           class="px-4 py-3 text-sm font-medium transition-colors relative"
           :class="[
             currentPill === category
-              ? 'text-indigo-600 dark:text-indigo-400'
-              : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-300',
+              ? 'text-primary dark:text-primary'
+              : 'text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground',
           ]"
           @click="handleTabChange(category, $event.target as HTMLElement)"
         >
@@ -54,9 +54,9 @@
             <div
               v-for="(shortcut, key) in group"
               :key="key"
-              class="flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-gray-100 dark:hover:bg-gray-800/50"
+              class="flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-muted dark:hover:bg-background/50"
             >
-              <span class="text-sm text-gray-700 dark:text-gray-400">
+              <span class="text-sm text-foreground dark:text-muted-foreground">
                 {{ shortcut.description }}
               </span>
 
@@ -68,19 +68,19 @@
                     class="inline-flex items-center"
                   >
                     <kbd
-                      class="px-2 py-1 text-xs font-medium bg-white dark:bg-gray-800 text-primary dark:text-primary-light rounded border border-gray-200 dark:border-gray-700 shadow-sm"
+                      class="px-2 py-1 text-xs font-medium bg-background dark:bg-background text-primary dark:text-primary-light rounded border border-border dark:border-border shadow-sm"
                     >
                       {{ part }}
                     </kbd>
                     <span
                       v-if="index < key.split('+').length - 1"
-                      class="text-gray-400 dark:text-gray-500"
+                      class="text-muted-foreground dark:text-muted-foreground"
                     >+</span>
                   </div>
                 </template>
                 <kbd
                   v-else
-                  class="px-2 py-1 text-xs font-medium bg-white dark:bg-gray-800 text-primary dark:text-primary-light rounded border border-gray-200 dark:border-gray-700 shadow-sm"
+                  class="px-2 py-1 text-xs font-medium bg-background dark:bg-background text-primary dark:text-primary-light rounded border border-border dark:border-border shadow-sm"
                 >
                   {{ key }}
                 </kbd>

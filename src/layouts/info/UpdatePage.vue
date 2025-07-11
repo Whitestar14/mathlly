@@ -4,7 +4,7 @@
     :show-footer="true"
   >
     <!-- Hero Section -->
-    <section class="mb-12 pattern-grid overflow-hidden bg-gradient-to-b from-indigo-50/20 to-white dark:from-gray-900 dark:to-gray-800/80">
+    <section class="mb-12 pattern-grid overflow-hidden bg-gradient-to-b from-primary/5 to-background">
       <div class="container mx-auto px-4 pt-20 pb-16 md:py-24 relative">
         <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
           <div class="w-full md:w-2/3 flex justify-center flex-col text-center md:text-left space-y-6">
@@ -25,17 +25,17 @@
               v-motion
               :initial="{ opacity: 0, y: 20 }"
               :enter="{ opacity: 1, y: 0, transition: { delay: 0.3 } }"
-              class="text-4xl md:text-5xl lg:text-6xl font-mono font-bold tracking-tight"
+              class="text-4xl md:text-5xl lg:text-6xl font-mono font-bold tracking-tight text-foreground"
             >
               What's New in Mathlly
-              <span class="block text-indigo-600 dark:text-indigo-400 mt-2">Continuous improvements</span>
+              <span class="block text-primary mt-2">Continuous improvements</span>
             </h1>
 
             <p
               v-motion
               :initial="{ opacity: 0, y: 20 }"
               :enter="{ opacity: 1, y: 0, transition: { delay: 0.4 } }"
-              class="text-base md:text-lg text-gray-600 dark:text-gray-300 max-w-lg self-center md:self-start"
+              class="text-base md:text-lg text-muted-foreground max-w-lg self-center md:self-start"
             >
               We're constantly working to make Mathlly better. Check out our latest updates and upcoming features.
             </p>
@@ -51,7 +51,7 @@
               <BaseMedia
                 size="lg"
                 type="svg"
-                class="relative hidden md:block fill-indigo-500 dark:fill-indigo-400 scale-150 md:scale-[2.5] lg:scale-[3.5]"
+                class="relative hidden md:block fill-primary scale-150 md:scale-[2.5] lg:scale-[3.5]"
                 :svg-path="'/icons/sparkles.svg'"
               />
             </div>
@@ -65,13 +65,13 @@
       <div class="flex items-center justify-between mb-8">
         <div class="flex items-center">
           <div class="relative flex items-center">
-            <div class="h-10 w-10 flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 rounded-full z-5">
-              <HistoryIcon class="h-5 w-5 text-indigo-500 dark:text-indigo-400" />
+            <div class="h-10 w-10 flex items-center justify-center bg-primary rounded-full z-5">
+              <HistoryIcon class="h-5 w-5 text-primary-foreground" />
             </div>
             <!-- This connects to the timeline line -->
-            <div class="absolute left-5 top-10 bottom-0 w-px h-12 bg-indigo-200 dark:bg-indigo-800/50" />
+            <div class="absolute left-5 top-10 bottom-0 w-px h-12 bg-primary" />
           </div>
-          <h3 class="text-xl font-medium tracking-tight ml-3">
+          <h3 class="text-xl font-medium tracking-tight ml-3 text-foreground">
             Release History
           </h3>
         </div>
@@ -90,7 +90,7 @@
       
       <!-- Timeline Line -->
       <div class="relative">
-        <div class="absolute left-0 top-0 bottom-0 w-px bg-indigo-200 dark:bg-indigo-800/50 ml-5" />
+        <div class="absolute left-0 top-0 bottom-0 w-px bg-primary ml-5" />
         
         <div class="grid gap-8 pl-10">
           <div
@@ -99,8 +99,8 @@
             class="relative"
           >
             <!-- Timeline dot -->
-            <div class="absolute -left-7 top-6 h-4 w-4 bg-indigo-400 dark:bg-indigo-500 rounded-full z-5 border-4 border-white dark:border-gray-900" />
-            
+            <div class="absolute -left-7 top-6 h-4 w-4 bg-primary rounded-full z-5 border-4 border-background" />
+
             <UpdateCard
               :version="update.version"
               :date="update.date"

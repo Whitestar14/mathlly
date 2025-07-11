@@ -1,6 +1,6 @@
 <template>
   <div class="flex-grow h-full relative overflow-hidden">
-    <div class="text-right text-xl font-bold font-mono text-gray-700 dark:text-gray-200">
+    <div class="text-right text-xl font-bold font-mono text-foreground dark:text-foreground">
       <!-- Result container with hardware acceleration -->
       <div
         ref="resultContainer"
@@ -50,7 +50,7 @@
         <div
           v-if="preview && !error"
           ref="previewContainer"
-          class="font-medium text-gray-700/75 dark:text-gray-300/75 overflow-x-auto whitespace-nowrap scrollbar-hide"
+          class="font-medium text-foreground/75 dark:text-muted-foreground/75 overflow-x-auto whitespace-nowrap scrollbar-hide"
           aria-live="polite"
           aria-atomic="true"
         >
@@ -58,7 +58,7 @@
         </div>
         <div
           v-else-if="error"
-          class="font-medium text-red-500 overflow-x-auto whitespace-nowrap scrollbar-hide"
+          class="font-medium text-destructive overflow-x-auto whitespace-nowrap scrollbar-hide"
           aria-live="assertive"
           aria-atomic="true"
         >
@@ -207,7 +207,7 @@ function getTokenClass(token: Token): string {
     }
     // Constants get special treatment
     if (token.content === 'π' || token.content === 'e') {
-      return `${baseClass} font-bold text-indigo-600 dark:text-indigo-400`
+      return `${baseClass} font-bold text-primary dark:text-primary`
     }
   }
   
@@ -283,7 +283,7 @@ const displayClass: ComputedRef<string[]> = computed(() => [
 ])
 
 const errorClass: ComputedRef<string> = computed(() => 
-  props.error ? 'text-red-500 dark:text-red-400' : 'transition-colors'
+  props.error ? 'text-destructive dark:text-destructive' : 'transition-colors'
 )
 
 function updateScrollState(): void {

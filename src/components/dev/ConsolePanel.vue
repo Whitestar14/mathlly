@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center">
-        <span class="text-xs text-gray-500 dark:text-gray-400">{{ logs.length }}</span>
+        <span class="text-xs text-muted-foreground dark:text-muted-foreground">{{ logs.length }}</span>
       </div>
       
       <div class="flex items-center gap-2">
@@ -24,7 +24,7 @@
           <div class="flex items-center gap-1.5">
             <div 
               v-if="isCapturing"
-              class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"
+              class="w-1.5 h-1.5 bg-background rounded-full animate-pulse"
             />
             <PlayIcon
               v-else
@@ -39,16 +39,16 @@
     <!-- Console Display -->
     <div 
       ref="logContainer"
-      class="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+      class="flex-1 bg-background dark:bg-background border border-border dark:border-border rounded-lg overflow-hidden"
     >
       <div class="h-full overflow-y-auto p-3 font-mono text-xs">
         <!-- Log entries -->
         <div
           v-for="(log, index) in logs"
           :key="index"
-          class="flex items-start gap-2 py-1 hover:bg-gray-50 dark:hover:bg-gray-800/50 -mx-1 px-1 rounded group"
+          class="flex items-start gap-2 py-1 hover:bg-muted dark:hover:bg-background/50 -mx-1 px-1 rounded group"
         >
-          <span class="text-gray-400 dark:text-gray-500 text-xs shrink-0 w-16">
+          <span class="text-muted-foreground dark:text-muted-foreground text-xs shrink-0 w-16">
             {{ formatTime(log.timestamp) }}
           </span>
           
@@ -59,7 +59,7 @@
             {{ log.level }}
           </span>
           
-          <span class="flex-1 text-gray-800 dark:text-gray-200 leading-relaxed">
+          <span class="flex-1 text-foreground dark:text-foreground leading-relaxed">
             {{ log.message }}
           </span>
           
@@ -76,7 +76,7 @@
         <!-- Empty state -->
         <div
           v-if="logs.length === 0"
-          class="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400"
+          class="flex flex-col items-center justify-center h-full text-muted-foreground dark:text-muted-foreground"
         >
           <TerminalIcon class="h-8 w-8 mb-3 opacity-40" />
           <p class="text-sm">
@@ -87,7 +87,7 @@
     </div>
 
     <!-- Test Controls -->
-    <div class="sticky bottom-0 bg-white dark:bg-gray-700 mt-4 p-2 border-t border-gray-200 dark:border-gray-700">
+    <div class="sticky bottom-0 bg-background dark:bg-muted mt-4 p-2 border-t border-border dark:border-border">
       <div class="flex items-center justify-between">
         <div class="flex gap-1">
           <BaseButton
@@ -104,7 +104,7 @@
           </BaseButton>
         </div>
         
-        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+        <div class="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
           <span v-if="logs.length > 0">{{ getStats() }}</span>
           <BaseButton
             v-if="logs.length > 5"
@@ -219,17 +219,17 @@ const formatTime = (timestamp: string) => {
 
 const getLevelColor = (level: LogLevel) => {
   const colors = {
-    log: 'text-gray-600 dark:text-gray-400',
+    log: 'text-muted-foreground dark:text-muted-foreground',
     info: 'text-blue-600 dark:text-blue-400',
     warn: 'text-yellow-600 dark:text-yellow-400',
-    error: 'text-red-600 dark:text-red-400'
+    error: 'text-destructive dark:text-destructive'
   }
   return colors[level]
 }
 
 const getLevelButtonStyle = (level: LogLevel) => {
   const styles = {
-    log: 'hover:border-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
+    log: 'hover:border-border hover:text-foreground dark:hover:text-muted-foreground',
     info: 'hover:border-blue-400 hover:text-blue-700 dark:hover:text-blue-300',
     warn: 'hover:border-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300',
     error: 'hover:border-red-400 hover:text-red-700 dark:hover:text-red-300'

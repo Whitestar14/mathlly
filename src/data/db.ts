@@ -35,9 +35,10 @@ export interface Settings {
   }
   appearance: {
     theme: string
-    themePack: string // Add theme pack support
+    themePack: string
     animationDisabled: boolean
     checkForUpdates: boolean
+    borderRadius: string
   }
   startup: {
     navigation: string
@@ -93,9 +94,10 @@ export class MathllyDatabase extends Dexie {
             },
             appearance: {
               theme: settings.theme || 'system',
-              themePack: settings.themePack || 'classic',
+              themePack: settings.themePack || 'mira',
               animationDisabled: settings.animationDisabled || false,
               checkForUpdates: settings.checkForUpdates ?? true,
+              borderRadius: settings.borderRadius || 'sharp',
             },
             startup: {
               navigation: settings.navigation || 'last-visited',
@@ -138,9 +140,10 @@ export class MathllyDatabase extends Dexie {
             },
             appearance: {
               theme: settings.theme,
-              themePack: 'classic', // Default for migration
+              themePack: 'mira',
               animationDisabled: settings.animationDisabled,
               checkForUpdates: settings.checkForUpdates,
+              borderRadius: settings.borderRadius || 'sharp',
             },
             startup: {
               navigation: settings.navigation,

@@ -7,7 +7,7 @@
     <Transition name="backdrop">
       <DialogOverlay
         v-if="open"
-        class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        class="rounded-lg fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
         @click="closeModal"
       />
     </Transition>
@@ -28,7 +28,7 @@
       >
         <DialogContent
           :class="[
-            'relative flex flex-col bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800 w-full max-h-[90vh]',
+            'relative flex flex-col bg-background dark:bg-background rounded-xl shadow-2xl border border-border dark:border-border w-full max-h-[90vh]',
             sizeClasses
           ]"
           :aria-labelledby="titleId"
@@ -37,7 +37,7 @@
           @click.stop
         >
           <!-- Sticky Header -->
-          <div class="sticky top-0 z-10 flex-shrink-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 rounded-t-xl">
+          <div class="sticky top-0 z-10 flex-shrink-0 bg-background dark:bg-background border-b border-border dark:border-border rounded-t-xl">
             <div class="flex items-center justify-between p-3 pb-2">
               <!-- Title Section -->
               <div
@@ -46,7 +46,7 @@
               >
                 <DialogTitle
                   as="h2"
-                  class="text-lg font-medium text-gray-900 dark:text-white leading-tight"
+                  class="text-lg font-medium text-foreground dark:text-foreground leading-tight"
                 >
                   <slot name="title">
                     {{ title }}
@@ -77,7 +77,7 @@
           <!-- Sticky Footer -->
           <div
             v-if="$slots.footer"
-            class="sticky bottom-0 z-10 flex-shrink-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 rounded-b-xl"
+            class="sticky bottom-0 z-10 flex-shrink-0 bg-background dark:bg-background border-t border-border dark:border-border rounded-b-xl"
           >
             <div class="p-6 pt-4">
               <slot name="footer" />
@@ -271,10 +271,5 @@ useEventListener(document, 'keydown', handleEscapeKey, {
   .pt-4 {
     @apply pt-3;
   }
-}
-
-/* Prevent content from jumping when scrollbar appears */
-.overflow-y-auto {
-  scrollbar-gutter: stable;
 }
 </style>

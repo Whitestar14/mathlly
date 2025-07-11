@@ -21,7 +21,8 @@
     "migrate-styles:check": "node scripts/pre-migration-check.js",
     "migrate-styles:validate": "node scripts/post-migration-validation.js",
     "migrate-styles:restore": "node scripts/restore-backups.js",
-    "migrate-styles:clean-backups": "find src -name '*.backup' -delete"
+    "migrate-styles:clean-backups": "find src -name '*.backup' -delete",
+    "migrate-styles:fix-remaining": "node scripts/fix-remaining-patterns.js"
   },
   "dependencies": {
     "@vueuse/core": "^11.3.0",

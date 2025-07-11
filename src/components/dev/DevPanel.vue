@@ -1,17 +1,17 @@
 <template>
   <div 
-    class="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl overflow-hidden transition-all duration-200 hover:shadow-2xl"
+    class="bg-background/95 dark:bg-background/95 backdrop-blur-xl rounded-xl border border-border/50 dark:border-border/50 shadow-xl overflow-hidden transition-all duration-200 hover:shadow-2xl"
     :class="panelClasses"
   >
     <!-- Panel Header -->
-    <div class="flex items-center justify-between p-4 border-b border-gray-200/50 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-900/50">
-      <h3 class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+    <div class="flex items-center justify-between p-4 border-b border-border/50 dark:border-border/50 bg-muted/50 dark:bg-background/50">
+      <h3 class="text-sm font-semibold text-foreground dark:text-foreground flex items-center gap-2">
         <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
         {{ title }}
       </h3>
       <button
         v-if="showCloseButton"
-        class="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-200/50 dark:hover:bg-gray-700/50 transition-colors"
+        class="p-1.5 rounded-md text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground hover:bg-muted/50 dark:hover:bg-accent/50 transition-colors"
         @click="$emit('close')"
       >
         <XIcon class="h-4 w-4" />

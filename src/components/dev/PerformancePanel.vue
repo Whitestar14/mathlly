@@ -3,9 +3,9 @@
     <!-- Metrics Grid -->
     <div class="grid grid-cols-2 gap-3">
       <!-- Memory Usage -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
         <div class="flex items-center justify-between mb-1">
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Memory</span>
+          <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Memory</span>
           <BaseButton
             variant="ghost"
             size="icon"
@@ -16,10 +16,10 @@
           </BaseButton>
         </div>
         <div class="flex items-baseline gap-1">
-          <span class="text-lg font-mono font-semibold text-gray-900 dark:text-gray-100">{{ memoryUsage }}</span>
-          <span class="text-xs text-gray-500 dark:text-gray-400">MB</span>
+          <span class="text-lg font-mono font-semibold text-foreground dark:text-foreground">{{ memoryUsage }}</span>
+          <span class="text-xs text-muted-foreground dark:text-muted-foreground">MB</span>
         </div>
-        <div class="mt-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div class="mt-1 h-1 bg-muted dark:bg-muted rounded-full overflow-hidden">
           <div 
             class="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500"
             :style="{ width: `${Math.min((memoryUsage / 100) * 100, 100)}%` }"
@@ -28,9 +28,9 @@
       </div>
 
       <!-- FPS -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
         <div class="flex items-center justify-between mb-1">
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">FPS</span>
+          <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">FPS</span>
           <div class="flex items-center gap-1">
             <div 
               class="w-2 h-2 rounded-full"
@@ -47,10 +47,10 @@
           </div>
         </div>
         <div class="flex items-baseline gap-1">
-          <span class="text-lg font-mono font-semibold text-gray-900 dark:text-gray-100">{{ fps }}</span>
-          <span class="text-xs text-gray-500 dark:text-gray-400">fps</span>
+          <span class="text-lg font-mono font-semibold text-foreground dark:text-foreground">{{ fps }}</span>
+          <span class="text-xs text-muted-foreground dark:text-muted-foreground">fps</span>
         </div>
-        <div class="mt-1 h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+        <div class="mt-1 h-1 bg-muted dark:bg-muted rounded-full overflow-hidden">
           <div 
             class="h-full transition-all duration-500"
             :class="getFPSBarColor(fps)"
@@ -60,9 +60,9 @@
       </div>
 
       <!-- Load Time -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
         <div class="flex items-center justify-between mb-1">
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Load Time</span>
+          <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Load Time</span>
           <BaseButton
             variant="ghost"
             size="icon"
@@ -73,8 +73,8 @@
           </BaseButton>
         </div>
         <div class="flex items-baseline gap-1">
-          <span class="text-lg font-mono font-semibold text-gray-900 dark:text-gray-100">{{ loadTime }}</span>
-          <span class="text-xs text-gray-500 dark:text-gray-400">ms</span>
+          <span class="text-lg font-mono font-semibold text-foreground dark:text-foreground">{{ loadTime }}</span>
+          <span class="text-xs text-muted-foreground dark:text-muted-foreground">ms</span>
         </div>
         <div class="mt-1">
           <BaseBadge
@@ -86,9 +86,9 @@
       </div>
 
       <!-- DOM Nodes -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
         <div class="flex items-center justify-between mb-1">
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">DOM Nodes</span>
+          <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">DOM Nodes</span>
           <BaseButton
             variant="ghost"
             size="icon"
@@ -99,8 +99,8 @@
           </BaseButton>
         </div>
         <div class="flex items-baseline gap-1">
-          <span class="text-lg font-mono font-semibold text-gray-900 dark:text-gray-100">{{ domNodes.toLocaleString() }}</span>
-          <span class="text-xs text-gray-500 dark:text-gray-400">nodes</span>
+          <span class="text-lg font-mono font-semibold text-foreground dark:text-foreground">{{ domNodes.toLocaleString() }}</span>
+          <span class="text-xs text-muted-foreground dark:text-muted-foreground">nodes</span>
         </div>
         <div class="mt-1">
           <BaseBadge
@@ -113,19 +113,19 @@
     </div>
     
     <!-- Performance Chart -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+    <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <div class="flex items-center justify-between mb-3">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">FPS History</span>
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">FPS History</span>
         <div class="flex items-center gap-1">
           <div
             v-if="isMonitoring"
             class="w-2 h-2 bg-green-500 rounded-full animate-pulse"
           />
-          <span class="text-xs text-gray-500 dark:text-gray-400">{{ fpsHistory.length }}/{{ maxHistoryPoints }}</span>
+          <span class="text-xs text-muted-foreground dark:text-muted-foreground">{{ fpsHistory.length }}/{{ maxHistoryPoints }}</span>
         </div>
       </div>
       
-      <div class="h-16 bg-gray-50 dark:bg-gray-800 rounded-md flex items-end justify-between p-2 gap-0.5">
+      <div class="h-16 bg-muted dark:bg-background rounded-md flex items-end justify-between p-2 gap-0.5">
         <div
           v-for="(point, index) in fpsHistory"
           :key="index"
@@ -137,7 +137,7 @@
         <!-- Empty state -->
         <div
           v-if="fpsHistory.length === 0"
-          class="flex flex-col items-center justify-center w-full h-full text-gray-400 dark:text-gray-500"
+          class="flex flex-col items-center justify-center w-full h-full text-muted-foreground dark:text-muted-foreground"
         >
           <ActivityIcon class="h-6 w-6 mb-1 opacity-50" />
           <span class="text-xs">No data yet</span>
@@ -146,24 +146,24 @@
     </div>
 
     <!-- Additional Metrics -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-      <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-2">System Info</span>
+    <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
+      <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-2">System Info</span>
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Viewport</span>
-          <span class="text-gray-900 dark:text-gray-100 font-mono">{{ viewportSize }}</span>
+          <span class="text-muted-foreground dark:text-muted-foreground block">Viewport</span>
+          <span class="text-foreground dark:text-foreground font-mono">{{ viewportSize }}</span>
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Device Pixel Ratio</span>
-          <span class="text-gray-900 dark:text-gray-100 font-mono">{{ devicePixelRatio }}</span>
+          <span class="text-muted-foreground dark:text-muted-foreground block">Device Pixel Ratio</span>
+          <span class="text-foreground dark:text-foreground font-mono">{{ devicePixelRatio }}</span>
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Connection</span>
-          <span class="text-gray-900 dark:text-gray-100">{{ connectionType }}</span>
+          <span class="text-muted-foreground dark:text-muted-foreground block">Connection</span>
+          <span class="text-foreground dark:text-foreground">{{ connectionType }}</span>
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Hardware Concurrency</span>
-          <span class="text-gray-900 dark:text-gray-100 font-mono">{{ hardwareConcurrency }}</span>
+          <span class="text-muted-foreground dark:text-muted-foreground block">Hardware Concurrency</span>
+          <span class="text-foreground dark:text-foreground font-mono">{{ hardwareConcurrency }}</span>
         </div>
       </div>
     </div>
@@ -191,7 +191,7 @@
           <div class="flex items-center">
             <div 
               v-if="isMonitoring"
-              class="w-2 h-2 bg-red-500 rounded-full mr-1.5 animate-pulse"
+              class="w-2 h-2 bg-destructive rounded-full mr-1.5 animate-pulse"
             />
             <PlayIcon
               v-else
@@ -214,7 +214,7 @@
     </div>
 
     <!-- Export Actions -->
-    <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+    <div class="pt-3 border-t border-border dark:border-border">
       <div class="flex gap-2">
         <BaseButton
           variant="ghost"
@@ -352,7 +352,7 @@ const clearMetrics = (): void => {
 const getFPSIndicatorColor = (fps: number): string => {
   if (fps >= 50) return 'bg-green-500'
   if (fps >= 30) return 'bg-yellow-500'
-  return 'bg-red-500'
+  return 'bg-destructive'
 }
 
 const getFPSBarColor = (fps: number): string => {

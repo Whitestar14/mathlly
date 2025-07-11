@@ -7,11 +7,10 @@
           flex justify-center items-center
            transition-all duration-200 ease-out px-3 py-1
            sm:text-sm sm:px-3 sm:py-2 sm:min-h-10
-           border border-gray-200/30 shadow-sm
-           focus:outline-none focus:ring-2 focus:ring-indigo-500/30
+           border border-border shadow-sm
+           focus-colors
            disabled:opacity-50 disabled:cursor-not-allowed 
-           disabled:hover:scale-100
-           dark:border-gray-700/30;
+           disabled:hover:scale-100;
     
     min-height: 2.5rem;
     height: 2rem;
@@ -32,13 +31,8 @@
   /* Mobile active states */
   @media (max-width: 767px) {
     .calc-btn:active {
-      background-color: rgb(243 244 246 / 0.9);
-      border-color: rgb(209 213 219 / 0.5);
-    }
-    
-    .dark .calc-btn:active {
-      background-color: rgb(55 65 81 / 0.9);
-      border-color: rgb(107 114 128 / 0.5);
+      background-color: hsl(var(--accent));
+      border-color: hsl(var(--border));
     }
   }
 
@@ -51,11 +45,7 @@
     .calc-btn:hover {
       transform: scale(1.02);
       box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      border-color: rgb(209 213 219 / 0.4);
-    }
-    
-    .dark .calc-btn:hover {
-      border-color: rgb(107 114 128 / 0.4);
+      border-color: hsl(var(--border));
     }
   }
 
@@ -85,107 +75,63 @@
     }
   }
 
-  /* Number buttons */
+  /* Number buttons - High contrast */
   .calc-number-btn {
-    @apply text-gray-900 dark:text-gray-100;
-    background-color: rgb(255 255 255 / 0.9);
-  }
-
-  .dark .calc-number-btn {
-    background-color: rgb(75 85 99 / 0.9);
+    @apply text-foreground bg-card border-border;
   }
 
   /* Mobile: solid backgrounds for better performance */
   @media (max-width: 767px) {
-    .calc-number-btn {
-      background-color: rgb(255 255 255);
-    }
-    
-    .dark .calc-number-btn {
-      background-color: rgb(75 85 99);
+    .calc-number-btn:active {
+      @apply bg-accent text-accent-foreground;
     }
   }
 
   /* Desktop hover effects */
   @media (hover: hover) and (pointer: fine) {
-    .calc-number-btn {
-      background-color: rgb(255 255 255 / 0.8);
-    }
-    
     .calc-number-btn:hover {
-      background-color: rgb(255 255 255 / 0.9);
-    }
-    
-    .dark .calc-number-btn {
-      background-color: rgb(75 85 99 / 0.8);
-    }
-    
-    .dark .calc-number-btn:hover {
-      background-color: rgb(107 114 128 / 0.9);
+      @apply bg-accent/50 text-accent-foreground;
     }
   }
 
-  /* Function buttons */
+  /* Function buttons - Medium contrast */
   .calc-function-btn {
-    @apply text-gray-700 dark:text-gray-200;
-    background-color: rgb(243 244 246);
+    @apply text-muted-foreground bg-muted border-border;
   }
 
-  .dark .calc-function-btn {
-    background-color: rgb(55 65 81);
+  @media (max-width: 767px) {
+    .calc-function-btn:active {
+      @apply bg-accent/70 text-accent-foreground;
+    }
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .calc-function-btn {
-      background-color: rgb(249 250 251 / 0.7);
-    }
-    
     .calc-function-btn:hover {
-      background-color: rgb(243 244 246 / 0.7);
-    }
-    
-    .dark .calc-function-btn {
-      background-color: rgb(55 65 81 / 0.7);
-    }
-    
-    .dark .calc-function-btn:hover {
-      background-color: rgb(75 85 99 / 0.7);
+      @apply bg-accent/30 text-foreground;
     }
   }
 
-  /* Operator buttons */
+  /* Operator buttons - High contrast primary */
   .calc-operator-btn {
-    @apply text-white;
-    background-color: rgb(99 102 241);
+    @apply text-primary-foreground bg-primary border-primary;
   }
 
-  .dark .calc-operator-btn {
-    background-color: rgb(107 114 128);
+  @media (max-width: 767px) {
+    .calc-operator-btn:active {
+      @apply bg-primary/90;
+    }
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .calc-operator-btn {
-      background-color: rgb(99 102 241 / 0.9);
-    }
-    
     .calc-operator-btn:hover {
-      background-color: rgb(79 70 229 / 0.9);
-    }
-    
-    .dark .calc-operator-btn {
-      background-color: rgb(107 114 128 / 0.9);
-    }
-    
-    .dark .calc-operator-btn:hover {
-      background-color: rgb(156 163 175 / 0.9);
+      @apply bg-primary/90;
     }
   }
 
   /* Memory buttons */
   .calc-memory-btn {
-    @apply text-xs md:text-sm font-medium font-mono tracking-wide text-gray-700 
-           bg-transparent p-2 border-0 shadow-none
-           dark:text-gray-300;
+    @apply text-xs md:text-sm font-medium font-mono tracking-wide 
+           text-muted-foreground bg-transparent p-2 border-0 shadow-none;
     
     min-height: 2rem;
   }
@@ -193,56 +139,27 @@
   /* Mobile active states for memory buttons */
   @media (max-width: 767px) {
     .calc-memory-btn:active {
-      background-color: rgb(229 231 235 / 0.6);
-    }
-    
-    .dark .calc-memory-btn:active {
-      background-color: rgb(55 65 81 / 0.6);
+      @apply bg-accent/20 text-accent-foreground;
     }
   }
 
   /* Desktop hover for memory buttons */
   @media (hover: hover) and (pointer: fine) {
     .calc-memory-btn:hover {
-      background-color: rgb(243 244 246 / 0.6);
-    }
-    
-    .dark .calc-memory-btn:hover {
-      background-color: rgb(55 65 81 / 0.6);
+      @apply bg-accent/20 text-foreground;
     }
   }
 
   /* Active state */
   .calc-active-btn,
   .active {
-    @apply text-white shadow-md;
-    background-color: rgb(99 102 241);
-  }
-
-  .dark .calc-active-btn,
-  .dark .active {
-    background-color: rgb(79 70 229);
+    @apply text-primary-foreground bg-primary shadow-md border-primary;
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .calc-active-btn,
-    .active {
-      background-color: rgb(99 102 241 / 0.9);
-    }
-    
     .calc-active-btn:hover,
     .active:hover {
-      background-color: rgb(79 70 229 / 0.9);
-    }
-    
-    .dark .calc-active-btn,
-    .dark .active {
-      background-color: rgb(79 70 229 / 0.9);
-    }
-    
-    .dark .calc-active-btn:hover,
-    .dark .active:hover {
-      background-color: rgb(99 102 241 / 0.9);
+      @apply bg-primary/90;
     }
   }
 
@@ -272,28 +189,18 @@
   .calc-dropdown-item {
     @apply text-sm font-medium rounded-lg
            flex items-center justify-center
-           text-gray-700 border border-gray-200/30
-           dark:text-gray-200 dark:border-gray-600/30
-           transition-colors duration-150 ease-out
-           focus:outline-none focus:ring-2 focus:ring-indigo-500/30;
+           text-muted-foreground bg-muted border border-border
+           focus-colors
+           transition-colors duration-150 ease-out;
     
     width: 3.5rem;
     height: 2.5rem;
-    background-color: rgb(243 244 246);
-  }
-
-  .dark .calc-dropdown-item {
-    background-color: rgb(55 65 81);
   }
 
   /* Mobile active states for dropdown items */
   @media (max-width: 767px) {
     .calc-dropdown-item:active {
-      background-color: rgb(229 231 235);
-    }
-    
-    .dark .calc-dropdown-item:active {
-      background-color: rgb(75 85 99);
+      @apply bg-accent text-accent-foreground;
     }
   }
 
@@ -308,21 +215,9 @@
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .calc-dropdown-item {
-      background-color: rgb(249 250 251 / 0.7);
-    }
-    
     .calc-dropdown-item:hover {
-      background-color: rgb(243 244 246 / 0.7);
+      @apply bg-accent/50 text-accent-foreground;
       transform: scale(1.05);
-    }
-    
-    .dark .calc-dropdown-item {
-      background-color: rgb(55 65 81 / 0.7);
-    }
-    
-    .dark .calc-dropdown-item:hover {
-      background-color: rgb(75 85 99 / 0.7);
     }
   }
 
@@ -330,28 +225,18 @@
   .calc-dropdown-item-small {
     @apply text-xs font-medium rounded-md
            flex items-center justify-center
-           text-gray-700 border border-gray-200/30
-           dark:text-gray-200 dark:border-gray-600/30
-           transition-colors duration-150 ease-out
-           focus:outline-none focus:ring-2 focus:ring-indigo-500/30;
+           text-muted-foreground bg-muted border border-border
+           focus-colors
+           transition-colors duration-150 ease-out;
     
     width: 2.5rem;
     height: 2rem;
-    background-color: rgb(243 244 246);
-  }
-
-  .dark .calc-dropdown-item-small {
-    background-color: rgb(55 65 81);
   }
 
   /* Mobile active states for small dropdown items */
   @media (max-width: 767px) {
     .calc-dropdown-item-small:active {
-      background-color: rgb(229 231 235);
-    }
-    
-    .dark .calc-dropdown-item-small:active {
-      background-color: rgb(75 85 99);
+      @apply bg-accent text-accent-foreground;
     }
   }
 
@@ -364,21 +249,9 @@
   }
 
   @media (hover: hover) and (pointer: fine) {
-    .calc-dropdown-item-small {
-      background-color: rgb(249 250 251 / 0.7);
-    }
-    
     .calc-dropdown-item-small:hover {
-      background-color: rgb(243 244 246 / 0.7);
+      @apply bg-accent/50 text-accent-foreground;
       transform: scale(1.1);
-    }
-    
-    .dark .calc-dropdown-item-small {
-      background-color: rgb(55 65 81 / 0.7);
-    }
-    
-    .dark .calc-dropdown-item-small:hover {
-      background-color: rgb(75 85 99 / 0.7);
     }
   }
 }

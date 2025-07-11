@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute will-change-transform rounded-full bg-indigo-500/80 dark:bg-indigo-400/80 transition-all duration-300 ease-in-out"
+    class="absolute will-change-transform rounded-full bg-primary/80 dark:bg-primary/80 transition-all duration-300 ease-in-out"
     :style="computedStyle"
   />
 </template>

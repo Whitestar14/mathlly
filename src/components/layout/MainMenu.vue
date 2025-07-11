@@ -18,7 +18,7 @@
               :href="link.url"
               target="_blank"
               rel="noopener noreferrer"
-              class="flex w-full items-center px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+              class="flex w-full items-center px-3 py-1.5 text-sm rounded-md transition-colors duration-200 hover:bg-accent/50 hover:text-accent-foreground text-muted-foreground"
             >
               <component
                 :is="link.icon"
@@ -46,7 +46,7 @@
             v-for="item of themeItems"
             :key="item.id"
             :value="item.id"
-            class="text-muted-foreground flex justify-center w-8 h-8 rounded-md transition-colors duration-150 outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 ring-ring data-[state=on]:bg-accent data-[state=on]:shadow-sm data-[state=on]:text-primary hover:bg-accent/50"
+            class="text-muted-foreground flex justify-center w-8 h-8 rounded-md transition-colors duration-200 outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 ring-ring data-[state=on]:bg-accent data-[state=on]:shadow-sm data-[state=on]:text-accent-foreground hover:bg-accent/50 hover:text-accent-foreground"
           >
             <component
               :is="item.icon"

@@ -5,14 +5,14 @@
   >
     <div
       ref="panelRef"
-      class="bg-white dark:bg-gray-900 fixed inset-x-0 bottom-0 overflow-hidden"
+      class="bg-background fixed inset-x-0 bottom-0 overflow-hidden"
       :class="mobilePanelClasses"
       :style="mobilePanelStyle"
     >
       <!-- Expand/Minimize Button -->
       <button
         v-if="!(maxHeightRatio === 1)"
-        class="absolute right-14 top-3.5 p-1.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        class="absolute right-14 top-3.5 p-1.5 rounded-full bg-muted dark:bg-background text-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-accent transition-colors"
         aria-label="Toggle panel expansion"
         @click="$emit('toggle')"
       >
@@ -33,7 +33,7 @@
         :class="handleClasses"
         aria-label="Drag handle to resize panel"
       >
-        <div class="w-10 h-1 pb-1 rounded-full bg-gray-300 dark:bg-gray-600" />
+        <div class="w-10 h-1 pb-1 rounded-full bg-muted dark:bg-muted" />
       </div>
 
       <div

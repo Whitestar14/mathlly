@@ -7,9 +7,9 @@
           content: isDockOpen ? 'Close Developer Tools' : `Developer Tools${activePanelCount > 0 ? ` (${activePanelCount} active)` : ''}`,
           placement: 'top'
         }"
-        class="group relative bg-gray-900/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-700/50 shadow-2xl p-3 transition-all duration-300"
+        class="group relative bg-background/95 dark:bg-background/95 backdrop-blur-xl border border-border/50 shadow-2xl p-3 transition-all duration-300"
         :class="{ 
-          'bg-indigo-600/90 border-indigo-500/50': isDockOpen,
+          'bg-primary/90 border-primary/50': isDockOpen,
           'rounded-xl': !isDockOpen,
           'rounded-l-xl rounded-r-none': isDockOpen,
           'hover:scale-110 active:scale-95': !isDockOpen
@@ -17,7 +17,7 @@
         @click="$emit('toggleDock')"
       >
         <CodeIcon 
-          class="h-5 w-5 text-white transition-transform duration-300"
+          class="h-5 w-5 text-foreground transition-transform duration-300"
           :class="{ 'rotate-180': isDockOpen }"
         />
       </button>
@@ -25,7 +25,7 @@
       <!-- Active Panel Count Indicator (Fixed positioning) -->
       <div
         v-if="activePanelCount > 0 && !isDockOpen"
-        class="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-indigo-500 text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-gray-900"
+        class="absolute -top-2 -right-2 min-w-[18px] h-[18px] bg-primary text-foreground text-xs font-bold rounded-full flex items-center justify-center border-2 border-border"
       >
         {{ activePanelCount }}
       </div>
@@ -41,7 +41,7 @@
       >
         <div
           v-if="isDockOpen"
-          class="bg-gray-900/95 dark:bg-gray-800/95 backdrop-blur-xl rounded-r-xl border border-gray-700/50 border-l-0 shadow-2xl origin-left"
+          class="bg-background/95 dark:bg-background/95 backdrop-blur-xl rounded-r-xl border border-border/50 border-l-0 shadow-2xl origin-left"
         >
           <HorizontalDockToolbar
             :tools="tools"

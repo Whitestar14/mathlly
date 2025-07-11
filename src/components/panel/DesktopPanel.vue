@@ -1,7 +1,7 @@
 <template>
   <div
     v-show="true"
-    class="relative md:flex h-full flex-col flex-auto overflow-hidden hidden transition-[width] duration-300 ease-in-out bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+    class="relative md:flex h-full flex-col flex-auto overflow-hidden hidden transition-[width] duration-300 ease-in-out bg-background dark:bg-background border-border dark:border-border"
     :class="[
       isOpen ? 'w-64' : 'w-10',
       position === 'left' ? 'border-l' : 'border-r',
@@ -57,7 +57,7 @@
       @click="$emit('toggle')"
     >
       <ArrowRightToLine
-        class="h-4 w-4 text-gray-700 dark:text-gray-300 transition-transform duration-300"
+        class="h-4 w-4 text-foreground dark:text-muted-foreground transition-transform duration-300"
         :class="{ 
           'rotate-180': position === 'left' ? isOpen : !isOpen 
         }"

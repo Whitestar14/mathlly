@@ -5,7 +5,7 @@
     </ContextMenuTrigger>
     <ContextMenuPortal>
       <ContextMenuContent
-        class="z-20 min-w-[180px] bg-white dark:bg-gray-800 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 p-1 shadow-md context-menu-content"
+        class="z-20 min-w-[180px] bg-background dark:bg-background rounded-lg overflow-hidden border border-border dark:border-border p-1 shadow-md context-menu-content"
         :side-offset="sideOffset"
         :align="align"
         :animation-duration="animationDuration"
@@ -46,11 +46,11 @@ defineProps({
   @apply flex items-center text-sm w-full px-2.5 rounded-md py-1.5 cursor-pointer outline-none;
 }
 .context-menu-item {
-  @apply hover:bg-gray-100 dark:hover:bg-gray-700/30 text-gray-700 dark:text-gray-300;
+  @apply hover:bg-muted dark:hover:bg-accent/30 text-foreground dark:text-muted-foreground;
 }
 
 .context-menu-item-danger {
-  @apply hover:bg-red-100 dark:hover:bg-red-700/30 text-red-600 dark:text-red-400;
+  @apply hover:bg-red-100 dark:hover:bg-red-700/30 text-destructive dark:text-destructive;
 }
 
 /* Animation styles for the context menu */

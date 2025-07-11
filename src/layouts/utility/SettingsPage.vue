@@ -1,242 +1,452 @@
-<script setup>
-import { ref, onMounted, computed } from "vue"
-import { useRouter } from "vue-router"
-import { SearchIcon, CircleHelp, AlertTriangle, Palette, Sparkles } from "lucide-vue-next"
-import { filterByQuery } from "@/utils/misc/queryFilter"
-import { useSettingsStore, DEFAULT_SETTINGS } from "@/stores/settings.ts"
-import { useToast } from "@/composables/useToast"
-import { useTheme } from "@/composables/useTheme"
-import { cloneDeep } from "@/utils/misc/objectUtils.ts"
-import BasePage from "@/components/base/BasePage.vue"
-import BaseInput from "@/components/base/BaseInput.vue"
-import BaseModal from "@/components/base/BaseModal.vue"
-import Select from "@/components/ui/SelectBar.vue"
-import Switch from "@/components/ui/ToggleBar.vue"
-import Button from "@/components/base/BaseButton.vue"
-import Collapsible from '@/components/base/BaseCollapsible.vue'
-import { RadioGroupRoot, RadioGroupItem } from 'radix-vue'
-import { resetDatabase } from "@/data/db"
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue';
+import { useRouter } from 'vue-router';
+import {
+  SearchIcon,
+  CircleHelp,
+  AlertTriangle,
+  Palette,
+  Sparkles,
+} from 'lucide-vue-next';
+import { filterByQuery } from '@/utils/misc/queryFilter';
+import { useSettingsStore, DEFAULT_SETTINGS } from '@/stores/settings';
+import { useToast } from '@/composables/useToast';
+import { useTheme } from '@/composables/useTheme';
+import { cloneDeep } from '@/utils/misc/objectUtils';
+import BasePage from '@/components/base/BasePage.vue';
+import BaseInput from '@/components/base/BaseInput.vue';
+import BaseModal from '@/components/base/BaseModal.vue';
+import Select from '@/components/ui/SelectBar.vue';
+import Switch from '@/components/ui/ToggleBar.vue';
+import Button from '@/components/base/BaseButton.vue';
+import Collapsible from '@/components/base/BaseCollapsible.vue';
+import { RadioGroupRoot, RadioGroupItem } from 'radix-vue';
+import { resetDatabase } from '@/data/db';
+import type { Settings } from '@/data/db';
+
+// Types
+interface SettingsManifestItem {
+  id: string;
+  title: string;
+  icon: string;
+  keywords: string[];
+}
+
+interface SelectOption {
+  value: string | number;
+  label: string;
+}
 
 defineOptions({
-  name: "SettingsPage"
-})
+  name: 'SettingsPage',
+});
 
-const router = useRouter()
-const settingsStore = useSettingsStore()
-const { toast } = useToast()
-const { themePackConfigs } = useTheme()
-const searchQuery = ref('')
-const showUnsavedChangesModal = ref(false)
-const showResetDatabaseModal = ref(false)
-const isResettingDatabase = ref(false)
+const router = useRouter();
+const settingsStore = useSettingsStore();
+const { toast } = useToast();
+const { themePackConfigs } = useTheme();
 
-const settingsManifest = [
-  { id: 'display', title: 'Display Settings', icon: 'MonitorIcon', keywords: ['precision', 'decimal places', 'fractions', 'syntax highlighting', 'number formatting', 'thousands separator', 'comma', 'binary', 'hexadecimal', 'octal', 'font', 'appearance', 'text size'] },
-  { id: 'calculator', title: 'Calculator Mode', icon: 'CalculatorIcon', keywords: ['mode', 'standard', 'programmer', 'scientific', 'default calculator'] },
-  { id: 'startup', title: 'Startup Preferences', icon: 'PowerIcon', keywords: ['launch', 'open page', 'initial screen', 'home', 'calculator page', 'last visited', 'boot'] },
-  { id: 'themes', title: 'Themes & Preferences', icon: 'PaletteIcon', keywords: ['color theme', 'appearance', 'light mode', 'dark mode', 'system theme', 'animations', 'disable transitions', 'visuals', 'text size', 'theme pack', 'classic', 'mira', 'vercel', 'shadcn'] },
-  { id: 'advanced', title: 'Advanced Settings', icon: 'SettingsIcon', keywords: ['reset', 'database', 'clear', 'troubleshoot', 'fix', 'issues', 'problems', 'data', 'storage'] }
-]
+// Reactive state
+const searchQuery = ref<string>('');
+const showUnsavedChangesModal = ref<boolean>(false);
+const showResetDatabaseModal = ref<boolean>(false);
+const isResettingDatabase = ref<boolean>(false);
+
+const settingsManifest: SettingsManifestItem[] = [
+  {
+    id: 'display',
+    title: 'Display Settings',
+    icon: 'MonitorIcon',
+    keywords: [
+      'precision',
+      'decimal places',
+      'fractions',
+      'syntax highlighting',
+      'number formatting',
+      'thousands separator',
+      'comma',
+      'binary',
+      'hexadecimal',
+      'octal',
+      'font',
+      'appearance',
+      'text size',
+    ],
+  },
+  {
+    id: 'calculator',
+    title: 'Calculator Mode',
+    icon: 'CalculatorIcon',
+    keywords: [
+      'mode',
+      'standard',
+      'programmer',
+      'scientific',
+      'default calculator',
+    ],
+  },
+  {
+    id: 'startup',
+    title: 'Startup Preferences',
+    icon: 'PowerIcon',
+    keywords: [
+      'launch',
+      'open page',
+      'initial screen',
+      'home',
+      'calculator page',
+      'last visited',
+      'boot',
+    ],
+  },
+  {
+    id: 'themes',
+    title: 'Themes & Preferences',
+    icon: 'PaletteIcon',
+    keywords: [
+      'color theme',
+      'appearance',
+      'light mode',
+      'dark mode',
+      'system theme',
+      'animations',
+      'disable transitions',
+      'visuals',
+      'text size',
+      'theme pack',
+      'classic',
+      'mira',
+      'vercel',
+      'shadcn',
+      'border radius',
+      'sharp',
+      'rounded',
+    ],
+  },
+  {
+    id: 'advanced',
+    title: 'Advanced Settings',
+    icon: 'SettingsIcon',
+    keywords: [
+      'reset',
+      'database',
+      'clear',
+      'troubleshoot',
+      'fix',
+      'issues',
+      'problems',
+      'data',
+      'storage',
+    ],
+  },
+];
+
+const getThemeVisualConfig = (packKey: string) => {
+  const configs = {
+    classic: {
+      colors: {
+        primary: 'bg-indigo-500 dark:bg-indigo-400',
+        secondary: 'bg-indigo-200 dark:bg-indigo-300',
+        accent: 'bg-indigo-50 dark:bg-indigo-950/50',
+        border: 'border-indigo-300 dark:border-indigo-600',
+        selectedBorder: 'border-indigo-500 dark:border-indigo-400',
+        selectedBg: 'bg-indigo-50/50 dark:bg-indigo-950/30',
+        selectedText: 'text-indigo-700 dark:text-indigo-300',
+        hoverBg: 'hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20',
+      },
+    },
+    mira: {
+      colors: {
+        primary: 'bg-zinc-700 dark:bg-zinc-400',
+        secondary: 'bg-zinc-300 dark:bg-zinc-500',
+        accent: 'bg-zinc-50 dark:bg-zinc-900/50',
+        border: 'border-zinc-300 dark:border-zinc-600',
+        selectedBorder: 'border-zinc-500 dark:border-zinc-400',
+        selectedBg: 'bg-zinc-50/50 dark:bg-zinc-900/30',
+        selectedText: 'text-zinc-700 dark:text-zinc-300',
+        hoverBg: 'hover:bg-zinc-50/30 dark:hover:bg-zinc-900/20',
+      },
+    },
+  };
+
+  return configs[packKey] || configs.classic;
+};
 
 const filteredManifest = computed(() =>
   filterByQuery(settingsManifest, searchQuery.value, ['title', 'keywords'])
-)
+);
 
-const isRendered = (sectionId) => {
-  return filteredManifest.value.some(section => section.id === sectionId)
-}
+const isRendered = (sectionId: string): boolean => {
+  return filteredManifest.value.some((section) => section.id === sectionId);
+};
 
 // Single source of truth - get settings directly from the store
-const localSettings = ref(cloneDeep(DEFAULT_SETTINGS))
+const localSettings = ref<Settings>(cloneDeep(DEFAULT_SETTINGS));
 
 // Create a snapshot of the current store state
 const storeSnapshot = computed(() => ({
   display: {
-    precision: settingsStore.display?.precision ?? DEFAULT_SETTINGS.display.precision,
-    useFractions: settingsStore.display?.useFractions ?? DEFAULT_SETTINGS.display.useFractions,
+    precision:
+      settingsStore.display?.precision ?? DEFAULT_SETTINGS.display.precision,
+    useFractions:
+      settingsStore.display?.useFractions ??
+      DEFAULT_SETTINGS.display.useFractions,
     formatting: {
-      useThousandsSeparator: settingsStore.display?.formatting?.useThousandsSeparator ?? DEFAULT_SETTINGS.display.formatting.useThousandsSeparator,
-      formatBinary: settingsStore.display?.formatting?.formatBinary ?? DEFAULT_SETTINGS.display.formatting.formatBinary,
-      formatHexadecimal: settingsStore.display?.formatting?.formatHexadecimal ?? DEFAULT_SETTINGS.display.formatting.formatHexadecimal,
-      formatOctal: settingsStore.display?.formatting?.formatOctal ?? DEFAULT_SETTINGS.display.formatting.formatOctal,
+      useThousandsSeparator:
+        settingsStore.display?.formatting?.useThousandsSeparator ??
+        DEFAULT_SETTINGS.display.formatting.useThousandsSeparator,
+      formatBinary:
+        settingsStore.display?.formatting?.formatBinary ??
+        DEFAULT_SETTINGS.display.formatting.formatBinary,
+      formatHexadecimal:
+        settingsStore.display?.formatting?.formatHexadecimal ??
+        DEFAULT_SETTINGS.display.formatting.formatHexadecimal,
+      formatOctal:
+        settingsStore.display?.formatting?.formatOctal ??
+        DEFAULT_SETTINGS.display.formatting.formatOctal,
     },
-    syntaxHighlighting: settingsStore.display?.syntaxHighlighting ?? DEFAULT_SETTINGS.display.syntaxHighlighting,
-    textSize: settingsStore.display?.textSize ?? DEFAULT_SETTINGS.display.textSize
+    syntaxHighlighting:
+      settingsStore.display?.syntaxHighlighting ??
+      DEFAULT_SETTINGS.display.syntaxHighlighting,
+    textSize:
+      settingsStore.display?.textSize ?? DEFAULT_SETTINGS.display.textSize,
   },
   calculator: {
     mode: settingsStore.calculator?.mode ?? DEFAULT_SETTINGS.calculator.mode,
   },
   appearance: {
     theme: settingsStore.appearance?.theme ?? DEFAULT_SETTINGS.appearance.theme,
-    themePack: settingsStore.appearance?.themePack ?? DEFAULT_SETTINGS.appearance.themePack,
-    animationDisabled: settingsStore.appearance?.animationDisabled ?? DEFAULT_SETTINGS.appearance.animationDisabled,
-    checkForUpdates: settingsStore.appearance?.checkForUpdates ?? DEFAULT_SETTINGS.appearance.checkForUpdates,
+    themePack:
+      settingsStore.appearance?.themePack ??
+      DEFAULT_SETTINGS.appearance.themePack,
+    animationDisabled:
+      settingsStore.appearance?.animationDisabled ??
+      DEFAULT_SETTINGS.appearance.animationDisabled,
+    checkForUpdates:
+      settingsStore.appearance?.checkForUpdates ??
+      DEFAULT_SETTINGS.appearance.checkForUpdates,
+    borderRadius:
+      settingsStore.appearance?.borderRadius ??
+      DEFAULT_SETTINGS.appearance.borderRadius,
   },
   startup: {
-    navigation: settingsStore.startup?.navigation ?? DEFAULT_SETTINGS.startup.navigation,
-  }
-}))
+    navigation:
+      settingsStore.startup?.navigation ?? DEFAULT_SETTINGS.startup.navigation,
+  },
+}));
 
-const hasChanges = computed(() => {
+const hasChanges = computed((): boolean => {
   try {
-    return JSON.stringify(localSettings.value) !== JSON.stringify(storeSnapshot.value)
+    return (
+      JSON.stringify(localSettings.value) !==
+      JSON.stringify(storeSnapshot.value)
+    );
   } catch (error) {
-    console.error('Error comparing settings:', error)
-    return false
+    console.error('Error comparing settings:', error);
+    return false;
   }
-})
+});
 
-const precisionOptions = Array.from({ length: 11 }, (_, i) => ({ value: i, label: i.toString() }))
-const modeOptions = [
-  { value: "Standard", label: "Standard" },
-  { value: "Scientific", label: "Scientific" },
-  { value: "Programmer", label: "Programmer" }
-]
-const themeOptions = [
-  { value: "light", label: "Light" },
-  { value: "dark", label: "Dark" },
-  { value: "system", label: "System" }
-]
-const themePackOptions = [
-  { value: "classic", label: "Classic" },
-  { value: "mira", label: "Mira" }
-]
-const startupOptions = [
+// Options arrays with proper typing
+const precisionOptions: SelectOption[] = Array.from({ length: 11 }, (_, i) => ({
+  value: i,
+  label: i.toString(),
+}));
+
+const modeOptions: SelectOption[] = [
+  { value: 'Standard', label: 'Standard' },
+  { value: 'Scientific', label: 'Scientific' },
+  { value: 'Programmer', label: 'Programmer' },
+];
+
+const themeOptions: SelectOption[] = [
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+  { value: 'system', label: 'System' },
+];
+
+const themePackOptions: SelectOption[] = [
+  { value: 'classic', label: 'Classic' },
+  { value: 'mira', label: 'Mira' },
+];
+
+const startupOptions: SelectOption[] = [
   { value: 'home', label: 'Home' },
   { value: 'calculator', label: 'Calculator Page' },
-  { value: 'last-visited', label: 'Last Visited Page' }
-]
-const textSizeOptions = [
+  { value: 'last-visited', label: 'Last Visited Page' },
+];
+
+const textSizeOptions: SelectOption[] = [
   { value: 'small', label: 'Small' },
   { value: 'normal', label: 'Normal' },
   { value: 'medium', label: 'Medium' },
-  { value: 'large', label: 'Large' }
-]
+  { value: 'large', label: 'Large' },
+];
 
-onMounted(async () => {
+const borderRadiusOptions: SelectOption[] = [
+  { value: 'sharp', label: 'Sharp' },
+  { value: 'rounded', label: 'Rounded' },
+];
+
+onMounted(async (): Promise<void> => {
   try {
-    await settingsStore.loadSettings()
-    localSettings.value = cloneDeep(storeSnapshot.value)
+    await settingsStore.loadSettings();
+    localSettings.value = cloneDeep(storeSnapshot.value);
   } catch (error) {
-    console.error('Error loading settings:', error)
+    console.error('Error loading settings:', error);
     toast({
-      type: "error",
-      title: "Error loading settings",
-      description: "Using default settings."
-    })
+      type: 'error',
+      title: 'Error loading settings',
+      description: 'Using default settings.',
+    });
   }
-})
+});
 
-const goBack = () => {
+const goBack = (): void => {
   if (hasChanges.value) {
-    showUnsavedChangesModal.value = true
+    showUnsavedChangesModal.value = true;
   } else {
-    router.go(-1)
+    router.go(-1);
   }
-}
+};
 
-const confirmNavigation = () => {
-  showUnsavedChangesModal.value = false
-  router.go(-1)
-}
+const confirmNavigation = (): void => {
+  showUnsavedChangesModal.value = false;
+  router.go(-1);
+};
 
-const cancelNavigation = () => {
-  showUnsavedChangesModal.value = false
-}
+const cancelNavigation = (): void => {
+  showUnsavedChangesModal.value = false;
+};
 
-const saveSettings = async () => {
+const saveSettings = async (): Promise<void> => {
   if (!hasChanges.value) {
-    toast({ title: "No changes", message: "There are no changes to save.", type: "info" })
-    return
+    toast({
+      title: 'No changes',
+      message: 'There are no changes to save.',
+      type: 'info',
+    });
+    return;
   }
 
   try {
-    await settingsStore.saveSettings(localSettings.value)
+    await settingsStore.saveSettings(localSettings.value);
 
     toast({
-      type: "success",
-      title: "Settings saved",
-      description: "Your preferences have been updated successfully."
-    })
+      type: 'success',
+      title: 'Settings saved',
+      description: 'Your preferences have been updated successfully.',
+    });
 
-    localSettings.value = cloneDeep(storeSnapshot.value)
-    router.go(-1)
+    localSettings.value = cloneDeep(storeSnapshot.value);
+    router.go(-1);
   } catch (error) {
     toast({
-      type: "error",
-      title: "Error saving settings",
-      description: "There was a problem saving your preferences."
-    })
-    console.error("Error saving settings:", error)
+      type: 'error',
+      title: 'Error saving settings',
+      description: 'There was a problem saving your preferences.',
+    });
+    console.error('Error saving settings:', error);
   }
-}
+};
 
-const showResetConfirmation = () => {
-  showResetDatabaseModal.value = true
-}
+const showResetConfirmation = (): void => {
+  showResetDatabaseModal.value = true;
+};
 
-const handleResetDatabase = async () => {
-  isResettingDatabase.value = true
+const handleResetDatabase = async (): Promise<void> => {
+  isResettingDatabase.value = true;
 
   try {
-    const success = await resetDatabase()
+    const success = await resetDatabase();
 
-    if (!success) throw new Error("Failed to reset database")
+    if (!success) throw new Error('Failed to reset database');
   } catch (error) {
-    isResettingDatabase.value = false
-    showResetDatabaseModal.value = false
+    isResettingDatabase.value = false;
+    showResetDatabaseModal.value = false;
 
     toast({
-      type: "error",
-      title: "Reset Failed",
-      description: "There was a problem resetting your database. Please try again."
-    })
+      type: 'error',
+      title: 'Reset Failed',
+      description:
+        'There was a problem resetting your database. Please try again.',
+    });
 
-    console.error("Error resetting database:", error)
+    console.error('Error resetting database:', error);
   }
-}
+};
 
-const cancelResetDatabase = () => {
-  showResetDatabaseModal.value = false
-}
+const cancelResetDatabase = (): void => {
+  showResetDatabaseModal.value = false;
+};
 </script>
 
 <template>
   <div>
     <BasePage title="Settings">
       <div class="space-y-8 mx-auto max-w-4xl">
-        <div class="flex flex-col sm:flex-row justify-end items-start sm:items-center mb-6">
+        <div
+          class="flex flex-col sm:flex-row justify-end items-start sm:items-center mb-6"
+        >
           <div class="relative w-full sm:w-64">
-            <BaseInput v-model="searchQuery" placeholder="Search settings..." :icon="SearchIcon" :autofocus="true"
-              aria-label="Search settings" />
+            <BaseInput
+              v-model="searchQuery"
+              placeholder="Search settings..."
+              :icon="SearchIcon"
+              :autofocus="true"
+              aria-label="Search settings"
+            />
           </div>
         </div>
 
-        <Collapsible v-if="isRendered('display')" id="display" title="Display Settings" icon="Monitor"
-          :default-open="true">
+        <Collapsible
+          v-if="isRendered('display')"
+          id="display"
+          title="Display Settings"
+          icon="Monitor"
+          :default-open="true"
+        >
           <div class="space-y-6">
             <div class="space-y-4">
               <div>
-                <label for="precision" class="text-sm font-medium text-foreground mb-1.5 block">Precision</label>
-                <Select v-model="localSettings.display.precision" :options="precisionOptions" />
+                <label
+                  for="precision"
+                  class="text-sm font-medium text-foreground mb-1.5 block"
+                  >Precision</label
+                >
+                <Select
+                  v-model="localSettings.display.precision"
+                  :options="precisionOptions"
+                />
                 <p class="mt-1 text-xs text-muted-foreground">
-                  Set the number of decimal places to display in calculation results
+                  Set the number of decimal places to display in calculation
+                  results
                 </p>
               </div>
 
               <div>
-                <label for="textSize" class="text-sm font-medium text-foreground mb-1.5 block">Text Size</label>
+                <label
+                  for="textSize"
+                  class="text-sm font-medium text-foreground mb-1.5 block"
+                  >Text Size</label
+                >
                 <div class="mt-2">
-                  <RadioGroupRoot v-model="localSettings.display.textSize"
-                    class="inline-flex items-center rounded-md bg-muted p-1">
+                  <RadioGroupRoot
+                    v-model="localSettings.display.textSize"
+                    class="inline-flex items-center rounded-md bg-muted p-1"
+                  >
                     <div class="flex space-x-1">
-                      <RadioGroupItem v-for="option in textSizeOptions" :key="option.value" :value="option.value"
+                      <RadioGroupItem
+                        v-for="option in textSizeOptions"
+                        :key="option.value"
+                        :value="option.value"
                         class="rounded-md px-3 py-1.5 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         :class="[
                           localSettings.display.textSize === option.value
                             ? 'bg-background shadow-sm text-foreground'
-                            : 'text-muted-foreground hover:text-foreground'
-                        ]">
+                            : 'text-muted-foreground hover:text-foreground',
+                        ]"
+                      >
                         {{ option.label }}
                       </RadioGroupItem>
                     </div>
@@ -249,7 +459,11 @@ const cancelResetDatabase = () => {
 
               <div class="flex items-center justify-between py-2">
                 <div class="max-w-[80%]">
-                  <label for="useFractions" class="text-sm font-medium text-foreground">Use Fractions</label>
+                  <label
+                    for="useFractions"
+                    class="text-sm font-medium text-foreground"
+                    >Use Fractions</label
+                  >
                   <p class="text-xs text-muted-foreground">
                     Display results as fractions when possible
                   </p>
@@ -260,14 +474,26 @@ const cancelResetDatabase = () => {
               <div class="flex items-center justify-between py-2">
                 <div class="max-w-[80%]">
                   <div class="flex items-center gap-2">
-                    <label for="syntaxHighlighting" class="text-sm font-medium text-foreground">Syntax
-                      Highlighting</label>
+                    <label
+                      for="syntaxHighlighting"
+                      class="text-sm font-medium text-foreground"
+                      >Syntax Highlighting</label
+                    >
                     <CircleHelp
-                      v-tippy="{ content: 'Experimental feature. Performance may be affected on complex calculations', placement: 'top', onShow() { return true } }"
-                      class="h-4 w-4 cursor-help" />
+                      v-tippy="{
+                        content:
+                          'Experimental feature. Performance may be affected on complex calculations',
+                        placement: 'top',
+                        onShow() {
+                          return true;
+                        },
+                      }"
+                      class="h-4 w-4 cursor-help"
+                    />
                   </div>
                   <p class="text-xs text-muted-foreground">
-                    Highlight numbers, operators, and functions with different colors
+                    Highlight numbers, operators, and functions with different
+                    colors
                   </p>
                 </div>
                 <Switch v-model="localSettings.display.syntaxHighlighting" />
@@ -279,32 +505,48 @@ const cancelResetDatabase = () => {
                 </h3>
                 <div class="flex items-center justify-between py-2">
                   <div class="max-w-[80%]">
-                    <label for="useThousandsSeparator" class="text-sm text-foreground">Use Thousands Separator</label>
+                    <label
+                      for="useThousandsSeparator"
+                      class="text-sm text-foreground"
+                      >Use Thousands Separator</label
+                    >
                     <p class="text-xs text-muted-foreground">
                       Add commas to separate thousands in large numbers
                     </p>
                   </div>
-                  <Switch v-model="localSettings.display.formatting.useThousandsSeparator" />
+                  <Switch
+                    v-model="
+                      localSettings.display.formatting.useThousandsSeparator
+                    "
+                  />
                 </div>
 
                 <div class="flex items-center justify-between py-2">
                   <div class="max-w-[80%]">
-                    <label class="text-sm text-foreground">Binary Numbers</label>
+                    <label class="text-sm text-foreground"
+                      >Binary Numbers</label
+                    >
                     <p class="text-xs text-muted-foreground">
                       Format binary numbers for better readability
                     </p>
                   </div>
-                  <Switch v-model="localSettings.display.formatting.formatBinary" />
+                  <Switch
+                    v-model="localSettings.display.formatting.formatBinary"
+                  />
                 </div>
 
                 <div class="flex items-center justify-between py-2">
                   <div class="max-w-[80%]">
-                    <label class="text-sm text-foreground">Hexadecimal Numbers</label>
+                    <label class="text-sm text-foreground"
+                      >Hexadecimal Numbers</label
+                    >
                     <p class="text-xs text-muted-foreground">
                       Format hexadecimal numbers for better readability
                     </p>
                   </div>
-                  <Switch v-model="localSettings.display.formatting.formatHexadecimal" />
+                  <Switch
+                    v-model="localSettings.display.formatting.formatHexadecimal"
+                  />
                 </div>
 
                 <div class="flex items-center justify-between py-2">
@@ -314,84 +556,215 @@ const cancelResetDatabase = () => {
                       Format octal numbers for better readability
                     </p>
                   </div>
-                  <Switch v-model="localSettings.display.formatting.formatOctal" />
+                  <Switch
+                    v-model="localSettings.display.formatting.formatOctal"
+                  />
                 </div>
               </div>
             </div>
           </div>
         </Collapsible>
 
-        <Collapsible v-if="isRendered('calculator')" id="calculator" title="Calculator Mode" icon="Calculator"
-          :default-open="true">
+        <Collapsible
+          v-if="isRendered('calculator')"
+          id="calculator"
+          title="Calculator Mode"
+          icon="Calculator"
+          :default-open="true"
+        >
           <div>
-            <label for="mode" class="text-sm font-medium text-foreground mb-1.5 block">Default Mode</label>
-            <Select v-model="localSettings.calculator.mode" :options="modeOptions" />
+            <label
+              for="mode"
+              class="text-sm font-medium text-foreground mb-1.5 block"
+              >Default Mode</label
+            >
+            <Select
+              v-model="localSettings.calculator.mode"
+              :options="modeOptions"
+            />
             <p class="mt-1 text-xs text-muted-foreground">
-              Choose which calculator mode to use by default when opening the app
+              Choose which calculator mode to use by default when opening the
+              app
             </p>
           </div>
         </Collapsible>
 
-        <Collapsible v-if="isRendered('startup')" id="startup" title="Startup Preferences" icon="Power"
-          :default-open="true">
+        <Collapsible
+          v-if="isRendered('startup')"
+          id="startup"
+          title="Startup Preferences"
+          icon="Power"
+          :default-open="true"
+        >
           <div>
-            <label for="startupNavigation" class="text-sm font-medium text-foreground mb-1.5 block">When app starts,
-              open:</label>
-            <Select v-model="localSettings.startup.navigation" :options="startupOptions" />
+            <label
+              for="startupNavigation"
+              class="text-sm font-medium text-foreground mb-1.5 block"
+              >When app starts, open:</label
+            >
+            <Select
+              v-model="localSettings.startup.navigation"
+              :options="startupOptions"
+            />
             <p class="text-xs text-muted-foreground mt-2">
               Choose which page to show when you first open the app
             </p>
           </div>
         </Collapsible>
 
-        <Collapsible v-if="isRendered('themes')" id="themes" title="Themes & Preferences" icon="Palette"
-          :default-open="true">
+        <Collapsible
+          v-if="isRendered('themes')"
+          id="themes"
+          title="Themes & Preferences"
+          icon="Palette"
+          :default-open="true"
+        >
           <div class="space-y-6">
             <!-- Theme Pack Selection -->
             <div>
-              <label for="themePack" class="text-sm font-medium text-foreground mb-1.5 block">Theme Pack</label>
-              <div class="space-y-3">
-                <RadioGroupRoot v-model="localSettings.appearance.themePack" class="space-y-2">
-                  <div v-for="pack in themePackOptions" :key="pack.value"
-                    class="flex items-start space-x-3 p-3 rounded-lg border border-border hover:bg-accent/50 transition-colors">
-                    <RadioGroupItem :value="pack.value"
-                      class="mt-1 h-4 w-4 rounded-full border border-primary text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground" />
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2">
-                        <component :is="pack.value === 'classic' ? Palette : Sparkles"
-                          class="h-4 w-4 text-muted-foreground" />
-                        <label class="text-sm font-medium text-foreground cursor-pointer">
-                          {{ pack.label }}
-                        </label>
+              <label class="text-sm font-medium text-foreground mb-3 block">
+                Choose a theme pack:
+              </label>
+
+              <div class="grid grid-cols-2 gap-4 mt-4">
+                <label
+                  v-for="(config, packKey) in themePackConfigs"
+                  :key="packKey"
+                  :for="`theme-${packKey}`"
+                  class="cursor-pointer group"
+                >
+                  <div
+                    class="relative p-4 rounded-xl border-2 transition-all duration-300 bg-background hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20"
+                    :class="[
+                      localSettings.appearance.themePack === packKey
+                        ? `${
+                            getThemeVisualConfig(packKey).colors.selectedBorder
+                          } ${
+                            getThemeVisualConfig(packKey).colors.selectedBg
+                          } shadow-sm dark:shadow-black/10`
+                        : `border-border ${
+                            getThemeVisualConfig(packKey).colors.hoverBg
+                          }`,
+                    ]"
+                  >
+                    <input
+                      :id="`theme-${packKey}`"
+                      v-model="localSettings.appearance.themePack"
+                      type="radio"
+                      :value="packKey"
+                      name="themePack"
+                      class="sr-only"
+                    />
+
+                    <!-- Theme Preview -->
+                    <div
+                      class="flex items-center justify-center mb-3 relative h-12"
+                    >
+                      <!-- Background pattern -->
+                      <div
+                        class="absolute inset-0 rounded-lg overflow-hidden"
+                        :class="getThemeVisualConfig(packKey).colors.accent"
+                      >
+                        <div
+                          class="absolute inset-0 opacity-20 bg-gradient-to-br from-transparent via-white dark:via-white/10 to-transparent"
+                        />
                       </div>
-                      <p class="text-xs text-muted-foreground mt-1">
-                        {{ themePackConfigs[pack.value]?.description || 'Theme pack description' }}
+
+                      <!-- Color circles -->
+                      <div class="relative flex items-center gap-2">
+                        <div
+                          class="h-4 w-4 rounded-full shadow-sm border border-white/20 dark:border-black/20"
+                          :class="
+                            getThemeVisualConfig(packKey).colors.secondary
+                          "
+                        />
+                        <div
+                          class="h-5 w-5 rounded-full shadow-md border-2 border-white dark:border-white/80"
+                          :class="getThemeVisualConfig(packKey).colors.primary"
+                        />
+                        <div
+                          class="h-3 w-3 rounded-full shadow-sm"
+                          :class="
+                            getThemeVisualConfig(packKey).colors.secondary
+                          "
+                        />
+                      </div>
+                    </div>
+
+                    <!-- Theme Info -->
+                    <div class="text-center">
+                      <h4 class="font-medium text-sm text-foreground mb-1">
+                        {{ config.name }}
+                      </h4>
+                      <p class="text-xs text-muted-foreground leading-relaxed">
+                        {{ config.description }}
                       </p>
                     </div>
+
+                    <!-- Selected Indicator -->
+                    <div
+                      v-if="localSettings.appearance.themePack === packKey"
+                      class="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-primary shadow-lg dark:shadow-black/30 flex items-center justify-center transform transition-transform duration-200"
+                    >
+                      <svg
+                        class="h-3 w-3 text-primary-foreground"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fill-rule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clip-rule="evenodd"
+                        />
+                      </svg>
+                    </div>
+
+                    <!-- Hover glow effect -->
+                    <div
+                      class="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none bg-gradient-to-r from-primary/5 dark:from-primary/10 via-transparent to-primary/5 dark:to-primary/10"
+                    />
                   </div>
-                </RadioGroupRoot>
+                </label>
               </div>
-              <p class="mt-2 text-xs text-muted-foreground">
-                Choose your preferred design system and color palette
-              </p>
             </div>
 
+            <!-- Rest of the settings remain the same -->
             <!-- Theme Mode Selection -->
             <div>
-              <label for="theme" class="text-sm font-medium text-foreground mb-1.5 block">Theme Mode</label>
-              <Select v-model="localSettings.appearance.theme" :options="themeOptions" />
+              <label
+                for="theme"
+                class="text-sm font-medium text-foreground mb-1.5 block"
+                >Theme Mode</label
+              >
+              <Select
+                v-model="localSettings.appearance.theme"
+                :options="themeOptions"
+              />
               <p class="mt-1 text-xs text-muted-foreground">
                 Choose your preferred color theme or follow system settings
               </p>
             </div>
 
+            <!-- Animation Toggle -->
             <div class="flex items-center justify-between py-2">
               <div class="max-w-[80%]">
                 <div class="flex items-center gap-2">
-                  <label for="animationDisabled" class="text-sm font-medium text-foreground">Disable Animation</label>
+                  <label
+                    for="animationDisabled"
+                    class="text-sm font-medium text-foreground"
+                    >Disable Animation</label
+                  >
                   <CircleHelp
-                    v-tippy="{ content: 'May experience layout thrashing and flashes during transitions. Backdrops will be disabled.', placement: 'top', onShow() { return true } }"
-                    class="h-4 w-4 cursor-help" />
+                    v-tippy="{
+                      content:
+                        'May experience layout thrashing and flashes during transitions. Backdrops will be disabled.',
+                      placement: 'top',
+                      onShow() {
+                        return true;
+                      },
+                    }"
+                    class="h-4 w-4 cursor-help"
+                  />
                 </div>
                 <p class="text-xs text-muted-foreground">
                   Turn off animations for improved performance or reduced motion
@@ -400,10 +773,49 @@ const cancelResetDatabase = () => {
               <Switch v-model="localSettings.appearance.animationDisabled" />
             </div>
 
+            <!-- Border Style -->
+            <div>
+              <label
+                for="borderRadius"
+                class="text-sm font-medium text-foreground mb-1.5 block"
+                >Border Style</label
+              >
+              <div class="mt-2">
+                <RadioGroupRoot
+                  v-model="localSettings.appearance.borderRadius"
+                  class="inline-flex items-center rounded-md bg-muted p-1"
+                >
+                  <div class="flex space-x-1">
+                    <RadioGroupItem
+                      v-for="option in borderRadiusOptions"
+                      :key="option.value"
+                      :value="option.value"
+                      class="rounded-md px-3 py-1.5 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors duration-200"
+                      :class="[
+                        localSettings.appearance.borderRadius === option.value
+                          ? 'bg-background shadow-sm text-foreground'
+                          : 'text-muted-foreground hover:text-foreground',
+                      ]"
+                    >
+                      {{ option.label }}
+                    </RadioGroupItem>
+                  </div>
+                </RadioGroupRoot>
+              </div>
+              <p class="mt-1 text-xs text-muted-foreground">
+                Choose between sharp modern edges or rounded friendly corners
+              </p>
+            </div>
+
+            <!-- Check for Updates -->
             <div class="flex items-center justify-between py-2">
               <div class="max-w-[80%]">
                 <div class="flex items-center gap-2">
-                  <label for="checkForUpdates" class="text-sm font-medium text-foreground">Check for Updates</label>
+                  <label
+                    for="checkForUpdates"
+                    class="text-sm font-medium text-foreground"
+                    >Check for Updates</label
+                  >
                 </div>
                 <p class="text-xs text-muted-foreground">
                   Automatically check for new updates in the background
@@ -414,22 +826,36 @@ const cancelResetDatabase = () => {
           </div>
         </Collapsible>
 
-        <Collapsible v-if="isRendered('advanced')" id="advanced" title="Advanced Settings" icon="Settings"
-          :default-open="false">
+        <Collapsible
+          v-if="isRendered('advanced')"
+          id="advanced"
+          title="Advanced Settings"
+          icon="Settings"
+          :default-open="false"
+        >
           <div class="space-y-6">
-            <div class="p-4 border border-destructive/20 bg-destructive/5 rounded-lg">
-              <h3 class="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
+            <div
+              class="p-4 border border-destructive/20 bg-destructive/5 rounded-lg"
+            >
+              <h3
+                class="text-sm font-medium text-foreground flex items-center gap-2 mb-2"
+              >
                 <AlertTriangle class="h-4 w-4" />
                 Database Management
               </h3>
 
               <p class="text-sm text-muted-foreground mb-3">
-                If you're experiencing issues with the app, you can reset the database to default settings.
-                This will delete all your calculation history and restore default settings.
+                If you're experiencing issues with the app, you can reset the
+                database to default settings. This will delete all your
+                calculation history and restore default settings.
               </p>
 
               <div class="flex justify-end">
-                <Button variant="destructive" size="sm" @click="showResetConfirmation">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  @click="showResetConfirmation"
+                >
                   Reset Database
                 </Button>
               </div>
@@ -437,7 +863,10 @@ const cancelResetDatabase = () => {
           </div>
         </Collapsible>
 
-        <div v-if="filteredManifest.length === 0 && searchQuery" class="text-center py-10">
+        <div
+          v-if="filteredManifest.length === 0 && searchQuery"
+          class="text-center py-10"
+        >
           <p class="text-foreground text-lg">
             No settings found for "{{ searchQuery }}".
           </p>
@@ -446,11 +875,15 @@ const cancelResetDatabase = () => {
           </p>
         </div>
 
-        <div class="flex justify-end space-x-4 bg-muted/30 py-4 border-t border-border">
-          <Button variant="ghost" @click="goBack">
-            Cancel
-          </Button>
-          <Button variant="primary" :disabled="!hasChanges" @click="saveSettings">
+        <div
+          class="flex justify-end space-x-4 bg-muted/30 py-4 border-t border-border"
+        >
+          <Button variant="ghost" @click="goBack"> Cancel </Button>
+          <Button
+            variant="primary"
+            :disabled="!hasChanges"
+            @click="saveSettings"
+          >
             Save Changes
           </Button>
         </div>
@@ -459,11 +892,10 @@ const cancelResetDatabase = () => {
 
     <!-- Unsaved Changes Modal -->
     <BaseModal v-model:open="showUnsavedChangesModal">
-      <template #title>
-        Unsaved Changes
-      </template>
+      <template #title> Unsaved Changes </template>
       <p class="text-sm text-muted-foreground mb-4">
-        You have unsaved changes. Are you sure you want to leave this page? Your changes will be lost.
+        You have unsaved changes. Are you sure you want to leave this page? Your
+        changes will be lost.
       </p>
 
       <div class="flex justify-end space-x-3">
@@ -486,7 +918,9 @@ const cancelResetDatabase = () => {
       </template>
 
       <div class="space-y-5">
-        <div class="p-4 bg-destructive/5 border border-destructive/20 rounded-lg">
+        <div
+          class="p-4 bg-destructive/5 border border-destructive/20 rounded-lg"
+        >
           <p class="text-sm font-medium text-foreground mb-3">
             This action will permanently delete your data and cannot be undone.
           </p>
@@ -494,7 +928,8 @@ const cancelResetDatabase = () => {
           <div class="space-y-3">
             <div class="flex items-start gap-2.5">
               <div
-                class="h-5 w-5 flex items-center justify-center rounded-full bg-destructive/10 text-destructive flex-shrink-0 mt-0.5">
+                class="h-5 w-5 flex items-center justify-center rounded-full bg-destructive/10 text-destructive flex-shrink-0 mt-0.5"
+              >
                 <span class="text-xs font-bold">1</span>
               </div>
               <p class="text-sm text-foreground">
@@ -504,7 +939,8 @@ const cancelResetDatabase = () => {
 
             <div class="flex items-start gap-2.5">
               <div
-                class="h-5 w-5 flex items-center justify-center rounded-full bg-destructive/10 text-destructive flex-shrink-0 mt-0.5">
+                class="h-5 w-5 flex items-center justify-center rounded-full bg-destructive/10 text-destructive flex-shrink-0 mt-0.5"
+              >
                 <span class="text-xs font-bold">2</span>
               </div>
               <p class="text-sm text-foreground">
@@ -514,7 +950,8 @@ const cancelResetDatabase = () => {
 
             <div class="flex items-start gap-2.5">
               <div
-                class="h-5 w-5 flex items-center justify-center rounded-full bg-destructive/10 text-destructive flex-shrink-0 mt-0.5">
+                class="h-5 w-5 flex items-center justify-center rounded-full bg-destructive/10 text-destructive flex-shrink-0 mt-0.5"
+              >
                 <span class="text-xs font-bold">3</span>
               </div>
               <p class="text-sm text-foreground">
@@ -524,35 +961,45 @@ const cancelResetDatabase = () => {
           </div>
         </div>
 
-        <div class="flex items-start gap-3 p-3 bg-accent/50 border border-border rounded-lg">
+        <div
+          class="flex items-start gap-3 p-3 bg-accent/50 border border-border rounded-lg"
+        >
           <div class="text-muted-foreground mt-0.5">
             <CircleHelp class="h-5 w-5" />
           </div>
           <div>
             <p class="text-sm text-foreground">
-              <span class="font-medium">When to use this:</span> If you're experiencing persistent issues with the
-              application such as incorrect calculations, settings not saving, or other unexpected behavior.
+              <span class="font-medium">When to use this:</span> If you're
+              experiencing persistent issues with the application such as
+              incorrect calculations, settings not saving, or other unexpected
+              behavior.
             </p>
           </div>
         </div>
       </div>
 
       <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6">
-        <Button variant="outline" class="w-full sm:w-auto order-2 sm:order-1" :disabled="isResettingDatabase"
-          @click="cancelResetDatabase">
+        <Button
+          variant="outline"
+          class="w-full sm:w-auto order-2 sm:order-1"
+          :disabled="isResettingDatabase"
+          @click="cancelResetDatabase"
+        >
           Cancel
         </Button>
-        <Button variant="destructive" class="w-full sm:w-auto order-1 sm:order-2" :loading="isResettingDatabase"
-          @click="handleResetDatabase">
+        <Button
+          variant="destructive"
+          class="w-full sm:w-auto order-1 sm:order-2"
+          :loading="isResettingDatabase"
+          @click="handleResetDatabase"
+        >
           <template v-if="!isResettingDatabase">
             <span class="flex items-center gap-1.5">
               <AlertTriangle class="h-4 w-4" />
               Reset Database
             </span>
           </template>
-          <template v-else>
-            Resetting...
-          </template>
+          <template v-else> Resetting... </template>
         </Button>
       </div>
     </BaseModal>

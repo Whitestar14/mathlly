@@ -3,9 +3,9 @@
     <!-- Version Cards -->
     <div class="space-y-3">
       <!-- App Version -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-4">
         <div class="flex items-center justify-between mb-2">
-          <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">App Version</span>
+          <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">App Version</span>
           <BaseBadge
             type="custom"
             :text="versionStore.versionInfo.full"
@@ -14,7 +14,7 @@
           />
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-900 dark:text-gray-100 font-mono">{{ versionStore.versionInfo.full }}</span>
+          <span class="text-sm text-foreground dark:text-foreground font-mono">{{ versionStore.versionInfo.full }}</span>
           <BaseButton
             variant="ghost"
             size="icon"
@@ -27,14 +27,14 @@
       </div>
 
       <!-- Build Info -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-1">Build Date</span>
-            <span class="text-sm text-gray-900 dark:text-gray-100 font-mono">{{ buildDate }}</span>
+            <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Build Date</span>
+            <span class="text-sm text-foreground dark:text-foreground font-mono">{{ buildDate }}</span>
           </div>
           <div>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-1">Environment</span>
+            <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Environment</span>
             <BaseBadge
               :variant="isDev ? 'warning' : 'success'"
               :text="isDev ? 'Development' : 'Production'"
@@ -45,60 +45,60 @@
       </div>
 
       <!-- Framework Info -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-2">Framework</span>
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-4">
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-2">Framework</span>
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <div class="w-4 h-4 bg-gradient-to-br from-green-400 to-green-600 rounded flex items-center justify-center">
-              <span class="text-white text-xs font-bold">V</span>
+              <span class="text-foreground text-xs font-bold">V</span>
             </div>
-            <span class="text-sm text-gray-900 dark:text-gray-100">Vue.js</span>
+            <span class="text-sm text-foreground dark:text-foreground">Vue.js</span>
           </div>
-          <span class="text-sm text-gray-600 dark:text-gray-400 font-mono">{{ vueVersion }}</span>
+          <span class="text-sm text-muted-foreground dark:text-muted-foreground font-mono">{{ vueVersion }}</span>
         </div>
       </div>
 
       <!-- System Info -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-4">
         <div class="space-y-3">
           <div>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-1">Browser</span>
+            <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Browser</span>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-900 dark:text-gray-100">{{ browserInfo.name }}</span>
-              <span class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ browserInfo.version }}</span>
+              <span class="text-sm text-foreground dark:text-foreground">{{ browserInfo.name }}</span>
+              <span class="text-xs text-muted-foreground dark:text-muted-foreground font-mono">{{ browserInfo.version }}</span>
             </div>
           </div>
           
           <div>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-1">Platform</span>
-            <span class="text-sm text-gray-900 dark:text-gray-100">{{ platformInfo }}</span>
+            <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Platform</span>
+            <span class="text-sm text-foreground dark:text-foreground">{{ platformInfo }}</span>
           </div>
           
           <div>
-            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-1">Screen</span>
-            <span class="text-sm text-gray-900 dark:text-gray-100 font-mono">{{ screenInfo }}</span>
+            <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Screen</span>
+            <span class="text-sm text-foreground dark:text-foreground font-mono">{{ screenInfo }}</span>
           </div>
         </div>
       </div>
 
       <!-- Performance Info -->
-      <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide block mb-2">Performance</span>
+      <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-4">
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-2">Performance</span>
         <div class="grid grid-cols-2 gap-3 text-xs">
           <div>
-            <span class="text-gray-500 dark:text-gray-400 block">Memory</span>
-            <span class="text-gray-900 dark:text-gray-100 font-mono">{{ memoryInfo }}</span>
+            <span class="text-muted-foreground dark:text-muted-foreground block">Memory</span>
+            <span class="text-foreground dark:text-foreground font-mono">{{ memoryInfo }}</span>
           </div>
           <div>
-            <span class="text-gray-500 dark:text-gray-400 block">Connection</span>
-            <span class="text-gray-900 dark:text-gray-100">{{ connectionInfo }}</span>
+            <span class="text-muted-foreground dark:text-muted-foreground block">Connection</span>
+            <span class="text-foreground dark:text-foreground">{{ connectionInfo }}</span>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Actions -->
-    <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+    <div class="pt-3 border-t border-border dark:border-border">
       <div class="flex gap-2">
         <BaseButton
           variant="outline"

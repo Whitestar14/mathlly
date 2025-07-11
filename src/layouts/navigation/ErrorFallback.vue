@@ -3,16 +3,16 @@
     :title="errorState.pageTitle"
     :show-header="false"
     :show-footer="false"
-    main-class="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-white dark:bg-gray-800 transition-colors duration-300"
+    main-class="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-background dark:bg-background transition-colors duration-300"
   >
     <div class="space-y-6 max-w-lg">
       <!-- Error Code Visual -->
       <div class="relative">
-        <h1 class="text-9xl font-bold text-gray-200 dark:text-gray-700 select-none">
+        <h1 class="text-9xl font-bold text-muted-foreground dark:text-foreground select-none">
           {{ errorState.visualCode }}
         </h1>
         <div class="absolute inset-0 flex items-center justify-center">
-          <kbd class="text-gray-600 font-medium px-3 py-2 text-xl dark:text-gray-400 bg-gray-100/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-md shadow-sm">
+          <kbd class="text-muted-foreground font-medium px-3 py-2 text-xl dark:text-muted-foreground bg-muted/80 dark:bg-background/80 border border-border dark:border-border rounded-md shadow-sm">
             {{ errorState.stylizedCode }}
           </kbd>
         </div>
@@ -20,17 +20,17 @@
 
       <!-- Error Message -->
       <div class="space-y-2">
-        <h2 class="text-xl font-medium text-gray-900 dark:text-gray-100">
+        <h2 class="text-xl font-medium text-foreground dark:text-foreground">
           {{ errorState.title }}
         </h2>
-        <p class="text-gray-600 dark:text-gray-400">
+        <p class="text-muted-foreground dark:text-muted-foreground">
           {{ errorState.message }}
         </p>
 
         <!-- Network Status Message -->
         <p
           v-if="isOffline && autoRetryActive && !is404Error"
-          class="text-indigo-600 dark:text-indigo-400 text-sm mt-2"
+          class="text-primary dark:text-primary text-sm mt-2"
         >
           {{ networkStatus ? 'Reconnected! Attempting to reload...' : `Connection lost. Auto-retrying in ${autoRetryCountdownTime}s...` }}
           <Button
@@ -92,13 +92,13 @@
       <!-- Technical Details -->
       <div
         v-if="errorState.stackTrace && !isOffline && !is404Error"
-        class="mt-8 p-4 bg-gray-50 dark:bg-gray-900 ml-auto mr-auto max-w-[90vw] rounded-lg text-left overflow-auto border border-gray-200 dark:border-gray-700 max-h-60"
+        class="mt-8 p-4 bg-muted dark:bg-background ml-auto mr-auto max-w-[90vw] rounded-lg text-left overflow-auto border border-border dark:border-border max-h-60"
       >
         <details>
-          <summary class="cursor-pointer text-indigo-600 dark:text-indigo-400 font-medium text-sm">
+          <summary class="cursor-pointer text-primary dark:text-primary font-medium text-sm">
             Technical Details
           </summary>
-          <pre class="mt-2 text-xs text-gray-700 dark:text-gray-300 whitespace-pre-wrap break-words">{{ errorState.stackTrace }}</pre>
+          <pre class="mt-2 text-xs text-foreground dark:text-muted-foreground whitespace-pre-wrap break-words">{{ errorState.stackTrace }}</pre>
         </details>
       </div>
     </div>

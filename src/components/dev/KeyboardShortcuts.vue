@@ -1,9 +1,9 @@
 <template>
   <div class="space-y-4">
     <!-- Shortcuts Overview -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+    <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Shortcuts Overview</span>
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Shortcuts Overview</span>
         <div class="flex items-center gap-2">
           <BaseBadge
             variant="success"
@@ -27,20 +27,20 @@
       
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Categories</span>
-          <span class="text-lg font-mono font-semibold text-gray-900 dark:text-gray-100">{{ Object.keys(shortcutCategories).length }}</span>
+          <span class="text-muted-foreground dark:text-muted-foreground block">Categories</span>
+          <span class="text-lg font-mono font-semibold text-foreground dark:text-foreground">{{ Object.keys(shortcutCategories).length }}</span>
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Active Listeners</span>
-          <span class="text-lg font-mono font-semibold text-gray-900 dark:text-gray-100">{{ activeListeners }}</span>
+          <span class="text-muted-foreground dark:text-muted-foreground block">Active Listeners</span>
+          <span class="text-lg font-mono font-semibold text-foreground dark:text-foreground">{{ activeListeners }}</span>
         </div>
       </div>
     </div>
 
     <!-- Category Filter -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+    <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Filter by Category</span>
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Filter by Category</span>
         <BaseButton
           v-if="selectedCategory !== 'all'"
           variant="ghost"
@@ -60,8 +60,8 @@
           class="px-2 py-1 text-xs rounded-md transition-colors"
           :class="[
             selectedCategory === category
-              ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700'
+              ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-primary border border-indigo-200 dark:border-indigo-800'
+              : 'bg-muted dark:bg-background text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-accent border border-border dark:border-border'
           ]"
           @click="selectedCategory = category"
         >
@@ -78,17 +78,17 @@
       <div
         v-for="(shortcuts, categoryName) in filteredCategories"
         :key="categoryName"
-        class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+        class="bg-background dark:bg-background border border-border dark:border-border rounded-lg overflow-hidden"
       >
         <!-- Category Header -->
-        <div class="p-3 border-b border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+        <div class="p-3 border-b border-border dark:border-border bg-muted dark:bg-background/50">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <component 
                 :is="getCategoryIcon(categoryName)" 
-                class="h-4 w-4 text-indigo-500 dark:text-indigo-400" 
+                class="h-4 w-4 text-primary dark:text-primary" 
               />
-              <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100">
+              <h4 class="text-sm font-medium text-foreground dark:text-foreground">
                 {{ categoryName }}
               </h4>
               <BaseBadge
@@ -140,14 +140,14 @@
               <div
                 v-for="(shortcut, keys) in shortcuts"
                 :key="keys"
-                class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group"
+                class="flex items-center justify-between p-2 rounded-lg hover:bg-muted dark:hover:bg-background/50 transition-colors group"
                 @click="highlightShortcut(keys)"
               >
                 <div class="flex-1 min-w-0">
-                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ shortcut.description }}</span>
+                  <span class="text-sm text-foreground dark:text-muted-foreground">{{ shortcut.description }}</span>
                   <div
                     v-if="shortcut.note"
-                    class="text-xs text-gray-500 dark:text-gray-400 mt-1"
+                    class="text-xs text-muted-foreground dark:text-muted-foreground mt-1"
                   >
                     {{ shortcut.note }}
                   </div>
@@ -181,7 +181,7 @@
                     <kbd
                       v-for="(key, index) in formatKeyboardShortcut(keys)"
                       :key="index"
-                      class="px-2 py-1 text-xs font-medium bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded border border-gray-200 dark:border-gray-700 shadow-sm font-mono"
+                      class="px-2 py-1 text-xs font-medium bg-background dark:bg-background text-foreground dark:text-muted-foreground rounded border border-border dark:border-border shadow-sm font-mono"
                       :class="{ 
                         'animate-pulse bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700': 
                           highlightedShortcut === keys 
@@ -199,14 +199,14 @@
     </div>
 
     <!-- Search -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+    <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <div class="flex items-center gap-2 mb-2">
-        <SearchIcon class="h-4 w-4 text-gray-400" />
+        <SearchIcon class="h-4 w-4 text-muted-foreground" />
         <input
           v-model="searchQuery"
           type="text"
           placeholder="Search shortcuts..."
-          class="flex-1 text-sm bg-transparent border-none outline-none text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+          class="flex-1 text-sm bg-transparent border-none outline-none text-foreground dark:text-foreground placeholder-gray-500 dark:placeholder-gray-400"
         >
         <BaseButton
           v-if="searchQuery"
@@ -227,13 +227,13 @@
         <div
           v-for="result in searchResults"
           :key="`${result.category}-${result.keys}`"
-          class="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded text-xs"
+          class="flex items-center justify-between p-2 bg-muted dark:bg-background rounded text-xs"
         >
           <div>
-            <span class="text-gray-900 dark:text-gray-100">{{ result.description }}</span>
-            <span class="text-gray-500 dark:text-gray-400 ml-2">({{ result.category }})</span>
+            <span class="text-foreground dark:text-foreground">{{ result.description }}</span>
+            <span class="text-muted-foreground dark:text-muted-foreground ml-2">({{ result.category }})</span>
           </div>
-          <kbd class="px-1.5 py-0.5 bg-white dark:bg-gray-700 rounded border text-xs font-mono">
+          <kbd class="px-1.5 py-0.5 bg-background dark:bg-muted rounded border text-xs font-mono">
             {{ result.keys }}
           </kbd>
         </div>
@@ -241,7 +241,7 @@
       
       <div
         v-else-if="searchQuery && searchResults.length === 0"
-        class="text-xs text-gray-500 dark:text-gray-400 text-center py-2"
+        class="text-xs text-muted-foreground dark:text-muted-foreground text-center py-2"
       >
         No shortcuts found for "{{ searchQuery }}"
       </div>
@@ -283,7 +283,7 @@
     </div>
 
     <!-- Export Actions -->
-    <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+    <div class="pt-3 border-t border-border dark:border-border">
       <div class="flex gap-2">
         <BaseButton
           variant="ghost"

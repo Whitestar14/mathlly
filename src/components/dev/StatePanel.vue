@@ -1,9 +1,9 @@
 <template>
   <div class="space-y-4">
     <!-- Store Overview -->
-    <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+    <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Store Overview</span>
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Store Overview</span>
         <div class="flex items-center gap-2">
           <BaseBadge
             :variant="Object.keys(stores).length > 0 ? 'success' : 'info'"
@@ -27,12 +27,12 @@
       
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Active Stores</span>
-          <span class="text-lg font-mono font-semibold text-gray-900 dark:text-gray-100">{{ Object.keys(stores).length }}</span>
+          <span class="text-muted-foreground dark:text-muted-foreground block">Active Stores</span>
+          <span class="text-lg font-mono font-semibold text-foreground dark:text-foreground">{{ Object.keys(stores).length }}</span>
         </div>
         <div>
-          <span class="text-gray-500 dark:text-gray-400 block">Total Properties</span>
-          <span class="text-lg font-mono font-semibold text-gray-900 dark:text-gray-100">{{ getTotalProperties() }}</span>
+          <span class="text-muted-foreground dark:text-muted-foreground block">Total Properties</span>
+          <span class="text-lg font-mono font-semibold text-foreground dark:text-foreground">{{ getTotalProperties() }}</span>
         </div>
       </div>
     </div>
@@ -42,14 +42,14 @@
       <div
         v-for="(store, name) in stores"
         :key="name"
-        class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+        class="bg-background dark:bg-background border border-border dark:border-border rounded-lg overflow-hidden"
       >
         <!-- Store Header -->
-        <div class="p-3 border-b border-gray-100 dark:border-gray-800">
+        <div class="p-3 border-b border-border dark:border-border">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
               <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              <h4 class="text-sm font-medium text-gray-900 dark:text-gray-100 font-mono">
+              <h4 class="text-sm font-medium text-foreground dark:text-foreground font-mono">
                 {{ name }}
               </h4>
               <BaseBadge
@@ -110,7 +110,7 @@
             v-if="expandedStores[name]"
             class="overflow-hidden"
           >
-            <div class="p-3 bg-gray-50 dark:bg-gray-800/50">
+            <div class="p-3 bg-muted dark:bg-background/50">
               <!-- Store properties -->
               <div
                 v-if="!store.error"
@@ -119,18 +119,18 @@
                 <div
                   v-for="(value, key) in store"
                   :key="String(key)"
-                  class="flex items-start justify-between p-2 bg-white dark:bg-gray-900 rounded border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+                  class="flex items-start justify-between p-2 bg-background dark:bg-background rounded border border-border dark:border-border hover:bg-muted dark:hover:bg-background transition-colors group"
                 >
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1">
-                      <span class="text-xs font-medium text-indigo-600 dark:text-indigo-400 font-mono">{{ String(key) }}</span>
+                      <span class="text-xs font-medium text-primary dark:text-primary font-mono">{{ String(key) }}</span>
                       <BaseBadge
                         variant="info"
                         :text="getValueType(value)"
                         size="xs"
                       />
                     </div>
-                    <div class="text-xs text-gray-600 dark:text-gray-400 font-mono break-all">
+                    <div class="text-xs text-muted-foreground dark:text-muted-foreground font-mono break-all">
                       {{ formatValue(value) }}
                     </div>
                   </div>
@@ -149,10 +149,10 @@
               <!-- Error state -->
               <div
                 v-else
-                class="flex items-center gap-2 p-2 bg-red-50 dark:bg-red-900/20 rounded border border-red-200 dark:border-red-800"
+                class="flex items-center gap-2 p-2 bg-destructive/5 dark:bg-destructive/5 rounded border border-destructive/20 dark:border-destructive/20"
               >
-                <AlertCircleIcon class="h-4 w-4 text-red-500 dark:text-red-400" />
-                <span class="text-xs text-red-600 dark:text-red-400">{{ store.error }}</span>
+                <AlertCircleIcon class="h-4 w-4 text-destructive dark:text-destructive" />
+                <span class="text-xs text-destructive dark:text-destructive">{{ store.error }}</span>
               </div>
             </div>
           </div>
@@ -162,9 +162,9 @@
       <!-- Empty state -->
       <div
         v-if="Object.keys(stores).length === 0"
-        class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-8"
+        class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-8"
       >
-        <div class="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+        <div class="flex flex-col items-center justify-center text-muted-foreground dark:text-muted-foreground">
           <DatabaseIcon class="h-8 w-8 mb-3 opacity-40" />
           <p class="text-sm font-medium mb-1">
             No Pinia stores detected
@@ -179,10 +179,10 @@
     <!-- Watch Panel -->
     <div
       v-if="watchedStores.size > 0"
-      class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-3"
+      class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3"
     >
       <div class="flex items-center justify-between mb-2">
-        <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Watched Changes</span>
+        <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Watched Changes</span>
         <div class="flex items-center gap-2">
           <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
           <BaseButton
@@ -204,16 +204,16 @@
         >
           <div class="flex items-center justify-between">
             <span class="font-mono text-blue-600 dark:text-blue-400">{{ change.store }}.{{ change.property }}</span>
-            <span class="text-gray-500 dark:text-gray-400">{{ formatTime(change.timestamp) }}</span>
+            <span class="text-muted-foreground dark:text-muted-foreground">{{ formatTime(change.timestamp) }}</span>
           </div>
-          <div class="mt-1 text-gray-600 dark:text-gray-400">
+          <div class="mt-1 text-muted-foreground dark:text-muted-foreground">
             {{ change.oldValue }} → {{ change.newValue }}
           </div>
         </div>
         
         <div
           v-if="watchHistory.length === 0"
-          class="text-xs text-gray-500 dark:text-gray-400 italic text-center py-2"
+          class="text-xs text-muted-foreground dark:text-muted-foreground italic text-center py-2"
         >
           No changes detected yet
         </div>
@@ -257,7 +257,7 @@
     </div>
 
     <!-- Export Actions -->
-    <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+    <div class="pt-3 border-t border-border dark:border-border">
       <div class="flex gap-2">
         <BaseButton
           variant="ghost"

@@ -4,10 +4,10 @@
       v-if="hasMemoryValue"
       class="space-y-4"
     >
-      <p class="text-gray-500 dark:text-gray-400">
+      <p class="text-muted-foreground dark:text-muted-foreground">
         Current Memory Value ({{ mode }} Mode):
       </p>
-      <div class="text-lg font-mono p-3 bg-gray-100 dark:bg-gray-700 rounded break-all">
+      <div class="text-lg font-mono p-3 bg-muted dark:bg-muted rounded break-all">
         {{ memoryDisplayValue }}
       </div>
       <Button 
@@ -23,11 +23,11 @@
       v-else
       class="text-center py-4 flex flex-col items-center justify-center h-full"
     >
-      <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-700/30 mb-3 font-medium min-w-[80%] flex flex-col items-center">
-        <p class="text-gray-500 dark:text-gray-400 font-medium">
+      <div class="p-3 rounded-lg bg-muted dark:bg-muted/30 mb-3 font-medium min-w-[80%] flex flex-col items-center">
+        <p class="text-muted-foreground dark:text-muted-foreground font-medium">
           Memory is Empty
         </p>
-        <p class="text-gray-400 dark:text-gray-500 text-xs">
+        <p class="text-muted-foreground dark:text-muted-foreground text-xs">
           Use 'MS' to store a value.
         </p>
       </div>

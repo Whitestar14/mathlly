@@ -28,21 +28,21 @@
       v-show="!historyItems.length || isProgrammerMode"
       class="text-center py-4 flex flex-col items-center justify-center h-full"
     >
-      <div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-700/30 mb-3 font-medium min-w-[80%] flex flex-col items-center">
+      <div class="p-3 rounded-lg bg-muted dark:bg-muted/30 mb-3 font-medium min-w-[80%] flex flex-col items-center">
         <div v-show="isProgrammerMode">
-          <p class="text-gray-500 dark:text-gray-400">
+          <p class="text-muted-foreground dark:text-muted-foreground">
             History feature coming soon
           </p>
-          <p class="text-gray-400 dark:text-gray-500 text-xs">
+          <p class="text-muted-foreground dark:text-muted-foreground text-xs">
             History is currently unavailable for Programmer Mode
           </p>
         </div>
 
         <div v-show="!isProgrammerMode">
-          <p class="text-gray-500 dark:text-gray-400 font-medium">
+          <p class="text-muted-foreground dark:text-muted-foreground font-medium">
             No history items yet
           </p>
-          <p class="text-gray-400 dark:text-gray-500 text-xs">
+          <p class="text-muted-foreground dark:text-muted-foreground text-xs">
             Your calculations will appear here as you work
           </p>
         </div>

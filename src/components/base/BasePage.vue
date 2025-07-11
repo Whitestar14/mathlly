@@ -2,12 +2,12 @@
   <div
     :class="[
       isToolLayout ? 'flex flex-col flex-grow' : 'h-full',
-      'bg-gray-50/50 dark:bg-gray-900 text-gray-900 dark:text-gray-100'
+      'bg-muted/50 dark:bg-background text-foreground dark:text-foreground'
     ]"
   >
     <header
       v-if="showHeader"
-      class="sticky -top-px z-10 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700"
+      class="sticky -top-px z-10 bg-background/80 dark:bg-background/80 backdrop-blur-sm border-b border-border dark:border-border"
     >
       <div class="container mx-auto flex items-center gap-2 h-14 px-4">
         <Button
@@ -32,9 +32,9 @@
 
     <footer
       v-if="showFooter"
-      class="mt-auto py-8 border-t border-gray-200 dark:border-gray-700"
+      class="mt-auto py-8 border-t border-border dark:border-border"
     >
-      <div class="container mx-auto px-4 text-center text-sm text-gray-500 dark:text-gray-400">
+      <div class="container mx-auto px-4 text-center text-sm text-muted-foreground dark:text-muted-foreground">
         &copy; {{ new Date().getFullYear() }} Mathlly. All rights reserved.
       </div>
     </footer>
