@@ -10,7 +10,7 @@ import {
   isNestedStructure,
 } from '@/utils/misc/objectUtils'
 
-// Define the default settings with proper typing
+// Define the default settings with proper typing including theme pack
 export const DEFAULT_SETTINGS: Settings = {
   id: 1,
   display: {
@@ -36,6 +36,7 @@ export const DEFAULT_SETTINGS: Settings = {
   },
   appearance: {
     theme: 'system',
+    themePack: 'classic', // Add theme pack support
     animationDisabled: false,
     checkForUpdates: true,
   },
@@ -68,7 +69,15 @@ export const useSettingsStore = defineStore('settings', {
       try {
         const settings = await db.settings.get(1)
         if (settings) {
+          // Ensure theme pack exists in loaded settings
           const mergedSettings = merge({}, DEFAULT_SETTINGS, settings)
+          
+          // Validate theme pack value
+          if (!mergedSettings.appearance.themePack || 
+              !['classic', 'mira'].includes(mergedSettings.appearance.themePack)) {
+            mergedSettings.appearance.themePack = 'classic'
+          }
+          
           Object.assign(this, flattenObject(mergedSettings))
         } else {
           await this.saveSettings(DEFAULT_SETTINGS)
@@ -79,7 +88,7 @@ export const useSettingsStore = defineStore('settings', {
       }
     },
 
-    async saveSettings(newSettings: Settings | FlattenedSettings): Promise<boolean> {
+        async saveSettings(newSettings: Settings | FlattenedSettings): Promise<boolean> {
       try {
         const currentSettings = await db.settings.get(1)
         const baseSettings = cloneDeep(DEFAULT_SETTINGS)
@@ -96,6 +105,12 @@ export const useSettingsStore = defineStore('settings', {
             ? newSettings
             : unflattenObject(flattenedNewSettings)
         ) as Settings
+
+        // Ensure theme pack is valid
+        if (!settingsToSave.appearance.themePack || 
+            !['classic', 'mira'].includes(settingsToSave.appearance.themePack)) {
+          settingsToSave.appearance.themePack = 'classic'
+        }
 
         settingsToSave.id = 1
 
@@ -118,6 +133,13 @@ export const useSettingsStore = defineStore('settings', {
       try {
         const currentSettings =
           (await db.settings.get(1)) || cloneDeep(DEFAULT_SETTINGS)
+        
+        // Validate theme pack updates
+        if (path === 'appearance.themePack' && !['classic', 'mira'].includes(value)) {
+          console.warn(`Invalid theme pack: ${value}. Using default.`)
+          value = 'classic'
+        }
+        
         set(currentSettings, path, value)
         await this.saveSettings(currentSettings)
 

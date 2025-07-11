@@ -18,11 +18,11 @@
               :href="link.url"
               target="_blank"
               rel="noopener noreferrer"
-              class="flex w-full items-center px-3 py-1.5 text-sm rounded-md hover:bg-gray-100 dark:hover:bg-gray-800/50 hover:text-gray-800 dark:hover:text-gray-300 text-gray-700/90 dark:text-gray-400/90"
+              class="flex w-full items-center px-3 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground text-muted-foreground"
             >
               <component
                 :is="link.icon"
-                class="h-4 w-4 mr-2 text-gray-500/80 dark:text-gray-500/80"
+                class="h-4 w-4 mr-2 text-muted-foreground"
               />
               <span>{{ link.text }}</span>
             </a>
@@ -34,19 +34,19 @@
 
     <template #footer>
       <div class="space-y-1.5">
-        <h3 class="text-xs font-medium text-gray-500 dark:text-gray-400 px-3">
+        <h3 class="text-xs font-medium text-muted-foreground px-3">
           Appearance
         </h3>
         <ToggleGroupRoot
           v-model="selectedTheme"
           type="single"
-          class="inline-flex *:items-center gap-1 p-1 mx-3 bg-gray-100/50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"
+          class="inline-flex *:items-center gap-1 p-1 mx-3 bg-muted rounded-lg border border-border"
         >
           <ToggleGroupItem
             v-for="item of themeItems"
             :key="item.id"
             :value="item.id"
-            class="text-gray-700 dark:text-gray-300 flex justify-center w-8 h-8 rounded-md transition-colors duration-150 outline-none ring-offset-2 ring-offset-white dark:ring-offset-gray-900 focus-visible:ring-2 ring-indigo-500 data-[state=on]:bg-gray-100/80 dark:data-[state=on]:bg-gray-800/80 data-[state=on]:shadow-sm data-[state=on]:text-indigo-600 data-[state=on]:dark:text-indigo-400 hover:bg-gray-100 dark:hover:bg-gray-800/50"
+            class="text-muted-foreground flex justify-center w-8 h-8 rounded-md transition-colors duration-150 outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 ring-ring data-[state=on]:bg-accent data-[state=on]:shadow-sm data-[state=on]:text-primary hover:bg-accent/50"
           >
             <component
               :is="item.icon"
