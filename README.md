@@ -31,7 +31,7 @@ Mathlly is a sophisticated, developer-oriented mathematical application that com
 ### 🧮 Calculator Modes
 - **Standard Calculator**: Essential arithmetic operations with history tracking
 - **Programmer Calculator**: Multi-base support (HEX, DEC, OCT, BIN) with bitwise operations
-- **Scientific Calculator**: *(Coming Soon)* Advanced mathematical functions and constants
+- **Scientific Calculator**: Advanced mathematical functions and constants
 
 ### 🛠️ Developer Tools
 - **Base64 Encoder/Decoder**: Quick encoding and decoding utilities
