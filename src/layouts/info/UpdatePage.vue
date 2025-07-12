@@ -65,11 +65,11 @@
       <div class="flex items-center justify-between mb-8">
         <div class="flex items-center">
           <div class="relative flex items-center">
-            <div class="h-10 w-10 flex items-center justify-center bg-primary rounded-full z-5">
+            <div class="h-10 w-10 flex items-center justify-center bg-primary/70 rounded-full z-5">
               <HistoryIcon class="h-5 w-5 text-primary-foreground" />
             </div>
             <!-- This connects to the timeline line -->
-            <div class="absolute left-5 top-10 bottom-0 w-px h-12 bg-primary" />
+            <div class="absolute left-5 top-10 bottom-0 w-px h-12 bg-primary/30" />
           </div>
           <h3 class="text-xl font-medium tracking-tight ml-3 text-foreground">
             Release History
@@ -90,7 +90,7 @@
       
       <!-- Timeline Line -->
       <div class="relative">
-        <div class="absolute left-0 top-0 bottom-0 w-px bg-primary ml-5" />
+        <div class="absolute left-0 top-0 bottom-0 w-px bg-primary/30 ml-5" />
         
         <div class="grid gap-8 pl-10">
           <div

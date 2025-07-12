@@ -15,7 +15,6 @@ export default defineConfig({
         name: 'Mathlly',
         short_name: 'Mathlly',
         description: 'Math learning application',
-        theme_color: '#4f46e5',
         background_color: '#ffffff',
         display: 'standalone',
         icons: [
@@ -63,18 +62,16 @@ export default defineConfig({
           }
         ]
       },
-      // Enable development support - this is crucial
       devOptions: {
         enabled: true,
         type: 'module',
         navigateFallback: 'index.html'
       },
-      // Use the correct filename for the service worker
       filename: 'sw.js'
     }),
     visualizer({
       filename: 'dist/stats.html',
-      open: false, // Don't auto-open in dev
+      open: false,
       gzipSize: true,
       brotliSize: true,
       template: 'treemap'

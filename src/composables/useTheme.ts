@@ -61,7 +61,7 @@ const THEME_PACK_CONFIGS: Record<ThemePackOption, ThemePackConfig> = {
     name: 'Classic',
     description: 'Traditional design with warm colors and familiar patterns',
     preview: {
-      light: '#6366f1',
+      light: '#4f46e5',
       dark: '#818cf8'
     }
   },

@@ -27,6 +27,7 @@
           :active-base="state.activeBase"
           :mode="state.mode"
           :display-values="state.displayValues"
+          :calculator-options="calculatorOptions"
           @open-activity="openActivity"
           @base-change="handleBaseChange"
         />
@@ -37,6 +38,7 @@
           :max-length="maxInputLength"
           :active-base="state.activeBase"
           :has-memory="hasMemoryValue"
+          :calculator-options="calculatorOptions"
           @button-click="handleButtonClick"
           @clear="handleClear"
           @mode-toggle="handleModeToggle"
@@ -54,12 +56,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref, provide, defineAsyncComponent, type Ref, type ComputedRef } from 'vue'
+import { computed, watch, ref, provide, defineAsyncComponent, onMounted, type Ref, type ComputedRef } from 'vue'
 import { useHistory, type HistoryItem } from '@/composables/useHistory'
 import { useMemory, type UseMemoryReturn } from '@/composables/useMemory'
 import { usePanel, type LightweightPanelAPI } from '@/composables/usePanel'
 import { useCalculatorState, type CalculatorMode, type Base } from '@/composables/useCalculatorState'
 import { useCalculatorModeSwitcher } from '@/composables/useCalculatorModeSwitcher'
+import { useCalculatorOptions } from '@/composables/useCalculatorOptions'
 import { CalculatorController, type ControllerReturn } from './MainCalculator'
 import { CalculatorFactory, type Calculator, isScientificCalculator } from '@/services/factory/CalculatorFactory'
 import { useCalculatorSession } from '@/composables/useCalculatorSession'
@@ -97,6 +100,9 @@ const activityPanel = activityPanelResult as LightweightPanelAPI
 // Get calculator mode switcher context
 const { currentMode } = useCalculatorModeSwitcher()
 
+// Initialize calculator options (this automatically registers with the tool settings store)
+const calculatorOptions = useCalculatorOptions()
+
 const {
   state,
   updateState,
@@ -108,11 +114,49 @@ const {
 
 const { saveInput, getInput } = useCalculatorSession();
 
-const calculator: Ref<Calculator> = ref(CalculatorFactory.create(currentMode.value, props.settings))
+// Create calculator with current options
+const createCalculatorWithOptions = (mode: CalculatorMode) => {
+  // Get current options from the new system
+  const currentOptions = calculatorOptions.options.value
+  
+  const calc = CalculatorFactory.create(mode, {
+    ...props.settings,
+    ...currentOptions
+  })
+  
+  // Apply options to calculator if it supports them
+  if (isScientificCalculator(calc)) {
+    calc.setAngleMode(currentOptions.angleUnit)
+    calc.setNotationMode(currentOptions.notationMode)
+  }
+  
+  return calc
+}
+
+const calculator: Ref<Calculator> = ref(createCalculatorWithOptions(currentMode.value))
+
+// Watch for calculator options changes and update calculator
+watch(
+  () => calculatorOptions.options.value,
+  (newOptions) => {
+    // Update calculator settings
+    if (isScientificCalculator(calculator.value)) {
+      calculator.value.setAngleMode(newOptions.angleUnit)
+      calculator.value.setNotationMode(newOptions.notationMode)
+    }
+    
+    // Force re-evaluation if there's current input
+    if (state.input) {
+      calculator.value.input = state.input
+    }
+  },
+  { deep: true }
+)
 
 // Provide calculator instance to child components
 provide('calculator', computed(() => calculator.value))
 provide('calculatorState', state)
+provide('calculatorOptions', calculatorOptions)
 
 // Initialize controller with all dependencies and proper typing
 const controllerResult: ControllerReturn = CalculatorController({
@@ -152,9 +196,13 @@ const handleModeToggle = (data: { type: string; value: any }) => {
   switch (data.type) {
     case 'angle':
       calculator.value.setAngleMode(data.value);
+      // Update the calculator options through the new system
+      calculatorOptions.angleUnit.value = data.value;
       break;
     case 'notation':
       calculator.value.setNotationMode(data.value);
+      // Update the calculator options through the new system
+      calculatorOptions.notationMode.value = data.value;
       break;
     case 'hyperbolic':
       calculator.value.toggleHyperbolic();
@@ -174,21 +222,24 @@ const handleModeChange = (newMode: CalculatorMode, oldMode?: CalculatorMode) => 
   }
 
   resetState(newMode)
-  calculator.value = CalculatorFactory.create(newMode, props.settings)
+  
+  // Create new calculator with current options
+  calculator.value = createCalculatorWithOptions(newMode)
   
   if (newMode === 'Programmer') {
     setActiveBase('DEC' as Base)
   }
   
-    const savedInput = getInput(newMode)
-    if (savedInput) {
-      updateState({ input: savedInput })
-      calculator.value.input = savedInput
-      
-      if (newMode === "Programmer") {
-        const calc = calculator.value as any
-        if (calc.states?.DEC) {
-          calc.states.DEC.input = savedInput
+  const savedInput = getInput(newMode)
+  
+  if (savedInput) {
+    updateState({ input: savedInput })
+    calculator.value.input = savedInput
+    
+    if (newMode === "Programmer") {
+      const calc = calculator.value as any
+      if (calc.states?.DEC) {
+        calc.states.DEC.input = savedInput
       }
     }
   }
@@ -201,7 +252,9 @@ watch(() => currentMode.value, (newMode: CalculatorMode, oldMode?: CalculatorMod
 
 // Handle activity item selection with proper typing
 const selectHistoryItem = ({ expression }: HistoryItem): void => {
-  if (state.mode === 'Programmer') return
+  if (state.mode === 'Programmer') {
+    return
+  }
 
   updateState({ 
     input: expression, 

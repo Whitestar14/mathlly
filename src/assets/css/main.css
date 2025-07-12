@@ -15,7 +15,7 @@
     @apply font-sans font-normal;
     
     /* Border radius variable - default to sharp */
-    --radius: 0px;
+    --radius: 0.5rem;
     
     /* Default theme variables (Classic Light) - restored original brightness */
     --color-background: 255 255 255;
@@ -475,10 +475,11 @@
    Tooltip Styles
    ========================================================================== */
 .tippy-box[data-theme~='custom'] {
-  @apply text-xs p-0.5 rounded-lg shadow-lg border;
+  @apply text-xs p-0.5 shadow-lg border;
   background-color: rgb(var(--color-popover));
   color: rgb(var(--color-popover-foreground));
   border: 1px solid rgb(var(--color-border));
+  border-radius: 0.5rem;
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 

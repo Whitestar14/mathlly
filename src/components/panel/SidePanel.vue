@@ -1,7 +1,7 @@
 <template>
   <Transition :name="position === 'left' ? 'slide-left' : 'slide-right'">
     <div
-      v-if="isOpen"
+      v-show="isOpen"
       class="panel-side"
       :class="[
         isMobile ? 'w-full' : 'w-64',

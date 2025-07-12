@@ -13,29 +13,30 @@ import {
 export const DEFAULT_SETTINGS: Settings = {
   id: 1,
   display: {
-    precision: 4,
-    useFractions: false,
+    // Remove calculator-specific display settings - these are now in tool options
+    precision: 4, // Keep for backward compatibility, but calculator will use tool settings
+    useFractions: false, // Keep for backward compatibility
     formatting: {
-      useThousandsSeparator: true,
+      useThousandsSeparator: true, // Keep for backward compatibility
       formatBinary: true,
       formatHexadecimal: true,
       formatOctal: true,
     },
-    syntaxHighlighting: true,
-    textSize: 'normal',
+    syntaxHighlighting: true, // Keep for backward compatibility
+    textSize: 'normal', // This remains app-wide
   },
   calculator: {
-    mode: 'Standard',
+    mode: 'Standard', // This remains app-wide for initial mode
     scientific: {
-      angleUnit: 'degrees',
+      angleUnit: 'degrees', // Keep for backward compatibility
     },
     programmer: {
-      defaultBase: 'decimal',
+      defaultBase: 'decimal', // Keep for backward compatibility
     },
   },
   appearance: {
     theme: 'system',
-    themePack: 'mira', // Changed from 'classic' to 'mira' as default
+    themePack: 'mira',
     animationDisabled: false,
     checkForUpdates: true, 
     borderRadius: 'sharp',
@@ -112,7 +113,7 @@ export const useSettingsStore = defineStore('settings', {
         // Ensure theme pack is valid
         if (!settingsToSave.appearance.themePack || 
             !['classic', 'mira'].includes(settingsToSave.appearance.themePack)) {
-          settingsToSave.appearance.themePack = 'mira' // Changed default to mira
+          settingsToSave.appearance.themePack = 'mira'
         }
 
         settingsToSave.id = 1
@@ -140,7 +141,7 @@ export const useSettingsStore = defineStore('settings', {
         // Validate theme pack updates
         if (path === 'appearance.themePack' && !['classic', 'mira'].includes(value)) {
           console.warn(`Invalid theme pack: ${value}. Using default.`)
-          value = 'mira' // Changed default to mira
+          value = 'mira'
         }
         
         set(currentSettings, path, value)

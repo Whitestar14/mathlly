@@ -52,39 +52,8 @@ const showUnsavedChangesModal = ref<boolean>(false);
 const showResetDatabaseModal = ref<boolean>(false);
 const isResettingDatabase = ref<boolean>(false);
 
+// Updated settings manifest - removed calculator-specific sections
 const settingsManifest: SettingsManifestItem[] = [
-  {
-    id: 'display',
-    title: 'Display Settings',
-    icon: 'MonitorIcon',
-    keywords: [
-      'precision',
-      'decimal places',
-      'fractions',
-      'syntax highlighting',
-      'number formatting',
-      'thousands separator',
-      'comma',
-      'binary',
-      'hexadecimal',
-      'octal',
-      'font',
-      'appearance',
-      'text size',
-    ],
-  },
-  {
-    id: 'calculator',
-    title: 'Calculator Mode',
-    icon: 'CalculatorIcon',
-    keywords: [
-      'mode',
-      'standard',
-      'programmer',
-      'scientific',
-      'default calculator',
-    ],
-  },
   {
     id: 'startup',
     title: 'Startup Preferences',
@@ -183,31 +152,9 @@ const isRendered = (sectionId: string): boolean => {
 // Single source of truth - get settings directly from the store
 const localSettings = ref<Settings>(cloneDeep(DEFAULT_SETTINGS));
 
-// Create a snapshot of the current store state
+// Create a snapshot of the current store state (only app-wide settings)
 const storeSnapshot = computed(() => ({
   display: {
-    precision:
-      settingsStore.display?.precision ?? DEFAULT_SETTINGS.display.precision,
-    useFractions:
-      settingsStore.display?.useFractions ??
-      DEFAULT_SETTINGS.display.useFractions,
-    formatting: {
-      useThousandsSeparator:
-        settingsStore.display?.formatting?.useThousandsSeparator ??
-        DEFAULT_SETTINGS.display.formatting.useThousandsSeparator,
-      formatBinary:
-        settingsStore.display?.formatting?.formatBinary ??
-        DEFAULT_SETTINGS.display.formatting.formatBinary,
-      formatHexadecimal:
-        settingsStore.display?.formatting?.formatHexadecimal ??
-        DEFAULT_SETTINGS.display.formatting.formatHexadecimal,
-      formatOctal:
-        settingsStore.display?.formatting?.formatOctal ??
-        DEFAULT_SETTINGS.display.formatting.formatOctal,
-    },
-    syntaxHighlighting:
-      settingsStore.display?.syntaxHighlighting ??
-      DEFAULT_SETTINGS.display.syntaxHighlighting,
     textSize:
       settingsStore.display?.textSize ?? DEFAULT_SETTINGS.display.textSize,
   },
@@ -248,17 +195,6 @@ const hasChanges = computed((): boolean => {
 });
 
 // Options arrays with proper typing
-const precisionOptions: SelectOption[] = Array.from({ length: 11 }, (_, i) => ({
-  value: i,
-  label: i.toString(),
-}));
-
-const modeOptions: SelectOption[] = [
-  { value: 'Standard', label: 'Standard' },
-  { value: 'Scientific', label: 'Scientific' },
-  { value: 'Programmer', label: 'Programmer' },
-];
-
 const themeOptions: SelectOption[] = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
@@ -400,196 +336,6 @@ const cancelResetDatabase = (): void => {
         </div>
 
         <Collapsible
-          v-if="isRendered('display')"
-          id="display"
-          title="Display Settings"
-          icon="Monitor"
-          :default-open="true"
-        >
-          <div class="space-y-6">
-            <div class="space-y-4">
-              <div>
-                <label
-                  for="precision"
-                  class="text-sm font-medium text-foreground mb-1.5 block"
-                  >Precision</label
-                >
-                <Select
-                  v-model="localSettings.display.precision"
-                  :options="precisionOptions"
-                />
-                <p class="mt-1 text-xs text-muted-foreground">
-                  Set the number of decimal places to display in calculation
-                  results
-                </p>
-              </div>
-
-              <div>
-                <label
-                  for="textSize"
-                  class="text-sm font-medium text-foreground mb-1.5 block"
-                  >Text Size</label
-                >
-                <div class="mt-2">
-                  <RadioGroupRoot
-                    v-model="localSettings.display.textSize"
-                    class="inline-flex items-center rounded-md bg-muted p-1"
-                  >
-                    <div class="flex space-x-1">
-                      <RadioGroupItem
-                        v-for="option in textSizeOptions"
-                        :key="option.value"
-                        :value="option.value"
-                        class="rounded-md px-3 py-1.5 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                        :class="[
-                          localSettings.display.textSize === option.value
-                            ? 'bg-background shadow-sm text-foreground'
-                            : 'text-muted-foreground hover:text-foreground',
-                        ]"
-                      >
-                        {{ option.label }}
-                      </RadioGroupItem>
-                    </div>
-                  </RadioGroupRoot>
-                </div>
-                <p class="mt-1 text-xs text-muted-foreground">
-                  Adjust the size of text throughout the application
-                </p>
-              </div>
-
-              <div class="flex items-center justify-between py-2">
-                <div class="max-w-[80%]">
-                  <label
-                    for="useFractions"
-                    class="text-sm font-medium text-foreground"
-                    >Use Fractions</label
-                  >
-                  <p class="text-xs text-muted-foreground">
-                    Display results as fractions when possible
-                  </p>
-                </div>
-                <Switch v-model="localSettings.display.useFractions" />
-              </div>
-
-              <div class="flex items-center justify-between py-2">
-                <div class="max-w-[80%]">
-                  <div class="flex items-center gap-2">
-                    <label
-                      for="syntaxHighlighting"
-                      class="text-sm font-medium text-foreground"
-                      >Syntax Highlighting</label
-                    >
-                    <CircleHelp
-                      v-tippy="{
-                        content:
-                          'Experimental feature. Performance may be affected on complex calculations',
-                        placement: 'top',
-                        onShow() {
-                          return true;
-                        },
-                      }"
-                      class="h-4 w-4 cursor-help"
-                    />
-                  </div>
-                  <p class="text-xs text-muted-foreground">
-                    Highlight numbers, operators, and functions with different
-                    colors
-                  </p>
-                </div>
-                <Switch v-model="localSettings.display.syntaxHighlighting" />
-              </div>
-
-              <div class="space-y-2 pt-3 border-t border-border">
-                <h3 class="text-sm font-medium text-foreground">
-                  Number Formatting
-                </h3>
-                <div class="flex items-center justify-between py-2">
-                  <div class="max-w-[80%]">
-                    <label
-                      for="useThousandsSeparator"
-                      class="text-sm text-foreground"
-                      >Use Thousands Separator</label
-                    >
-                    <p class="text-xs text-muted-foreground">
-                      Add commas to separate thousands in large numbers
-                    </p>
-                  </div>
-                  <Switch
-                    v-model="
-                      localSettings.display.formatting.useThousandsSeparator
-                    "
-                  />
-                </div>
-
-                <div class="flex items-center justify-between py-2">
-                  <div class="max-w-[80%]">
-                    <label class="text-sm text-foreground"
-                      >Binary Numbers</label
-                    >
-                    <p class="text-xs text-muted-foreground">
-                      Format binary numbers for better readability
-                    </p>
-                  </div>
-                  <Switch
-                    v-model="localSettings.display.formatting.formatBinary"
-                  />
-                </div>
-
-                <div class="flex items-center justify-between py-2">
-                  <div class="max-w-[80%]">
-                    <label class="text-sm text-foreground"
-                      >Hexadecimal Numbers</label
-                    >
-                    <p class="text-xs text-muted-foreground">
-                      Format hexadecimal numbers for better readability
-                    </p>
-                  </div>
-                  <Switch
-                    v-model="localSettings.display.formatting.formatHexadecimal"
-                  />
-                </div>
-
-                <div class="flex items-center justify-between py-2">
-                  <div class="max-w-[80%]">
-                    <label class="text-sm text-foreground">Octal Numbers</label>
-                    <p class="text-xs text-muted-foreground">
-                      Format octal numbers for better readability
-                    </p>
-                  </div>
-                  <Switch
-                    v-model="localSettings.display.formatting.formatOctal"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </Collapsible>
-
-        <Collapsible
-          v-if="isRendered('calculator')"
-          id="calculator"
-          title="Calculator Mode"
-          icon="Calculator"
-          :default-open="true"
-        >
-          <div>
-            <label
-              for="mode"
-              class="text-sm font-medium text-foreground mb-1.5 block"
-              >Default Mode</label
-            >
-            <Select
-              v-model="localSettings.calculator.mode"
-              :options="modeOptions"
-            />
-            <p class="mt-1 text-xs text-muted-foreground">
-              Choose which calculator mode to use by default when opening the
-              app
-            </p>
-          </div>
-        </Collapsible>
-
-        <Collapsible
           v-if="isRendered('startup')"
           id="startup"
           title="Startup Preferences"
@@ -728,7 +474,6 @@ const cancelResetDatabase = (): void => {
               </div>
             </div>
 
-            <!-- Rest of the settings remain the same -->
             <!-- Theme Mode Selection -->
             <div>
               <label
@@ -742,6 +487,40 @@ const cancelResetDatabase = (): void => {
               />
               <p class="mt-1 text-xs text-muted-foreground">
                 Choose your preferred color theme or follow system settings
+              </p>
+            </div>
+
+            <!-- Text Size -->
+            <div>
+              <label
+                for="textSize"
+                class="text-sm font-medium text-foreground mb-1.5 block"
+                >Text Size</label
+              >
+              <div class="mt-2">
+                <RadioGroupRoot
+                  v-model="localSettings.display.textSize"
+                  class="inline-flex items-center rounded-md bg-muted p-1"
+                >
+                  <div class="flex space-x-1">
+                    <RadioGroupItem
+                      v-for="option in textSizeOptions"
+                      :key="option.value"
+                      :value="option.value"
+                      class="rounded-md px-3 py-1.5 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      :class="[
+                        localSettings.display.textSize === option.value
+                          ? 'bg-background shadow-sm text-foreground'
+                          : 'text-muted-foreground hover:text-foreground',
+                      ]"
+                    >
+                      {{ option.label }}
+                    </RadioGroupItem>
+                  </div>
+                </RadioGroupRoot>
+              </div>
+              <p class="mt-1 text-xs text-muted-foreground">
+                Adjust the size of text throughout the application
               </p>
             </div>
 
@@ -847,7 +626,7 @@ const cancelResetDatabase = (): void => {
               <p class="text-sm text-muted-foreground mb-3">
                 If you're experiencing issues with the app, you can reset the
                 database to default settings. This will delete all your
-                calculation history and restore default settings.
+                calculation history, tool settings, and restore default settings.
               </p>
 
               <div class="flex justify-end">
@@ -867,11 +646,11 @@ const cancelResetDatabase = (): void => {
           v-if="filteredManifest.length === 0 && searchQuery"
           class="text-center py-10"
         >
-          <p class="text-foreground text-lg">
+                    <p class="text-foreground text-lg">
             No settings found for "{{ searchQuery }}".
           </p>
           <p class="text-sm text-muted-foreground">
-            Try a different search term.
+            Try a different search term or check tool-specific options in the menu.
           </p>
         </div>
 
@@ -944,7 +723,7 @@ const cancelResetDatabase = (): void => {
                 <span class="text-xs font-bold">2</span>
               </div>
               <p class="text-sm text-foreground">
-                All settings will be restored to their default values
+                All settings and tool preferences will be restored to their default values
               </p>
             </div>
 
@@ -1005,3 +784,4 @@ const cancelResetDatabase = (): void => {
     </BaseModal>
   </div>
 </template>
+

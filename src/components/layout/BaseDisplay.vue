@@ -1,38 +1,38 @@
 <template>
-  <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 text-xs mt-1">
-    <button
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
+    <BaseButton
       v-for="base in bases"
       :key="base"
+      :variant="activeBase === base ? 'default' : 'outline'"
+      size="sm"
       :class="[
-        'flex justify-between items-center p-2 rounded-lg transition-colors duration-200',
-        baseButtonClasses(base),
+        'flex justify-between items-center p-3 h-auto text-xs font-medium',
+        activeBase === base 
+          ? 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/15' 
+          : ''
       ]"
       @click="$emit('base-change', base)"
     >
-      <span
+      <span class="font-medium">
+        {{ base }}
+      </span>
+      <span 
         :class="[
-          activeBase === base
-            ? 'text-primary dark:text-primary'
-            : 'text-muted-foreground dark:text-muted-foreground',
+          'font-mono text-xs truncate ml-2',
+          activeBase === base ? 'text-primary font-semibold' : 'opacity-90'
         ]"
-      >{{ base }}</span>
-      <span
-        :class="[
-          'monospace truncate ml-1',
-          activeBase === base
-            ? 'text-primary dark:text-primary font-medium'
-            : 'text-foreground dark:text-muted-foreground',
-        ]"
-      >{{ formattedValues[base] }}</span>
-    </button>
+      >
+        {{ formattedValues[base] }}
+      </span>
+    </BaseButton>
   </div>
 </template>
-
 
 <script setup lang="ts">
 import { computed, markRaw, type ComputedRef } from 'vue'
 import { DisplayFormatter } from "@/services/display/DisplayFormatter"
 import type { Base } from '@/composables/useCalculatorState'
+import BaseButton from '@/components/base/BaseButton.vue'
 
 // Define interfaces for component props and data
 interface Props {
@@ -75,15 +75,4 @@ const formattedValues: ComputedRef<FormattedValues> = computed(() => {
   
   return result
 })
-
-/**
- * Generate CSS classes for base buttons based on active state
- * @param base - The base to generate classes for
- * @returns CSS class string
- */
-const baseButtonClasses = (base: string): string => {
-  return props.activeBase === base
-    ? 'bg-indigo-50 dark:bg-muted/70 text-muted-foreground border border-indigo-300 dark:border-indigo-300/25 dark:text-foreground'
-    : 'bg-background dark:bg-background border border-border dark:border-border hover:bg-muted dark:hover:bg-accent/30'
-}
 </script>

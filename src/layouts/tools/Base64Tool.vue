@@ -101,11 +101,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, type Ref, type ComputedRef } from "vue";
+import { ref, computed, watch, nextTick, onMounted, type Ref, type ComputedRef } from "vue";
 import { useClipboard } from "@vueuse/core";
 import { Copy, ClipboardPaste, ArrowDownUp } from "lucide-vue-next";
 import { usePills } from "@/composables/usePills.ts";
 import { useToast } from "@/composables/useToast";
+import { useBase64Options } from "@/composables/useBase64Options";
 import BaseButton from "@/components/base/BaseButton.vue";
 import Indicator from "@/components/ui/PillIndicator.vue";
 
@@ -135,6 +136,9 @@ const inputArea: Ref<HTMLTextAreaElement | null> = ref(null);
 // Composables
 const { copy } = useClipboard();
 const { toast } = useToast();
+
+// Initialize Base64 options (this automatically registers with the tool settings store)
+const base64Options = useBase64Options();
 
 // Pills system for tab navigation
 const {
@@ -168,11 +172,30 @@ const isValidBase64: ComputedRef<boolean> = computed(() => {
 });
 
 /**
- * Encode text to Base64
+ * Encode text to Base64 with format options
  */
 const encodeToBase64 = (text: string): string => {
   try {
-    return btoa(unescape(encodeURIComponent(text)));
+    // Get current options from the new unified system
+    const currentOptions = base64Options.options.value
+    
+    const processedText = currentOptions.preserveWhitespace ? text : text.trim();
+    let encoded = btoa(unescape(encodeURIComponent(processedText)));
+    
+    // Apply output format
+    switch (currentOptions.outputFormat) {
+      case 'url-safe':
+        encoded = encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+        break;
+      case 'mime':
+        // Add line breaks for MIME format
+        const chunks = encoded.match(new RegExp(`.{1,${currentOptions.lineLength}}`, 'g')) || [];
+        encoded = chunks.join('\n');
+        break;
+      // 'standard' format needs no modification
+    }
+    
+    return encoded;
   } catch (error) {
     console.error("Encoding error:", error);
     throw new Error("Failed to encode text");
@@ -180,11 +203,23 @@ const encodeToBase64 = (text: string): string => {
 };
 
 /**
- * Decode Base64 to text
+ * Decode Base64 to text with format handling
  */
 const decodeFromBase64 = (base64: string): string => {
   try {
-    const cleanBase64 = base64.replace(/\s/g, '');
+    const currentOptions = base64Options.options.value
+    
+    let cleanBase64 = base64.replace(/\s/g, '');
+    
+    // Handle URL-safe format
+    if (currentOptions.outputFormat === 'url-safe') {
+      cleanBase64 = cleanBase64.replace(/-/g, '+').replace(/_/g, '/');
+      // Add padding if needed
+      while (cleanBase64.length % 4) {
+        cleanBase64 += '=';
+      }
+    }
+    
     return decodeURIComponent(escape(atob(cleanBase64)));
   } catch (error) {
     console.error("Decoding error:", error);
@@ -218,10 +253,13 @@ const processInput = (): void => {
 };
 
 /**
- * Handle input changes with debouncing
+ * Handle input changes with auto-processing
  */
 const handleInput = (): void => {
-  processInput();
+  // Use the reactive option from the new system
+  if (base64Options.autoProcess.value) {
+    processInput();
+  }
 };
 
 /**
@@ -243,8 +281,8 @@ const handleProcess = (): void => {
 const handleTabChange = async (tabValue: string, element: HTMLElement): Promise<void> => {
   await handleNavigation(tabValue, element);
   
-  // Auto-process if there's input
-  if (input.value.trim()) {
+  // Auto-process if there's input and auto-process is enabled
+  if (input.value.trim() && base64Options.autoProcess.value) {
     processInput();
   }
   
@@ -279,7 +317,9 @@ const pasteFromClipboard = async (): Promise<void> => {
   try {
     const text = await navigator.clipboard.readText();
     input.value = text;
-    processInput();
+    if (base64Options.autoProcess.value) {
+      processInput();
+    }
     toast("Pasted from clipboard!", { type: "success" });
   } catch (error) {
     console.error("Paste failed:", error);
@@ -316,6 +356,25 @@ const handleSwap = (): void => {
 // Watch for tab changes to update pills
 watch(currentTab, (newTab) => {
   currentPill.value = newTab;
+});
+
+// Watch for option changes and reprocess if auto-process is enabled
+// This now uses the unified options system
+watch(
+  () => base64Options.options.value,
+  () => {
+    if (base64Options.autoProcess.value && input.value.trim()) {
+      processInput();
+    }
+  },
+  { deep: true }
+);
+
+// Watch for auto-process changes specifically
+watch(() => base64Options.autoProcess.value, (newValue) => {
+  if (newValue && input.value.trim()) {
+    processInput();
+  }
 });
 
 // Initialize pills system on mount

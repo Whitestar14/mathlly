@@ -12,6 +12,7 @@ import { watch, onMounted, computed, type ComputedRef } from 'vue';
 import { createPanelContext } from '@/composables/usePanel';
 import { useDeviceStore } from '@/stores/device';
 import { useSettingsStore } from '@/stores/settings';
+import { usePWATheme } from '@/composables/usePWATheme';
 
 // Types
 type TextSize = 'small' | 'normal' | 'medium' | 'large';
@@ -25,10 +26,16 @@ const device = useDeviceStore();
 const settings = useSettingsStore();
 const { actions }: { actions: PanelActions } = createPanelContext();
 
+// Initialize PWA theme management
+const { updatePWATheme } = usePWATheme();
+
 onMounted(() => {
   const isMobile: boolean = device.isMobile;
   actions.setMobile(isMobile);
   updateTextSizeClasses(textSize.value);
+  
+  // Initialize PWA theme
+  updatePWATheme();
 });
 
 watch(() => device.isMobile, (newIsMobile: boolean) => {

@@ -5,7 +5,7 @@
       @update:model-value="$emit('update:model-value', $event)"
     >
       <SelectTrigger
-        class="inline-flex items-center text-foreground dark:text-muted-foreground justify-between w-full font-medium px-2.5 py-1.5 text-sm bg-background dark:bg-background border border-border dark:border-border rounded-md hover:bg-muted dark:hover:bg-accent/30 focus-colors"
+        class="inline-flex items-center justify-between w-full font-medium px-2.5 py-1.5 text-sm bg-background text-foreground border border-border rounded-md hover:bg-muted focus-colors transition-colors duration-200"
       >
         <SelectValue :placeholder="placeholder" />
         <ChevronDownIcon class="h-4 w-4 flex-shrink-0" />
@@ -13,7 +13,7 @@
 
       <SelectPortal>
         <SelectContent
-          class="select-content z-20 overflow-hidden text-foreground dark:text-muted-foreground bg-background dark:bg-background rounded-lg border border-border dark:border-border shadow-md"
+          class="select-content z-20 overflow-hidden bg-background text-foreground rounded-lg border border-border shadow-md"
           :position="position"
           :side-offset="5"
           :align="align"
@@ -22,7 +22,7 @@
             <SelectGroup>
               <SelectLabel
                 v-if="label"
-                class="px-1.5 py-1 text-xs font-medium"
+                class="px-1.5 py-1 text-xs font-medium text-muted-foreground"
               >
                 {{ label }}
               </SelectLabel>
@@ -31,7 +31,7 @@
                 v-for="option in options"
                 :key="option.value"
                 :value="option.value"
-                class="outline-none flex w-full items-center text-foreground dark:text-muted-foreground px-2.5 py-1.5 text-sm hover:bg-muted dark:hover:bg-accent/50 select-none rounded"
+                class="outline-none flex w-full items-center px-2.5 py-1.5 text-sm text-foreground hover:bg-muted select-none rounded transition-colors duration-200 cursor-pointer"
               >
                 <SelectItemText>{{ option.label }}</SelectItemText>
               </SelectItem>
@@ -89,6 +89,7 @@ defineEmits(["update:model-value"]);
 </script>
 
 <style>
+/* Ensure the dropdown matches the trigger width */
 [data-radix-popper-content-wrapper] {
   width: var(--radix-popper-anchor-width);
   z-index: 20 !important;
@@ -97,7 +98,9 @@ defineEmits(["update:model-value"]);
 /* Animation for the select dropdown */
 .select-content {
   transform-origin: var(--radix-popper-transform-origin);
-  animation: selectContentShow 0.2s ease-out;
+  animation: selectContentShow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 @keyframes selectContentShow {
@@ -113,7 +116,7 @@ defineEmits(["update:model-value"]);
 
 /* Animation for when the select dropdown is closing */
 .select-content[data-state="closed"] {
-  animation: selectContentHide 0.2s ease-in;
+  animation: selectContentHide 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes selectContentHide {
@@ -127,9 +130,44 @@ defineEmits(["update:model-value"]);
   }
 }
 
-/* Ensure the animation plays smoothly */
+/* Enhanced shadow for better depth perception */
 .select-content {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
+  box-shadow: 
+    0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1),
+    0 0 0 1px rgb(var(--color-border) / 0.05);
+}
+
+/* Dark mode shadow enhancement */
+.dark .select-content {
+  box-shadow: 
+    0 10px 15px -3px rgb(0 0 0 / 0.3),
+    0 4px 6px -4px rgb(0 0 0 / 0.2),
+    0 0 0 1px rgb(var(--color-border));
+}
+
+/* Better focus styles for select items */
+.select-content [data-highlighted] {
+  background-color: rgb(var(--color-accent));
+  color: rgb(var(--color-accent-foreground));
+  outline: none;
+}
+
+/* Selected item styling */
+.select-content [data-state="checked"] {
+  background-color: rgb(var(--color-primary) / 0.1);
+  color: rgb(var(--color-primary));
+  font-weight: 500;
+}
+
+.select-content [data-state="checked"]:hover,
+.select-content [data-state="checked"][data-highlighted] {
+  background-color: rgb(var(--color-primary) / 0.15);
+}
+
+/* Disabled state */
+.select-content [data-disabled] {
+  opacity: 0.5;
+  pointer-events: none;
 }
 </style>

@@ -10,6 +10,14 @@ export interface HistoryEntry {
   mode?: string
 }
 
+// Add new interface for tool-specific settings
+export interface ToolSettings {
+  id?: number
+  toolId: string
+  settings: Record<string, any>
+  lastUpdated: number
+}
+
 export interface Settings {
   id: number
   display: {
@@ -49,24 +57,24 @@ export interface Settings {
 export class MathllyDatabase extends Dexie {
   history!: Table<HistoryEntry>
   settings!: Table<Settings>
+  toolSettings!: Table<ToolSettings>
 
   constructor() {
     super('mathlly-db')
     
-    // Update to version 5 to include theme pack migration
+    // Update to version 5 to include tool settings
     this.version(5).stores({
       history: '++id,timestamp',
-      settings: 'id'
+      settings: 'id',
+      toolSettings: '++id,toolId,lastUpdated'
     }).upgrade(tx => {
       return tx.table('settings').toCollection().modify((settings: any) => {
-        // Handle migration from version 4 to 5 (add theme pack)
         if (settings && !settings.appearance?.themePack) {
           if (!settings.appearance) {
             settings.appearance = {}
           }
           settings.appearance.themePack = 'classic'
         }
-        
         // Handle migration from older versions
         if (settings && !settings.display && settings.precision !== undefined) {
           const newSettings: Settings = {
@@ -103,12 +111,10 @@ export class MathllyDatabase extends Dexie {
               navigation: settings.navigation || 'last-visited',
             }
           }
-          
           // Replace the old settings with the new structure
           Object.keys(settings).forEach(key => {
             delete settings[key]
           })
-          
           Object.assign(settings, newSettings)
         }
       })
@@ -181,6 +187,8 @@ export async function resetDatabase(): Promise<boolean> {
   }
 }
 
+// Tool settings helper functions moved to toolSettingsDb.ts
+
 // Create database instance
 const db = new MathllyDatabase()
 
@@ -189,11 +197,12 @@ db.on("ready", async () => {
   try {
     // If there are no settings, create default settings
     const settingsCount = await db.settings.count()
+    
     if (settingsCount === 0) {
       await db.settings.add(DEFAULT_SETTINGS)
     }
   } catch (error) {
-    console.error("Error initializing database:", error)
+    console.error("DB: Error initializing database:", error)
   }
 })
 
