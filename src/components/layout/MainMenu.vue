@@ -184,16 +184,18 @@ const themeItems: ThemeItem[] = [
   { id: "system", title: "System", icon: AppWindowMac }
 ];
 
-// External links configuration
+// External links configuration with descriptions
 const externalLinks: ExternalLink[] = [
   {
     url: "https://github.com/Whitestar14/mathlly",
     text: "Star on GitHub",
+    description: "View source code",
     icon: GithubIcon
   },
   {
     url: "https://x.com/@xijibomi",
-    text: "Follow my Twitter",
+    text: "Follow on X",
+    description: "Latest updates",
     icon: AtSign
   }
 ];

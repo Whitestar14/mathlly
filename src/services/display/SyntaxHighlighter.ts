@@ -17,22 +17,15 @@ interface FormattedPart {
 interface FormatOptions {
   base?: string
   mode?: string
+  options?: Record<string, any> // Calculator options from toolSettings
 }
 
 export class SyntaxHighlighter {
-  static readonly CACHE_NAMES = {
-    FORMAT: 'expression-format',
-    PARENTHESES: 'expression-parentheses',
-    TOKENS: 'expression-tokens'
-  } as const
+  private static readonly CACHE_KEY = 'syntax-highlighting'
+  private static cache = CacheManager.getCache<Token[]>(this.CACHE_KEY, 100)
   
   /**
    * Format an expression with both parentheses and syntax highlighting
-   * @param expr - The expression to format
-   * @param parenthesesTracker - Tracker for parentheses state
-   * @param syntaxHighlightingEnabled - Whether syntax highlighting is enabled
-   * @param options - Additional formatting options (mode, base)
-   * @returns Formatted tokens for rendering
    */
   static format(
     expr: string, 
@@ -44,48 +37,36 @@ export class SyntaxHighlighter {
       return [{ type: 'text', content: '0' }]
     }
     
-    const cacheKey = `${expr}-${parenthesesTracker?.getOpenCount() || 0}-${syntaxHighlightingEnabled}-${options.mode || 'Standard'}-${options.base || 'DEC'}`
+    // Include calculator options in cache key for proper invalidation
+    const optionsKey = options.options ? JSON.stringify(options.options) : ''
+    const cacheKey = `${expr}-${parenthesesTracker?.getOpenCount() || 0}-${syntaxHighlightingEnabled}-${options.mode || 'Standard'}-${options.base || 'DEC'}-${optionsKey}`
     
-    const formatCache = CacheManager.getCache<Token[]>(this.CACHE_NAMES.FORMAT, 100)
-
-    if (formatCache.has(cacheKey)) {
-      return formatCache.get(cacheKey)!
+    if (this.cache.has(cacheKey)) {
+      return this.cache.get(cacheKey)!
     }
 
+    // First format parentheses (including ghost parentheses)
     const parts = this.formatParentheses(expr, options)
 
+    // Then apply syntax highlighting if enabled
     const result = syntaxHighlightingEnabled 
       ? this.applySyntaxHighlighting(parts, options)
-      : parts
+      : parts.map(part => ({ type: part.type, content: part.content, parentLevel: part.level }))
     
-    formatCache.set(cacheKey, result)
-    
+    this.cache.set(cacheKey, result)
     return result
   }
   
   /**
    * Apply syntax highlighting to formatted parts
-   * @param parts - Formatted parts from parentheses formatting
-   * @param options - Additional formatting options
-   * @returns Parts with syntax highlighting applied to text parts
    */
   static applySyntaxHighlighting(parts: FormattedPart[], options: FormatOptions = {}): Token[] {
-    const tokensCache = CacheManager.getCache<Token[]>(this.CACHE_NAMES.TOKENS, 50)
-    
     const result: Token[] = []
     
     for (const part of parts) {
       if (part.type === 'text') {
-        const cacheKey = `${part.content}-${options.mode || 'Standard'}`
-        
-        let tokens: Token[]
-        if (tokensCache.has(cacheKey)) {
-          tokens = tokensCache.get(cacheKey)!
-        } else {
-          tokens = this.tokenize(part.content, options)
-          tokensCache.set(cacheKey, tokens)
-        }
-        
+        // Tokenize the text content while preserving whitespace
+        const tokens = this.tokenizeWithSyntax(part.content, options)
         for (const token of tokens) {
           result.push({
             ...token,
@@ -93,7 +74,12 @@ export class SyntaxHighlighter {
           })
         }
       } else {
-        result.push(part as Token)
+        // Keep parentheses, ghost, open, close as-is
+        result.push({
+          type: part.type,
+          content: part.content,
+          parentLevel: part.level
+        })
       }
     }
     
@@ -101,19 +87,9 @@ export class SyntaxHighlighter {
   }
   
   /**
-   * Format an expression with parentheses
-   * @param expr - The expression to format
-   * @param options - Additional formatting options
-   * @returns Formatted parts
+   * Format an expression with parentheses (including ghost parentheses)
    */
   static formatParentheses(expr: string, options: FormatOptions = {}): FormattedPart[] {
-    const parenthesesCache = CacheManager.getCache<FormattedPart[]>(this.CACHE_NAMES.PARENTHESES, 50)
-    
-    const cacheKey = `${expr}-${options.mode || 'Standard'}`
-    if (parenthesesCache.has(cacheKey)) {
-      return parenthesesCache.get(cacheKey)!
-    }
-    
     const parts: FormattedPart[] = []
     let currentIndex = 0
     let nestLevel = 0
@@ -133,8 +109,9 @@ export class SyntaxHighlighter {
       const nextChar = expr[i + 1]
 
       if (char === '(' || char === '|') {
+        // Add text before opening parenthesis
         if (i > currentIndex) {
-          const beforeText = expr.slice(currentIndex, i).trim()
+          const beforeText = expr.slice(currentIndex, i)
           if (beforeText) parts.push({ type: 'text', content: beforeText, level: nestLevel })
         }
         
@@ -142,19 +119,23 @@ export class SyntaxHighlighter {
         currentIndex = i + 1
         nestLevel++
       } else if (char === ')' || (char === '|' && nestLevel > 0)) {
+        // Add text before closing parenthesis
         if (i > currentIndex) {
-          const content = expr.slice(currentIndex, i).trim()
+          const content = expr.slice(currentIndex, i)
           if (content) parts.push({ type: 'text', content: content, level: nestLevel })
         }
         
-        parts.push({ type: 'close', content: char, level: --nestLevel })
+        nestLevel--
+        parts.push({ type: 'close', content: char, level: nestLevel })
         currentIndex = i + 1
       } else if (isOperator(char, nextChar)) {
+        // Add text before operator
         if (i > currentIndex) {
-          const beforeOp = expr.slice(currentIndex, i).trim()
+          const beforeOp = expr.slice(currentIndex, i)
           if (beforeOp) parts.push({ type: 'text', content: beforeOp, level: nestLevel })
         }
         
+        // Add operator with spaces
         if ((char === '<' && nextChar === '<') || (char === '>' && nextChar === '>')) {
           parts.push({ type: 'text', content: ` ${expr.slice(i, i + 2)} `, level: nestLevel })
           i++
@@ -165,201 +146,173 @@ export class SyntaxHighlighter {
       }
     }
   
+    // Add remaining text
     if (currentIndex < expr.length) {
-      const remaining = expr.slice(currentIndex).trim()
+      const remaining = expr.slice(currentIndex)
       if (remaining) parts.push({ type: 'text', content: remaining, level: nestLevel })
     }
   
+    // Add ghost parentheses for unclosed parentheses
     while (nestLevel > 0) {
-      parts.push({ type: 'ghost', content: ')', level: --nestLevel })
+      nestLevel--
+      parts.push({ type: 'ghost', content: ')', level: nestLevel })
     }
   
-    const result = this.cleanupParts(parts, options)
-    
-    parenthesesCache.set(cacheKey, result)
-    
-    return result
+    return parts
   }
   
   /**
-   * Clean up formatted parts
-   * @param parts - The parts to clean up
-   * @param options - Additional formatting options
-   * @returns Cleaned up parts
+   * Tokenize text content while preserving whitespace structure
    */
-  static cleanupParts(parts: FormattedPart[], options: FormatOptions = {}): FormattedPart[] {
-    const result: FormattedPart[] = []
-    const { REGEX } = CalculatorConstants
-    
-    for (let i = 0; i < parts.length; i++) {
-      const part = parts[i]
-      const nextPart = parts[i + 1]
-      const prevPart = result[result.length - 1]
-      
-      if (part.type === 'text' && !part.content.trim()) {
-        if ((prevPart?.type === 'open') || (nextPart?.type === 'close')) {
-          result.push(part)
-        }
-        continue
-      }
-      
-      if (part.type === 'text') {
-        const trimmedContent = part.content.trim()
-        const firstChar = trimmedContent[0]
-        
-        // Handle various operators based on mode
-        if (REGEX.OPERATOR.test(firstChar) || 
-            /^<<|^>>/.test(trimmedContent) ||
-            (options.mode === 'Scientific' && firstChar === '^')) {
-          if (prevPart?.type === 'text') {
-            prevPart.content = prevPart.content.trimEnd()
-          }
-        }
-      }
-      
-      result.push(part)
-    }
-    
-    return result
-  }
-  
-  /**
-   * Tokenize a text string for syntax highlighting
-   * @param text - The text to tokenize
-   * @param options - Additional formatting options
-   * @returns Array of token objects
-   */
-  static tokenize(text: string, options: FormatOptions = {}): Token[] {
+  private static tokenizeWithSyntax(text: string, options: FormatOptions): Token[] {
     if (!text) return []
     
     const tokens: Token[] = []
-    let currentToken = ''
     const { REGEX, BUTTON_TYPES } = CalculatorConstants
     const isScientificMode = options.mode === 'Scientific'
-
-    const pushToken = (): void => {
-      if (currentToken) {
-        tokens.push(this.classifyToken(currentToken, options))
-        currentToken = ''
-      }
-    }
-
-    for (let i = 0; i < text.length; i++) {
+    const isProgrammerMode = options.mode === 'Programmer'
+    
+    let i = 0
+    while (i < text.length) {
       const char = text[i]
       const nextChar = text[i + 1]
-
-      // Handle decimal points
-      if (char === '.') {
-        pushToken()
-        tokens.push({ type: 'decimal', content: '.' })
-        continue
-      }
-
-      // Handle shift operators (programmer mode)
-      if ((char === '<' && nextChar === '<') || (char === '>' && nextChar === '>')) {
-        pushToken()
-        tokens.push({ type: 'programmer-operator', content: char + nextChar })
+      
+      // Preserve whitespace
+      if (char === ' ') {
+        tokens.push({ type: 'space', content: ' ' })
         i++
         continue
       }
-
-      // Handle power operator (scientific mode)
-      if (isScientificMode && char === '^') {
-        pushToken()
-        tokens.push({ type: 'power-operator', content: '^' })
+      
+      // Handle numbers (including decimals in one token)
+      if (REGEX.NUMBER.test(char)) {
+        let number = ''
+        while (i < text.length && (REGEX.NUMBER.test(text[i]) || text[i] === '.')) {
+          number += text[i++]
+        }
+        tokens.push({ type: 'number', content: number })
         continue
       }
-
-      // Handle factorial (scientific mode)
-      if (isScientificMode && char === '!') {
-        pushToken()
-        tokens.push({ type: 'factorial', content: '!' })
+      
+      // Handle decimal points separately (when not part of a number)
+      if (char === '.') {
+        tokens.push({ type: 'decimal', content: '.' })
+        i++
         continue
       }
-
+      
+      // Handle shift operators (programmer mode)
+      if (isProgrammerMode && ((char === '<' && nextChar === '<') || (char === '>' && nextChar === '>'))) {
+        tokens.push({ type: 'operator', content: char + nextChar })
+        i += 2
+        continue
+      }
+      
       // Handle standard operators
-      if (BUTTON_TYPES.OPERATORS.includes(char as any) ||
+      if (BUTTON_TYPES.OPERATORS.includes(char as any) || 
           BUTTON_TYPES.PROGRAMMER_OPERATORS.includes(char as any)) {
-        pushToken()
-        tokens.push(this.classifyToken(char, options))
+        tokens.push({ type: 'operator', content: char })
+        i++
         continue
       }
-
+      
+      // Handle scientific operators
+      if (isScientificMode && (char === '^' || char === '!')) {
+        tokens.push({ type: 'operator', content: char })
+        i++
+        continue
+      }
+      
       // Handle parentheses and absolute value bars
-      if (REGEX.PARENTHESIS.test(char) || char === '|') {
-        pushToken()
+      if ('()|'.includes(char)) {
         tokens.push({ type: 'parenthesis', content: char })
+        i++
         continue
       }
-
+      
       // Handle scientific constants
       if (isScientificMode && (char === 'π' || char === 'e')) {
-        pushToken()
         tokens.push({ type: 'constant', content: char })
+        i++
         continue
       }
-
+      
       // Handle scientific symbols
       if (isScientificMode && (char === '√' || char === '∛')) {
-        pushToken()
-        tokens.push({ type: 'root-function', content: char })
+        tokens.push({ type: 'function', content: char })
+        i++
         continue
       }
-
-      currentToken += char
+      
+      // Handle scientific functions (sin, cos, tan, log, etc.)
+      if (isScientificMode && this.isScientificFunction(text, i)) {
+        const func = this.extractFunction(text, i)
+        tokens.push({ type: 'function', content: func })
+        i += func.length
+        continue
+      }
+      
+      // Handle modulo operator
+      if (text.substr(i, 3) === 'mod') {
+        tokens.push({ type: 'operator', content: 'mod' })
+        i += 3
+        continue
+      }
+      
+      // Default case - treat as text
+      tokens.push({ type: 'text', content: char })
+      i++
     }
-    pushToken()
     
     return tokens
   }
   
   /**
-   * Classify a token based on its content
-   * @param token - The token to classify
-   * @param options - Additional formatting options
-   * @returns Classified token object
+   * Check if current position starts a scientific function
    */
-  static classifyToken(token: string, options: FormatOptions = {}): Token {
-    const { REGEX, BUTTON_TYPES } = CalculatorConstants
-    const isScientificMode = options.mode === 'Scientific'
+  private static isScientificFunction(text: string, index: number): boolean {
+    const functions = [
+      'sin', 'cos', 'tan', 'asin', 'acos', 'atan',
+      'sinh', 'cosh', 'tanh', 'asinh', 'acosh', 'atanh',
+      'log', 'ln', 'sqrt', 'cbrt', 'abs', 'floor', 'ceil',
+      'round', 'exp', 'pow'
+    ]
     
-    if (token === ' ') return { type: 'space', content: token }
-    if (token === '.') return { type: 'decimal', content: token }
-    if (REGEX.NUMBER.test(token)) return { type: 'number', content: token }
-    
-    // Scientific mode specific classifications
-    if (isScientificMode) {
-      // Check for scientific functions
-      if (BUTTON_TYPES.SCIENTIFIC_FUNCTIONS.includes(token as any)) {
-        if (REGEX.TRIG_FUNCTION.test(token + '(')) return { type: 'trig-function', content: token }
-        if (REGEX.HYPERBOLIC_FUNCTION.test(token + '(')) return { type: 'hyperbolic-function', content: token }
-        if (REGEX.LOG_FUNCTION.test(token + '(')) return { type: 'log-function', content: token }
-        return { type: 'scientific-function', content: token }
-      }
-      
-      // Check for constants
-      if (token === 'π' || token === 'e') return { type: 'constant', content: token }
-      
-      // Check for special scientific operators
-      if (token === '^') return { type: 'power-operator', content: token }
-      if (token === '!') return { type: 'factorial', content: token }
-      if (token === '√' || token === '∛') return { type: 'root-function', content: token }
-      
-      // Check for modulo
-      if (token === 'mod') return { type: 'modulo-operator', content: token }
-    }
-    
-    // Standard classifications
-    if (BUTTON_TYPES.OPERATORS.includes(token as any)) return { type: 'operator', content: token }
-    if (BUTTON_TYPES.PROGRAMMER_OPERATORS.includes(token as any)) return { type: 'programmer-operator', content: token }
-    
-    return { type: 'text', content: token }
+    return functions.some(func => {
+      const substr = text.substr(index, func.length)
+      const nextChar = text[index + func.length]
+      // Make sure it's a complete function name (followed by '(' or end of string)
+      return substr === func && (nextChar === '(' || nextChar === undefined || nextChar === ' ')
+    })
   }
   
   /**
-   * Clear all expression formatter caches
+   * Extract function name from current position
+   */
+  private static extractFunction(text: string, index: number): string {
+    const functions = [
+      'asinh', 'acosh', 'atanh', // Check longer functions first
+      'asin', 'acos', 'atan',
+      'sinh', 'cosh', 'tanh',
+      'sqrt', 'cbrt', 'floor', 'ceil', 'round',
+      'sin', 'cos', 'tan', 'log', 'exp', 'pow', 'abs'
+    ]
+    
+    for (const func of functions) {
+      const substr = text.substr(index, func.length)
+      const nextChar = text[index + func.length]
+      if (substr === func && (nextChar === '(' || nextChar === undefined || nextChar === ' ')) {
+        return func
+      }
+    }
+    
+    return text[index]
+  }
+  
+  /**
+   * Clear cache when calculator options change
    */
   static clearCache(): void {
-    CacheManager?.clearAllCaches?.()
+    this.cache.clear()
   }
 }

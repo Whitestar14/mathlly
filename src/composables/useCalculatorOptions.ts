@@ -11,8 +11,9 @@ export interface CalculatorOptions {
   formatBinary: boolean
   formatHexadecimal: boolean
   formatOctal: boolean
-  angleUnit: 'degrees' | 'radians'
+  angleUnit: 'degrees' | 'radians' | 'gradians'
   notationMode: 'standard' | 'scientific' | 'engineering'
+  hyperbolicMode: boolean
 }
 
 // Default calculator options
@@ -25,7 +26,8 @@ const DEFAULT_CALCULATOR_OPTIONS: CalculatorOptions = {
   formatHexadecimal: true,
   formatOctal: true,
   angleUnit: 'degrees',
-  notationMode: 'standard'
+  notationMode: 'standard',
+  hyperbolicMode: false
 }
 
 export function useCalculatorOptions() {
@@ -39,8 +41,9 @@ export function useCalculatorOptions() {
   const formatBinary = ref<boolean>(DEFAULT_CALCULATOR_OPTIONS.formatBinary)
   const formatHexadecimal = ref<boolean>(DEFAULT_CALCULATOR_OPTIONS.formatHexadecimal)
   const formatOctal = ref<boolean>(DEFAULT_CALCULATOR_OPTIONS.formatOctal)
-  const angleUnit = ref<'degrees' | 'radians'>(DEFAULT_CALCULATOR_OPTIONS.angleUnit)
+  const angleUnit = ref<'degrees' | 'radians' | 'gradians'>(DEFAULT_CALCULATOR_OPTIONS.angleUnit)
   const notationMode = ref<'standard' | 'scientific' | 'engineering'>(DEFAULT_CALCULATOR_OPTIONS.notationMode)
+  const hyperbolicMode = ref<boolean>(DEFAULT_CALCULATOR_OPTIONS.hyperbolicMode)
 
   const isInitializing = ref(true)
 
@@ -59,6 +62,7 @@ export function useCalculatorOptions() {
     formatOctal.value = newSettings.formatOctal ?? DEFAULT_CALCULATOR_OPTIONS.formatOctal
     angleUnit.value = newSettings.angleUnit ?? DEFAULT_CALCULATOR_OPTIONS.angleUnit
     notationMode.value = newSettings.notationMode ?? DEFAULT_CALCULATOR_OPTIONS.notationMode
+    hyperbolicMode.value = newSettings.hyperbolicMode ?? DEFAULT_CALCULATOR_OPTIONS.hyperbolicMode
     
     nextTick(() => {
       isInitializing.value = false
@@ -83,6 +87,42 @@ export function useCalculatorOptions() {
   createWatcher(formatOctal, 'formatOctal')
   createWatcher(angleUnit, 'angleUnit')
   createWatcher(notationMode, 'notationMode')
+  createWatcher(hyperbolicMode, 'hyperbolicMode')
+
+  // Computed display modes for UI
+  const angleDisplayMode = computed(() => {
+    const mapping = {
+      'degrees': 'DEG',
+      'radians': 'RAD', 
+      'gradians': 'GRAD'
+    };
+    return mapping[angleUnit.value] || 'DEG';
+  });
+
+  const notationDisplayMode = computed(() => {
+    const mapping = {
+      'standard': 'F-E',
+      'scientific': 'SCI',
+      'engineering': 'SCI'
+    };
+    return mapping[notationMode.value] || 'F-E';
+  });
+
+  // Helper methods for UI interactions
+  const cycleAngleMode = async () => {
+    const modes: Array<'degrees' | 'radians' | 'gradians'> = ['degrees', 'radians', 'gradians'];
+    const currentIndex = modes.indexOf(angleUnit.value);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    angleUnit.value = modes[nextIndex];
+  };
+
+  const toggleNotationMode = async () => {
+    notationMode.value = notationMode.value === 'standard' ? 'scientific' : 'standard';
+  };
+
+  const toggleHyperbolicMode = async () => {
+    hyperbolicMode.value = !hyperbolicMode.value;
+  };
 
   // Register calculator configuration
   const calculatorConfig: ToolConfig = {
@@ -158,7 +198,8 @@ export function useCalculatorOptions() {
         value: angleUnit,
         options: [
           { value: 'degrees', label: 'Degrees' },
-          { value: 'radians', label: 'Radians' }
+          { value: 'radians', label: 'Radians' },
+          { value: 'gradians', label: 'Gradians' }
         ],
         section: 'Scientific'
       },
@@ -174,6 +215,14 @@ export function useCalculatorOptions() {
           { value: 'engineering', label: 'Engineering' }
         ],
         section: 'Scientific'
+      },
+      {
+        id: 'hyperbolicMode',
+        label: 'Hyperbolic Mode',
+        description: 'Enable hyperbolic trigonometric functions',
+        type: 'toggle',
+        value: hyperbolicMode,
+        section: 'Scientific'
       }
     ]
   }
@@ -182,6 +231,7 @@ export function useCalculatorOptions() {
   toolStore.registerTool(calculatorConfig)
 
   return {
+    // Individual reactive refs
     precision,
     useFractions,
     syntaxHighlighting,
@@ -191,6 +241,18 @@ export function useCalculatorOptions() {
     formatOctal,
     angleUnit,
     notationMode,
+    hyperbolicMode,
+    
+    // Display modes for UI
+    angleDisplayMode,
+    notationDisplayMode,
+    
+    // Helper methods
+    cycleAngleMode,
+    toggleNotationMode,
+    toggleHyperbolicMode,
+    
+    // Store state
     isLoading: toolStore.isLoading,
     
     // Computed getter for all options
@@ -203,7 +265,8 @@ export function useCalculatorOptions() {
       formatHexadecimal: formatHexadecimal.value,
       formatOctal: formatOctal.value,
       angleUnit: angleUnit.value,
-      notationMode: notationMode.value
+      notationMode: notationMode.value,
+      hyperbolicMode: hyperbolicMode.value
     }))
   }
 }

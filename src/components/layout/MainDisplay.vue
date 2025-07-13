@@ -32,8 +32,7 @@
               :key="index"
               :class="[
                 getTokenClass(token),
-                getParenthesesLevelClass(token),
-                errorClass,
+                getParenthesesLevelClass(token)
               ]"
               :data-token-type="token.type"
               :data-parent-level="token.parentLevel"
@@ -71,15 +70,14 @@
 
 <script setup lang="ts">
 import { inject, computed, onMounted, watch, onUnmounted, shallowRef, type Ref, type ComputedRef } from "vue"
-import { useElementSize, useScroll, useThrottleFn, useMemoize } from '@vueuse/core'
+import { useElementSize, useScroll, useThrottleFn } from '@vueuse/core'
 import { useAnimation, type SlideAnimationControls } from '@/composables/useAnimation'
-import { useSettingsStore } from '@/stores/settings'
+import { useCalculatorOptions } from '@/composables/useCalculatorOptions'
 import { SyntaxHighlighter } from '@/services/display/SyntaxHighlighter'
-import { CalculatorConstants } from '@/utils/constants/CalculatorConstants'
 
 // Define interfaces for props and emits
 interface Props {
-input?: string
+  input?: string
   preview?: string
   error?: string
   isAnimating?: boolean
@@ -121,7 +119,8 @@ const emit = defineEmits<{
   'scroll-update': [payload: ScrollUpdatePayload]
 }>()
 
-const settingsStore = useSettingsStore()
+// Use calculator options instead of settings store
+const calculatorOptions = useCalculatorOptions()
 
 // DOM refs - use shallowRef for better performance with DOM elements
 const displayContainer: Ref<HTMLElement | null> = shallowRef(null)
@@ -146,122 +145,87 @@ const { x: scrollLeft, arrivedState } = useScroll(displayContainer, {
   onScroll: useThrottleFn(updateScrollState, 100)
 })
 
-// Check if syntax highlighting is enabled - non-reactive if setting doesn't change often
-const syntaxHighlightingEnabled: ComputedRef<boolean> = computed(() => settingsStore.display.syntaxHighlighting)
+// Use calculator options for syntax highlighting
+const syntaxHighlightingEnabled: ComputedRef<boolean> = computed(() => 
+  calculatorOptions.syntaxHighlighting.value
+)
 
-// Comprehensive token class map supporting all syntax variants from CalculatorConstants
-const tokenClassMap: Record<string, string> = {
-  // Parentheses and structural elements
-  'open': 'paren-open syntax-parenthesis',
-  'close': 'paren-close syntax-parenthesis',
-  'ghost': 'paren-ghost syntax-ghost',
-  'parenthesis': 'syntax-parenthesis',
+// Enhanced parentheses level styling to handle ghost parentheses
+const getParenthesesLevelClass = (token: Token): string => {
+  if (!['open', 'close', 'ghost', 'parenthesis'].includes(token.type)) return ''
   
-  // Numbers and decimals
-  'number': 'syntax-number',
-  'decimal': 'syntax-decimal',
+  const colors = [
+    'text-blue-600 dark:text-blue-400',
+    'text-green-600 dark:text-green-400', 
+    'text-purple-600 dark:text-purple-400',
+    'text-orange-600 dark:text-orange-400',
+    'text-pink-600 dark:text-pink-400'
+  ]
   
-  // Standard operators (from BUTTON_TYPES.OPERATORS)
-  'operator': 'syntax-operator',
+  let baseColor = colors[(token.parentLevel || 0) % colors.length]
   
-  // Programmer operators (from BUTTON_TYPES.PROGRAMMER_OPERATORS)
-  'programmer-operator': 'syntax-programmer-operator',
-  
-  // Scientific functions (from BUTTON_TYPES.SCIENTIFIC_FUNCTIONS)
-  'scientific-function': 'syntax-scientific-function',
-  'trig-function': 'syntax-trig-function',
-  'hyperbolic-function': 'syntax-hyperbolic-function',
-  'log-function': 'syntax-log-function',
-  'power-operator': 'syntax-power-operator',
-  'root-function': 'syntax-root-function',
-  'factorial': 'syntax-factorial',
-  'modulo-operator': 'syntax-modulo-operator',
-  
-  // Constants and special symbols
-  'constant': 'syntax-constant',
-  
-  // Generic and utility
-  'function': 'syntax-function',
-  'text': 'syntax-text',
-  'space': ''
-}
-
-// Parentheses level styling for nested expressions
-const parenthesesLevelColors: Record<number, string> = {
-  0: 'text-blue-600 dark:text-blue-400',
-  1: 'text-green-600 dark:text-green-400', 
-  2: 'text-purple-600 dark:text-purple-400',
-  3: 'text-orange-600 dark:text-orange-400',
-  4: 'text-pink-600 dark:text-pink-400'
-}
-
-// Enhanced token classification function
-function getTokenClass(token: Token): string {
-  const baseClass = tokenClassMap[token.type] || 'syntax-text'
-  
-  // Add mode-specific enhancements
-  if (props.mode === 'Scientific') {
-    // Enhanced scientific function styling
-    if (CalculatorConstants.BUTTON_TYPES.SCIENTIFIC_FUNCTIONS.includes(token.content as any)) {
-      return `${baseClass} font-semibold`
-    }
-    // Constants get special treatment
-    if (token.content === 'π' || token.content === 'e') {
-      return `${baseClass} font-bold text-primary dark:text-primary`
-    }
+  // Make ghost parentheses semi-transparent
+  if (token.type === 'ghost') {
+    baseColor += ' opacity-50'
   }
   
-  if (props.mode === 'Programmer') {
-    // Programmer operators get enhanced styling
-    if (CalculatorConstants.BUTTON_TYPES.PROGRAMMER_OPERATORS.includes(token.content as any)) {
-      return `${baseClass} font-bold`
-    }
-    // Base-specific number styling
-    if (token.type === 'number') {
-      switch (props.activeBase) {
-        case 'BIN': return `${baseClass} text-green-700 dark:text-green-300`
-        case 'OCT': return `${baseClass} text-yellow-700 dark:text-yellow-300`
-        case 'HEX': return `${baseClass} text-purple-700 dark:text-purple-300`
-        default: return baseClass
-      }
+  return baseColor
+}
+
+// Enhanced token class to handle spaces and ghost parentheses
+const getTokenClass = (token: Token): string => {
+  const baseClasses: Record<string, string> = {
+    'number': 'syntax-number',
+    'operator': 'syntax-operator',
+    'function': 'syntax-function font-semibold',
+    'parenthesis': 'syntax-parenthesis font-bold',
+    'open': 'syntax-parenthesis font-bold',
+    'close': 'syntax-parenthesis font-bold',
+    'ghost': 'syntax-parenthesis font-bold opacity-50', // Ghost parentheses styling
+    'constant': 'syntax-constant text-green-600 dark:text-green-400 font-bold',
+    'decimal': 'syntax-decimal',
+    'space': '',
+    'text': 'syntax-text'
+  }
+  
+  let baseClass = baseClasses[token.type] || 'syntax-text'
+  
+  // Add mode-specific enhancements
+  if (props.mode === 'Programmer' && token.type === 'number') {
+    switch (props.activeBase) {
+      case 'BIN': baseClass += ' text-green-700 dark:text-green-300'
+        break
+      case 'OCT': baseClass += ' text-yellow-700 dark:text-yellow-300'
+        break
+      case 'HEX': baseClass += ' text-purple-700 dark:text-purple-300'
+        break
     }
   }
   
   return baseClass
 }
 
-// Parentheses level styling
-function getParenthesesLevelClass(token: Token): string {
-  if (token.type === 'open' || token.type === 'close' || token.type === 'ghost') {
-    const level = token.parentLevel || 0
-    return parenthesesLevelColors[level % 5] || parenthesesLevelColors[0]
-  }
-  return ''
-}
-
-// Memoize font size calculation for better performance
-const getFontSizeClass = useMemoize((value: string, mode: string, activeBase: string): string => {
-  if (!value) return mode === 'Standard' ? 'text-3xl' : 'text-2xl'
-
-  const length = value.toString().length
-
+// Reactive font size calculation
+const getFontSizeClass = computed(() => {
+  const length = props.input.length
+  const { mode, activeBase } = props
+  
   if (mode === 'Standard') {
     if (length > 70) return 'text-xl'
     if (length > 50) return 'text-2xl'
     return 'text-3xl'
   } else if (mode === 'Scientific') {
-    // Scientific mode: account for function names
     if (length > 60) return 'text-lg'
     if (length > 40) return 'text-xl'
     return 'text-2xl'
   } else {
-    // Programmer mode: use smaller font sizes for binary
     if (length > 70) return 'text-base'
     if (length > 50) return 'text-lg'
     return activeBase === 'BIN' ? 'text-lg' : 'text-2xl'
   }
 })
 
+// Reactive formatted tokens
 const formattedTokens: ComputedRef<Token[]> = computed(() => {
   if (!syntaxHighlightingEnabled.value) return []
   
@@ -271,20 +235,18 @@ const formattedTokens: ComputedRef<Token[]> = computed(() => {
     true,
     {
       base: props.activeBase,
-      mode: props.mode
+      mode: props.mode,
+      options: calculatorOptions.options.value
     }
   )
 })
 
+// Simplified display class
 const displayClass: ComputedRef<string[]> = computed(() => [
   'mb-1 overflow-x-auto whitespace-nowrap scrollbar-hide',
-  getFontSizeClass(props.input, props.mode, props.activeBase),
-  errorClass.value
-])
-
-const errorClass: ComputedRef<string> = computed(() => 
+  getFontSizeClass.value,
   props.error ? 'text-destructive dark:text-destructive' : 'transition-colors'
-)
+])
 
 function updateScrollState(): void {
   if (!displayContainer.value) return
@@ -335,14 +297,20 @@ watch(() => props.isAnimating, (newValue: boolean) => {
   }
 }, { flush: 'post' })
 
-function clearCache(): void {
-  if (syntaxHighlightingEnabled.value) SyntaxHighlighter.clearCache()
-}
+// Watch for calculator options changes and clear syntax highlighter cache
+watch(() => calculatorOptions.options.value, () => {
+  SyntaxHighlighter.clearCache()
+}, { deep: true })
 
-watch([() => props.mode, () => props.activeBase], clearCache, { deep: false })
+// Clear cache when mode or base changes
+watch([() => props.mode, () => props.activeBase], () => {
+  SyntaxHighlighter.clearCache()
+})
 
 onMounted(updateScrollState)
-onUnmounted(clearCache)
+onUnmounted(() => {
+  SyntaxHighlighter.clearCache()
+})
 
 defineExpose({
   scrollToEnd, 

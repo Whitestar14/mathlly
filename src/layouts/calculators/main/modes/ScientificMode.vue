@@ -4,17 +4,17 @@
     <div class="grid grid-cols-3 gap-1 h-8">
       <button
         class="calc-function-btn calc-btn calc-btn-top"
-        :class="{ 'active': angleMode !== 'DEG' }"
-        @click="cycleAngleMode"
+        :class="{ 'active': calculatorOptions.angleDisplayMode !== 'DEG' }"
+        @click="calculatorOptions.cycleAngleMode"
       >
-        <span>{{ angleMode }}</span>
+        <span>{{ calculatorOptions.angleDisplayMode }}</span>
       </button>
       <button
         class="calc-function-btn calc-btn calc-btn-top"
-        :class="{ 'active': notationMode === 'SCI' }"
-        @click="toggleNotationMode"
+        :class="{ 'active': calculatorOptions.notationDisplayMode === 'SCI' }"
+        @click="calculatorOptions.toggleNotationMode"
       >
-        <span>{{ notationMode }}</span>
+        <span>{{ calculatorOptions.notationDisplayMode }}</span>
       </button>
       
       <!-- Memory dropdown with uniform styling -->
@@ -56,8 +56,8 @@
               value="HYP"
               variant="function"
               size="sm"
-              :class="{ 'calc-active-btn': hyperbolicMode }"
-              @click="toggleHyperbolicMode"
+              :class="{ 'calc-active-btn': calculatorOptions.hyperbolicMode }"
+              @click="calculatorOptions.toggleHyperbolicMode"
             >
               HYP
             </CalcButton>
@@ -187,7 +187,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, inject } from "vue";
 import CalcButton from '@/components/ui/CalculatorButton.vue';
 import BaseDropdown from '@/components/base/BaseDropdown.vue';
 import BaseDropdownItem from '@/components/base/BaseDropdownItem.vue';
@@ -223,14 +223,14 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['button-click', 'clear', 'mode-toggle']);
+const emit = defineEmits(['button-click', 'clear']);
 
-// State
+// Inject calculator options from parent
+const calculatorOptions = inject('calculatorOptions');
+
+// Local UI state (not related to calculator settings)
 const secondFunctionActive = ref(false);
 const trigSecondFunctionActive = ref(false);
-const angleMode = ref('DEG');
-const notationMode = ref('F-E');
-const hyperbolicMode = ref(false);
 
 const isMaxLengthReached = computed(() => 
   props.inputLength >= props.maxLength
@@ -250,7 +250,7 @@ const reactiveButtonRow = computed(() => [
 
 // Compute current trig functions based on both 2nd and hyperbolic mode
 const currentTrigFunctions = computed(() => {
-  if (hyperbolicMode.value) {
+  if (calculatorOptions?.hyperbolicMode.value) {
     return trigSecondFunctionActive.value ? secondaryHyperbolicFunctions : primaryHyperbolicFunctions;
   } else {
     return trigSecondFunctionActive.value ? secondaryTrigFunctions : primaryTrigFunctions;
@@ -267,31 +267,6 @@ const handleClick = (value) => {
 
 const handleTrigFunction = (value) => {
   emit('button-click', value);
-};
-
-// Cycle through angle modes: DEG -> RAD -> GRAD -> DEG
-const cycleAngleMode = () => {
-  if (angleMode.value === 'DEG') {
-    angleMode.value = 'RAD';
-  } else if (angleMode.value === 'RAD') {
-    angleMode.value = 'GRAD';
-  } else {
-    angleMode.value = 'DEG';
-  }
-  
-  emit('mode-toggle', { type: 'angle', value: angleMode.value });
-};
-
-// Toggle notation mode F-E <-> SCI
-const toggleNotationMode = () => {
-  notationMode.value = notationMode.value === 'F-E' ? 'SCI' : 'F-E';
-  emit('mode-toggle', { type: 'notation', value: notationMode.value });
-};
-
-// Toggle hyperbolic mode
-const toggleHyperbolicMode = () => {
-  hyperbolicMode.value = !hyperbolicMode.value;
-  emit('mode-toggle', { type: 'hyperbolic', value: hyperbolicMode.value });
 };
 
 const toggleSecondFunction = () => {

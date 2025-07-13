@@ -1,8 +1,9 @@
 import { ICalculator } from "@/utils/core/ICalculator.ts";
 import { ScientificOperations } from "@/utils/operations/ScientificOperations.ts";
-import { ScientificCalculations } from "@/utils/calculations/ScientificCalculations.ts";
+import { ScientificCalculations } from '@/utils/calculations/ScientificCalculations';
 import { CalculatorConstants } from "@/utils/constants/CalculatorConstants.ts";
 import { CalculatorUtils } from '@/utils/constants/CalculatorUtils';
+import { computed, type ComputedRef } from 'vue';
 
 /**
  * Calculator implementation for scientific mode
@@ -14,47 +15,48 @@ export class ScientificCalculator extends ICalculator {
   MAX_INPUT_LENGTH: number;
   calculations: ScientificCalculations;
   operations: ScientificOperations;
-  angleMode: 'RAD' | 'DEG' | 'GRAD' = 'DEG';
-  notationMode: 'F-E' | 'SCI' = 'F-E';
-  hyperbolicMode: boolean = false;
+  
+  // Reactive computed properties for modes
+  angleMode: ComputedRef<'RAD' | 'DEG' | 'GRAD'>;
+  notationMode: ComputedRef<'F-E' | 'SCI'>;
+  hyperbolicMode: ComputedRef<boolean>;
 
   /**
    * Create a new scientific calculator
-   * 
-   * @param {Object} settings - Calculator settings
+   * No settings parameter needed - uses tool settings store directly
    */
-  constructor(settings: any) {
-    super(settings);
+  constructor() {
+    super(); // No settings parameter needed
     this.MAX_INPUT_LENGTH = CalculatorConstants.MAX_INPUT_LENGTH.STANDARD;
-    // Use composition for calculations and operations
-    this.calculations = new ScientificCalculations(settings);
-    this.operations = new ScientificOperations(this);
     
-    // Initialize scientific modes
-    this.angleMode = settings.angleUnit === 'radians' ? 'RAD' : 'DEG';
-  }
+    // Create reactive computed properties that map tool settings to calculator modes
+    this.angleMode = computed(() => {
+      const angleUnit = this.getToolSetting('angleUnit', 'degrees') as 'degrees' | 'radians' | 'gradians';
+      const mapping: Record<'degrees' | 'radians' | 'gradians', 'DEG' | 'RAD' | 'GRAD'> = {
+        'degrees': 'DEG',
+        'radians': 'RAD',
+        'gradians': 'GRAD'
+      };
+      return mapping[angleUnit] ?? 'DEG';
+    });
 
-  /**
-   * Set angle mode for trigonometric functions
-   */
-  setAngleMode(mode: 'RAD' | 'DEG' | 'GRAD'): void {
-    this.angleMode = mode;
-    this.calculations.setAngleMode(mode);
-  }
+    this.notationMode = computed(() => {
+      const notationMode = this.getToolSetting('notationMode', 'standard') as 'standard' | 'scientific' | 'engineering';
+      const mapping: Record<'standard' | 'scientific' | 'engineering', 'F-E' | 'SCI'> = {
+        'standard': 'F-E',
+        'scientific': 'SCI',
+        'engineering': 'SCI' // Map engineering to SCI for now
+      };
+      return mapping[notationMode] ?? 'F-E';
+    });
 
-  /**
-   * Set notation mode for display
-   */
-  setNotationMode(mode: 'F-E' | 'SCI'): void {
-    this.notationMode = mode;
-    this.calculations.setNotationMode(mode);
-  }
-
-  /**
-   * Toggle hyperbolic mode
-   */
-  toggleHyperbolic(state?: boolean): void {
-    this.hyperbolicMode = state !== undefined ? state : !this.hyperbolicMode;
+    this.hyperbolicMode = computed(() => {
+      return this.getToolSetting('hyperbolicMode', false);
+    });
+    
+    // Use composition for calculations and operations - pass this calculator instance
+    this.calculations = new ScientificCalculations(this);
+    this.operations = new ScientificOperations(this);
   }
 
   /**

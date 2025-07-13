@@ -38,10 +38,8 @@
           :max-length="maxInputLength"
           :active-base="state.activeBase"
           :has-memory="hasMemoryValue"
-          :calculator-options="calculatorOptions"
           @button-click="handleButtonClick"
           @clear="handleClear"
-          @mode-toggle="handleModeToggle"
         />
       </div>
     </div>
@@ -56,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref, provide, defineAsyncComponent, onMounted, type Ref, type ComputedRef } from 'vue'
+import { computed, watch, ref, provide, defineAsyncComponent, type Ref, type ComputedRef } from 'vue'
 import { useHistory, type HistoryItem } from '@/composables/useHistory'
 import { useMemory, type UseMemoryReturn } from '@/composables/useMemory'
 import { usePanel, type LightweightPanelAPI } from '@/composables/usePanel'
@@ -78,7 +76,6 @@ const CalculatorModeSwitcher = defineAsyncComponent(() => import('@/components/c
 
 // Types
 interface Props {
-  settings: Record<string, any>
   isMobile: boolean
 }
 
@@ -114,46 +111,14 @@ const {
 
 const { saveInput, getInput } = useCalculatorSession();
 
-// Create calculator with current options
-const createCalculatorWithOptions = (mode: CalculatorMode) => {
-  // Get current options from the new system
-  const currentOptions = calculatorOptions.options.value
-  
-  const calc = CalculatorFactory.create(mode, {
-    ...props.settings,
-    ...currentOptions
-  })
-  
-  // Apply options to calculator if it supports them
-  if (isScientificCalculator(calc)) {
-    calc.setAngleMode(currentOptions.angleUnit)
-    calc.setNotationMode(currentOptions.notationMode)
-  }
-  
-  return calc
+// Create calculator - no longer needs options since it uses tool settings directly
+const createCalculator = (mode: CalculatorMode) => {
+  return CalculatorFactory.create(mode)
 }
 
-const calculator: Ref<Calculator> = ref(createCalculatorWithOptions(currentMode.value))
+const calculator: Ref<Calculator> = ref(createCalculator(currentMode.value))
 
-// Watch for calculator options changes and update calculator
-watch(
-  () => calculatorOptions.options.value,
-  (newOptions) => {
-    // Update calculator settings
-    if (isScientificCalculator(calculator.value)) {
-      calculator.value.setAngleMode(newOptions.angleUnit)
-      calculator.value.setNotationMode(newOptions.notationMode)
-    }
-    
-    // Force re-evaluation if there's current input
-    if (state.input) {
-      calculator.value.input = state.input
-    }
-  },
-  { deep: true }
-)
-
-// Provide calculator instance to child components
+// Provide calculator instance and options to child components
 provide('calculator', computed(() => calculator.value))
 provide('calculatorState', state)
 provide('calculatorOptions', calculatorOptions)
@@ -187,29 +152,6 @@ const hasMemoryValue: ComputedRef<boolean> = computed(() => memoryService.hasMem
 // Activity panel methods
 const openActivity = (): void => activityPanel.open()
 
-// Handle mode toggles for scientific calculator
-const handleModeToggle = (data: { type: string; value: any }) => {
-  if (!isScientificCalculator(calculator.value)) {
-    return;
-  }
-
-  switch (data.type) {
-    case 'angle':
-      calculator.value.setAngleMode(data.value);
-      // Update the calculator options through the new system
-      calculatorOptions.angleUnit.value = data.value;
-      break;
-    case 'notation':
-      calculator.value.setNotationMode(data.value);
-      // Update the calculator options through the new system
-      calculatorOptions.notationMode.value = data.value;
-      break;
-    case 'hyperbolic':
-      calculator.value.toggleHyperbolic();
-      break;
-  }
-};
-
 // Watch for input changes with proper typing
 watch(() => state.input, (newRawInput: string) => {
   saveInput(currentMode.value, newRawInput)
@@ -223,8 +165,7 @@ const handleModeChange = (newMode: CalculatorMode, oldMode?: CalculatorMode) => 
 
   resetState(newMode)
   
-  // Create new calculator with current options
-  calculator.value = createCalculatorWithOptions(newMode)
+  calculator.value = createCalculator(newMode)
   
   if (newMode === 'Programmer') {
     setActiveBase('DEC' as Base)

@@ -3,6 +3,7 @@ import { useKeyboard } from '@/composables/useKeyboard'
 import { useEventListener, useMemoize, useThrottleFn } from '@vueuse/core'
 import { DisplayFormatter } from '@/services/display/DisplayFormatter'
 import { CalculatorUtils } from '@/utils/constants/CalculatorUtils'
+import { useCalculatorOptions } from '@/composables/useCalculatorOptions'
 import type { Calculator } from '@/services/factory/CalculatorFactory'
 import { isProgrammerCalculator } from '@/services/factory/CalculatorFactory'
 // Import types from useCalculatorState to align interfaces
@@ -74,6 +75,9 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     memoryService,
     toggleActivity
   } = options
+
+  // Get reactive calculator options
+  const calculatorOptions = useCalculatorOptions()
 
   const displayRefresh = useThrottleFn(updateDisplayFn, 100)
 
@@ -200,7 +204,7 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
           return calculator.value.formatResult(result)
         }
       } catch {
-        return '' // String should be kept empty to indicate error with evaluation
+        return ''
       }
     }
   )
@@ -212,25 +216,35 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     return {
       base: state.activeBase,
       mode: state.mode,
+      precision: calculatorOptions.precision.value,
+      useThousandsSeparator: calculatorOptions.useThousandsSeparator.value,
+      notationMode: calculatorOptions.notationMode.value,
+      useFractions: calculatorOptions.useFractions.value,
+      formatBinary: calculatorOptions.formatBinary.value,
+      formatHexadecimal: calculatorOptions.formatHexadecimal.value,
+      formatOctal: calculatorOptions.formatOctal.value,
     }
   }
 
   /**
    * Format text for display with centralized formatting logic
    */
-  const formatDisplayText = useMemoize(
-    (value: string | number): string => {
+  const formatDisplayText = computed(() => {
+    // Create reactive dependency on formatting options
+    const options = getFormattingOptions()
+    
+    return (value: string | number): string => {
       if (!value && value !== 0) return '0'
       if (value === 'Error') return value
       
       try {
-        return DisplayFormatter.format(value, getFormattingOptions())
+        return DisplayFormatter.format(value, options)
       } catch (err) {
         console.error('Error formatting display text:', err)
         return String(value)
       }
     }
-  )
+  })
 
   /**
    * Computed preview value with proper formatting
@@ -239,14 +253,14 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     const rawPreview = calculatePreview(state.input, state.mode, state.activeBase)
     if (!rawPreview) return ''
     
-    return formatDisplayText(rawPreview)
+    return formatDisplayText.value(rawPreview)
   })
 
   /**
    * Computed formatted input based on settings
    */
   const input: ComputedRef<string> = computed(() => {
-    return formatDisplayText(state.input || '0')
+    return formatDisplayText.value(state.input || '0')
   })
 
   // Use proper CalculatorMode type
@@ -298,6 +312,13 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
   )
 
   /**
+   * Clear preview cache when formatting options change
+   */
+  watch(() => getFormattingOptions(), () => {
+    calculatePreview.clear?.()
+  }, { deep: true })
+
+  /**
    * Handle keyboard shortcuts for base changes - throttled for performance
    */
   const handleKeyboardShortcuts = useThrottleFn((e: KeyboardEvent) => {
@@ -332,7 +353,7 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
    */
   const animatedResult: ComputedRef<string> = computed(() => {
     if (!state.animatedResult) return ''
-    return formatDisplayText(state.animatedResult)
+    return formatDisplayText.value(state.animatedResult)
   })
 
   return {

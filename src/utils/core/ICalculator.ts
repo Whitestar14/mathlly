@@ -1,16 +1,18 @@
-import { useSettingsStore } from '@/stores/settings'
+import { useToolSettingsStore } from '@/stores/toolSettings'
 import { ExpressionEvaluator } from '@/utils/core/ExpressionEvaluator'
 import {
   CalculatorConstants,
 } from '@/utils/constants/CalculatorConstants'
 import { CalculatorUtils } from '../constants/CalculatorUtils'
+import { computed } from 'vue'
 
 /**
  * Interface for calculator implementations.
  * All calculator types should implement these methods.
  */
 export class ICalculator {
-  settings: any
+  toolSettingsStore: any
+  toolSettings: any
   input: string
   error: string
   currentExpression: string
@@ -22,9 +24,11 @@ export class ICalculator {
   /**
    * Create a calculator instance
    */
-  constructor(settings?: any) {
-    // Fallback to settings store if not provided
-    this.settings = settings || useSettingsStore()
+  constructor() {
+    // Use tool settings store directly
+    this.toolSettingsStore = useToolSettingsStore()
+    this.toolSettings = computed(() => this.toolSettingsStore.currentToolSettings)
+    
     this.input = '0'
     this.error = ''
     this.currentExpression = ''
@@ -36,6 +40,13 @@ export class ICalculator {
     // Operations will be injected by derived classes
     this.operations = null
     this.calculations = null
+  }
+
+  /**
+   * Get a tool setting with fallback
+   */
+  getToolSetting(key: string, fallback: any = null): any {
+    return this.toolSettings.value?.[key] ?? fallback
   }
 
   /**
