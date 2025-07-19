@@ -118,9 +118,6 @@ export class DisplayFormatter {
         // Return operators as is
         if (["+", "-", "×", "÷", "(", ")", "<<", ">>", "%"].includes(part)) return part
 
-        // Remove any decimal points for programmer mode
-        part = part.split(".")[0]
-
         switch (base) {
           case "BIN":
             return this.formatBinaryNumber(part, options.formatBinary)

@@ -16,30 +16,38 @@ export class StandardCalculator extends ICalculator {
 
   /**
    * Create a new standard calculator
-   * 
-   * @param {Object} settings - Calculator settings
    */
-  constructor(settings: any) {
-    super(settings);
+  constructor() {
+    super();
     this.MAX_INPUT_LENGTH = CalculatorConstants.MAX_INPUT_LENGTH.STANDARD;
-    // Use composition for calculations and operations
-    this.calculations = new StandardCalculations(settings);
+    // Use composition for calculations and operations - pass this calculator instance
+    this.calculations = new StandardCalculations(this);
     this.operations = new StandardOperations(this);
   }
 
   /**
-   * Format a result for display
-   * 
-   * @param {*} result - Result to format
+   * Evaluate a mathematical expression (delegates to calculations)
+   * @param {string} expr - Expression to evaluate
+   * @param {string} [base] - Number base (not used in standard mode)
+   * @returns {number} Evaluated result
+   */
+  evaluateExpression(expr: string, base?: string): number {
+    return this.calculations.evaluateExpression(expr, { base });
+  }
+
+  /**
+   * Format a result for display (delegates to calculations)
+   * @param {number} result - Result to format
+   * @param {string} [base] - Number base (not used in standard mode)
    * @returns {string} Formatted result
    */
-  formatResult(result: any): string {
+  formatResult(result: number, base?: string): string {
+    void base;
     return this.calculations.formatResult(result);
   }
 
   /**
    * Handle equals operation
-   * 
    * @returns {Object} Calculation result
    */
   handleEquals(): Record<string, any> {
@@ -58,8 +66,7 @@ export class StandardCalculator extends ICalculator {
   }
 
   /**
-   * Handle operator input
-   * 
+   * Handle operator input (delegates to operations)
    * @param {string} op - Operator symbol
    * @returns {Object} Updated state
    */
@@ -68,8 +75,7 @@ export class StandardCalculator extends ICalculator {
   }
 
   /**
-   * Handle number input
-   * 
+   * Handle number input (delegates to operations)
    * @param {string} num - Number or digit
    * @returns {Object} Updated state
    */
@@ -78,8 +84,7 @@ export class StandardCalculator extends ICalculator {
   }
 
   /**
-   * Handle backspace operation
-   * 
+   * Handle backspace operation (delegates to operations)
    * @returns {Object} Updated state
    */
   handleBackspace(): Record<string, any> {
@@ -87,8 +92,7 @@ export class StandardCalculator extends ICalculator {
   }
 
   /**
-   * Handle square operation
-   * 
+   * Handle square operation (delegates to operations)
    * @returns {Object} Updated state
    */
   handleSquare(): Record<string, any> {
@@ -96,8 +100,7 @@ export class StandardCalculator extends ICalculator {
   }
 
   /**
-   * Handle square root operation
-   * 
+   * Handle square root operation (delegates to operations)
    * @returns {Object} Updated state
    */
   handleSquareRoot(): Record<string, any> {
@@ -105,8 +108,7 @@ export class StandardCalculator extends ICalculator {
   }
 
   /**
-   * Handle reciprocal operation
-   * 
+   * Handle reciprocal operation (delegates to operations)
    * @returns {Object} Updated state
    */
   handleReciprocal(): Record<string, any> {
@@ -114,8 +116,7 @@ export class StandardCalculator extends ICalculator {
   }
 
   /**
-   * Handle percentage operation
-   * 
+   * Handle percentage operation (delegates to operations)
    * @returns {Object} Updated state
    */
   handlePercentage(): Record<string, any> {
@@ -123,8 +124,7 @@ export class StandardCalculator extends ICalculator {
   }
 
   /**
-   * Handle sign toggle operation
-   * 
+   * Handle sign toggle operation (delegates to operations)
    * @returns {Object} Updated state
    */
   handleToggleSign(): Record<string, any> {

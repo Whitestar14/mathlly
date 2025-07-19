@@ -1,77 +1,90 @@
-import { format, fraction } from "mathjs";
+import { CalculatorConstants } from "@/utils/constants/CalculatorConstants.ts";
 import { ExpressionEvaluator } from "@/utils/core/ExpressionEvaluator.ts";
+import { ResultFormatter } from './formatters/ResultFormatter';
 import { CalculatorUtils } from '../constants/CalculatorUtils';
+import type { StandardCalculator } from '@/services/logic/StandardCalculator';
 
 /**
- * Handles calculations for the standard calculator mode
+ * Handles calculations for calculator modes
+ * Base class with extensible evaluation and formatting
  */
 export class StandardCalculations {
-  settings: any;
-  evaluator: ExpressionEvaluator;
+  protected formatter: ResultFormatter;
+  protected evaluator: ExpressionEvaluator;
+  protected calculator?: StandardCalculator;
 
-  /**
-   * Creates a new StandardCalculations instance
-   * @param {Object} settings - Calculator settings including precision and fraction preferences
-   */
-  constructor(settings: any) {
-    this.settings = settings;
+  constructor(calculator?: StandardCalculator) {
+    this.calculator = calculator;
+    this.formatter = new ResultFormatter();
     this.evaluator = ExpressionEvaluator.getInstance();
   }
 
   /**
    * Evaluates a mathematical expression
-   * @param {string} expr - The expression to evaluate
-   * @returns {number} The evaluated result
-   * @throws {Error} If the expression is invalid or causes an error
    */
-  evaluateExpression(expr: string): number {
+  evaluateExpression(expr: string, options: Record<string, any> = {}): number {
+    if (!expr?.trim()) {
+      throw new Error(CalculatorConstants.ERROR_MESSAGES.INVALID_EXPRESSION);
+    }
+
     try {
-      // Use sanitized expression from CalculatorUtils
-      const sanitizedExpr = CalculatorUtils.sanitizeExpression(expr);
-      return this.evaluator.evaluate(sanitizedExpr);
+      this.validateExpression(expr);
+
+      const evaluationOptions = {
+        mode: 'standard',
+        maxValue: CalculatorConstants.MAX_VALUE,
+        minValue: CalculatorConstants.MIN_VALUE,
+        ...options
+      };
+
+      const result = this.evaluator.evaluate(expr, evaluationOptions);
+      this.validateResult(result);
+      
+      return result;
     } catch (err: any) {
-      // Use CalculatorUtils.formatError for consistent error handling
       throw new Error(CalculatorUtils.formatError(err, "Invalid expression"));
     }
   }
 
   /**
-   * Formats a numeric result according to calculator settings
-   * @param {number} result - The numeric result to format
-   * @returns {string} The formatted result as a string
+   * Formats a numeric result according to settings
    */
-  formatResult(result: number): string {
-    if (!result && result !== 0) return "Overflow";
-    try {
-      // Try to display as fraction if enabled in settings
-      if (this.settings.display.useFractions) {
-        // feature: Add an option to enable mixed fraction conversion
-        return fraction(result).toFraction();
-      }
-      // Handle special cases for very large or very small numbers
-      if (
-        Math.abs(result) >= 1e21 ||
-        (Math.abs(result) < 1e-7 && result !== 0)
-      ) {
-        return format(result, {
-          precision: this.settings.display.precision,
-          notation: "exponential",
-        });
-      }
-      // For regular numbers
-      const isInteger = Number.isInteger(result);
-      if (isInteger) {
-        return result.toString();
-      }
-      // For decimal numbers, respect precision but trim unnecessary zeros
-      const formattedDecimal = format(result, {
-        precision: this.settings.display.precision,
-        notation: "fixed",
-      });
-      return CalculatorUtils.trimUnnecessaryZeros(formattedDecimal);
-    } catch (err) {
-      console.error("Formatting error:", err);
-      return result.toString();
+  formatResult(result: number, options: Record<string, any> = {}): string {
+    const settings = {
+      precision: options.precision || this.calculator?.toolSettings?.precision || 10,
+      useFractions: options.useFractions || this.calculator?.toolSettings?.useFractions || false,
+      notationMode: options.notationMode || 'F-E',
+      ...options
+    };
+
+    return this.formatter.format(result, settings);
+  }
+
+  /**
+   * Validates expression before evaluation
+   */
+  protected validateExpression(expr: string): void {
+    if (!CalculatorUtils.hasBalancedParentheses(expr)) {
+      throw new Error(CalculatorConstants.ERROR_MESSAGES.INVALID_EXPRESSION);
+    }
+  }
+
+  /**
+   * Validates calculation result
+   */
+  protected validateResult(result: number): void {
+    if (!isFinite(result)) {
+      const message = isNaN(result) 
+        ? CalculatorConstants.ERROR_MESSAGES.DOMAIN_ERROR
+        : CalculatorConstants.ERROR_MESSAGES.OVERFLOW;
+      throw new Error(message);
+    }
+
+    const maxValue = Number(CalculatorConstants.MAX_VALUE.toString());
+    const minValue = Number(CalculatorConstants.MIN_VALUE.toString());
+    
+    if (result > maxValue || result < minValue) {
+      throw new Error(CalculatorConstants.ERROR_MESSAGES.OVERFLOW);
     }
   }
 }

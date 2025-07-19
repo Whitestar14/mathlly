@@ -12,7 +12,7 @@
         </AppProvider>
       </template>
       <template #fallback>
-        <div class="min-h-screen flex items-center justify-center bg-background dark:bg-background-dark">
+        <div class="min-h-screen flex items-center justify-center bg-background">
           <Loader variant="regular" />
         </div>
       </template>

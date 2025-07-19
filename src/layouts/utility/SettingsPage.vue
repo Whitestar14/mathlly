@@ -4,9 +4,7 @@ import { useRouter } from 'vue-router';
 import {
   SearchIcon,
   CircleHelp,
-  AlertTriangle,
-  Palette,
-  Sparkles,
+  AlertTriangle
 } from 'lucide-vue-next';
 import { filterByQuery } from '@/utils/misc/queryFilter';
 import { useSettingsStore, DEFAULT_SETTINGS } from '@/stores/settings';
@@ -52,7 +50,7 @@ const showUnsavedChangesModal = ref<boolean>(false);
 const showResetDatabaseModal = ref<boolean>(false);
 const isResettingDatabase = ref<boolean>(false);
 
-// Updated settings manifest - removed calculator-specific sections
+// Updated settings manifest - removed calculator mode keywords
 const settingsManifest: SettingsManifestItem[] = [
   {
     id: 'startup',
@@ -82,6 +80,11 @@ const settingsManifest: SettingsManifestItem[] = [
       'disable transitions',
       'visuals',
       'text size',
+      'font size',
+      'small',
+      'normal',
+      'medium',
+      'large',
       'theme pack',
       'classic',
       'mira',
@@ -149,17 +152,14 @@ const isRendered = (sectionId: string): boolean => {
   return filteredManifest.value.some((section) => section.id === sectionId);
 };
 
-// Single source of truth - get settings directly from the store
+// Single source of truth - get settings directly from the store (removed calculator)
 const localSettings = ref<Settings>(cloneDeep(DEFAULT_SETTINGS));
 
-// Create a snapshot of the current store state (only app-wide settings)
+// Create a snapshot of the current store state (removed calculator)
 const storeSnapshot = computed(() => ({
   display: {
     textSize:
       settingsStore.display?.textSize ?? DEFAULT_SETTINGS.display.textSize,
-  },
-  calculator: {
-    mode: settingsStore.calculator?.mode ?? DEFAULT_SETTINGS.calculator.mode,
   },
   appearance: {
     theme: settingsStore.appearance?.theme ?? DEFAULT_SETTINGS.appearance.theme,
@@ -194,7 +194,7 @@ const hasChanges = computed((): boolean => {
   }
 });
 
-// Options arrays with proper typing
+// Options arrays with proper typing (removed calculator mode options)
 const themeOptions: SelectOption[] = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
@@ -343,6 +343,7 @@ const cancelResetDatabase = (): void => {
           :default-open="true"
         >
           <div>
+            <!-- Only Navigation Setting - Calculator mode moved to tool options -->
             <label
               for="startupNavigation"
               class="text-sm font-medium text-foreground mb-1.5 block"
@@ -353,7 +354,7 @@ const cancelResetDatabase = (): void => {
               :options="startupOptions"
             />
             <p class="text-xs text-muted-foreground mt-2">
-              Choose which page to show when you first open the app
+              Choose which page to show when you first open the app. Calculator-specific settings like default mode can be found in the calculator's tool options.
             </p>
           </div>
         </Collapsible>
@@ -646,7 +647,7 @@ const cancelResetDatabase = (): void => {
           v-if="filteredManifest.length === 0 && searchQuery"
           class="text-center py-10"
         >
-                    <p class="text-foreground text-lg">
+          <p class="text-foreground text-lg">
             No settings found for "{{ searchQuery }}".
           </p>
           <p class="text-sm text-muted-foreground">
@@ -733,7 +734,7 @@ const cancelResetDatabase = (): void => {
               >
                 <span class="text-xs font-bold">3</span>
               </div>
-              <p class="text-sm text-foreground">
+                            <p class="text-sm text-foreground">
                 The application will reload automatically
               </p>
             </div>
@@ -784,4 +785,3 @@ const cancelResetDatabase = (): void => {
     </BaseModal>
   </div>
 </template>
-

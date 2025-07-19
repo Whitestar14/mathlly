@@ -1,8 +1,11 @@
+import { CalculatorUtils } from '../constants/CalculatorUtils'
+import { CalculatorConstants } from '../constants/CalculatorConstants'
+
 /**
  * Handles standard calculator operations
  */
 export class StandardOperations {
-  calculator: any;
+  protected calculator: any;
 
   /**
    * Creates a new StandardOperations instance
@@ -12,33 +15,33 @@ export class StandardOperations {
     this.calculator = calculator;
   }
 
-    /**
- * Handle comma input for function arguments
- */
-handleComma(): Record<string, any> {
-  try {
-    const currentInput = this.calculator.input;
-    
-    // Don't allow comma at the start or if input is empty/error
-    if (currentInput === '0' || currentInput === 'Error' || !currentInput.trim()) {
+  /**
+   * Handle comma input for function arguments
+   */
+  handleComma(): Record<string, any> {
+    try {
+      const currentInput = this.calculator.input;
+      
+      // Don't allow comma at the start or if input is empty/error
+      if (currentInput === '0' || currentInput === 'Error' || !currentInput.trim()) {
+        return this.createResponse();
+      }
+      
+      const lastChar = currentInput.trim().slice(-1);
+      
+      // Don't allow comma after operators or opening parenthesis
+      if (this.isOperator(lastChar) || lastChar === '(' || lastChar === ',') {
+        return this.createResponse();
+      }
+      
+      // Add comma with proper spacing
+      this.calculator.input = `${currentInput}, `;
+      
       return this.createResponse();
+    } catch (err: any) {
+      return this.createResponse(CalculatorUtils.formatError(err, "Operation failed"));
     }
-    
-    const lastChar = currentInput.trim().slice(-1);
-    
-    // Don't allow comma after operators or opening parenthesis
-    if (this.isOperator(lastChar) || lastChar === '(' || lastChar === ',') {
-      return this.createResponse();
-    }
-    
-    // Add comma with proper spacing
-    this.calculator.input = `${currentInput}, `;
-    
-    return this.createResponse();
-  } catch (err: any) {
-    return { input: "Error", error: err.message };
   }
-}
 
   /**
    * Handles numeric input including decimal point
@@ -61,69 +64,69 @@ handleComma(): Record<string, any> {
     return this.createResponse();
   }
 
-/**
- * Handles arithmetic operator input
- * @param {string} op - The operator to add (+, -, ×, ÷)
- * @returns {Object} Updated input state and error message
- */
-handleOperator(op: string): Record<string, any> {
-  const currentInput = this.calculator.input.trim();
-  
-  // Don't allow operators on empty input or error states
-  if (currentInput === "0" || currentInput === "Error" || !currentInput) {
+  /**
+   * Handles arithmetic operator input
+   * @param {string} op - The operator to add (+, -, ×, ÷)
+   * @returns {Object} Updated input state and error message
+   */
+  handleOperator(op: string): Record<string, any> {
+    const currentInput = this.calculator.input.trim();
+    
+    // Don't allow operators on empty input or error states
+    if (currentInput === "0" || currentInput === "Error" || !currentInput) {
+      return this.createResponse();
+    }
+    
+    // Parse the current state
+    const state = this.parseOperatorState(currentInput);
+    
+    if (op === "-" && state.canAddNegative) {
+      // Add negative sign after another operator
+      this.calculator.input = `${state.baseExpression} ${state.lastOperator} ${op} `;
+    } else {
+      // Replace any existing operator sequence with the new operator
+      this.calculator.input = `${state.baseExpression} ${op} `;
+    }
+    
     return this.createResponse();
   }
-  
-  // Parse the current state
-  const state = this.parseOperatorState(currentInput);
-  
-  if (op === "-" && state.canAddNegative) {
-    // Add negative sign after another operator
-    this.calculator.input = `${state.baseExpression} ${state.lastOperator} ${op} `;
-  } else {
-    // Replace any existing operator sequence with the new operator
-    this.calculator.input = `${state.baseExpression} ${op} `;
-  }
-  
-  return this.createResponse();
-}
 
-/**
- * Parse the current operator state of the input
- * @param {string} input - Current input to parse
- * @returns {Object} Parsed state information
- */
-private parseOperatorState(input: string): {
-  baseExpression: string;
-  lastOperator: string | null;
-  hasNegative: boolean;
-  canAddNegative: boolean;
-} {
-  // Match patterns like "8 + ", "8 × - ", etc.
-  const operatorPattern = /^(.*?)\s*([+\-×÷])\s*(-\s*)?$/;
-  const match = input.match(operatorPattern);
-  
-  if (!match) {
-    // No operators at the end
+  /**
+   * Parse the current operator state of the input
+   * @param {string} input - Current input to parse
+   * @returns {Object} Parsed state information
+   */
+  private parseOperatorState(input: string): {
+    baseExpression: string;
+    lastOperator: string | null;
+    hasNegative: boolean;
+    canAddNegative: boolean;
+  } {
+    // Match patterns like "8 + ", "8 × - ", etc.
+    const operatorPattern = /^(.*?)\s*([+\-×÷])\s*(-\s*)?$/;
+    const match = input.match(operatorPattern);
+    
+    if (!match) {
+      // No operators at the end
+      return {
+        baseExpression: input,
+        lastOperator: null,
+        hasNegative: false,
+        canAddNegative: false
+      };
+    }
+    
+    const [, baseExpression, lastOperator, negativeSign] = match;
+    const hasNegative = !!negativeSign;
+    const canAddNegative = !hasNegative && ['×', '÷', '+'].includes(lastOperator);
+    
     return {
-      baseExpression: input,
-      lastOperator: null,
-      hasNegative: false,
-      canAddNegative: false
+      baseExpression,
+      lastOperator,
+      hasNegative,
+      canAddNegative
     };
   }
-  
-  const [, baseExpression, lastOperator, negativeSign] = match;
-  const hasNegative = !!negativeSign;
-  const canAddNegative = !hasNegative && ['×', '÷', '+'].includes(lastOperator);
-  
-  return {
-    baseExpression,
-    lastOperator,
-    hasNegative,
-    canAddNegative
-  };
-}
 
   /**
    * Handles backspace operation
@@ -163,7 +166,7 @@ private parseOperatorState(input: string): {
         this.calculator.input = parts.join(" ").trim();
       }
     }
-    return this.createResponse(this.calculator.error);
+    return this.createResponse();
   }
 
   /**
@@ -215,20 +218,17 @@ private parseOperatorState(input: string): {
    */
   handleOperation(operation: (value: number) => number): Record<string, any> {
     try {
-      const value = this.calculator.evaluateExpression(this.calculator.input);
+      const value = this.calculator.calculations.evaluateExpression(this.calculator.input);
       const result = operation(value);
       if (!Number.isFinite(result)) {
         throw new Error("Overflow");
       }
-      this.calculator.input = this.calculator.formatResult(result);
+      this.calculator.input = this.calculator.calculations.formatResult(result);
       return this.createResponse();
     } catch (err: any) {
       if (err.message === "Overflow")
-        return {
-          input: this.calculator.input,
-          error: "Overflow: Evaluated result exceeding max limit",
-        };
-      return { input: "Error", error: err.message };
+        return this.createResponse(CalculatorConstants.ERROR_MESSAGES.OVERFLOW);
+      return this.createResponse(err.message);
     }
   }
 
@@ -251,8 +251,7 @@ private parseOperatorState(input: string): {
    * @returns {boolean} Whether the character is an operator
    */
   isOperator(char: string): boolean {
-    // Import from CalculatorUtils
-    return ["+", "-", "×", "÷"].includes(char);
+    return CalculatorUtils.isOperator(char);
   }
 
   /**
@@ -261,9 +260,9 @@ private parseOperatorState(input: string): {
    * @returns {Object} Standardized response with input and error
    */
   createResponse(error: string = ""): Record<string, any> {
-    return { 
-      input: this.calculator.input, 
-      error: error 
-    };
+    return CalculatorUtils.createResponse({
+      input: this.calculator.input,
+      error: error
+    });
   }
 }

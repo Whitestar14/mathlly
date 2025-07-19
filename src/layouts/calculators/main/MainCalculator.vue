@@ -9,7 +9,7 @@
     <!-- Calculator Mode Switcher - teleports to header -->
     <CalculatorModeSwitcher />
     
-    <div class="flex-grow flex-initial bg-background dark:bg-background overflow-hidden transition-colors duration-300">
+    <div class="flex-grow flex-initial bg-card overflow-hidden transition-colors duration-300">
       <div
         class="grid grid-cols-1 h-full p-4 gap-1 mx-auto"
         :class="state.mode === 'Programmer' 
@@ -62,14 +62,14 @@ import { useCalculatorState, type CalculatorMode, type Base } from '@/composable
 import { useCalculatorModeSwitcher } from '@/composables/useCalculatorModeSwitcher'
 import { useCalculatorOptions } from '@/composables/useCalculatorOptions'
 import { CalculatorController, type ControllerReturn } from './MainCalculator'
-import { CalculatorFactory, type Calculator, isScientificCalculator } from '@/services/factory/CalculatorFactory'
+import { CalculatorFactory, type Calculator } from '@/services/factory/CalculatorFactory'
 import { useCalculatorSession } from '@/composables/useCalculatorSession'
 import CalculatorDisplay from '@/layouts/calculators/main/CalculatorDisplay.vue'
 import CalculatorButtons from '@/layouts/calculators/main/CalculatorButtons.vue'
 import BasePage from '@/components/base/BasePage.vue'
 
 // Define props
-const props = defineProps<Props>()
+defineProps<Props>()
 
 // Import the calculator mode switcher component
 const CalculatorModeSwitcher = defineAsyncComponent(() => import('@/components/calculator/CalculatorModeSwitcher.vue'))

@@ -8,7 +8,7 @@
         position === 'left' ? 'left-0' : 'right-0',
         !isMobile && position === 'left' ? 'border-r' : '',
         !isMobile && position === 'right' ? 'border-l' : '',
-        'border-border dark:border-border',
+        'border-border',
       ]"
     >
       <PanelContent

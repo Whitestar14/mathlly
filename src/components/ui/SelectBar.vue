@@ -130,44 +130,4 @@ defineEmits(["update:model-value"]);
   }
 }
 
-/* Enhanced shadow for better depth perception */
-.select-content {
-  box-shadow: 
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgb(0 0 0 / 0.1),
-    0 0 0 1px rgb(var(--color-border) / 0.05);
-}
-
-/* Dark mode shadow enhancement */
-.dark .select-content {
-  box-shadow: 
-    0 10px 15px -3px rgb(0 0 0 / 0.3),
-    0 4px 6px -4px rgb(0 0 0 / 0.2),
-    0 0 0 1px rgb(var(--color-border));
-}
-
-/* Better focus styles for select items */
-.select-content [data-highlighted] {
-  background-color: rgb(var(--color-accent));
-  color: rgb(var(--color-accent-foreground));
-  outline: none;
-}
-
-/* Selected item styling */
-.select-content [data-state="checked"] {
-  background-color: rgb(var(--color-primary) / 0.1);
-  color: rgb(var(--color-primary));
-  font-weight: 500;
-}
-
-.select-content [data-state="checked"]:hover,
-.select-content [data-state="checked"][data-highlighted] {
-  background-color: rgb(var(--color-primary) / 0.15);
-}
-
-/* Disabled state */
-.select-content [data-disabled] {
-  opacity: 0.5;
-  pointer-events: none;
-}
 </style>

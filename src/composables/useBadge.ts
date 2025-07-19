@@ -12,8 +12,8 @@ export interface BadgeConfig {
 const BADGE_CONFIGS: Record<BadgeVariant, Omit<BadgeConfig, 'shouldPulse'>> = {
   soon: {
     text: 'Coming Soon',
-    classes: 'bg-muted dark:bg-muted text-muted-foreground dark:text-muted-foreground',
-    notch: 'bg-muted-foreground dark:bg-muted-foreground',
+    classes: 'bg-accent text-muted-foreground',
+    notch: 'bg-muted-foreground',
   },
   new: {
     text: 'New',

@@ -1,9 +1,10 @@
-import { ref, watch, nextTick, computed } from 'vue'
+import { computed, ref, watch, nextTick } from 'vue'
 import { useToolSettingsStore } from '@/stores/toolSettings'
 import type { ToolConfig } from '@/stores/toolSettings'
 
 // Calculator-specific option types
 export interface CalculatorOptions {
+  defaultMode: 'Standard' | 'Scientific' | 'Programmer'
   precision: number
   useFractions: boolean
   syntaxHighlighting: boolean
@@ -18,6 +19,7 @@ export interface CalculatorOptions {
 
 // Default calculator options
 const DEFAULT_CALCULATOR_OPTIONS: CalculatorOptions = {
+  defaultMode: 'Standard',
   precision: 4,
   useFractions: false,
   syntaxHighlighting: true,
@@ -34,6 +36,7 @@ export function useCalculatorOptions() {
   const toolStore = useToolSettingsStore()
   
   // Create reactive refs for each option
+  const defaultMode = ref<'Standard' | 'Scientific' | 'Programmer'>(DEFAULT_CALCULATOR_OPTIONS.defaultMode)
   const precision = ref<number>(DEFAULT_CALCULATOR_OPTIONS.precision)
   const useFractions = ref<boolean>(DEFAULT_CALCULATOR_OPTIONS.useFractions)
   const syntaxHighlighting = ref<boolean>(DEFAULT_CALCULATOR_OPTIONS.syntaxHighlighting)
@@ -53,6 +56,7 @@ export function useCalculatorOptions() {
     
     isInitializing.value = true
     
+    defaultMode.value = newSettings.defaultMode ?? DEFAULT_CALCULATOR_OPTIONS.defaultMode
     precision.value = newSettings.precision ?? DEFAULT_CALCULATOR_OPTIONS.precision
     useFractions.value = newSettings.useFractions ?? DEFAULT_CALCULATOR_OPTIONS.useFractions
     syntaxHighlighting.value = newSettings.syntaxHighlighting ?? DEFAULT_CALCULATOR_OPTIONS.syntaxHighlighting
@@ -78,6 +82,7 @@ export function useCalculatorOptions() {
     })
   }
 
+  createWatcher(defaultMode, 'defaultMode')
   createWatcher(precision, 'precision')
   createWatcher(useFractions, 'useFractions')
   createWatcher(syntaxHighlighting, 'syntaxHighlighting')
@@ -130,6 +135,19 @@ export function useCalculatorOptions() {
     toolName: 'Calculator',
     defaultSettings: DEFAULT_CALCULATOR_OPTIONS,
     options: [
+      {
+        id: 'defaultMode',
+        label: 'Default Calculator Mode',
+        description: 'Which calculator mode to load when the app starts',
+        type: 'select',
+        value: defaultMode,
+        options: [
+          { value: 'Standard', label: 'Standard' },
+          { value: 'Scientific', label: 'Scientific' },
+          { value: 'Programmer', label: 'Programmer' }
+        ],
+        section: 'General'
+      },
       {
         id: 'precision',
         label: 'Decimal Precision',
@@ -232,6 +250,7 @@ export function useCalculatorOptions() {
 
   return {
     // Individual reactive refs
+    defaultMode,
     precision,
     useFractions,
     syntaxHighlighting,
@@ -257,6 +276,7 @@ export function useCalculatorOptions() {
     
     // Computed getter for all options
     options: computed(() => ({
+      defaultMode: defaultMode.value,
       precision: precision.value,
       useFractions: useFractions.value,
       syntaxHighlighting: syntaxHighlighting.value,

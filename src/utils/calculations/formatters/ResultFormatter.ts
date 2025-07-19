@@ -5,6 +5,7 @@ export interface FormatterSettings {
   precision?: number;
   useFractions?: boolean;
   notationMode?: 'F-E' | 'SCI';
+  maxFractionDenominator?: number;
 }
 
 export class ResultFormatter {
@@ -12,55 +13,51 @@ export class ResultFormatter {
    * Format a numeric result according to settings
    */
   format(result: number, settings: FormatterSettings = {}): string {
-    if (result === undefined || result === null || !isFinite(result)) {
+    if (!isFinite(result)) {
       return 'Error';
     }
 
+    const { 
+      precision = 10, 
+      useFractions = false, 
+      notationMode = 'F-E',
+      maxFractionDenominator = 1000
+    } = settings;
+
     try {
-      const { 
-        precision = 10, 
-        useFractions = false, 
-        notationMode = 'F-E' 
-      } = settings;
-
-      // Use scientific notation if enabled
+      // Scientific notation
       if (notationMode === 'SCI') {
-        return format(result, {
-          precision,
-          notation: 'exponential',
-        });
+        return format(result, { precision, notation: 'exponential' });
       }
 
-      // Try to display as fraction if enabled
-      if (useFractions) {
-        return fraction(result).toFraction();
+      // Auto scientific for very large/small numbers
+      if (Math.abs(result) >= 1e15 || (Math.abs(result) < 1e-10 && result !== 0)) {
+        return format(result, { precision, notation: 'exponential' });
       }
 
-      // Handle special cases for very large or very small numbers
-      if (
-        Math.abs(result) >= 1e15 ||
-        (Math.abs(result) < 1e-10 && result !== 0)
-      ) {
-        return format(result, {
-          precision,
-          notation: 'exponential',
-        });
+      // Fractions for non-integers only
+      if (useFractions && !Number.isInteger(result)) {
+        try {
+          const frac = fraction(result);
+          if (frac.d <= maxFractionDenominator) {
+            return frac.toFraction();
+          }
+        } catch {
+          // Ignore fraction conversion errors
+          return result.toString();
+        }
       }
 
-      // For regular numbers
+      // Integer formatting
       if (Number.isInteger(result)) {
         return result.toString();
       }
 
-      // For decimal numbers, respect precision but trim unnecessary zeros
-      const formattedDecimal = format(result, {
-        precision,
-        notation: 'fixed',
-      });
+      // Decimal formatting
+      const formatted = format(result, { precision, notation: 'fixed' });
+      return CalculatorUtils.trimUnnecessaryZeros(formatted);
 
-      return CalculatorUtils.trimUnnecessaryZeros(formattedDecimal);
-    } catch (err) {
-      console.error('Formatting error:', err);
+    } catch {
       return result.toString();
     }
   }

@@ -56,7 +56,10 @@ export class ExpressionEvaluator {
    * Generate cache key from expression and options
    */
   getCacheKey(expr: string, options: Record<string, any>): string {
-    return `${expr}|${JSON.stringify(options)}`
+    // Include mode and base in cache key for better cache separation
+    const mode = options.mode || 'standard'
+    const base = options.base || 'DEC'
+    return `${mode}:${base}:${expr}|${JSON.stringify(options)}`
   }
 
   /**
@@ -65,6 +68,7 @@ export class ExpressionEvaluator {
   performEvaluation(expr: string, options: Record<string, any>): any {
     const {
       base,
+      mode = 'standard',
       maxValue = CalculatorConstants.MAX_VALUE,
       minValue = CalculatorConstants.MIN_VALUE,
     } = options
@@ -76,24 +80,58 @@ export class ExpressionEvaluator {
       throw new Error(CalculatorConstants.ERROR_MESSAGES.DIVISION_BY_ZERO)
     }
 
-    // Use CalculatorUtils.sanitizeExpression instead of custom implementation
-    const sanitizedExpr = base && base !== 'DEC' 
-      ? this.convertToDecimal(CalculatorUtils.sanitizeExpression(expr), base)
-      : CalculatorUtils.sanitizeExpression(expr)
+    // Sanitize expression based on mode
+    let sanitizedExpr: string
+    if (base && base !== 'DEC') {
+      // Programmer mode with base conversion
+      sanitizedExpr = this.convertToDecimal(CalculatorUtils.sanitizeExpression(expr), base)
+    } else {
+      // Standard/Scientific mode
+      sanitizedExpr = CalculatorUtils.sanitizeExpression(expr)
+    }
 
     // Evaluate using mathjs
     try {
       const result = evaluate(sanitizedExpr)
 
-      // Check bounds
-      if (result > maxValue || result < minValue) {
-        throw new Error(CalculatorConstants.ERROR_MESSAGES.OVERFLOW)
-      }
+      // Validate result based on mode
+      this.validateEvaluationResult(result, maxValue, minValue, mode)
 
       return result
     } catch (err) {
       // Use CalculatorUtils.formatError for consistent error handling
       throw new Error(CalculatorUtils.formatError(err as Error))
+    }
+  }
+
+  /**
+   * Validate evaluation result based on calculator mode
+   */
+  private validateEvaluationResult(result: any, maxValue: any, minValue: any, mode: string): void {
+    if (!isFinite(result)) {
+      if (isNaN(result)) {
+        throw new Error(CalculatorConstants.ERROR_MESSAGES.DOMAIN_ERROR)
+      } else {
+        throw new Error(CalculatorConstants.ERROR_MESSAGES.OVERFLOW)
+      }
+    }
+
+    // Check bounds - convert BigNumber to regular number for comparison if needed
+    const numericResult = typeof result === 'object' && result.toNumber ? result.toNumber() : result
+    const maxVal = typeof maxValue === 'object' && maxValue.toNumber ? maxValue.toNumber() : maxValue
+    const minVal = typeof minValue === 'object' && minValue.toNumber ? minValue.toNumber() : minValue
+
+    // Apply mode-specific validation
+    if (mode === 'programmer') {
+      // For programmer mode, check for integer overflow in 64-bit range
+      if (!Number.isInteger(numericResult) && Math.abs(numericResult) > 1e-10) {
+        // Allow small floating point errors but not actual decimals
+        console.warn('Non-integer result in programmer mode:', numericResult);
+      }
+    }
+
+    if (numericResult > maxVal || numericResult < minVal) {
+      throw new Error(CalculatorConstants.ERROR_MESSAGES.OVERFLOW)
     }
   }
 

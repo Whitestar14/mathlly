@@ -101,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted, type Ref, type ComputedRef } from "vue";
+import { ref, computed, watch, nextTick, type Ref, type ComputedRef } from "vue";
 import { useClipboard } from "@vueuse/core";
 import { Copy, ClipboardPaste, ArrowDownUp } from "lucide-vue-next";
 import { usePills } from "@/composables/usePills.ts";

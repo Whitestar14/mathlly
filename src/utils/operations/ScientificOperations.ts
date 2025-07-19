@@ -88,7 +88,7 @@ export class ScientificOperations extends StandardOperations {
     
     return this.createResponse();
   } catch (err: any) {
-    return { input: "Error", error: err.message };
+    return this.createResponse(CalculatorUtils.formatError(err, "Operation failed"));
   }
 }
 
@@ -218,6 +218,7 @@ export class ScientificOperations extends StandardOperations {
 
   /**
    * Handle square operation (x²) as part of an expression
+   * Delegates basic validation to parent class
    */
   handleSquareOperation(): Record<string, any> {
     try {
@@ -314,7 +315,7 @@ export class ScientificOperations extends StandardOperations {
     
     return this.createResponse();
   } catch (err: any) {
-    return { input: "Error", error: err.message };
+    return CalculatorUtils.createResponse({ input: "Error", error: err.message });
   }
 }
 
@@ -690,7 +691,7 @@ handleNthRootOperation(): Record<string, any> {
     
     return this.createResponse();
   } catch (err: any) {
-    return { input: "Error", error: err.message };
+    return this.createResponse(CalculatorUtils.formatError(err, "Operation failed"));
   }
 }
 
@@ -721,7 +722,7 @@ handleConstant(constant: string): Record<string, any> {
     
     return this.createResponse();
   } catch (err: any) {
-    return { input: "Error", error: err.message };
+    return this.createResponse(CalculatorUtils.formatError(err, "Operation failed"));
   }
 }
 

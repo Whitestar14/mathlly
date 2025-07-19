@@ -19,23 +19,14 @@ export const BUTTON_TYPES = {
   MEMORY: ['MC', 'MR', 'M+', 'M-', 'MS'] as const,
   PROGRAMMER_OPERATORS: ['<<', '>>', '&', '|', '^', '~'] as const,
   SCIENTIFIC_FUNCTIONS: [
-    // Basic trig
     'sin', 'cos', 'tan', 'asin', 'acos', 'atan',
-    // Reciprocal trig
     'csc', 'sec', 'cot', 'acsc', 'asec', 'acot',
-    // Hyperbolic
     'sinh', 'cosh', 'tanh', 'asinh', 'acosh', 'atanh',
-    // Reciprocal hyperbolic
     'csch', 'sech', 'coth', 'acsch', 'asech', 'acoth',
-    // Logarithmic
-    'log', 'ln', 'log2', 'exp',
-    // Power functions
+    'log', 'ln', 'log2', 'log10', 'exp',
     '10^x', '2^x', 'e^x', 'x^y', 'x²', 'x³',
-    // Root functions
-    '√', '∛', 'y√x',
-    // Other functions
+    '√', '∛', 'y√x', 'nthroot', 'sqrt', 'cbrt', 'cube',
     'abs', 'ceil', 'floor', 'round', 'factorial', '1/x',
-    // Utility functions
     'rand', 'gcd', 'lcm', 'mod', 'dms', 'deg'
   ] as const
 } as const
@@ -51,13 +42,13 @@ export const REGEX = {
   DECIMAL_POINT: /\./,
   SHIFT_OPERATOR: /\s*[<>]{2}\s*$/,
   PARENTHESIS: /[()]/,
-  SCIENTIFIC_FUNCTION: /^(sin|cos|tan|asin|acos|atan|csc|sec|cot|acsc|asec|acot|sinh|cosh|tanh|asinh|acosh|atanh|csch|sech|coth|acsch|asech|acoth|log|ln|log2|exp|sqrt|cbrt|abs|ceil|floor|round|factorial|gcd|lcm)\(/,
+  SCIENTIFIC_FUNCTION: /^(sin|cos|tan|asin|acos|atan|csc|sec|cot|acsc|asec|acot|sinh|cosh|tanh|asinh|acosh|atanh|csch|sech|coth|acsch|asech|acoth|log|ln|log2|log10|exp|sqrt|cbrt|cube|nthroot|abs|ceil|floor|round|factorial|gcd|lcm)\(/,
   TRIG_FUNCTION: /^(sin|cos|tan|asin|acos|atan|csc|sec|cot|acsc|asec|acot)\(/,
   HYPERBOLIC_FUNCTION: /^(sinh|cosh|tanh|asinh|acosh|atanh|csch|sech|coth|acsch|asech|acoth)\(/,
-  LOG_FUNCTION: /^(log|ln|log2|exp)\(/,
+  LOG_FUNCTION: /^(log|ln|log2|log10|exp)\(/,
   POWER_FUNCTION: /\^/,
   FACTORIAL: /\d+!/,
-  CONSTANT: /π|e/
+  CONSTANT: /^[πe]$/
 } as const
 
 /**

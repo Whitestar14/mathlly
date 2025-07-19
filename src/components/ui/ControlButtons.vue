@@ -3,24 +3,24 @@
     class="flex items-center left-0 top-0 absolute z-5 opacity-30 transition-opacity hover:opacity-100 group"
   >
     <div
-      class="flex items-center m-2 border border-border dark:border-border bg-muted dark:bg-background rounded-lg overflow-hidden"
+      class="flex items-center m-2 border border-border bg-background rounded-lg overflow-hidden shadow-sm"
     >
       <Button
         variant="ghost"
         size="icon"
-        class="rounded-none hover:bg-muted group-hover:bg-opacity-100 md:hidden"
+        class="rounded-none hover:bg-accent/50 group-hover:bg-opacity-100 md:hidden"
         @click="openHistory"
       >
         <DraftingCompassIcon size="15" />
       </Button>
       <Separator
-        class="h-6 bg-muted dark:bg-muted w-px md:hidden group-has-[.rounded-none:hover]:h-8 transition-[height]"
+        class="h-6 bg-border w-px md:hidden group-has-[.rounded-none:hover]:h-8 transition-[height]"
       />
       <Button
         v-tippy="{content: 'Copy to Clipboard', placement: 'right'}"
         variant="ghost"
         size="icon"
-        class="rounded-none hover:bg-muted group-hover:bg-opacity-100"
+        class="rounded-none hover:bg-accent/50 group-hover:bg-opacity-100"
         @click="copyToClipboard"
       >
         <Copy size="15" />

@@ -254,7 +254,7 @@ export const CalculatorUtils = {
    * @param toBase - Target base
    * @returns Converted value or error message
    */
-  convertBetweenBases(value: string | number, fromBase: BaseType, toBase: BaseType): string {
+  convertToBase(value: string | number, fromBase: BaseType, toBase: BaseType): string {
     try {
       if (!value || value === 'Overflow') return '0';
 

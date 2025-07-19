@@ -5,7 +5,7 @@
       :class="[
         error
           ? 'bg-destructive/10 dark:bg-destructive/20'
-          : 'transition-colors duration-300 bg-muted dark:bg-muted',
+          : 'transition-colors duration-300 bg-secondary',
       ]"
     >
       <ChevronScroll

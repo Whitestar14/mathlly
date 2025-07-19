@@ -21,26 +21,8 @@ export interface ToolSettings {
 export interface Settings {
   id: number
   display: {
-    precision: number
-    useFractions: boolean
-    formatting: {
-      useThousandsSeparator: boolean
-      formatBinary: boolean
-      formatHexadecimal: boolean
-      formatOctal: boolean
-    }
-    syntaxHighlighting: boolean
     textSize: string
-  }
-  calculator: {
-    mode: string
-    scientific?: {
-      angleUnit: string
-    }
-    programmer?: {
-      defaultBase: string
-    }
-  }
+  },
   appearance: {
     theme: string
     themePack: string
@@ -80,25 +62,7 @@ export class MathllyDatabase extends Dexie {
           const newSettings: Settings = {
             id: settings.id,
             display: {
-              precision: settings.precision || 4,
-              useFractions: settings.useFractions || false,
-              formatting: {
-                useThousandsSeparator: settings.useThousandsSeparator ?? true,
-                formatBinary: settings.formatBinary ?? true,
-                formatHexadecimal: settings.formatHexadecimal ?? true,
-                formatOctal: settings.formatOctal ?? true,
-              },
-              syntaxHighlighting: settings.syntaxHighlighting ?? true,
               textSize: settings.textSize || 'normal',
-            },
-            calculator: {
-              mode: settings.mode || 'Standard',
-              scientific: {
-                angleUnit: 'degrees',
-              },
-              programmer: {
-                defaultBase: 'decimal',
-              },
             },
             appearance: {
               theme: settings.theme || 'system',
@@ -130,19 +94,7 @@ export class MathllyDatabase extends Dexie {
           const newSettings: Settings = {
             id: settings.id,
             display: {
-              precision: settings.precision,
-              useFractions: settings.useFractions,
-              formatting: {
-                useThousandsSeparator: settings.useThousandsSeparator,
-                formatBinary: settings.formatBinary,
-                formatHexadecimal: settings.formatHexadecimal,
-                formatOctal: settings.formatOctal,
-              },
-              syntaxHighlighting: settings.syntaxHighlighting,
               textSize: settings.textSize,
-            },
-            calculator: {
-              mode: settings.mode,
             },
             appearance: {
               theme: settings.theme,

@@ -1,62 +1,77 @@
-import { isNegative, isNaN } from 'mathjs';
-import { ExpressionEvaluator } from '@/utils/core/ExpressionEvaluator.ts';
-import { CalculatorConstants, BaseType } from '@/utils/constants/CalculatorConstants.ts';
+import { BaseType } from '@/utils/constants/CalculatorConstants.ts';
 import { CalculatorUtils } from '../constants/CalculatorUtils';
+import { StandardCalculations } from './StandardCalculations';
+import { ProgrammerCalculator } from '@/services/logic/ProgrammerCalculator';
 
 /**
- * Handles calculations for programmer calculator
+ * Programmer calculator wrapper that extends StandardCalculations
+ * Adds base conversion and integer-only evaluation
  */
-export class ProgrammerCalculations {
-  settings: any;
-  bases: Record<BaseType, number>;
-  evaluator: ExpressionEvaluator;
+export class ProgrammerCalculations extends StandardCalculations {
+  private programmerCalculator: ProgrammerCalculator;
+  private currentBase: BaseType;
 
-  constructor(settings: any) {
-    this.settings = settings;
-    this.bases = CalculatorConstants.BASES;
-    this.evaluator = ExpressionEvaluator.getInstance();
+  constructor(calculator: ProgrammerCalculator, initialBase: BaseType = 'DEC') {
+    super();
+    this.programmerCalculator = calculator;
+    this.currentBase = initialBase;
   }
 
-  evaluateExpression(expr: string, base: BaseType): number {
+  /**
+   * Evaluates expressions with integer truncation and base support
+   */
+  evaluateExpression(expr: string, options: Record<string, any> = {}): number {
     try {
-      const sanitizedExpr = CalculatorUtils.sanitizeExpression(expr);
-      return this.evaluator.evaluate(sanitizedExpr, { base });
+      const base = (options.base as BaseType) || this.currentBase;
+
+      // Use parent evaluation with programmer mode
+      const result = super.evaluateExpression(expr, {
+        mode: 'programmer',
+        base: base,
+        ...options
+      });
+
+      return Math.trunc(result);
     } catch (err: any) {
       throw new Error(CalculatorUtils.formatError(err, "Invalid expression"));
     }
   }
 
-  formatResult(result: number, base: BaseType): string {
+  /**
+   * Formats results for specific base with integer validation
+   */
+  formatResult(result: number, options?: Record<string, any>): string {
+    const base: BaseType = (options?.base as BaseType) || this.currentBase;
     if (!result && result !== 0) return 'Overflow';
+
     try {
-      return CalculatorUtils.formatForBase(
-        isNegative(result) ? -Math.abs(result) : Math.abs(result),
-        base
-      );
+      this.validateResult(result);
+
+      return CalculatorUtils.formatForBase(Math.abs(result), base);
     } catch (err) {
       console.error('Error formatting result:', err);
-      return 'Overflow';
+      return base === 'DEC' ? super.formatResult(result, options) : 'Overflow';
     }
   }
 
-  convertToBase(value: string | number, fromBase: BaseType, toBase: BaseType): string {
-    try {
-      if (!value || value === 'Overflow') return '0';
-      const isNeg = typeof value === 'string' && value.startsWith('-');
-      const absValue = isNeg ? value.substring(1) : value;
-      if (typeof absValue !== 'string') return '0';
-      if (!CalculatorUtils.isValidForBase(absValue, fromBase)) {
-        return '0';
-      }
-      const decimal = parseInt(absValue.toString(), this.bases[fromBase]);
-      if (isNaN(decimal)) return '0';
-      if (CalculatorConstants.MAX_VALUE && (typeof decimal === 'number') && (CalculatorConstants.MAX_VALUE.lt ? CalculatorConstants.MAX_VALUE.lt(Math.abs(decimal)) : Math.abs(decimal) > (CalculatorConstants.MAX_VALUE as any))) return 'Overflow';
-      const result = CalculatorUtils.formatForBase(decimal, toBase);
-      return isNeg ? '-' + result : result;
-    } catch (err) {
-      console.error('Error converting between bases:', err);
-      return '0';
-    }
-    return '0';
+  /**
+   * Evaluates expression with specific base
+   */
+  evaluateExpressionWithBase(expr: string, base: BaseType): number {
+    return this.evaluateExpression(expr, { base });
+  }
+
+  /**
+   * Set the current base for calculations
+   */
+  setCurrentBase(base: BaseType): void {
+    this.currentBase = base;
+  }
+
+  /**
+   * Get the current base
+   */
+  getCurrentBase(): BaseType {
+    return this.currentBase;
   }
 }

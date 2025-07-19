@@ -23,8 +23,8 @@ export class ProgrammerCalculator extends ICalculator {
   calculations: ProgrammerCalculations;
   operations: ProgrammerOperations;
 
-  constructor(settings: any) {
-    super(settings);
+  constructor() {
+    super();
     this.MAX_INPUT_LENGTH = CalculatorConstants.MAX_INPUT_LENGTH.PROGRAMMER;
     this.states = {
       DEC: { input: "0", display: "0" },
@@ -38,7 +38,7 @@ export class ProgrammerCalculator extends ICalculator {
       HEX: new HexCalculator(),
       OCT: new OctCalculator(),
     };
-    this.calculations = new ProgrammerCalculations(settings);
+    this.calculations = new ProgrammerCalculations(this);
     this.operations = new ProgrammerOperations(this);
   }
 
@@ -48,18 +48,19 @@ export class ProgrammerCalculator extends ICalculator {
 
   evaluateExpression(expr: string, base: BaseType = this.activeBase as BaseType): any {
     try {
-      return this.calculations.evaluateExpression(expr, base);
+      return this.calculations.evaluateExpression(expr, { base });
     } catch (err: any) {
+      console.log('Error evaluating expression:', err.stack);
       throw new Error(CalculatorUtils.formatError(err, "Invalid expression"));
     }
   }
 
   formatResult(result: any, base: BaseType = this.activeBase as BaseType): string {
-    return this.calculations.formatResult(result, base) || "";
+    return this.calculations.formatResult(result, { base }) || "";
   }
 
   convertToBase(value: string | number, fromBase: BaseType, toBase: BaseType): string {
-    return this.calculations.convertToBase(value, fromBase, toBase) || "0";
+    return CalculatorUtils.convertToBase(value, fromBase, toBase) || "0";
   }
 
   handleButtonClick(btn: string): Record<string, any> {
@@ -145,7 +146,7 @@ export class ProgrammerCalculator extends ICalculator {
         displayValues: { ...this.states }
       };
     } catch (err: any) {
-      return this.createErrorResponse(err);
+      return this.createErrorResponse(err, this.states[this.activeBase as BaseType].input);
     }
   }
 
@@ -162,8 +163,8 @@ export class ProgrammerCalculator extends ICalculator {
         });
       }
       return this.states;
-    } catch (err) {
-      return console.error('Error updating display values:', err), this.states;
+    } catch (err: any) {
+      return this.createErrorResponse(err, this.states[this.activeBase as BaseType].input);
     }
   }
 

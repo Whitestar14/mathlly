@@ -118,7 +118,6 @@
     <div class="flex justify-end space-x-2">
       <Button
         variant="outline"
-        class="dark:text-muted-foreground transition-colors"
         @click="showClearConfirmation = false"
       >
         Cancel

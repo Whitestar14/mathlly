@@ -6,14 +6,14 @@
     >
       <template #trigger>
         <div
-          class="rounded-lg bg-muted dark:bg-background sm:dark:bg-muted p-3 hover:bg-muted dark:hover:bg-accent sm:dark:hover:bg-muted/60 transition-colors cursor-pointer"
+          class="rounded-lg md:hover:bg-secondary/30 dark:bg-secondary/50 bg-secondary md:dark:bg-secondary p-3 transition-colors cursor-pointer"
           :class="{ 'animate-highlight': selectedItemId === item.id }"
           @click="$emit('select', item)"
         >
           <div class="text-sm text-foreground/75 dark:text-muted-foreground/75 break-all">
             {{ item.expression }}
           </div>
-          <div class="text-lg font-medium text-foreground dark:text-muted-foreground break-all">
+          <div class="text-lg font-medium text-foreground/80 break-all">
             {{ item.result }}
           </div>
 

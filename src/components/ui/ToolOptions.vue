@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <!-- Header with back button -->
-    <div class="flex items-center gap-3 pb-3 border-b border-border">
+    <div class="flex items-center gap-2 pb-3 border-b border-border">
       <BaseButton
         variant="ghost"
         size="icon"
@@ -24,7 +24,7 @@
           <!-- Section Header -->
           <div class="flex items-center gap-2">
             <div class="h-px flex-1 bg-border"></div>
-            <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 bg-background">
+            <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
               {{ section.name }}
             </h4>
             <div class="h-px flex-1 bg-border"></div>

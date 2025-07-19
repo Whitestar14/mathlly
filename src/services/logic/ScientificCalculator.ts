@@ -27,7 +27,7 @@ export class ScientificCalculator extends ICalculator {
    */
   constructor() {
     super(); // No settings parameter needed
-    this.MAX_INPUT_LENGTH = CalculatorConstants.MAX_INPUT_LENGTH.STANDARD;
+    this.MAX_INPUT_LENGTH = CalculatorConstants.MAX_INPUT_LENGTH.SCIENTIFIC;
     
     // Create reactive computed properties that map tool settings to calculator modes
     this.angleMode = computed(() => {
@@ -41,13 +41,20 @@ export class ScientificCalculator extends ICalculator {
     });
 
     this.notationMode = computed(() => {
-      const notationMode = this.getToolSetting('notationMode', 'standard') as 'standard' | 'scientific' | 'engineering';
-      const mapping: Record<'standard' | 'scientific' | 'engineering', 'F-E' | 'SCI'> = {
-        'standard': 'F-E',
-        'scientific': 'SCI',
-        'engineering': 'SCI' // Map engineering to SCI for now
-      };
-      return mapping[notationMode] ?? 'F-E';
+      try {
+        const notationMode = this.getToolSetting('notationMode', 'standard') as 'standard' | 'scientific' | 'engineering';
+        
+        const mapping: Record<'standard' | 'scientific' | 'engineering', 'F-E' | 'SCI'> = {
+          'standard': 'F-E',
+          'scientific': 'SCI',
+          'engineering': 'SCI' // Map engineering to SCI for now
+        };
+        
+        return mapping[notationMode] ?? 'F-E';
+      } catch (err) {
+        console.error('Error in notationMode computed:', err);
+        return 'F-E';
+      }
     });
 
     this.hyperbolicMode = computed(() => {
@@ -76,7 +83,7 @@ export class ScientificCalculator extends ICalculator {
     try {
       return this.calculations.evaluateExpression(expr);
     } catch (err: any) {
-      throw new Error(CalculatorUtils.formatError(err, "Invalid expression"));
+      throw new Error(CalculatorUtils.formatError(err, CalculatorConstants.ERROR_MESSAGES.INVALID_EXPRESSION));
     }
   }
 
@@ -116,17 +123,13 @@ export class ScientificCalculator extends ICalculator {
     try {
       this.error = '';
 
-      // Handle parentheses
-      if (btn === '(') {
-        return this.operations.handleParenthesis(btn);
-      }
-      
-      if (btn === ')') {
+      // Handle parentheses using REGEX
+      if (CalculatorConstants.REGEX.PARENTHESIS.test(btn)) {
         return this.operations.handleParenthesis(btn);
       }
 
-      // Handle scientific constants
-      if (['π', 'e'].includes(btn)) {
+      // Handle scientific constants using REGEX
+      if (CalculatorConstants.REGEX.CONSTANT.test(btn)) {
         return this.operations.handleConstant(btn);
       }
 
@@ -135,42 +138,30 @@ export class ScientificCalculator extends ICalculator {
         return this.handleEquals();
       }
 
-      // Handle clear operations
+      // Handle clear operations using BUTTON_TYPES
       if (btn === 'AC' || btn === 'C') {
         this.handleClear();
         this.operations.resetParentheses();
         return { input: this.input, error: this.error };
       }
-      
+
       if (btn === 'CE') {
         return this.operations.handleClearEntry();
       }
-      
+
+      // Handle backspace
       if (btn === 'backspace') {
         return this.operations.handleBackspace();
       }
 
-      // Handle scientific functions
-      const scientificFunctions = [
-        'sin', 'cos', 'tan', 'asin', 'acos', 'atan',
-        'sinh', 'cosh', 'tanh', 'asinh', 'acosh', 'atanh',
-        'csc', 'sec', 'cot', 'acsc', 'asec', 'acot',
-        'csch', 'sech', 'coth', 'acsch', 'asech', 'acoth',
-        'log', 'ln', 'log2', 'exp', '10^x', '2^x', 'e^x',
-        'x^y', 'y√x', 'n!', '|x|', 'x²', 'x³', '√', '∛', '1/x',
-        'mod', 'rand', 'dms', 'deg', 'abs', 'ceil', 'floor', 'round', 'gcd', 'lcm'
-      ];
-
-      if (scientificFunctions.includes(btn) || 
-          ['sin⁻¹', 'cos⁻¹', 'tan⁻¹', 'sinh⁻¹', 'cosh⁻¹', 'tanh⁻¹',
-           'csc⁻¹', 'sec⁻¹', 'cot⁻¹', 'csch⁻¹', 'sech⁻¹', 'coth⁻¹',
-           'log₂', '10ˣ', '2ˣ', 'eˣ', 'xʸ', 'ʸ√x', '²√x', '³√x', '¹⁄ₓ',
-           '⌈x⌉', '⌊x⌋', '→DMS', '→DEG'].includes(btn)) {
+      // Handle scientific functions using BUTTON_TYPES and FUNCTION_MAPPINGS
+      if (CalculatorConstants.BUTTON_TYPES.SCIENTIFIC_FUNCTIONS.includes(btn as any) || 
+          Object.keys(CalculatorConstants.FUNCTION_MAPPINGS).includes(btn)) {
         return this.operations.handleScientificFunction(btn);
       }
 
-      // Handle basic operators
-      if (['+', '-', '×', '÷'].includes(btn)) {
+      // Handle basic operators using BUTTON_TYPES
+      if (CalculatorConstants.BUTTON_TYPES.OPERATORS.includes(btn as any)) {
         return this.operations.handleOperator(btn);
       }
 
@@ -189,7 +180,13 @@ export class ScientificCalculator extends ICalculator {
         return this.operations.handleComma();
       }
 
-      // Default to number handling
+      // Default to number handling - validate using REGEX
+      if (CalculatorConstants.REGEX.NUMBER.test(btn)) {
+        return this.operations.handleNumber(btn);
+      }
+
+      // Log unexpected inputs
+      console.warn(`Unexpected button input in ScientificCalculator: "${btn}"`);
       return this.operations.handleNumber(btn);
     } catch (err) {
       return this.createErrorResponse(err as Error);
@@ -200,19 +197,19 @@ export class ScientificCalculator extends ICalculator {
    * Handle button click - main entry point
    */
   handleButtonClick(btn: string): Record<string, any> {
-    // Handle memory operations
-    if (["MC", "MR", "MS", "M+", "M-"].includes(btn)) {
-      // Memory operations are handled by the parent calculator
+    // Handle memory operations using BUTTON_TYPES
+    if (CalculatorConstants.BUTTON_TYPES.MEMORY.includes(btn as any)) {
       return super.handleButtonClick(btn);
     }
     
-    if (["backspace", "AC", "CE", "C"].includes(btn)) {
+    // Handle control buttons
+    if (['backspace', 'AC', 'CE', 'C'].includes(btn)) {
       return this.normalizeResponse(this.processButton(btn));
     }
     
     if (this.isInputTooLong(btn)) {
       return this.createErrorResponse(
-        new Error("Maximum input length reached"),
+        new Error(CalculatorConstants.ERROR_MESSAGES.MAX_INPUT_LENGTH),
         this.input
       );
     }

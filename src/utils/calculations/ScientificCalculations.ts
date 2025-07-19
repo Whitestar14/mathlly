@@ -1,54 +1,43 @@
-import { ExpressionEvaluator } from '@/utils/core/ExpressionEvaluator';
 import { CalculatorUtils } from '../constants/CalculatorUtils';
-import { ERROR_MESSAGES } from '../constants/CalculatorConstants';
+import { CalculatorConstants } from '../constants/CalculatorConstants';
+import { StandardCalculations } from './StandardCalculations';
 import { ExpressionConverter } from './converters/ExpressionConverter';
-import { ResultFormatter } from './formatters/ResultFormatter';
 import { DomainValidator } from './validators/DomainValidator';
 import type { ScientificCalculator } from '@/services/logic/ScientificCalculator';
 
 /**
- * Handles calculations for the scientific calculator mode
+ * Scientific calculator wrapper that extends StandardCalculations
+ * Adds expression conversion and domain validation
  */
-export class ScientificCalculations {
-  private calculator: ScientificCalculator;
-  private evaluator: ExpressionEvaluator;
+export class ScientificCalculations extends StandardCalculations {
+  private scientificCalculator: ScientificCalculator;
   private converter: ExpressionConverter;
-  private formatter: ResultFormatter;
   private validator: DomainValidator;
 
   constructor(calculator: ScientificCalculator) {
-    this.calculator = calculator;
-    this.evaluator = ExpressionEvaluator.getInstance();
+    super();
+    this.scientificCalculator = calculator;
     this.converter = new ExpressionConverter();
-    this.formatter = new ResultFormatter();
     this.validator = new DomainValidator();
   }
 
   /**
-   * Evaluates a mathematical expression
+   * Evaluates scientific expressions with conversion and validation
    */
-  evaluateExpression(expr: string): number {
+  evaluateExpression(expr: string, options: Record<string, any> = {}): number {
     try {
-      // Update converter with current angle mode
-      this.converter.setAngleMode(this.calculator.angleMode.value);
-      
-      // Check for domain violations before conversion
+      // Scientific-specific preprocessing
+      this.converter.setAngleMode(this.scientificCalculator.angleMode.value);
       this.validator.validate(expr);
-      
-      // Convert expression to mathjs format
       const convertedExpr = this.converter.convert(expr);
-      
-      // Sanitize and evaluate
-      const sanitizedExpr = CalculatorUtils.sanitizeExpression(convertedExpr);
-      const result = this.evaluator.evaluate(sanitizedExpr);
 
-      if (!isFinite(result)) {
-        throw new Error(ERROR_MESSAGES.DOMAIN_ERROR);
-      }
-
-      return result;
+      // Use parent evaluation with scientific mode
+      return super.evaluateExpression(convertedExpr, {
+        mode: 'scientific',
+        ...options
+      });
     } catch (err: any) {
-      if (err.message?.includes(ERROR_MESSAGES.DOMAIN_ERROR)) {
+      if (err.message?.includes(CalculatorConstants.ERROR_MESSAGES.DOMAIN_ERROR)) {
         throw err;
       }
       throw new Error(CalculatorUtils.formatError(err, 'Invalid expression'));
@@ -56,13 +45,14 @@ export class ScientificCalculations {
   }
 
   /**
-   * Formats a numeric result according to calculator settings
+   * Formats results with scientific notation support
    */
-  formatResult(result: number): string {
-    return this.formatter.format(result, {
-      precision: this.calculator.toolSettings?.precision,
-      useFractions: this.calculator.toolSettings?.useFractions,
-      notationMode: this.calculator.notationMode.value
+  formatResult(result: number, options: Record<string, any> = {}): string {
+    return super.formatResult(result, {
+      precision: this.scientificCalculator.toolSettings?.precision,
+      useFractions: this.scientificCalculator.toolSettings?.useFractions,
+      notationMode: this.scientificCalculator.notationMode.value,
+      ...options
     });
   }
 }

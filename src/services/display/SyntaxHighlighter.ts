@@ -1,24 +1,9 @@
 import { CacheManager } from '@/services/cache/CacheManager'
-import { CalculatorConstants } from '@/utils/constants/CalculatorConstants'
+import { TokenUtils } from '@/utils/syntax/TokenUtils'
+import { FunctionUtils } from '@/utils/syntax/FunctionUtils'
+import { CacheUtils } from '@/utils/syntax/CacheUtils'
 import type { ParenthesesTracker } from '@/utils/core/ParenthesesTracker'
-
-interface Token {
-  type: string
-  content: string
-  parentLevel?: number
-}
-
-interface FormattedPart {
-  type: string
-  content: string
-  level: number
-}
-
-interface FormatOptions {
-  base?: string
-  mode?: string
-  options?: Record<string, any> // Calculator options from toolSettings
-}
+import type { Token, FormattedPart, FormatOptions } from '@/types/syntax'
 
 export class SyntaxHighlighter {
   private static readonly CACHE_KEY = 'syntax-highlighting'
@@ -34,12 +19,15 @@ export class SyntaxHighlighter {
     options: FormatOptions = {}
   ): Token[] {
     if (!expr) {
-      return [{ type: 'text', content: '0' }]
+      return [TokenUtils.createToken('0', 'text')]
     }
     
-    // Include calculator options in cache key for proper invalidation
-    const optionsKey = options.options ? JSON.stringify(options.options) : ''
-    const cacheKey = `${expr}-${parenthesesTracker?.getOpenCount() || 0}-${syntaxHighlightingEnabled}-${options.mode || 'Standard'}-${options.base || 'DEC'}-${optionsKey}`
+    const cacheKey = CacheUtils.generateCacheKey(
+      expr,
+      parenthesesTracker?.getOpenCount() || 0,
+      syntaxHighlightingEnabled,
+      options
+    )
     
     if (this.cache.has(cacheKey)) {
       return this.cache.get(cacheKey)!
@@ -51,7 +39,7 @@ export class SyntaxHighlighter {
     // Then apply syntax highlighting if enabled
     const result = syntaxHighlightingEnabled 
       ? this.applySyntaxHighlighting(parts, options)
-      : parts.map(part => ({ type: part.type, content: part.content, parentLevel: part.level }))
+      : parts.map(part => TokenUtils.createToken(part.content, part.type as any, part.level))
     
     this.cache.set(cacheKey, result)
     return result
@@ -68,18 +56,11 @@ export class SyntaxHighlighter {
         // Tokenize the text content while preserving whitespace
         const tokens = this.tokenizeWithSyntax(part.content, options)
         for (const token of tokens) {
-          result.push({
-            ...token,
-            parentLevel: part.level
-          })
+          result.push(TokenUtils.createToken(token.content, token.type as any, part.level))
         }
       } else {
         // Keep parentheses, ghost, open, close as-is
-        result.push({
-          type: part.type,
-          content: part.content,
-          parentLevel: part.level
-        })
+        result.push(TokenUtils.createToken(part.content, part.type as any, part.level))
       }
     }
     
@@ -94,13 +75,11 @@ export class SyntaxHighlighter {
     let currentIndex = 0
     let nestLevel = 0
     
-    const { REGEX } = CalculatorConstants
-    
     const isOperator = (char: string, nextChar?: string): boolean => {
-      if (REGEX.OPERATOR.test(char)) return true
-      if ((char === '<' && nextChar === '<') || (char === '>' && nextChar === '>')) return true
+      if (TokenUtils.isStandardOperator(char)) return true
+      if (TokenUtils.isProgrammerOperator(char) || TokenUtils.isShiftOperator(char, nextChar)) return true
       // Scientific mode: handle power operator
-      if (options.mode === 'Scientific' && char === '^') return true
+      if (options.mode === 'Scientific' && TokenUtils.isScientificOperator(char)) return true
       return false
     }
     
@@ -168,7 +147,6 @@ export class SyntaxHighlighter {
     if (!text) return []
     
     const tokens: Token[] = []
-    const { REGEX, BUTTON_TYPES } = CalculatorConstants
     const isScientificMode = options.mode === 'Scientific'
     const isProgrammerMode = options.mode === 'Programmer'
     
@@ -178,16 +156,16 @@ export class SyntaxHighlighter {
       const nextChar = text[i + 1]
       
       // Preserve whitespace
-      if (char === ' ') {
+      if (TokenUtils.isWhitespace(char)) {
         tokens.push({ type: 'space', content: ' ' })
         i++
         continue
       }
       
       // Handle numbers (including decimals in one token)
-      if (REGEX.NUMBER.test(char)) {
+      if (TokenUtils.isNumber(char)) {
         let number = ''
-        while (i < text.length && (REGEX.NUMBER.test(text[i]) || text[i] === '.')) {
+        while (i < text.length && (TokenUtils.isNumber(text[i]) || TokenUtils.isDecimal(text[i]))) {
           number += text[i++]
         }
         tokens.push({ type: 'number', content: number })
@@ -195,67 +173,67 @@ export class SyntaxHighlighter {
       }
       
       // Handle decimal points separately (when not part of a number)
-      if (char === '.') {
+      if (TokenUtils.isDecimal(char)) {
         tokens.push({ type: 'decimal', content: '.' })
         i++
         continue
       }
       
       // Handle shift operators (programmer mode)
-      if (isProgrammerMode && ((char === '<' && nextChar === '<') || (char === '>' && nextChar === '>'))) {
+      if (isProgrammerMode && TokenUtils.isShiftOperator(char, nextChar)) {
         tokens.push({ type: 'operator', content: char + nextChar })
         i += 2
         continue
       }
       
-      // Handle standard operators
-      if (BUTTON_TYPES.OPERATORS.includes(char as any) || 
-          BUTTON_TYPES.PROGRAMMER_OPERATORS.includes(char as any)) {
+      // Handle standard and programmer operators
+      if (TokenUtils.isStandardOperator(char) || TokenUtils.isProgrammerOperator(char)) {
         tokens.push({ type: 'operator', content: char })
         i++
         continue
       }
       
       // Handle scientific operators
-      if (isScientificMode && (char === '^' || char === '!')) {
+      if (isScientificMode && TokenUtils.isScientificOperator(char)) {
         tokens.push({ type: 'operator', content: char })
         i++
         continue
       }
       
       // Handle parentheses and absolute value bars
-      if ('()|'.includes(char)) {
+      if (TokenUtils.isParenthesis(char)) {
         tokens.push({ type: 'parenthesis', content: char })
         i++
         continue
       }
       
       // Handle scientific constants
-      if (isScientificMode && (char === 'π' || char === 'e')) {
+      if (isScientificMode && TokenUtils.isScientificConstant(char)) {
         tokens.push({ type: 'constant', content: char })
         i++
         continue
       }
       
       // Handle scientific symbols
-      if (isScientificMode && (char === '√' || char === '∛')) {
+      if (isScientificMode && TokenUtils.isScientificSymbol(char)) {
         tokens.push({ type: 'function', content: char })
         i++
         continue
       }
       
       // Handle scientific functions (sin, cos, tan, log, etc.)
-      if (isScientificMode && this.isScientificFunction(text, i)) {
-        const func = this.extractFunction(text, i)
+      if (isScientificMode && FunctionUtils.isScientificFunction(text, i)) {
+        const func = FunctionUtils.extractFunction(text, i)
         tokens.push({ type: 'function', content: func })
         i += func.length
         continue
       }
       
       // Handle modulo operator
-      if (text.substr(i, 3) === 'mod') {
-        tokens.push({ type: 'operator', content: 'mod' })
-        i += 3
+      const modulo = FunctionUtils.extractModulo(text, i)
+      if (modulo) {
+        tokens.push({ type: 'operator', content: modulo })
+        i += modulo.length
         continue
       }
       
@@ -267,47 +245,7 @@ export class SyntaxHighlighter {
     return tokens
   }
   
-  /**
-   * Check if current position starts a scientific function
-   */
-  private static isScientificFunction(text: string, index: number): boolean {
-    const functions = [
-      'sin', 'cos', 'tan', 'asin', 'acos', 'atan',
-      'sinh', 'cosh', 'tanh', 'asinh', 'acosh', 'atanh',
-      'log', 'ln', 'sqrt', 'cbrt', 'abs', 'floor', 'ceil',
-      'round', 'exp', 'pow'
-    ]
-    
-    return functions.some(func => {
-      const substr = text.substr(index, func.length)
-      const nextChar = text[index + func.length]
-      // Make sure it's a complete function name (followed by '(' or end of string)
-      return substr === func && (nextChar === '(' || nextChar === undefined || nextChar === ' ')
-    })
-  }
-  
-  /**
-   * Extract function name from current position
-   */
-  private static extractFunction(text: string, index: number): string {
-    const functions = [
-      'asinh', 'acosh', 'atanh', // Check longer functions first
-      'asin', 'acos', 'atan',
-      'sinh', 'cosh', 'tanh',
-      'sqrt', 'cbrt', 'floor', 'ceil', 'round',
-      'sin', 'cos', 'tan', 'log', 'exp', 'pow', 'abs'
-    ]
-    
-    for (const func of functions) {
-      const substr = text.substr(index, func.length)
-      const nextChar = text[index + func.length]
-      if (substr === func && (nextChar === '(' || nextChar === undefined || nextChar === ' ')) {
-        return func
-      }
-    }
-    
-    return text[index]
-  }
+
   
   /**
    * Clear cache when calculator options change

@@ -14,53 +14,53 @@
   :root {
     @apply font-sans font-normal;
     
-    /* Border radius variable - default to sharp */
+    /* Border radius variable - default to rounded */
     --radius: 0.5rem;
     
-    /* Default theme variables (Classic Light) - restored original brightness */
-    --color-background: 255 255 255;
-    --color-foreground: 15 23 42;
-    --color-card: 255 255 255;
-    --color-card-foreground: 15 23 42;
-    --color-popover: 255 255 255;
-    --color-popover-foreground: 15 23 42;
-    --color-primary: 79 70 229;
-    --color-primary-foreground: 248 250 252;
-    --color-secondary: 244 244 245;
-    --color-secondary-foreground: 24 24 27;
-    --color-muted: 249 250 251;
-    --color-muted-foreground: 107 114 128;
-    --color-accent: 244 244 245;
-    --color-accent-foreground: 15 23 42;
-    --color-destructive: 239 68 68;
-    --color-destructive-foreground: 248 250 252;
-    --color-border: 229 231 235;
-    --color-input: 229 231 235;
-    --color-ring: 79 70 229;
+    /* Classic Theme - Gray + Indigo color palette - Light Mode (OKLCH) */
+    --color-background: 100% 0 0;
+    --color-foreground: 15% 0.004 285.82;
+    --color-card: 100% 0 0;
+    --color-card-foreground: 15% 0.004 285.82;
+    --color-popover: 100% 0 0;
+    --color-popover-foreground: 15% 0.004 285.82;
+    --color-primary: 67.5% 0.196 271.75;
+    --color-primary-foreground: 98% 0 0;
+    --color-secondary: 95.9% 0.004 285.82;
+    --color-secondary-foreground: 15% 0.004 285.82;
+    --color-muted: 95.9% 0.004 285.82;
+    --color-muted-foreground: 52.1% 0.004 285.82;
+    --color-accent: 95.9% 0.004 285.82;
+    --color-accent-foreground: 15% 0.004 285.82;
+    --color-destructive: 62.8% 0.257 29.23;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 90% 0.004 285.82;
+    --color-input: 90% 0.004 285.82;
+    --color-ring: 67.5% 0.196 271.75;
   }
 
   .dark {
-  /* Classic Dark - slightly lighter for better contrast */
-  --color-background: 15 23 42;        /* Lighter than 2 6 23 */
-  --color-foreground: 248 250 252;
-  --color-card: 30 41 59;              /* Lighter card background */
-  --color-card-foreground: 248 250 252;
-  --color-popover: 30 41 59;           /* Lighter popover */
-  --color-popover-foreground: 248 250 252;
-  --color-primary: 129 140 248;
-  --color-primary-foreground: 15 23 42;
-  --color-secondary: 51 65 85;         /* Lighter secondary */
-  --color-secondary-foreground: 248 250 252;
-  --color-muted: 51 65 85;             /* Lighter muted */
-  --color-muted-foreground: 148 163 184;
-  --color-accent: 51 65 85;            /* Lighter accent */
-  --color-accent-foreground: 248 250 252;
-  --color-destructive: 220 38 38;
-  --color-destructive-foreground: 248 250 252;
-  --color-border: 51 65 85;            /* Lighter border */
-  --color-input: 51 65 85;             /* Lighter input */
-  --color-ring: 129 140 248;
-}
+    /* Classic Theme - Gray + Indigo color palette - Dark Mode (OKLCH) */
+    --color-background: 15% 0.004 285.82;
+    --color-foreground: 98% 0 0;
+    --color-card: 15% 0.004 285.82;
+    --color-card-foreground: 98% 0 0;
+    --color-popover: 15% 0.004 285.82;
+    --color-popover-foreground: 98% 0 0;
+    --color-primary: 67.5% 0.196 271.75;
+    --color-primary-foreground: 15% 0.004 285.82;
+    --color-secondary: 25% 0.004 285.82;
+    --color-secondary-foreground: 98% 0 0;
+    --color-muted: 25% 0.004 285.82;
+    --color-muted-foreground: 65.1% 0.004 285.82;
+    --color-accent: 25% 0.004 285.82;
+    --color-accent-foreground: 98% 0 0;
+    --color-destructive: 37.8% 0.257 29.23;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 25% 0.004 285.82;
+    --color-input: 25% 0.004 285.82;
+    --color-ring: 67.5% 0.196 271.75;
+  }
 
   /* Border radius variants */
   .border-style-sharp {
@@ -125,7 +125,7 @@
   html {
     scrollbar-width: thin;
     scroll-behavior: smooth;
-    scrollbar-color: rgb(var(--color-muted-foreground) / 0.5) transparent;
+    scrollbar-color: oklch(var(--color-muted-foreground) / 0.5) transparent;
     -ms-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -139,17 +139,17 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background-color: rgb(var(--color-muted-foreground) / 0.5);
+    background-color: oklch(var(--color-muted-foreground) / 0.5);
     border-radius: 4px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background-color: rgb(var(--color-muted-foreground) / 0.7);
+    background-color: oklch(var(--color-muted-foreground) / 0.7);
   }
 
   /* Custom scrollbar for details section */
   .scrollbar-thin {
     scrollbar-width: thin;
-    scrollbar-color: rgb(var(--color-muted-foreground) / 0.5) transparent;
+    scrollbar-color: oklch(var(--color-muted-foreground) / 0.5) transparent;
   }
 
   .scrollbar-thin::-webkit-scrollbar {
@@ -161,12 +161,12 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: rgb(var(--color-muted-foreground) / 0.5);
+    background-color: oklch(var(--color-muted-foreground) / 0.5);
     border-radius: 2px;
   }
 
-    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-    background-color: rgb(var(--color-muted-foreground) / 0.7);
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: oklch(var(--color-muted-foreground) / 0.7);
   }
 
   /* Logo SVG styling */
@@ -190,53 +190,53 @@
    Theme Pack Specific Styles
    ========================================================================== */
 @layer base {
-  /* Mira Theme Pack - Light */
+  /* Mira Theme Pack - Light (Zinc-based neutral - keeping original) */
   [data-theme-pack="mira"] {
-    --color-background: 250 250 250;
-    --color-foreground: 9 9 11;
-    --color-card: 255 255 255;
-    --color-card-foreground: 9 9 11;
-    --color-popover: 255 255 255;
-    --color-popover-foreground: 9 9 11;
-    --color-primary: 24 24 27;
-    --color-primary-foreground: 250 250 250;
-    --color-secondary: 244 244 245;
-    --color-secondary-foreground: 24 24 27;
-    --color-muted: 244 244 245;
-    --color-muted-foreground: 113 113 122;
-    --color-accent: 244 244 245;
-    --color-accent-foreground: 24 24 27;
-    --color-destructive: 239 68 68;
-    --color-destructive-foreground: 250 250 250;
-    --color-border: 228 228 231;
-    --color-input: 228 228 231;
-    --color-ring: 24 24 27;
+    --color-background: 100% 0 0;
+    --color-foreground: 15% 0.004 285.82;
+    --color-card: 100% 0 0;
+    --color-card-foreground: 15% 0.004 285.82;
+    --color-popover: 100% 0 0;
+    --color-popover-foreground: 15% 0.004 285.82;
+    --color-primary: 25% 0.015 285.82;
+    --color-primary-foreground: 98% 0 0;
+    --color-secondary: 95.9% 0.004 285.82;
+    --color-secondary-foreground: 25% 0.015 285.82;
+    --color-muted: 95.9% 0.004 285.82;
+    --color-muted-foreground: 52.1% 0.004 285.82;
+    --color-accent: 95.9% 0.004 285.82;
+    --color-accent-foreground: 25% 0.015 285.82;
+    --color-destructive: 62.8% 0.257 29.23;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 90% 0.004 285.82;
+    --color-input: 90% 0.004 285.82;
+    --color-ring: 25% 0.015 285.82;
   }
 
-  /* Mira Theme Pack - Dark */
+  /* Mira Theme Pack - Dark (keeping original) */
   [data-theme-pack="mira"].dark {
-    --color-background: 9 9 11;
-    --color-foreground: 250 250 250;
-    --color-card: 9 9 11;
-    --color-card-foreground: 250 250 250;
-    --color-popover: 9 9 11;
-    --color-popover-foreground: 250 250 250;
-    --color-primary: 250 250 250;
-    --color-primary-foreground: 9 9 11;
-    --color-secondary: 39 39 42;
-    --color-secondary-foreground: 250 250 250;
-    --color-muted: 39 39 42;
-    --color-muted-foreground: 161 161 170;
-    --color-accent: 39 39 42;
-    --color-accent-foreground: 250 250 250;
-    --color-destructive: 220 38 38;
-    --color-destructive-foreground: 250 250 250;
-    --color-border: 39 39 42;
-    --color-input: 39 39 42;
-    --color-ring: 250 250 250;
+    --color-background: 15% 0.004 285.82;
+    --color-foreground: 98% 0 0;
+    --color-card: 15% 0.004 285.82;
+    --color-card-foreground: 98% 0 0;
+    --color-popover: 15% 0.004 285.82;
+    --color-popover-foreground: 98% 0 0;
+    --color-primary: 98% 0 0;
+    --color-primary-foreground: 25% 0.015 285.82;
+    --color-secondary: 25% 0.004 285.82;
+    --color-secondary-foreground: 98% 0 0;
+    --color-muted: 25% 0.004 285.82;
+    --color-muted-foreground: 65.1% 0.004 285.82;
+    --color-accent: 25% 0.004 285.82;
+    --color-accent-foreground: 98% 0 0;
+    --color-destructive: 37.8% 0.257 29.23;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 25% 0.004 285.82;
+    --color-input: 25% 0.004 285.82;
+    --color-ring: 98% 0 0;
   }
 
-  /* Classic Theme Pack maintains the default values defined in :root */
+  /* Classic Theme Pack - Gray + Indigo (explicit override if needed) */
   [data-theme-pack="classic"] {
     /* Light mode values already defined in :root */
   }
@@ -275,7 +275,7 @@
   }
 
   .btn-default {
-    @apply bg-background text-foreground border border-input hover:bg-accent hover:text-accent-foreground;
+    @apply bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground;
   }
 
   .btn-primary {
@@ -287,7 +287,7 @@
   }
 
   .btn-outline {
-    @apply border border-input hover:bg-accent hover:text-accent-foreground;
+    @apply border border-border bg-transparent hover:bg-accent/80 text-muted-foreground hover:text-accent-foreground;
   }
 
   .btn-secondary {
@@ -295,11 +295,11 @@
   }
 
   .btn-ghost {
-    @apply hover:bg-accent hover:text-accent-foreground;
+    @apply bg-transparent text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground;
   }
 
   .btn-link {
-    @apply text-primary underline-offset-4 hover:underline;
+    @apply text-primary underline-offset-4 hover:underline bg-transparent;
   }
 
   /* Button sizes */
@@ -326,7 +326,7 @@
   .btn:disabled {
     @apply opacity-50 cursor-not-allowed pointer-events-none;
   }
-
+  
   /* Loader styles */
   .loader-expanded {
     @apply fixed inset-0 z-50 bg-background/95;
@@ -476,22 +476,21 @@
    ========================================================================== */
 .tippy-box[data-theme~='custom'] {
   @apply text-xs p-0.5 shadow-lg border;
-  background-color: rgb(var(--color-popover));
-  color: rgb(var(--color-popover-foreground));
-  border: 1px solid rgb(var(--color-border));
+  background-color: oklch(var(--color-popover));
+  color: oklch(var(--color-popover-foreground));
+  border: 1px solid oklch(var(--color-border));
   border-radius: 0.5rem;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
 }
 
 /* Dark mode specific shadow */
 .dark .tippy-box[data-theme~='custom'] {
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2), 0 0 0 1px rgb(var(--color-border));
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2), 0 0 0 1px oklch(var(--color-border));
 }
 
-.tippy-box[data-theme~='custom'][data-placement^='top'] > .tippy-arrow::before { border-top-color: rgb(var(--color-popover)); }
-.tippy-box[data-theme~='custom'][data-placement^='bottom'] > .tippy-arrow::before { border-bottom-color: rgb(var(--color-popover)); }
-.tippy-box[data-theme~='custom'][data-placement^='left'] > .tippy-arrow::before { border-left-color: rgb(var(--color-popover)); }
-.tippy-box[data-theme~='custom'][data-placement^='right'] > .tippy-arrow::before { border-right-color: rgb(var(--color-popover)); }
+.tippy-box[data-theme~='custom'][data-placement^='top'] > .tippy-arrow::before { border-top-color: oklch(var(--color-popover)); }
+.tippy-box[data-theme~='custom'][data-placement^='bottom'] > .tippy-arrow::before { border-bottom-color: oklch(var(--color-popover)); }
+.tippy-box[data-theme~='custom'][data-placement^='left'] > .tippy-arrow::before { border-left-color: oklch(var(--color-popover)); }
+.tippy-box[data-theme~='custom'][data-placement^='right'] > .tippy-arrow::before { border-right-color: oklch(var(--color-popover)); }
 
 /* ==========================================================================
    Transition Animations
@@ -524,16 +523,16 @@
   .pattern-grid {
     background-image: linear-gradient(
         to right,
-        rgb(var(--color-border) / 0.5) 1px,
+        oklch(var(--color-border) / 0.3) 1px,
         transparent 1px
       ),
-      linear-gradient(to bottom, rgb(var(--color-border) / 0.5) 1px, transparent 1px);
+      linear-gradient(to bottom, oklch(var(--color-border) / 0.3) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 
   .pattern-dots {
     background-image: radial-gradient(
-      rgb(var(--color-border) / 0.5) 1px,
+      oklch(var(--color-border) / 0.5) 1px,
       transparent 1px
     );
     background-size: 16px 16px;

@@ -13,27 +13,9 @@ import {
 export const DEFAULT_SETTINGS: Settings = {
   id: 1,
   display: {
-    // Remove calculator-specific display settings - these are now in tool options
-    precision: 4, // Keep for backward compatibility, but calculator will use tool settings
-    useFractions: false, // Keep for backward compatibility
-    formatting: {
-      useThousandsSeparator: true, // Keep for backward compatibility
-      formatBinary: true,
-      formatHexadecimal: true,
-      formatOctal: true,
-    },
-    syntaxHighlighting: true, // Keep for backward compatibility
-    textSize: 'normal', // This remains app-wide
+    textSize: 'normal',
   },
-  calculator: {
-    mode: 'Standard', // This remains app-wide for initial mode
-    scientific: {
-      angleUnit: 'degrees', // Keep for backward compatibility
-    },
-    programmer: {
-      defaultBase: 'decimal', // Keep for backward compatibility
-    },
-  },
+  // Remove calculator section since it's now handled by tool settings
   appearance: {
     theme: 'system',
     themePack: 'mira',
@@ -60,7 +42,7 @@ export const useSettingsStore = defineStore('settings', {
 
   getters: {
     display: (state): any => createSettingsProxy(state, 'display'),
-    calculator: (state): any => createSettingsProxy(state, 'calculator'),
+    // Remove calculator getter since it's now in tool settings
     appearance: (state): any => createSettingsProxy(state, 'appearance'),
     startup: (state): any => createSettingsProxy(state, 'startup'),
   },
@@ -70,20 +52,24 @@ export const useSettingsStore = defineStore('settings', {
       try {
         const settings = await db.settings.get(1)
         if (settings) {
-          // For existing users, check if they had classic theme and preserve it
-          // This prevents existing users from being forced to Mira
-          const mergedSettings = merge({}, DEFAULT_SETTINGS, settings)
+          // For existing users, merge with defaults to ensure all properties exist
+          const mergedSettings = merge(cloneDeep(DEFAULT_SETTINGS), settings)
           
           // Validate theme pack value
           if (!mergedSettings.appearance.themePack || 
               !['classic', 'mira'].includes(mergedSettings.appearance.themePack)) {
-            // If invalid theme pack, use mira as default for new users
             mergedSettings.appearance.themePack = 'mira'
+          }
+
+          // Validate text size
+          if (!mergedSettings.display.textSize || 
+              !['small', 'normal', 'medium', 'large'].includes(mergedSettings.display.textSize)) {
+            mergedSettings.display.textSize = 'normal'
           }
           
           Object.assign(this, flattenObject(mergedSettings))
         } else {
-          // New user - use default settings with Mira theme
+          // New user - use default settings
           await this.saveSettings(DEFAULT_SETTINGS)
         }
       } catch (error) {
@@ -110,10 +96,16 @@ export const useSettingsStore = defineStore('settings', {
             : unflattenObject(flattenedNewSettings)
         ) as Settings
 
-        // Ensure theme pack is valid
+                // Ensure theme pack is valid
         if (!settingsToSave.appearance.themePack || 
             !['classic', 'mira'].includes(settingsToSave.appearance.themePack)) {
           settingsToSave.appearance.themePack = 'mira'
+        }
+
+        // Ensure text size is valid
+        if (!settingsToSave.display.textSize || 
+            !['small', 'normal', 'medium', 'large'].includes(settingsToSave.display.textSize)) {
+          settingsToSave.display.textSize = 'normal'
         }
 
         settingsToSave.id = 1
@@ -138,10 +130,15 @@ export const useSettingsStore = defineStore('settings', {
         const currentSettings =
           (await db.settings.get(1)) || cloneDeep(DEFAULT_SETTINGS)
         
-        // Validate theme pack updates
+        // Validate specific setting updates
         if (path === 'appearance.themePack' && !['classic', 'mira'].includes(value)) {
           console.warn(`Invalid theme pack: ${value}. Using default.`)
           value = 'mira'
+        }
+
+        if (path === 'display.textSize' && !['small', 'normal', 'medium', 'large'].includes(value)) {
+          console.warn(`Invalid text size: ${value}. Using default.`)
+          value = 'normal'
         }
         
         set(currentSettings, path, value)

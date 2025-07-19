@@ -11,12 +11,12 @@
   >
     <span v-if="!clipped">
       {math<span
-        class="font-black text-primary/50 inline-block mx-0.5"
+        class="font-black text-primary inline-block mx-0.5"
       >//</span>y}
     </span>
     <span v-else>
       {<span
-        class="font-black text-primary/50 inline-block mx-0.5"
+        class="font-black text-primary inline-block mx-0.5"
       >//</span>}
     </span>
   </kbd>
