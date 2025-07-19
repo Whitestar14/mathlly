@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="min-h-screen flex bg-background dark:bg-background-dark transition-colors duration-300"
+    class="min-h-screen flex transition-colors duration-300"
     :class="globalClasses"
   >
     <slot />

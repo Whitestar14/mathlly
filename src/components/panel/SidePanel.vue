@@ -3,13 +3,7 @@
     <div
       v-show="isOpen"
       class="panel-side"
-      :class="[
-        isMobile ? 'w-full' : 'w-64',
-        position === 'left' ? 'left-0' : 'right-0',
-        !isMobile && position === 'left' ? 'border-r' : '',
-        !isMobile && position === 'right' ? 'border-l' : '',
-        'border-border',
-      ]"
+      :class="panelClasses"
     >
       <PanelContent
         :title="title"
@@ -35,20 +29,43 @@
   </Transition>
 </template>
   
-<script setup>
-import PanelContent from '@/components/base/PanelContent.vue';
+<script setup lang="ts">
+import { computed, type ComputedRef } from 'vue'
+import PanelContent from '@/components/base/PanelContent.vue'
 
-defineProps({
-  isOpen: { type: Boolean, default: false },
-  isMobile: { type: Boolean, default: false },
-  position: { type: String, default: 'right' },
-  title: { type: String, default: '' },
-  showHeader: { type: Boolean, default: true },
-  showFooter: { type: Boolean, default: true },
-  contentClass: { type: String, default: '' },
-});
+interface Props {
+  isOpen?: boolean
+  isMobile?: boolean
+  position?: 'left' | 'right'
+  title?: string
+  showHeader?: boolean
+  showFooter?: boolean
+  contentClass?: string
+}
 
-defineEmits(['close']);
+interface Emits {
+  (e: 'close'): void
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isOpen: false,
+  isMobile: false,
+  position: 'right',
+  title: '',
+  showHeader: true,
+  showFooter: true,
+  contentClass: '',
+})
+
+defineEmits<Emits>()
+
+const panelClasses: ComputedRef<string[]> = computed(() => [
+  props.isMobile ? 'w-full' : 'w-64',
+  props.position === 'left' ? 'left-0' : 'right-0',
+  !props.isMobile && props.position === 'left' ? 'border-r' : '',
+  !props.isMobile && props.position === 'right' ? 'border-l' : '',
+  'border-border',
+])
 </script>
   
 <style scoped>

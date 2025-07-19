@@ -1,24 +1,25 @@
 <template>
   <div class="space-y-6">
-    <!-- Header with back button -->
-    <div class="flex items-center gap-2 pb-3 border-b border-border">
-      <BaseButton
-        variant="ghost"
-        size="icon"
-        @click="$emit('close')"
-        class="shrink-0 hover:bg-accent/50 transition-colors duration-200"
-      >
-        <ArrowLeft class="h-4 w-4" />
-      </BaseButton>
-      <div class="flex-1 min-w-0">
-        <h3 class="text-base font-semibold text-foreground">
-          Tool Options
-        </h3>
+    <slot name="header">
+      <div class="flex items-center gap-2 pb-3 border-b border-border">
+        <BaseButton
+          variant="ghost"
+          size="icon"
+          @click="$emit('close')"
+          class="shrink-0 hover:bg-accent/50 transition-colors duration-200"
+        >
+          <ArrowLeft class="h-4 w-4" />
+        </BaseButton>
+        <div class="flex-1 min-w-0">
+          <h3 class="text-base font-semibold text-foreground">
+            Tool Options
+          </h3>
+        </div>
       </div>
-    </div>
+    </slot>
 
     <!-- Options grouped by section -->
-    <div class="space-y-6">
+    <div class="space-y-6 p-3">
       <template v-for="section in groupedOptions" :key="section.name">
         <div v-if="section.options.length > 0" class="space-y-4">
           <!-- Section Header -->
@@ -186,7 +187,7 @@
                 </div>
               </div>
 
-              <!-- Color Option (if you want to add color pickers) -->
+              <!-- Color Option -->
               <div
                 v-else-if="option.type === 'color'"
                 class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3"
@@ -274,7 +275,6 @@ import Switch from '@/components/ui/ToggleBar.vue'
 import Select from '@/components/ui/SelectBar.vue'
 import { RadioGroupRoot, RadioGroupItem } from 'radix-vue'
 
-
 interface Props {
   toolOptions: ToolConfig
 }
@@ -310,7 +310,6 @@ const groupedOptions = computed(() => {
 </script>
 
 <style scoped>
-/* Enhanced slider styles */
 .slider::-webkit-slider-thumb {
   appearance: none;
   height: 20px;
@@ -352,14 +351,12 @@ const groupedOptions = computed(() => {
   box-shadow: 0 0 0 1px hsl(var(--border)), 0 0 0 3px hsl(var(--ring) / 0.2);
 }
 
-/* Range track styling */
 .slider::-webkit-slider-track {
   background: hsl(var(--muted));
   border-radius: 4px;
   height: 8px;
 }
 
-/* Range track styling continued */
 .slider::-moz-range-track {
   background: hsl(var(--muted));
   border-radius: 4px;
@@ -367,7 +364,6 @@ const groupedOptions = computed(() => {
   border: none;
 }
 
-/* Progress fill for webkit browsers */
 .slider::-webkit-slider-runnable-track {
   background: linear-gradient(
     to right,
@@ -380,7 +376,6 @@ const groupedOptions = computed(() => {
   height: 8px;
 }
 
-/* Custom radio button styling */
 .radio-item {
   position: relative;
 }
@@ -401,7 +396,6 @@ const groupedOptions = computed(() => {
   transform: scale(0.5);
 }
 
-/* Enhanced focus styles */
 .focus-enhanced:focus-visible {
   outline: none;
   ring: 2px;
@@ -410,7 +404,6 @@ const groupedOptions = computed(() => {
   ring-offset-color: hsl(var(--background));
 }
 
-/* Smooth transitions for all interactive elements */
 .option-card {
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -420,12 +413,6 @@ const groupedOptions = computed(() => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-/* Dark mode adjustments */
-.dark .option-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Color input styling */
 input[type="color"] {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -445,7 +432,6 @@ input[type="color"]::-moz-color-swatch {
   border: 1px solid hsl(var(--border));
 }
 
-/* Number input styling */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -456,7 +442,6 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* Loading animation for option cards */
 @keyframes shimmer {
   0% {
     background-position: -200px 0;

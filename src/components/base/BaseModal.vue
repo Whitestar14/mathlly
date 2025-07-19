@@ -7,7 +7,7 @@
     <Transition name="backdrop">
       <DialogOverlay
         v-if="open"
-        class="rounded-lg fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        class="fixed inset-0 bg-backdrop/50 backdrop-blur-sm z-40"
         @click="closeModal"
       />
     </Transition>
@@ -28,7 +28,7 @@
       >
         <DialogContent
           :class="[
-            'relative flex flex-col bg-background dark:bg-background rounded-xl shadow-2xl border border-border dark:border-border w-full max-h-[90vh]',
+            'relative flex flex-col bg-background border border-border rounded-xl shadow-2xl w-full max-h-[90vh]',
             sizeClasses
           ]"
           :aria-labelledby="titleId"
@@ -37,7 +37,7 @@
           @click.stop
         >
           <!-- Sticky Header -->
-          <div class="sticky top-0 z-10 flex-shrink-0 bg-background dark:bg-background border-b border-border dark:border-border rounded-t-xl">
+          <div class="sticky top-0 z-10 flex-shrink-0 bg-background border-b border-border rounded-t-xl">
             <div class="flex items-center justify-between p-3 pb-2">
               <!-- Title Section -->
               <div
@@ -46,7 +46,7 @@
               >
                 <DialogTitle
                   as="h2"
-                  class="text-lg font-medium text-foreground dark:text-foreground leading-tight"
+                  class="text-lg font-medium text-foreground leading-tight"
                 >
                   <slot name="title">
                     {{ title }}
@@ -77,7 +77,7 @@
           <!-- Sticky Footer -->
           <div
             v-if="$slots.footer"
-            class="sticky bottom-0 z-10 flex-shrink-0 bg-background dark:bg-background border-t border-border dark:border-border rounded-b-xl"
+            class="sticky bottom-0 z-10 flex-shrink-0 bg-background border-t border-border rounded-b-xl"
           >
             <div class="p-6 pt-4">
               <slot name="footer" />
@@ -237,20 +237,12 @@ useEventListener(document, 'keydown', handleEscapeKey, {
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(156, 163, 175, 0.4);
+  background-color: oklch(var(--muted-foreground) / 0.4);
   border-radius: 3px;
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(156, 163, 175, 0.6);
-}
-
-.dark .overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: rgba(75, 85, 99, 0.4);
-}
-
-.dark .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(75, 85, 99, 0.6);
+  background-color: oklch(var(--muted-foreground) / 0.6);
 }
 
 /* Ensure proper focus management */

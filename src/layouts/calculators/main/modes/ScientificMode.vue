@@ -46,7 +46,7 @@
         label="Trigonometry"
         :icon="LucideTriangle"
         full-width
-        content-class="w-[220px] bg-background dark:bg-background border border-border dark:border-border shadow-lg rounded-lg"
+        content-class="w-[220px] bg-background border border-border shadow-lg rounded-lg"
         trigger-class="calc-function-btn calc-btn w-full h-full"
         @item-select="handleTrigFunction"
       >
@@ -92,7 +92,7 @@
         label="Functions"
         :icon="LucideSquareFunction"
         full-width
-        content-class="w-[240px] bg-background dark:bg-background border border-border dark:border-border shadow-lg rounded-lg"
+        content-class="w-[240px] bg-background border border-border shadow-lg rounded-lg"
         trigger-class="calc-function-btn calc-btn w-full h-full"
         @item-select="handleClick"
       >

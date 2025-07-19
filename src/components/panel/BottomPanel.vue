@@ -10,9 +10,12 @@
       :style="mobilePanelStyle"
     >
       <!-- Expand/Minimize Button -->
-      <button
+      <Button
         v-if="!(maxHeightRatio === 1)"
-        class="absolute right-14 top-3.5 p-1.5 rounded-full bg-muted dark:bg-background text-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-accent transition-colors"
+        variant="ghost"
+        size="icon"
+        v-tippy="{ content: isExpanded ? 'Minimize Panel' : 'Expand Panel' }"
+        class="absolute right-14 top-3.5 p-1.5 rounded-full"
         aria-label="Toggle panel expansion"
         @click="$emit('toggle')"
       >
@@ -24,7 +27,7 @@
           v-else
           class="w-4 h-4"
         />
-      </button>
+      </Button>
 
       <!-- Draggable Handle - Hide when expanded -->
       <div
@@ -33,7 +36,7 @@
         :class="handleClasses"
         aria-label="Drag handle to resize panel"
       >
-        <div class="w-10 h-1 pb-1 rounded-full bg-muted dark:bg-muted" />
+        <div class="w-10 h-1 pb-1 rounded-full bg-muted" />
       </div>
 
       <div
@@ -65,62 +68,80 @@
   </div>
 </template>
 
-<script setup>
-import { computed, ref, onMounted, watch } from 'vue';
-import { Maximize2, Minimize2 } from 'lucide-vue-next';
-import PanelContent from '@/components/base/PanelContent.vue';
+<script setup lang="ts">
+import { computed, ref, onMounted, watch, type Ref, type ComputedRef } from 'vue'
+import { Maximize2, Minimize2 } from 'lucide-vue-next'
+import PanelContent from '@/components/base/PanelContent.vue'
+import Button from '@/components/base/BaseButton.vue'
 
-const props = defineProps({
-  isOpen: { type: Boolean, default: false },
-  title: { type: String, default: '' },
-  showHeader: { type: Boolean, default: true },
-  showFooter: { type: Boolean, default: true },
-  mainClass: { type: String, default: '' },
-  contentClass: { type: String, default: '' },
-  panel: { type: Object, default: null },
-  handle: { type: Object, default: null },
-  isExpanded: { type: Boolean, default: false },
-  panelHeight: { type: Number, default: 300 },
-  translateY: { type: Number, default: 0 },
-  isDragging: { type: Boolean, default: false },
-  maxHeightRatio: { type: Number, default: 0.8 },
-  animationEnabled : { type: Boolean, default: false },
-});
+interface Props {
+  isOpen?: boolean
+  title?: string
+  showHeader?: boolean
+  showFooter?: boolean
+  mainClass?: string
+  contentClass?: string
+  panel?: Ref<HTMLElement | null>
+  handle?: Ref<HTMLElement | null>
+  isExpanded?: boolean
+  panelHeight?: number
+  translateY?: number
+  isDragging?: boolean
+  maxHeightRatio?: number
+  animationEnabled?: boolean
+}
 
-defineEmits(['close', 'toggle']);
+interface Emits {
+  (e: 'close'): void
+  (e: 'toggle'): void
+}
 
-const panelRef = ref(null);
-const handleRef = ref(null);
+const props = withDefaults(defineProps<Props>(), {
+  isOpen: false,
+  title: '',
+  showHeader: true,
+  showFooter: true,
+  mainClass: '',
+  contentClass: '',
+  isExpanded: false,
+  panelHeight: 300,
+  translateY: 0,
+  isDragging: false,
+  maxHeightRatio: 0.8,
+  animationEnabled: false,
+})
 
-onMounted(updateRefs);
+defineEmits<Emits>()
 
-watch([panelRef, handleRef], updateRefs);
+const panelRef: Ref<HTMLElement | null> = ref(null)
+const handleRef: Ref<HTMLElement | null> = ref(null)
 
-function updateRefs() {
+const updateRefs = (): void => {
   if (props.panel && panelRef.value) {
-    // eslint-disable-next-line vue/no-mutating-props
-    props.panel.value = panelRef.value;
+    props.panel.value = panelRef.value
   }
 
   if (props.handle && handleRef.value) {
-    // eslint-disable-next-line vue/no-mutating-props
-    props.handle.value = handleRef.value;
+    props.handle.value = handleRef.value
   }
 }
 
-const mobilePanelClasses = computed(() => [
+const mobilePanelClasses: ComputedRef<string[]> = computed(() => [
   props.isExpanded || props.maxHeightRatio === 1 ? 'rounded-none' : 
   props.animationEnabled ? 'transition-[rounded] duration-300 rounded-t-xl' : 'rounded-t-xl'
-]);
+])
 
-const mobilePanelStyle = computed(() => ({
+const mobilePanelStyle: ComputedRef<Record<string, string>> = computed(() => ({
   height: `${props.panelHeight}px`,
   transform: `translateY(${props.translateY}px)`,
   transition: props.isDragging ? '' : props.animationEnabled ? 'transform 0.3s ease-out, height 0.3s ease-out' : '',
-}));
+}))
 
-const handleClasses = computed(() => [
+const handleClasses: ComputedRef<(string | Record<string, boolean>)[]> = computed(() => [
   { 'cursor-grabbing': props.isDragging },
   props.isExpanded || props.maxHeightRatio === 1 ? 'pointer-events-none opacity-0' : 'cursor-grab'
-]);
+])
+
+onMounted(updateRefs)
+watch([panelRef, handleRef], updateRefs)
 </script>

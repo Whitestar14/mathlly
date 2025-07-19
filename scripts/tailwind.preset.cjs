@@ -36,6 +36,11 @@ module.exports = {
           DEFAULT: "oklch(var(--color-card) / <alpha-value>)",
           foreground: "oklch(var(--color-card-foreground) / <alpha-value>)",
         },
+        backdrop: {
+          DEFAULT: "oklch(var(--backdrop) / <alpha-value>)",
+          light: "oklch(var(--backdrop-light) / <alpha-value>)",
+          surface: "oklch(var(--backdrop-surface) / <alpha-value>)",
+        },
       },
       animation: {
         "spin-fast": "spin 1s linear infinite",

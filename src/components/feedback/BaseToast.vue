@@ -60,7 +60,7 @@
             class="rounded-full p-1 h-auto"
             @click="removeToast(toast.id)"
           >
-            <XIcon class="h-3.5 w-3.5 text-muted-foreground dark:text-muted-foreground" />
+            <XIcon class="h-3.5 w-3.5 text-muted-foreground" />
           </Button>
         </div>
       </div>
@@ -94,21 +94,21 @@ const toastTypeClasses: ToastTypeClasses = {
 };
 
 const titleClasses: ToastTypeClasses = {
-  info: 'text-foreground dark:text-foreground',
+  info: 'text-foreground',
   success: 'text-green-700 dark:text-green-400',
   warning: 'text-yellow-700 dark:text-yellow-400',
   error: 'text-red-700 dark:text-destructive'
 };
 
 const messageClasses: ToastTypeClasses = {
-  info: 'text-muted-foreground dark:text-muted-foreground',
+  info: 'text-muted-foreground',
   success: 'text-green-600 dark:text-green-300',
   warning: 'text-yellow-600 dark:text-yellow-300',
   error: 'text-destructive dark:text-red-300'
 };
 
 const iconClasses: ToastTypeClasses = {
-  info: 'text-foreground dark:text-muted-foreground',
+  info: 'text-foreground',
   success: 'text-green-700 dark:text-green-400',
   warning: 'text-yellow-700 dark:text-yellow-400', 
   error: 'text-red-700 dark:text-destructive'

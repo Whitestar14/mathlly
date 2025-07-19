@@ -28,21 +28,21 @@
       v-show="!historyItems.length || isProgrammerMode"
       class="text-center py-4 flex flex-col items-center justify-center h-full"
     >
-      <div class="p-3 rounded-lg bg-muted dark:bg-muted/30 mb-3 font-medium min-w-[80%] flex flex-col items-center">
+      <div class="p-3 rounded-lg bg-muted/80 mb-3 font-medium min-w-[80%] flex flex-col items-center">
         <div v-show="isProgrammerMode">
-          <p class="text-muted-foreground dark:text-muted-foreground">
+          <p class="text-muted-foreground">
             History feature coming soon
           </p>
-          <p class="text-muted-foreground dark:text-muted-foreground text-xs">
+          <p class="text-muted-foreground text-xs">
             History is currently unavailable for Programmer Mode
           </p>
         </div>
 
         <div v-show="!isProgrammerMode">
-          <p class="text-muted-foreground dark:text-muted-foreground font-medium">
+          <p class="text-muted-foreground font-medium">
             No history items yet
           </p>
-          <p class="text-muted-foreground dark:text-muted-foreground text-xs">
+          <p class="text-muted-foreground text-xs">
             Your calculations will appear here as you work
           </p>
         </div>
@@ -58,7 +58,6 @@ import { useAnimation } from "@/composables/useAnimation";
 import { useToast } from "@/composables/useToast";
 import { useClipboard } from "@vueuse/core";
 
-// Types
 interface Props {
   mode?: string;
   isMobile?: boolean;
@@ -86,7 +85,6 @@ interface ClipboardService {
   copy: (text: string) => Promise<void>;
 }
 
-// Props
 const props = withDefaults(defineProps<Props>(), {
   mode: "Standard",
   isMobile: false,

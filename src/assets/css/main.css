@@ -37,6 +37,9 @@
     --color-border: 90% 0.004 285.82;
     --color-input: 90% 0.004 285.82;
     --color-ring: 67.5% 0.196 271.75;
+    --backdrop: 0% 0 0;                         /* Pure black for overlays */
+    --backdrop-light: 100% 0 0;                 /* Pure white for light backdrops */
+    --backdrop-surface: 100% 0 0;               /* White surface backdrop */
   }
 
   .dark {
@@ -60,6 +63,9 @@
     --color-border: 25% 0.004 285.82;
     --color-input: 25% 0.004 285.82;
     --color-ring: 67.5% 0.196 271.75;
+    --backdrop: 0% 0 0;                         /* Still black for overlays */
+    --backdrop-light: 25% 0.01 250;            /* Dark blue-gray for light backdrops */
+    --backdrop-surface: 15% 0.01 250;          /* Slightly lighter card-like surface */
   }
 
   /* Border radius variants */
@@ -211,6 +217,9 @@
     --color-border: 90% 0.004 285.82;
     --color-input: 90% 0.004 285.82;
     --color-ring: 25% 0.015 285.82;
+    --backdrop: 0% 0 0;                         /* Black overlay */
+    --backdrop-light: 98% 0 0;                  /* Near-white backdrop */
+    --backdrop-surface: 100% 0 0;               /* Pure white surface */
   }
 
   /* Mira Theme Pack - Dark (keeping original) */
@@ -234,6 +243,9 @@
     --color-border: 25% 0.004 285.82;
     --color-input: 25% 0.004 285.82;
     --color-ring: 98% 0 0;
+    --backdrop: 0% 0 0;                         /* Black overlay */
+    --backdrop-light: 15% 0.005 270;           /* Very dark zinc */
+    --backdrop-surface: 20% 0.01 270;          /* Slightly lighter surface */
   }
 
   /* Classic Theme Pack - Gray + Indigo (explicit override if needed) */

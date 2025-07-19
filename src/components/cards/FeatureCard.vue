@@ -1,17 +1,17 @@
 <template>
-  <div class="relative bg-card dark:bg-card p-6 rounded-lg border border-border dark:border-border hover:shadow-lg transition-colors duration-300">
+  <div class="relative bg-card p-6 rounded-lg border border-border hover:shadow-lg transition-colors duration-300">
     <div class="flex items-center gap-2 mb-4">
-      <div class="p-2 bg-primary/10 dark:bg-primary/20 rounded-lg">
+      <div class="p-2 bg-primary/10 rounded-lg">
         <component
           :is="getFeatureIcon(icon)"
-          class="h-6 w-6 text-primary dark:text-primary"
+          class="h-6 w-6 text-primary"
         />
       </div>
-      <h4 class="font-medium text-lg text-card-foreground dark:text-card-foreground">
+      <h4 class="font-medium text-lg text-card-foreground">
         {{ title }}
       </h4>
     </div>
-    <p class="text-muted-foreground dark:text-muted-foreground">
+    <p class="text-muted-foreground">
       {{ description }}
     </p>
   </div>

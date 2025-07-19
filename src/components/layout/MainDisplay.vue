@@ -1,6 +1,6 @@
 <template>
   <div class="flex-grow h-full relative overflow-hidden">
-    <div class="text-right text-xl font-bold font-mono text-foreground dark:text-foreground">
+    <div class="text-right text-xl font-bold font-mono text-foreground">
       <!-- Result container with hardware acceleration -->
       <div
         ref="resultContainer"
@@ -32,7 +32,8 @@
               :key="index"
               :class="[
                 getTokenClass(token),
-                getParenthesesLevelClass(token)
+                getParenthesesLevelClass(token),
+                displayClass,
               ]"
               :data-token-type="token.type"
               :data-parent-level="token.parentLevel"
@@ -49,7 +50,7 @@
         <div
           v-if="preview && !error"
           ref="previewContainer"
-          class="font-medium text-foreground/75 dark:text-muted-foreground/75 overflow-x-auto whitespace-nowrap scrollbar-hide"
+          class="font-medium text-foreground/75 overflow-x-auto whitespace-nowrap scrollbar-hide"
           aria-live="polite"
           aria-atomic="true"
         >
@@ -155,11 +156,11 @@ const getParenthesesLevelClass = (token: Token): string => {
   if (!['open', 'close', 'ghost', 'parenthesis'].includes(token.type)) return ''
   
   const colors = [
-    'text-blue-600 dark:text-blue-400',
-    'text-green-600 dark:text-green-400', 
-    'text-purple-600 dark:text-purple-400',
-    'text-orange-600 dark:text-orange-400',
-    'text-pink-600 dark:text-pink-400'
+    'text-blue-600',
+    'text-green-600', 
+    'text-purple-600',
+    'text-orange-600',
+    'text-pink-600'
   ]
   
   let baseColor = colors[(token.parentLevel || 0) % colors.length]
@@ -182,7 +183,7 @@ const getTokenClass = (token: Token): string => {
     'open': 'syntax-parenthesis font-bold',
     'close': 'syntax-parenthesis font-bold',
     'ghost': 'syntax-parenthesis font-bold opacity-50', // Ghost parentheses styling
-    'constant': 'syntax-constant text-green-600 dark:text-green-400 font-bold',
+    'constant': 'syntax-constant text-green-600 font-bold',
     'decimal': 'syntax-decimal',
     'space': '',
     'text': 'syntax-text'
@@ -193,11 +194,11 @@ const getTokenClass = (token: Token): string => {
   // Add mode-specific enhancements
   if (props.mode === 'Programmer' && token.type === 'number') {
     switch (props.activeBase) {
-      case 'BIN': baseClass += ' text-green-700 dark:text-green-300'
+      case 'BIN': baseClass += ' text-green-700'
         break
-      case 'OCT': baseClass += ' text-yellow-700 dark:text-yellow-300'
+      case 'OCT': baseClass += ' text-yellow-700'
         break
-      case 'HEX': baseClass += ' text-purple-700 dark:text-purple-300'
+      case 'HEX': baseClass += ' text-purple-700'
         break
     }
   }
@@ -245,7 +246,7 @@ const formattedTokens: ComputedRef<Token[]> = computed(() => {
 const displayClass: ComputedRef<string[]> = computed(() => [
   'mb-1 overflow-x-auto whitespace-nowrap scrollbar-hide',
   getFontSizeClass.value,
-  props.error ? 'text-destructive dark:text-destructive' : 'transition-colors'
+  props.error ? '!text-destructive' : 'transition-colors'
 ])
 
 function updateScrollState(): void {

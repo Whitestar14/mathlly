@@ -2,7 +2,7 @@
   <div
     :class="[
       isToolLayout ? 'flex flex-col flex-grow' : 'h-full',
-      'bg-muted/50 dark:bg-background/80 text-foreground'
+      'bg-muted/50 dark:bg-background/50 text-foreground'
     ]"
   >
     <header
@@ -32,9 +32,9 @@
 
     <footer
       v-if="showFooter"
-      class="mt-auto py-8 border-t border-border dark:border-border"
+      class="mt-auto py-8 border-t border-border bg-card"
     >
-      <div class="container mx-auto px-4 text-center text-sm text-muted-foreground dark:text-muted-foreground">
+      <div class="container mx-auto px-4 text-center text-sm text-muted-foreground">
         &copy; {{ new Date().getFullYear() }} Mathlly. All rights reserved.
       </div>
     </footer>

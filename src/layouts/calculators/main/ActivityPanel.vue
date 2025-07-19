@@ -8,10 +8,9 @@
     :snap-threshold="0.4"
     :default-desktop-state="false"
   >
-    <!-- Content -->
-    <div class="flex-1 overflow-hidden relative">
-      <!-- Tab Navigation -->
-      <div class="sticky backdrop-blur-sm top-0 z-10 border-b border-border dark:border-border bg-muted/50 dark:bg-muted/50">
+    <!-- Sticky Tab Navigation -->
+    <template #sticky>
+      <div class="border-b border-border bg-backdrop-surface/95 backdrop-blur-md shadow-sm">
         <div class="flex relative justify-evenly">
           <Indicator :position="indicatorStyle" />                   
           <div
@@ -22,8 +21,8 @@
             class="px-4 py-3 text-sm font-medium transition-colors relative cursor-pointer"
             :class="[
               currentTab === tab.value
-                ? 'text-primary dark:text-primary'
-                : 'text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground',
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground',
             ]"
             @click="handleTabChange(tab.value, $event.target as HTMLElement)"
           >
@@ -31,59 +30,44 @@
           </div>
         </div>
       </div>
+    </template>
 
-      <!-- Scrollable Content Area -->
-      <ScrollAreaRoot class="h-full w-full">
-        <ScrollAreaViewport class="h-full w-full p-3">
-          <!-- History Tab Content -->
-          <div v-if="currentTab === 'history'">
-            <HistoryList 
-              :mode="mode" 
-              :is-mobile="isMobile" 
-              @select-item="handleSelectItem"
-              @history-close="$emit('history-close')"
-            />
-          </div>
+    <!-- Scrollable Content -->
+    <div class="p-3 overflow-x-hidden">
+      <!-- History Tab Content -->
+      <div v-if="currentTab === 'history'">
+        <HistoryList 
+          :mode="mode" 
+          :is-mobile="isMobile" 
+          @select-item="handleSelectItem"
+          @history-close="$emit('history-close')"
+        />
+      </div>
 
-          <!-- Memory Tab Content (placeholder) -->
+      <!-- Memory Tab Content -->
           <div
             v-show="currentTab === 'memory'"
             class="text-center py-4 flex flex-col items-center justify-center h-full"
           >
-            <div class="p-3 rounded-lg bg-muted dark:bg-muted/30 mb-3 font-medium min-w-[80%] flex flex-col items-center">
-              <p class="text-muted-foreground dark:text-muted-foreground font-medium">
+            <div class="p-3 rounded-lg bg-muted/80 mb-3 font-medium min-w-[80%] flex flex-col items-center">
+              <p class="text-muted-foreground font-medium">
                 Memory feature coming soon
               </p>
-              <p class="text-muted-foreground dark:text-muted-foreground text-xs">
+              <p class="text-muted-foreground text-xs">
                 Save and recall values for your calculations
               </p>
             </div>
           </div>
-        </ScrollAreaViewport>
-
-        <!-- Scrollbar -->
-        <ScrollAreaScrollbar
-          class="flex select-none touch-none p-0.5 bg-muted/50 dark:bg-background/50 transition-colors duration-150 ease-out hover:bg-muted/50 dark:hover:bg-accent/50 data-[orientation=vertical]:w-2 data-[orientation=horizontal]:flex-col data-[orientation=horizontal]:h-2"
-          orientation="vertical"
-        >
-          <ScrollAreaThumb
-            class="flex-1 bg-muted/50 dark:bg-muted rounded-full relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]"
-          />
-        </ScrollAreaScrollbar>
-      </ScrollAreaRoot>
     </div>
 
     <!-- Footer -->
     <template #footer>
-      <div
-        v-if="showClearButton && currentTab === 'history'"
-        class="flex justify-end"
-      >
+      <div v-if="showClearButton && currentTab === 'history'" class="flex justify-end">
         <Button
           v-tippy="{ content: 'Clear History' }"
           variant="ghost"
           size="icon"
-          class="hidden md:flex text-red-400 hover:text-destructive hover:bg-red-300/30 dark:hover:text-red-400"
+          class="hidden md:flex text-destructive hover:text-destructive hover:bg-destructive/10"
           @click="showClearConfirmation = true"
         >
           <TrashIcon class="w-4 h-4" />
@@ -107,25 +91,19 @@
   >
     <template #title>
       <div class="flex items-center">
-        <AlertTriangleIcon class="h-5 w-5 text-destructive dark:text-muted-foreground mr-2" />
+        <AlertTriangleIcon class="h-5 w-5 text-destructive mr-2" />
         Clear History
       </div>
     </template>
-    <p class="text-sm text-muted-foreground dark:text-muted-foreground mb-4">
+    <p class="text-sm text-muted-foreground mb-4">
       Are you sure you want to clear all history items? This action cannot
       be undone.
     </p>
     <div class="flex justify-end space-x-2">
-      <Button
-        variant="outline"
-        @click="showClearConfirmation = false"
-      >
+      <Button variant="outline" @click="showClearConfirmation = false">
         Cancel
       </Button>
-      <Button
-        variant="destructive"
-        @click="handleClear"
-      >
+      <Button variant="destructive" @click="handleClear">
         Clear All
       </Button>
     </div>
@@ -144,7 +122,6 @@ import { useHistory, type HistoryItem } from "@/composables/useHistory"
 import { useAnimation } from "@/composables/useAnimation"
 import { useToast } from "@/composables/useToast"
 import { usePills } from "@/composables/usePills"
-import { ScrollAreaRoot, ScrollAreaScrollbar, ScrollAreaThumb, ScrollAreaViewport } from "radix-vue"
 
 // Types
 interface Props {
@@ -217,7 +194,6 @@ watch(
   () => props.isOpen,
   async (isOpen: boolean) => {
     if (isOpen && !isProgrammerMode.value && currentTab.value === 'history') {
-      // Reset animation state when panel opens
       setInitialAnimation(true);
       await loadHistory();
       setTimeout(() => setInitialAnimation(false), 500);

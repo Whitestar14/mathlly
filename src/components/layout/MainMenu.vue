@@ -9,9 +9,9 @@
     <!-- Content -->
     <div class="flex-1 overflow-hidden flex flex-col h-full">
       <!-- Show tool options or main menu -->
-      <div v-if="showToolOptions" class="flex-1 overflow-auto p-3">
+      <div v-if="showToolOptions" class="flex-1 overflow-auto">
         <!-- Options loading state -->
-        <div v-if="isLoadingOptions" class="space-y-4">
+        <div v-if="isLoadingOptions" class="p-3 space-y-4">
           <div class="flex items-center gap-3 pb-2 border-b border-border">
             <div class="w-8 h-8 bg-muted animate-pulse rounded-md"></div>
             <div class="h-4 w-16 bg-muted animate-pulse rounded"></div>
@@ -29,15 +29,36 @@
           </div>
         </div>
         
-        <!-- Actual options -->
+        <!-- Actual options with sticky header -->
         <ToolOptions
           v-else-if="currentToolOptions"
           :tool-options="currentToolOptions"
           @close="showToolOptions = false"
-        />
+        >
+          <!-- Sticky header slot -->
+          <template #header>
+            <div class="sticky top-0 z-20 -p-3 bg-backdrop-surface/95 backdrop-blur-md border-b border-border">
+              <div class="flex items-center gap-2 p-3">
+                <BaseButton
+                  variant="ghost"
+                  size="icon"
+                  @click="showToolOptions = false"
+                  class="shrink-0 hover:bg-accent/50 transition-colors duration-200"
+                >
+                  <ArrowLeft class="h-4 w-4" />
+                </BaseButton>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-base font-semibold text-foreground">
+                    Tool Options
+                  </h3>
+                </div>
+              </div>
+            </div>
+          </template>
+        </ToolOptions>
       </div>
       
-      <!-- Main menu - NO ScrollArea, just direct flex layout -->
+      <!-- Main menu -->
       <div v-else class="flex-1 flex flex-col overflow-hidden">
         <!-- Top section with options button -->
         <div v-if="hasToolOptions || isCheckingOptions" class="flex-shrink-0 p-3 pb-0">
@@ -56,14 +77,14 @@
         <!-- Spacer that grows to push links to bottom -->
         <div class="flex-1"></div>
 
-        <!-- External Links at bottom - ALWAYS at bottom -->
+        <!-- External Links at bottom -->
         <div class="flex-shrink-0 p-3">
           <div class="space-y-3">
             <h3 class="text-xs font-semibold text-muted-foreground px-1 uppercase tracking-wider">
               Quick Links
             </h3>
             
-            <!-- Links in a 2-column grid for better use of space -->
+            <!-- Links grid -->
             <div class="grid grid-cols-1 gap-2">
               <a
                 v-for="link in externalLinks"
@@ -103,7 +124,7 @@
         <ToggleGroupRoot
           v-model="selectedTheme"
           type="single"
-          class="inline-flex items-center gap-1 p-1 mx-3 bg-muted/50 rounded-lg border border-border/50"
+          class="inline-flex items-center gap-1 p-1 mx-3 bg-secondary rounded-lg border border-border/50"
         >
           <ToggleGroupItem
             v-for="item of themeItems"
@@ -134,17 +155,15 @@ import {
   GithubIcon,
   Settings,
   ExternalLink,
+  ArrowLeft,
   type LucideIcon,
 } from "lucide-vue-next";
 import { useTheme, type ThemeOption } from "@/composables/useTheme";
-import { useToolSettingsStore } from "@/stores/toolSettings"; // Updated import
+import { useToolSettingsStore } from "@/stores/toolSettings";
 import BasePanel from "@/components/base/BasePanel.vue";
 import BaseButton from "@/components/base/BaseButton.vue";
 import ToolOptions from "@/components/ui/ToolOptions.vue";
 import {
-  ScrollAreaRoot,
-  ScrollAreaScrollbar,
-  ScrollAreaViewport,
   ToggleGroupRoot,
   ToggleGroupItem
 } from "radix-vue";
@@ -172,7 +191,7 @@ const showToolOptions = ref(false);
 const isCheckingOptions = ref(false);
 const isLoadingOptions = ref(false);
 
-// Updated to use new store properties
+// Store computed properties
 const hasToolOptions = computed(() => toolStore.hasCurrentToolOptions);
 const currentToolOptions = computed(() => toolStore.currentToolConfig);
 const currentTool = computed(() => toolStore.currentToolId);
@@ -184,7 +203,7 @@ const themeItems: ThemeItem[] = [
   { id: "system", title: "System", icon: AppWindowMac }
 ];
 
-// External links configuration with descriptions
+// External links configuration
 const externalLinks: ExternalLink[] = [
   {
     url: "https://github.com/Whitestar14/mathlly",

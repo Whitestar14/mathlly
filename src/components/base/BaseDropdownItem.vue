@@ -1,18 +1,13 @@
 <template>
   <button
     :class="[
-      'group outline-none flex w-full items-center rounded-lg transition-all duration-150 ease-out',
+      'group outline-none flex w-full items-center rounded-lg transition-all duration-150',
       'px-3 py-2 text-sm font-medium',
       'hover:scale-[1.02] active:scale-[0.98]',
       'focus:outline-none focus:ring-2 focus:ring-ring/20',
       {
-        // Default state
-        'text-foreground dark:text-foreground hover:bg-muted/80 dark:hover:bg-accent/50': !active && !disabled,
-        
-        // Active state
-        'bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-primary shadow-sm': active && !disabled,
-        
-        // Disabled state
+        'text-foreground hover:bg-muted/80': !active && !disabled,
+        'bg-primary text-primary-foreground shadow-sm': active && !disabled,
         'opacity-50 cursor-not-allowed hover:scale-100 hover:bg-transparent': disabled
       },
       itemClass
@@ -26,17 +21,14 @@
       :class="[
         'h-4 w-4 mr-3 flex-shrink-0 transition-colors duration-150',
         {
-          'text-muted-foreground dark:text-muted-foreground group-hover:text-foreground dark:group-hover:text-muted-foreground': !active && !disabled,
-          'text-primary dark:text-primary': active && !disabled
+          'text-muted-foreground group-hover:text-foreground': !active && !disabled,
+          'text-primary': active && !disabled
         }
       ]"
     />
     
     <div class="flex-1 min-w-0">
-      <div
-        v-if="label"
-        class="font-medium truncate"
-      >
+      <div v-if="label" class="font-medium truncate">
         {{ label }}
       </div>
       <div 
@@ -44,8 +36,8 @@
         :class="[
           'text-xs mt-0.5 truncate transition-colors duration-150',
           {
-            'text-muted-foreground dark:text-muted-foreground': !active,
-            'text-primary/80 dark:text-primary/80': active
+            'text-muted-foreground': !active,
+            'text-primary/80': active
           }
         ]"
       >
@@ -59,8 +51,8 @@
       :class="[
         'ml-3 text-xs font-mono px-1.5 py-0.5 rounded transition-colors duration-150',
         {
-          'text-muted-foreground dark:text-muted-foreground bg-muted/50 dark:bg-muted/50': !active,
-          'text-primary dark:text-primary bg-indigo-100/50 dark:bg-indigo-900/50': active
+          'text-muted-foreground bg-muted/50': !active,
+          'text-primary bg-primary/50': active
         }
       ]"
     >
@@ -73,8 +65,8 @@
       :class="[
         'h-4 w-4 ml-3 flex-shrink-0 transition-colors duration-150',
         {
-          'text-muted-foreground dark:text-muted-foreground group-hover:text-muted-foreground dark:group-hover:text-muted-foreground': !active && !disabled,
-          'text-primary dark:text-primary': active && !disabled
+          'text-muted-foreground group-hover:text-muted-foreground': !active && !disabled,
+          'text-primary': active && !disabled
         }
       ]"
     />

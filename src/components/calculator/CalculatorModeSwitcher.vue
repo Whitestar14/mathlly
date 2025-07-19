@@ -1,7 +1,7 @@
 <template>
   <Teleport to="#calculator-mode-switcher-slot">
     <Suspense v-if="shouldShowSwitcher">
-      <div class="w-full inline-flex gap-1 items-center rounded-lg shadow-sm bg-secondary/70 p-1">
+      <div class="w-full inline-flex gap-1 items-center rounded-lg shadow-sm bg-secondary p-1">
         <button
           v-for="mode in availableModes"
           :key="mode.value"
@@ -9,7 +9,7 @@
           :class="[
             currentMode === mode.value 
               ? 'bg-card text-foreground shadow-sm' 
-              : 'text-card-foreground hover:bg-accent hover:text-accent-foreground'
+              : 'text-muted-foreground hover:bg-card/30 hover:text-foreground',
           ]"
           @click="updateMode(mode.value)"
         >

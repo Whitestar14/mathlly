@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex justify-center items-center bg-card border-b border-border dark:border-border px-4 min-h-14"
+    class="flex justify-center items-center bg-card border-b border-border px-4 min-h-14"
   >
     <div class="container mx-auto flex justify-between items-center gap-2">
       <div class="flex items-center justify-between gap-3">
@@ -65,13 +65,11 @@ import {
 import Button from "@/components/base/BaseButton.vue";
 import OfflineIndicator from '@/components/ui/OfflineIndicator.vue';
 
-// Define props interface - much cleaner now!
 interface Props {
   isSidebarOpen: boolean;
   isMenubarOpen: boolean;
 }
 
-// Define emits interface - no more mode-specific events
 interface Emits {
   (e: 'toggle-sidebar'): void;
   (e: 'toggle-menubar'): void;

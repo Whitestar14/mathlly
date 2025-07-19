@@ -25,7 +25,7 @@
         <div 
           v-for="n in 24" 
           :key="n" 
-          class="animate-pulse calc-btn-grid bg-muted dark:bg-muted rounded-lg"
+          class="animate-pulse calc-btn-grid bg-muted rounded-lg"
         />
       </div>
     </template>

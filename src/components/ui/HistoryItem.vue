@@ -6,11 +6,11 @@
     >
       <template #trigger>
         <div
-          class="rounded-lg md:hover:bg-secondary/30 dark:bg-secondary/50 bg-secondary md:dark:bg-secondary p-3 transition-colors cursor-pointer"
+          class="rounded-lg hover:bg-secondary/80 bg-secondary p-3 transition-colors cursor-pointer"
           :class="{ 'animate-highlight': selectedItemId === item.id }"
           @click="$emit('select', item)"
         >
-          <div class="text-sm text-foreground/75 dark:text-muted-foreground/75 break-all">
+          <div class="text-sm text-foreground/75 break-all">
             {{ item.expression }}
           </div>
           <div class="text-lg font-medium text-foreground/80 break-all">
@@ -54,7 +54,7 @@
         <span>Copy as JSON</span>
       </ContextMenuItem>
 
-      <ContextMenuSeparator class="h-px bg-muted dark:bg-muted my-1" />
+      <ContextMenuSeparator class="h-px bg-muted my-1" />
 
       <ContextMenuItem
         class="context-menu-item-danger"
@@ -67,7 +67,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { TrashIcon, CheckIcon, CopyIcon, CodeIcon } from "lucide-vue-next";
 import {
   ContextMenuItem,
@@ -76,22 +76,32 @@ import {
 import Button from "@/components/base/BaseButton.vue";
 import ContextMenu from "@/components/base/ContextMenu.vue";
 
-defineProps({
-  item: {
-    type: Object,
-    required: true,
-  },
-  isMobile: {
-    type: Boolean,
-    default: false,
-  },
-  selectedItemId: {
-    type: [Number, null],
-    default: null,
-  },
+interface HistoryItem {
+  id?: number;
+  expression: string;
+  result: string;
+  timestamp?: number;
+}
+
+interface Props {
+  item: HistoryItem;
+  isMobile?: boolean;
+  selectedItemId?: number | null;
+}
+
+interface Emits {
+  (e: 'select', item: HistoryItem): void;
+  (e: 'delete', id: number): void;
+  (e: 'copy', item: HistoryItem): void;
+  (e: 'copy-json', item: HistoryItem): void;
+}
+
+withDefaults(defineProps<Props>(), {
+  isMobile: false,
+  selectedItemId: null,
 });
 
-defineEmits(["select", "delete", "copy", "copy-json"]);
+defineEmits<Emits>();
 </script>
 
 <style>
@@ -101,10 +111,10 @@ defineEmits(["select", "delete", "copy", "copy-json"]);
 
 @keyframes highlight {
   0% {
-    @apply bg-muted/30 dark:bg-muted;
+    @apply bg-muted/30;
   }
   100% {
-    @apply bg-muted dark:bg-muted;
+    @apply bg-muted;
   }
 }
 </style>

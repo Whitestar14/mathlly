@@ -8,8 +8,8 @@
       class="transition-all duration-300 rounded-full p-1 border transform-gpu"
       :class="[
         networkStatus 
-          ? 'text-emerald-600 dark:text-emerald-300 border-emerald-500/30 dark:border-emerald-300/30' 
-          : 'text-muted-foreground dark:text-rose-300 border-border/30 dark:border-rose-300/30',
+          ? 'text-emerald-600 border-emerald-500/30' 
+          : 'text-muted-foreground border-border/30',
         { 'animate-pulse-custom': isAnimating }
       ]"
     >

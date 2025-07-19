@@ -41,7 +41,7 @@
       <h3 class="text-2xl font-medium tracking-tight text-foreground">
         Development Process
       </h3>
-      <div class="bg-background dark:bg-background rounded-lg border border-border dark:border-border p-6">
+      <div class="bg-background rounded-lg border border-border p-6">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div
             v-for="(phase, index) in devProcess"
@@ -51,7 +51,7 @@
             <div class="flex items-center gap-2">
               <component
                 :is="phase.icon"
-                class="h-5 w-5 text-primary dark:text-primary"
+                class="h-5 w-5 text-primary"
               />
               <h4 class="font-medium text-foreground">
                 {{ phase.title }}
@@ -70,7 +70,7 @@
       <h3 class="text-2xl font-medium tracking-tight text-foreground">
         Contributing
       </h3>
-      <div class="bg-background dark:bg-background rounded-lg border border-border dark:border-border p-6">
+      <div class="bg-background rounded-lg border border-border p-6">
         <div class="space-y-4">
           <p class="text-sm text-muted-foreground leading-relaxed">
             Mathlly is open source and welcomes contributions from developers worldwide. Whether you're fixing bugs, 
@@ -98,19 +98,32 @@
   </BasePage>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { 
   GithubIcon, 
   BookOpenIcon, 
   UsersIcon, 
   RocketIcon, 
   TestTubeIcon,
+  type LucideIcon
 } from "lucide-vue-next";
 import BasePage from "@/components/base/BasePage.vue";
 import FeatureCard from "@/components/cards/FeatureCard.vue";
 import Button from "@/components/base/BaseButton.vue";
 
-const coreValues = [
+interface CoreValue {
+  title: string;
+  icon: string;
+  description: string;
+}
+
+interface DevPhase {
+  title: string;
+  icon: LucideIcon;
+  description: string;
+}
+
+const coreValues: CoreValue[] = [
   {
     title: 'Community Driven',
     icon: 'Heart',
@@ -128,7 +141,7 @@ const coreValues = [
   }
 ];
 
-const devProcess = [
+const devProcess: DevPhase[] = [
   {
     title: 'Community First',
     icon: UsersIcon,
@@ -146,11 +159,11 @@ const devProcess = [
   }
 ];
 
-const goToGithub = () => {
-  window.open('https://github.com/Whitestar14/mathlly-app', '_blank');
+const goToGithub = (): void => {
+  window.open('https://github.com/Whitestar14/mathlly', '_blank');
 };
 
-const goToContributing = () => {
-  window.open('https://github.com/Whitestar14/mathlly-app/blob/main/CONTRIBUTING.md', '_blank');
+const goToContributing = (): void => {
+  window.open('https://github.com/Whitestar14/mathlly/blob/main/CONTRIBUTING.md', '_blank');
 };
 </script>

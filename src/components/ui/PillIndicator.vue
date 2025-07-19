@@ -1,6 +1,6 @@
 <template>
   <div
-    class="absolute will-change-transform rounded-full bg-primary/80 dark:bg-primary/80 transition-all duration-300 ease-in-out"
+    class="absolute will-change-transform rounded-full bg-primary/80 transition-all duration-300 ease-in-out"
     :style="computedStyle"
   />
 </template>
@@ -26,10 +26,8 @@ const props = defineProps({
 const computedStyle = computed(() => {
   const style = { ...props.position }
   if ('left' in style || 'right' in style) {
-    // Vertical Indicator
     [style.height, style.width] = [`${props.width}px`, `${props.height}px`]
   } else if ('top' in style || 'bottom' in style) {
-    // Horizontal Indicator
     [style.height, style.width] = [`${props.height}px`, `${props.width}px`]
   }
   return style

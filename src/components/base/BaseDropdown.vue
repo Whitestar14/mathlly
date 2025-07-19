@@ -10,13 +10,10 @@
           v-if="icon" 
           class="h-4 w-4 flex-shrink-0"
         />
-        <span
-          v-if="label"
-          class="truncate font-medium"
-        >{{ label }}</span>
+        <span v-if="label" class="truncate font-medium">{{ label }}</span>
         <slot name="trigger" />
         <ChevronDownIcon 
-          class="h-4 w-4 flex-shrink-0 transition-transform duration-200 ease-out"
+          class="h-4 w-4 flex-shrink-0 transition-transform duration-200"
           :class="{ 'rotate-180': open }"
         />
       </button>
@@ -25,11 +22,10 @@
     <DropdownMenuPortal>
       <DropdownMenuContent
         :class="[
-          'dropdown-content z-50 overflow-hidden',
-          'bg-background/90 dark:bg-background/80 backdrop-blur-sm',
-          'border border-border/50 dark:border-border/50',
-          'shadow-2xl rounded-xl',
-          'text-foreground dark:text-foreground',
+          'dropdown-content z-50 overflow-hidden p-2',
+          'bg-background/90 backdrop-blur-sm',
+          'border border-border/50 shadow-2xl rounded-xl',
+          'text-foreground',
           contentClass
         ]"
         :side="side"
@@ -39,28 +35,20 @@
         @open-auto-focus="handleOpenAutoFocus"
         @close-auto-focus="handleCloseAutoFocus"
       >
-        <div class="p-2">
-          <!-- Header section -->
-          <div
-            v-if="$slots.header"
-            class="px-2 py-2 border-b border-border/50 dark:border-border/50 mb-2"
-          >
-            <slot name="header" />
-          </div>
+        <!-- Header section -->
+        <div v-if="$slots.header" class="px-2 py-2 border-b border-border/50 mb-2">
+          <slot name="header" />
+        </div>
 
-          <!-- Content section -->
-          <slot 
-            :close="closeDropdown"
-            :items="items"
-          />
+        <!-- Content section -->
+        <slot 
+          :close="closeDropdown"
+          :items="items"
+        />
 
-          <!-- Footer section -->
-          <div
-            v-if="$slots.footer"
-            class="px-2 py-2"
-          >
-            <slot name="footer" />
-          </div>
+        <!-- Footer section -->
+        <div v-if="$slots.footer" class="px-2 py-2">
+          <slot name="footer" />
         </div>
       </DropdownMenuContent>
     </DropdownMenuPortal>
@@ -124,7 +112,6 @@ const props = defineProps({
     type: String,
     default: ''
   },
-  // New prop to control whether to use default styling
   useDefaultStyling: {
     type: Boolean,
     default: true
@@ -135,33 +122,25 @@ const emit = defineEmits(['open', 'close', 'item-select']);
 
 const open = ref(false);
 
-// Computed property to handle trigger classes
 const getTriggerClasses = computed(() => {
+  const baseClasses = [
+    'inline-flex items-center justify-center gap-2 font-medium transition-all duration-150',
+    { 'w-full': props.fullWidth }
+  ];
+
   if (!props.useDefaultStyling && props.triggerClass) {
-    // Use only custom classes when default styling is disabled
-    return [
-      props.triggerClass,
-      'inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 ease-out',
-      { 'w-full': props.fullWidth }
-    ];
+    return [...baseClasses, props.triggerClass];
   }
   
-  // Default behavior - merge default classes with custom ones
   const defaultClasses = [
-    'inline-flex items-center justify-center gap-2 font-medium transition-all duration-150 ease-out',
     'bg-background/90 hover:bg-background text-foreground border border-border/50 shadow-sm hover:shadow-md',
-    'dark:bg-background/90 dark:hover:bg-background dark:text-foreground dark:border-border/50',
     'rounded-lg px-3 py-2 text-sm',
     'hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100',
     'focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary/50',
     'disabled:opacity-50 disabled:cursor-not-allowed'
   ];
 
-  return [
-    ...defaultClasses,
-    props.triggerClass,
-    { 'w-full': props.fullWidth }
-  ];
+  return [...baseClasses, ...defaultClasses, props.triggerClass];
 });
 
 const closeDropdown = () => {
@@ -178,18 +157,17 @@ const handleCloseAutoFocus = (event) => {
   emit('close', event);
 };
 
-
-// Expose methods for parent components
 defineExpose({
   close: closeDropdown
 });
 </script>
 
 <style scoped>
-/* Enhanced animation for the dropdown content */
 .dropdown-content {
   transform-origin: var(--radix-dropdown-menu-content-transform-origin);
   animation: dropdownContentShow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
 }
 
 @keyframes dropdownContentShow {
@@ -203,7 +181,6 @@ defineExpose({
   }
 }
 
-/* Enhanced animation for when the dropdown is closing */
 .dropdown-content[data-state="closed"] {
   animation: dropdownContentHide 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -219,21 +196,11 @@ defineExpose({
   }
 }
 
-/* Smooth performance optimizations */
-.dropdown-content {
-  will-change: transform, opacity;
-  backface-visibility: hidden;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Enhanced dropdown positioning */
 [data-radix-popper-content-wrapper] {
   min-width: var(--radix-dropdown-menu-trigger-width);
   z-index: 50 !important;
 }
 
-/* Add subtle glow effect */
 .dropdown-content::before {
   content: '';
   position: absolute;
@@ -247,7 +214,6 @@ defineExpose({
   pointer-events: none;
 }
 
-/* Dark mode glow adjustment */
 .dark .dropdown-content::before {
   background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.02));
 }

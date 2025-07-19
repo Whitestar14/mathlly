@@ -6,18 +6,18 @@
     <template #title>
       <div class="flex items-center">
         <div>
-          <h2 class="text-xl font-medium text-foreground dark:text-foreground">
+          <h2 class="text-xl font-medium text-foreground">
             Keyboard Shortcuts
           </h2>
-          <p class="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
+          <p class="text-sm text-muted-foreground mt-1">
             Quick access to available shortcuts
           </p>
         </div>
       </div>
     </template>
 
-    <div class="mt-4">
-      <div class="flex border-b border-border dark:border-border relative">
+    <div class="mt-2">
+      <div class="flex border-b border-border relative">
         <Indicator :position="indicatorStyle" />
         <button
           v-for="category in Object.keys(shortcutGroups)"
@@ -27,8 +27,8 @@
           class="px-4 py-3 text-sm font-medium transition-colors relative"
           :class="[
             currentPill === category
-              ? 'text-primary dark:text-primary'
-              : 'text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground',
+              ? 'text-primary'
+              : 'text-muted-foreground hover:text-foreground',
           ]"
           @click="handleTabChange(category, $event.target as HTMLElement)"
         >
@@ -54,9 +54,9 @@
             <div
               v-for="(shortcut, key) in group"
               :key="key"
-              class="flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-muted dark:hover:bg-background/50"
+              class="flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-muted"
             >
-              <span class="text-sm text-foreground dark:text-muted-foreground">
+              <span class="text-sm text-foreground">
                 {{ shortcut.description }}
               </span>
 
@@ -68,19 +68,19 @@
                     class="inline-flex items-center"
                   >
                     <kbd
-                      class="px-2 py-1 text-xs font-medium bg-background dark:bg-background text-primary dark:text-primary-light rounded border border-border dark:border-border shadow-sm"
+                      class="px-2 py-1 text-xs font-medium bg-background text-primary rounded border border-border shadow-sm"
                     >
                       {{ part }}
                     </kbd>
                     <span
                       v-if="index < key.split('+').length - 1"
-                      class="text-muted-foreground dark:text-muted-foreground"
+                      class="text-muted-foreground"
                     >+</span>
                   </div>
                 </template>
                 <kbd
                   v-else
-                  class="px-2 py-1 text-xs font-medium bg-background dark:bg-background text-primary dark:text-primary-light rounded border border-border dark:border-border shadow-sm"
+                  class="px-2 py-1 text-xs font-medium bg-background text-primary rounded border border-border shadow-sm"
                 >
                   {{ key }}
                 </kbd>
@@ -109,14 +109,18 @@ interface ShortcutGroups {
   [category: string]: ShortcutGroup;
 }
 
-defineProps<{
+interface Props {
   show: boolean;
-}>();
+}
 
-const emit = defineEmits<{
+interface Emits {
   (e: 'update:show', value: boolean): void;
   (e: 'close'): void;
-}>();
+}
+
+defineProps<Props>();
+
+const emit = defineEmits<Emits>();
 
 const tabElements: ShallowRef<HTMLElement[]> = shallowRef([]);
 

@@ -1,9 +1,6 @@
 <template>
   <div class="relative z-20 flex flex-col flex-initial">
-    <div
-      v-if="!isMobile"
-      class="h-full"
-    >
+    <div v-if="!isMobile" class="h-full">
       <!-- Side Panel -->
       <SidePanel
         v-if="type === 'side'"
@@ -15,13 +12,13 @@
         <template #default>
           <slot />
         </template>
+        <template #sticky>
+          <slot name="sticky" />
+        </template>
         <template #header-actions>
           <slot name="header-actions" />
         </template>
-        <template
-          v-if="$slots.footer"
-          #footer
-        >
+        <template v-if="$slots.footer" #footer>
           <slot name="footer" />
         </template>
       </SidePanel>
@@ -37,13 +34,13 @@
         <template #default>
           <slot />
         </template>
+        <template #sticky>
+          <slot name="sticky" />
+        </template>
         <template #header-actions>
           <slot name="header-actions" />
         </template>
-        <template
-          v-if="$slots.footer"
-          #footer
-        >
+        <template v-if="$slots.footer" #footer>
           <slot name="footer" />
         </template>
       </DesktopPanel>
@@ -63,21 +60,17 @@
       </Transition>
 
       <!-- Bottom Panel -->
-      <BottomPanel
-        v-bind="mobileProps"
-        @close="close"
-        @toggle="toggle({ expanded: true })"
-      >
+      <BottomPanel v-bind="mobileProps" @close="close" @toggle="toggle({ expanded: true })">
         <template #default>
           <slot />
+        </template>
+        <template #sticky>
+          <slot name="sticky" />
         </template>
         <template #header-actions>
           <slot name="header-actions" />
         </template>
-        <template
-          v-if="$slots.footer"
-          #footer
-        >
+        <template v-if="$slots.footer" #footer>
           <slot name="footer" />
         </template>
       </BottomPanel>
@@ -183,15 +176,15 @@ const mobileProps = computed(() => ({
 
 // Add backdropClasses computed property from BottomPanel.vue
 const backdropClasses = computed(() => [
-  isDragging.value ? 'bg-black/20' : 'bg-black/40',
+  isDragging.value ? 'bg-backdrop/20' : 'bg-backdrop/40',
   animationEnabled.value
     ? 'backdrop-blur-sm transition-colors duration-300'
-    : 'bg-black/50',
+    : 'bg-backdrop/50',
 ]);
 </script>
 
 <style scoped>
 :deep(.panel-side) {
-  @apply overflow-hidden h-screen hidden md:flex flex-col fixed top-0 z-20 bottom-0 inset-y-0 bg-muted dark:bg-background;
+  @apply overflow-hidden h-screen hidden md:flex flex-col fixed top-0 z-20 bottom-0 bg-background inset-y-0;
 }
 </style>

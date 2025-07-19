@@ -24,6 +24,22 @@ export type ThemeOption = typeof THEME_OPTIONS[keyof typeof THEME_OPTIONS];
 export type ThemePackOption = typeof THEME_PACK_OPTIONS[keyof typeof THEME_PACK_OPTIONS];
 
 /**
+ * Theme visual configuration for UI components
+ */
+export interface ThemeVisualConfig {
+  colors: {
+    primary: string;
+    secondary: string;
+    accent: string;
+    border: string;
+    selectedBorder: string;
+    selectedBg: string;
+    selectedText: string;
+    hoverBg: string;
+  };
+}
+
+/**
  * Theme pack configuration interface
  */
 export interface ThemePackConfig {
@@ -47,6 +63,7 @@ export interface UseThemeReturn {
   toggleTheme: () => Promise<void>;
   setTheme: (newTheme: ThemeOption) => Promise<void>;
   setThemePack: (newThemePack: ThemePackOption) => Promise<void>;
+  getThemeVisualConfig: (packKey: ThemePackOption) => ThemeVisualConfig;
   themeOptions: typeof THEME_OPTIONS;
   themePackOptions: typeof THEME_PACK_OPTIONS;
   themePackConfigs: Record<ThemePackOption, ThemePackConfig>;
@@ -77,6 +94,36 @@ const THEME_PACK_CONFIGS: Record<ThemePackOption, ThemePackConfig> = {
 };
 
 /**
+ * Visual configurations for theme packs
+ */
+const THEME_VISUAL_CONFIGS: Record<ThemePackOption, ThemeVisualConfig> = {
+  classic: {
+    colors: {
+      primary: 'bg-indigo-500 dark:bg-indigo-400',
+      secondary: 'bg-indigo-200 dark:bg-indigo-300',
+      accent: 'bg-indigo-50 dark:bg-indigo-950/50',
+      border: 'border-indigo-300 dark:border-indigo-600',
+      selectedBorder: 'border-indigo-500 dark:border-indigo-400',
+      selectedBg: 'bg-indigo-50/50 dark:bg-indigo-950/30',
+      selectedText: 'text-indigo-700 dark:text-indigo-300',
+      hoverBg: 'hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20',
+    },
+  },
+  mira: {
+    colors: {
+      primary: 'bg-zinc-700 dark:bg-zinc-400',
+      secondary: 'bg-zinc-300 dark:bg-zinc-500',
+      accent: 'bg-zinc-50 dark:bg-zinc-900/50',
+      border: 'border-zinc-300 dark:border-zinc-600',
+      selectedBorder: 'border-zinc-500 dark:border-zinc-400',
+      selectedBg: 'bg-zinc-50/50 dark:bg-zinc-900/30',
+      selectedText: 'text-zinc-700 dark:text-zinc-300',
+      hoverBg: 'hover:bg-zinc-50/30 dark:hover:bg-zinc-900/20',
+    },
+  },
+};
+
+/**
  * Apply theme pack to document
  */
 function applyThemePack(themePack: ThemePackOption): void {
@@ -89,6 +136,13 @@ function applyThemePack(themePack: ThemePackOption): void {
   
   // Apply new theme pack
   html.setAttribute('data-theme-pack', themePack);
+}
+
+/**
+ * Get visual configuration for a theme pack
+ */
+function getThemeVisualConfig(packKey: ThemePackOption): ThemeVisualConfig {
+  return THEME_VISUAL_CONFIGS[packKey] || THEME_VISUAL_CONFIGS.classic;
 }
 
 /**
@@ -224,6 +278,7 @@ export function useTheme(): UseThemeReturn {
     toggleTheme,
     setTheme,
     setThemePack,
+    getThemeVisualConfig,
     themeOptions: THEME_OPTIONS,
     themePackOptions: THEME_PACK_OPTIONS,
     themePackConfigs: THEME_PACK_CONFIGS,
