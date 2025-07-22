@@ -1,4 +1,4 @@
-import { ref, computed, type Ref } from 'vue'
+import { computed, type Ref } from 'vue'
 import { useStorage } from '@vueuse/core'
 import { useToolSettingsStore } from '@/stores/toolSettings'
 import type { ToolConfig, ToolOption } from '@/stores/toolSettings'

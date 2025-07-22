@@ -1,19 +1,16 @@
 import { BaseType } from '@/utils/constants/CalculatorConstants.ts';
 import { CalculatorUtils } from '../constants/CalculatorUtils';
 import { StandardCalculations } from './StandardCalculations';
-import { ProgrammerCalculator } from '@/services/logic/ProgrammerCalculator';
 
 /**
  * Programmer calculator wrapper that extends StandardCalculations
  * Adds base conversion and integer-only evaluation
  */
 export class ProgrammerCalculations extends StandardCalculations {
-  private programmer: ProgrammerCalculator;
   private currentBase: BaseType;
 
-  constructor(calculator: ProgrammerCalculator, initialBase: BaseType = 'DEC') {
+  constructor(initialBase: BaseType = 'DEC') {
     super();
-    this.programmer = calculator;
     this.currentBase = initialBase;
   }
 

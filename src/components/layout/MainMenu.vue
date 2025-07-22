@@ -126,7 +126,7 @@
                     {{ link.description }}
                   </span>
                 </div>
-                <ExternalLink class="h-3 w-3 text-muted-foreground/50 group-hover:text-primary/70 transition-all duration-200 flex-shrink-0 hidden md:block" />
+                <ExternalLinkIcon class="h-3 w-3 text-muted-foreground/50 group-hover:text-primary/70 transition-all duration-200 flex-shrink-0 hidden md:block" />
               </a>
             </div>
           </div>
@@ -172,7 +172,7 @@ import {
   AtSign,
   GithubIcon,
   Settings,
-  ExternalLink,
+  ExternalLinkIcon,
   ArrowLeft,
   type LucideIcon,
 } from "lucide-vue-next";

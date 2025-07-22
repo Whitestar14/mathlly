@@ -89,19 +89,11 @@ interface Props {
   selectedItemId?: number | null;
 }
 
-interface Emits {
-  (e: 'select', item: HistoryItem): void;
-  (e: 'delete', id: number): void;
-  (e: 'copy', item: HistoryItem): void;
-  (e: 'copy-json', item: HistoryItem): void;
-}
-
 withDefaults(defineProps<Props>(), {
   isMobile: false,
   selectedItemId: null,
 });
-
-defineEmits<Emits>();
+defineEmits(['select', 'delete', 'copy', 'copy-json']);
 </script>
 
 <style>

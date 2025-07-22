@@ -7,6 +7,8 @@ import Switch from '@/components/ui/ToggleBar.vue';
 import Collapsible from '@/components/base/BaseCollapsible.vue';
 import ThemePackSelector from './ThemePackSelector.vue';
 import type { Settings } from '@/data/db';
+import type { ThemePackOption } from '@/composables/useTheme';
+
 
 interface Props {
   settings: Settings;
@@ -54,7 +56,7 @@ const localSettings = computed({
   >
     <div class="space-y-6">
       <!-- Theme Pack Selection -->
-      <ThemePackSelector v-model="localSettings.appearance.themePack" />
+      <ThemePackSelector v-model="localSettings.appearance.themePack as ThemePackOption" />
 
       <!-- Theme Mode Selection -->
       <div>

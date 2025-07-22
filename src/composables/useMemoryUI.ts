@@ -174,9 +174,9 @@ export function useMemoryUI(): UseMemoryUIReturn {
         } else {
           valueToStore = calculator.evaluateExpression(currentInput);
         }
-      } catch (evalError) {
-        // If evaluation fails, use the raw input
+      } catch (err) {
         valueToStore = currentInput;
+        console.error('Error evaluating current input:', err);
       }
 
       // Generate a label for the new memory slot

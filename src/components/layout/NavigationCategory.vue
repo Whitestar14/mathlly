@@ -6,7 +6,6 @@
     <div class="space-y-0.5">
       <NavigationMenuItem
         v-for="item in category.items"
-        ref="sidebarElements"
         :key="item.path"
         class="space-y-0.5"
       >
@@ -42,7 +41,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type ComputedRef } from 'vue';
+import { computed } from 'vue';
 import {
   NavigationMenuItem,
   NavigationMenuLink,
@@ -54,7 +53,6 @@ import type { NavigationCategory as NavigationCategoryType, NavigationItem } fro
 interface Props {
   category: NavigationCategoryType;
   currentPill: string;
-  sidebarElements: any[];
 }
 
 interface Emits {

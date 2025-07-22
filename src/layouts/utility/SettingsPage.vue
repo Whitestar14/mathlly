@@ -41,6 +41,7 @@ const localSettings = ref<Settings>(cloneDeep(DEFAULT_SETTINGS));
 
 // Create a snapshot of the current store state
 const storeSnapshot = computed(() => ({
+  id: settingsStore.id ?? DEFAULT_SETTINGS.id,
   display: {
     textSize:
       settingsStore.display?.textSize ?? DEFAULT_SETTINGS.display.textSize,

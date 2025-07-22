@@ -108,7 +108,7 @@ interface Props {
   mainClass?: string;
   contentClass?: string;
   type?: string;
-  position?: string;
+  position?: 'left' | 'right';
   maxHeightRatio?: number;
   snapThreshold?: number;
   storageKey?: string;

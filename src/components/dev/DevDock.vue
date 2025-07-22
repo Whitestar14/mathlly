@@ -1,6 +1,6 @@
 <template>
   <!-- Developer Dock - Only visible in development -->
-  <div>
+  <div v-if="isDevEnvironment">
     <!-- Beta Opt-in Modal -->
     <DevDockBetaModal
       :open="showBetaModal"
@@ -72,6 +72,8 @@ import PerformancePanel from './PerformancePanel.vue';
 import ConsolePanel from './ConsolePanel.vue';
 import StatePanel from './StatePanel.vue';
 import KeyboardShortcuts from './KeyboardShortcuts.vue';
+
+const isDevEnvironment: boolean = import.meta.env.DEV;
 
 // Define panel keys as a const array to ensure string literal types
 const PANEL_KEYS = ['pwa', 'version', 'performance', 'console', 'state', 'shortcuts'] as const;

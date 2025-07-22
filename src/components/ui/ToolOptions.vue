@@ -5,30 +5,38 @@
         <BaseButton
           variant="ghost"
           size="icon"
-          @click="$emit('close')"
           class="shrink-0 hover:bg-accent/50 transition-colors duration-200"
+          @click="$emit('close')"
         >
           <ArrowLeft class="h-4 w-4" />
         </BaseButton>
         <div class="flex-1 min-w-0">
-          <h3 class="text-base font-semibold text-foreground">Tool Options</h3>
+          <h3 class="text-base font-semibold text-foreground">
+            Tool Options
+          </h3>
         </div>
       </div>
     </slot>
 
     <!-- Options grouped by section -->
     <div class="space-y-6 p-3">
-      <template v-for="section in groupedOptions" :key="section.name">
-        <div v-if="section.options.length > 0" class="space-y-4">
+      <template
+        v-for="section in groupedOptions"
+        :key="section.name"
+      >
+        <div
+          v-if="section.options.length > 0"
+          class="space-y-4"
+        >
           <!-- Section Header -->
           <div class="flex items-center gap-2">
-            <div class="h-px flex-1 bg-border"></div>
+            <div class="h-px flex-1 bg-border" />
             <h4
               class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2"
             >
               {{ section.name }}
             </h4>
-            <div class="h-px flex-1 bg-border"></div>
+            <div class="h-px flex-1 bg-border" />
           </div>
 
           <div class="space-y-4">
@@ -60,8 +68,8 @@
                   <Switch
                     :id="option.id"
                     :model-value="option.value.value[option.id]"
-                    @update:model-value="updateOptionValue(option, $event)"
                     class="data-[state=checked]:bg-primary"
+                    @update:model-value="updateOptionValue(option, $event)"
                   />
                 </div>
               </div>
@@ -89,8 +97,8 @@
                   :id="option.id"
                   :model-value="option.value.value[option.id]"
                   :options="option.options || []"
-                  @update:model-value="updateOptionValue(option, $event)"
                   class="w-full"
+                  @update:model-value="updateOptionValue(option, $event)"
                 />
               </div>
 
@@ -112,8 +120,8 @@
                 </div>
                 <RadioGroupRoot
                   :model-value="option.value.value[option.id]"
-                  @update:model-value="updateOptionValue(option, $event)"
                   class="space-y-2"
+                  @update:model-value="updateOptionValue(option, $event)"
                 >
                   <div
                     v-for="radioOption in option.options"
@@ -174,18 +182,18 @@
                   <input
                     :id="option.id"
                     :value="option.value.value[option.id]"
+                    type="range"
+                    :min="option.min"
+                    :max="option.max"
+                    :step="option.step"
+                    class="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all duration-200"
                     @input="
                       updateOptionValue(
                         option,
                         Number(($event.target as HTMLInputElement).value)
                       )
                     "
-                    type="range"
-                    :min="option.min"
-                    :max="option.max"
-                    :step="option.step"
-                    class="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all duration-200"
-                  />
+                  >
                   <!-- Range track indicators -->
                   <div
                     class="flex justify-between text-xs text-muted-foreground/60 mt-1 px-1"
@@ -219,15 +227,15 @@
                   <input
                     :id="option.id"
                     :value="option.value.value[option.id]"
+                    type="color"
+                    class="w-12 h-8 rounded-md border border-border cursor-pointer"
                     @input="
                       updateOptionValue(
                         option,
                         ($event.target as HTMLInputElement).value
                       )
                     "
-                    type="color"
-                    class="w-12 h-8 rounded-md border border-border cursor-pointer"
-                  />
+                  >
                   <span class="text-sm font-mono text-muted-foreground">
                     {{ option.value.value[option.id] }}
                   </span>
@@ -256,18 +264,18 @@
                 <input
                   :id="option.id"
                   :value="option.value.value[option.id]"
+                  type="number"
+                  :min="option.min"
+                  :max="option.max"
+                  :step="option.step"
+                  class="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-all duration-200"
                   @input="
                     updateOptionValue(
                       option,
                       Number(($event.target as HTMLInputElement).value)
                     )
                   "
-                  type="number"
-                  :min="option.min"
-                  :max="option.max"
-                  :step="option.step"
-                  class="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-ring transition-all duration-200"
-                />
+                >
               </div>
             </div>
           </div>
@@ -275,7 +283,10 @@
       </template>
 
       <!-- Empty state -->
-      <div v-if="groupedOptions.length === 0" class="text-center py-8">
+      <div
+        v-if="groupedOptions.length === 0"
+        class="text-center py-8"
+      >
         <Settings class="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
         <p class="text-sm text-muted-foreground">
           No options available for this tool
@@ -298,11 +309,11 @@ interface Props {
   toolOptions: ToolConfig;
 }
 
+const props = defineProps<Props>();
+
 defineEmits<{
   close: [];
 }>();
-
-const props = defineProps<Props>();
 
 // Update option value with proper reactivity
 const updateOptionValue = (option: ToolOption, newValue: any) => {

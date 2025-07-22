@@ -1,4 +1,4 @@
-import { computed, type ComputedRef } from 'vue';
+import { type ComputedRef } from 'vue';
 import type { NavigationItem } from './useSidebarNavigation';
 
 /**

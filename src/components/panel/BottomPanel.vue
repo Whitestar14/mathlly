@@ -106,6 +106,8 @@ const props = withDefaults(defineProps<Props>(), {
   showFooter: true,
   mainClass: '',
   contentClass: '',
+  panel: () => ref(null),
+  handle: () => ref(null),
   isExpanded: false,
   panelHeight: 300,
   translateY: 0,
@@ -121,10 +123,12 @@ const handleRef: Ref<HTMLElement | null> = ref(null)
 
 const updateRefs = (): void => {
   if (props.panel && panelRef.value) {
+    // eslint-disable-next-line
     props.panel.value = panelRef.value
   }
 
   if (props.handle && handleRef.value) {
+    // eslint-disable-next-line
     props.handle.value = handleRef.value
   }
 }

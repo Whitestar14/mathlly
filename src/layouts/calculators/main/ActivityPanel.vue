@@ -89,18 +89,18 @@
         v-if="currentTab === 'memory'"
         class="flex justify-between items-center md:justify-end w-full"
       >
-      <Button
-        v-if="hasMemorySlots"
-        variant="destructive"
-        size="sm"
-        class="md:hidden"
-        @click="showClearMemoryConfirmation = true"
-      >
-        <TrashIcon class="w-4 h-4 mr-2" />
-        Clear All
-      </Button>
+        <Button
+          v-if="hasMemorySlots"
+          variant="destructive"
+          size="sm"
+          class="md:hidden"
+          @click="showClearMemoryConfirmation = true"
+        >
+          <TrashIcon class="w-4 h-4 mr-2" />
+          Clear All
+        </Button>
 
-      <div class="w-[80%] flex flex-row items-center gap-1 justify-end">
+        <div class="w-[80%] flex flex-row items-center gap-1 justify-end">
           <Button
             v-if="hasMemorySlots"
             v-tippy="{ content: 'Clear All Memory Slots' }"
@@ -112,18 +112,18 @@
             <TrashIcon class="w-4 h-4" />
           </Button>
 
-        <Button
-          v-tippy="{
-            content: 'Creates a new memory slot',
-          }"
-          variant="default"
-          size="sm"
-          @click="handleAddCurrentToMemory"
-        >
-          <PlusIcon class="w-4 h-4" />
-          Add New Slot
-        </Button>
-      </div>
+          <Button
+            v-tippy="{
+              content: 'Creates a new memory slot',
+            }"
+            variant="default"
+            size="sm"
+            @click="handleAddCurrentToMemory"
+          >
+            <PlusIcon class="w-4 h-4" />
+            Add New Slot
+          </Button>
+        </div>
       </div>
     </template>
   </BasePanel>

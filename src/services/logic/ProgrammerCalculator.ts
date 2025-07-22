@@ -38,7 +38,7 @@ export class ProgrammerCalculator extends ICalculator {
       HEX: new HexCalculator(),
       OCT: new OctCalculator(),
     };
-    this.calculations = new ProgrammerCalculations(this);
+    this.calculations = new ProgrammerCalculations(this.activeBase as BaseType);
     this.operations = new ProgrammerOperations(this);
   }
 

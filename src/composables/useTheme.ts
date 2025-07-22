@@ -130,7 +130,7 @@ function applyThemePack(themePack: ThemePackOption): void {
   const html = document.documentElement;
   
   // Remove existing theme pack classes
-  Object.values(THEME_PACK_OPTIONS).forEach(pack => {
+  Object.values(THEME_PACK_OPTIONS).forEach(() => {
     html.removeAttribute('data-theme-pack');
   });
   

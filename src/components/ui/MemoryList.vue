@@ -10,20 +10,23 @@
       @enter="memoryAnimation.onEnter" 
       @leave="memoryAnimation.onLeave"
     >
-      <MemoryItemComponent 
-        v-for="(slot, index) in filteredMemorySlots" 
-        :key="slot.id" 
-        :slot="slot" 
-        :selected-id="selectedSlotId" 
-        :data-index="index" 
-        @recall="handleRecallSlot" 
-        @delete="handleDeleteSlot"
-        @copy="handleCopySlot"
-        @edit-label="handleEditLabel"
-        @add-to-slot="(slot, value) => handleSlotOperation('add', slot, value)"
-        @subtract-from-slot="(slot, value) => handleSlotOperation('subtract', slot, value)"
-        @save-to-slot="(slot, value) => handleSlotOperation('save', slot, value)"
-      />
+      <template
+        v-for="(memorySlot, index) in filteredMemorySlots"
+        :key="memorySlot.id"
+      >
+        <MemoryItemComponent 
+          :memory-slot="memorySlot"
+          :selected-id="selectedSlotId" 
+          :data-index="index" 
+          @recall="handleRecallSlot" 
+          @delete="handleDeleteSlot"
+          @copy="handleCopySlot"
+          @edit-label="handleEditLabel"
+          @add-to-slot="(slot, value) => handleSlotOperation('add', slot, value)"
+          @subtract-from-slot="(slot, value) => handleSlotOperation('subtract', slot, value)"
+          @save-to-slot="(slot, value) => handleSlotOperation('save', slot, value)"
+        />
+      </template>
     </TransitionGroup>
 
     <!-- Empty State -->
@@ -56,17 +59,20 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="space-y-2">
+    <div
+      v-if="isLoading"
+      class="space-y-2"
+    >
       <div 
         v-for="i in 3" 
         :key="i"
         class="rounded-lg bg-muted/30 p-3 animate-pulse"
       >
         <div class="flex items-center gap-3">
-          <div class="w-8 h-8 bg-muted animate-pulse rounded"></div>
+          <div class="w-8 h-8 bg-muted animate-pulse rounded" />
           <div class="flex-1">
-            <div class="h-4 w-20 bg-muted animate-pulse rounded mb-1"></div>
-            <div class="h-3 w-32 bg-muted animate-pulse rounded"></div>
+            <div class="h-4 w-20 bg-muted animate-pulse rounded mb-1" />
+            <div class="h-3 w-32 bg-muted animate-pulse rounded" />
           </div>
         </div>
       </div>
@@ -109,7 +115,10 @@
           />
         </div>
         <div class="flex justify-end space-x-2">
-          <Button variant="outline" @click="showCreateSlot = false">
+          <Button
+            variant="outline"
+            @click="showCreateSlot = false"
+          >
             Cancel
           </Button>
           <Button @click="handleCreateCustomSlot">

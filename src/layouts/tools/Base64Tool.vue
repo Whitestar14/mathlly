@@ -1,257 +1,3 @@
-<template>
-  <div class="container mx-auto p-6">
-    <div class="max-w-6xl mx-auto space-y-6">
-      <!-- Main Tool Interface -->
-      <div class="rounded-lg border border-border dark:border-border overflow-hidden">
-        <div class="flex border-b border-border dark:border-border bg-muted/50 dark:bg-background/50 relative">
-          <Indicator :position="indicatorStyle" />                   
-          <div
-            v-for="tab in tabs"
-            :key="tab.value"
-            ref="tabElements"
-            :data-path="tab.value"
-            class="px-4 py-3 text-sm font-medium transition-colors relative cursor-pointer"
-            :class="[
-              currentTab === tab.value
-                ? 'text-primary dark:text-primary'
-                : 'text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground',
-            ]"
-            @click="handleTabChange(tab.value, $event.target as HTMLElement)"
-          >
-            {{ tab.label }}
-          </div>
-        </div>
-
-        <div class="p-6 bg-background dark:bg-background">
-          <!-- File Upload Section (when enabled) -->
-          <div v-if="base64Options.handleBinaryFiles.value && currentTab === 'encode'" class="mb-6">
-            <div class="border-2 border-dashed border-border rounded-lg p-6 text-center">
-              <input
-                ref="fileInput"
-                type="file"
-                class="hidden"
-                @change="handleFileUpload"
-              />
-              <div class="space-y-2">
-                <Upload class="h-8 w-8 mx-auto text-muted-foreground" />
-                <div class="text-sm text-muted-foreground">
-                  <button
-                    class="text-primary hover:underline"
-                    @click="fileInput?.click()"
-                  >
-                    Click to upload
-                  </button>
-                  or drag and drop a file
-                </div>
-                <div class="text-xs text-muted-foreground">
-                  Maximum file size: 10MB
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid gap-6 lg:grid-cols-2">
-            <!-- Input Section -->
-            <div class="space-y-3">
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <label class="text-sm font-medium text-foreground dark:text-muted-foreground">
-                    Input
-                    <span v-if="selectedFileName" class="text-xs text-muted-foreground ml-2">
-                      ({{ selectedFileName }})
-                    </span>
-                  </label>
-                  <div class="flex items-center gap-2">
-                    <BaseButton
-                      v-if="!base64Options.autoProcess.value"
-                      variant="outline"
-                      size="sm"
-                      :disabled="isProcessing"
-                      @click="handleProcess"
-                    >
-                      <Loader2 v-if="isProcessing" class="h-3 w-3 animate-spin mr-1" />
-                      {{ currentTab === "encode" ? "Encode" : "Decode" }}
-                    </BaseButton>
-                    <BaseButton
-                      v-if="input"
-                      variant="ghost"
-                      class="h-6 w-6"
-                      size="icon"
-                      @click="clearInput"
-                    >
-                      <X class="h-3 w-3" />
-                    </BaseButton>
-                  </div>
-                </div>
-                <div class="relative">
-                  <textarea 
-                    ref="inputArea" 
-                    v-model="input" 
-                    rows="8"
-                    class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm resize-none placeholder:text-muted-foreground dark:border-border dark:bg-background/50 font-mono"
-                    :class="{
-                      'border-destructive': validationError && base64Options.validateInput.value,
-                      'pr-20': true
-                    }"
-                    :placeholder="currentTab === 'encode'
-                      ? 'Enter text to encode or upload a file...'
-                      : 'Enter Base64 to decode...'
-                    "
-                    @input="handleInput"
-                    @drop="handleDrop"
-                    @dragover.prevent
-                    @dragenter.prevent
-                  />
-                  <div class="absolute bottom-2 right-2 flex items-center gap-1">
-                    <BaseButton
-                      v-tippy="{ content: 'Paste' }"
-                      variant="ghost"
-                      size="icon"
-                      class="h-6 w-6"
-                      @click="pasteFromClipboard"
-                    >
-                      <ClipboardPaste class="h-3 w-3" />
-                    </BaseButton>
-                  </div>
-                </div>
-                
-                <!-- Validation Error -->
-                <div v-if="validationError && base64Options.validateInput.value" class="text-xs text-destructive flex items-center gap-1">
-                  <AlertCircle class="h-3 w-3" />
-                  {{ validationError }}
-                </div>
-
-                <!-- Character Count -->
-                <div v-if="base64Options.showCharacterCount.value" class="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{{ inputStats.characters }} characters, {{ inputStats.bytes }} bytes</span>
-                  <span v-if="inputStats.lines > 1">{{ inputStats.lines }} lines</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Output Section -->
-            <div class="space-y-3">
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <label class="text-sm font-medium text-foreground dark:text-muted-foreground">
-                    Output
-                    <span v-if="outputFormat" class="text-xs text-muted-foreground ml-2">
-                      ({{ outputFormat }})
-                    </span>
-                  </label>
-                  <div class="flex items-center gap-2">
-                    <BaseButton
-                      v-tippy="{ content: 'Swap input/output' }"
-                      variant="ghost"
-                      size="icon"
-                      class="h-6 w-6"
-                      :disabled="!output"
-                      @click="handleSwap"
-                    >
-                      <ArrowDownUp class="h-3 w-3" />
-                    </BaseButton>
-                    <BaseButton
-                      v-tippy="{ content: 'Download as file' }"
-                      variant="ghost"
-                      size="icon"
-                      class="h-6 w-6"
-                      :disabled="!output"
-                      @click="downloadOutput"
-                    >
-                      <Download class="h-3 w-3" />
-                    </BaseButton>
-                    <BaseButton
-                      v-tippy="{ content: 'Copy to clipboard' }"
-                      variant="ghost"
-                      size="icon"
-                      class="h-6 w-6"
-                      :disabled="!output"
-                      @click="handleCopy"
-                    >
-                      <Copy class="h-3 w-3" />
-                    </BaseButton>
-                  </div>
-                </div>
-                <textarea
-                  v-model="output"
-                  rows="8"
-                  readonly
-                  class="w-full rounded-md border border-border bg-muted/50 px-3 py-2 text-sm resize-none dark:border-border dark:bg-background/50 font-mono"
-                  placeholder="Result will appear here..."
-                />
-                
-                <!-- Output Stats -->
-                <div v-if="base64Options.showCharacterCount.value && output" class="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{{ outputStats.characters }} characters, {{ outputStats.bytes }} bytes</span>
-                  <span v-if="outputStats.lines > 1">{{ outputStats.lines }} lines</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <BaseButton
-          variant="outline"
-          class="h-auto p-4 flex flex-col items-center gap-2"
-          @click="loadSampleText"
-        >
-          <FileText class="h-5 w-5" />
-          <span class="text-xs">Sample Text</span>
-        </BaseButton>
-        
-        <BaseButton
-          variant="outline"
-          class="h-auto p-4 flex flex-col items-center gap-2"
-          @click="loadSampleBase64"
-        >
-          <Code class="h-5 w-5" />
-          <span class="text-xs">Sample Base64</span>
-        </BaseButton>
-        
-        <BaseButton
-          variant="outline"
-          class="h-auto p-4 flex flex-col items-center gap-2"
-          @click="generateRandomData"
-        >
-          <Shuffle class="h-5 w-5" />
-          <span class="text-xs">Random Data</span>
-        </BaseButton>
-        
-        <BaseButton
-          variant="outline"
-          class="h-auto p-4 flex flex-col items-center gap-2"
-          @click="clearAll"
-        >
-          <Trash2 class="h-5 w-5" />
-          <span class="text-xs">Clear All</span>
-        </BaseButton>
-      </div>
-
-      <!-- Format Information -->
-      <div class="rounded-lg border border-border p-4 bg-muted/30">
-        <h3 class="text-sm font-medium mb-3">Base64 Format Information</h3>
-        <div class="grid md:grid-cols-3 gap-4 text-xs text-muted-foreground">
-          <div>
-            <div class="font-medium text-foreground mb-1">Standard</div>
-            <div>Uses +, /, and = padding. RFC 4648 compliant.</div>
-          </div>
-          <div>
-            <div class="font-medium text-foreground mb-1">URL Safe</div>
-            <div>Uses -, _, no padding. Safe for URLs and filenames.</div>
-          </div>
-          <div>
-            <div class="font-medium text-foreground mb-1">MIME</div>
-            <div>Line breaks every {{ base64Options.lineLength.value }} chars. Email compatible.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ref, computed, watch, nextTick, type Ref, type ComputedRef } from "vue";
 import { useClipboard } from "@vueuse/core";
@@ -355,9 +101,15 @@ const outputStats: ComputedRef<TextStats> = computed(() => ({
 const outputFormat: ComputedRef<string> = computed(() => {
   const format = base64Options.outputFormat.value;
   switch (format) {
-    case 'url-safe': return 'URL Safe';
-    case 'mime': return 'MIME';
-    default: return 'Standard';
+    case 'url-safe': {
+      return 'URL Safe';
+    }
+    case 'mime': {
+      return 'MIME';
+    }
+    default: {
+      return 'Standard';
+    }
   }
 });
 
@@ -366,12 +118,10 @@ const outputFormat: ComputedRef<string> = computed(() => {
  */
 const isValidBase64: ComputedRef<boolean> = computed(() => {
   if (!input.value.trim()) {
-    validationError.value = "";
     return true;
   }
   
   if (currentTab.value !== 'decode') {
-    validationError.value = "";
     return true;
   }
   
@@ -381,23 +131,57 @@ const isValidBase64: ComputedRef<boolean> = computed(() => {
     // Check basic Base64 format
     const base64Regex = /^[A-Za-z0-9+/\-_]*={0,2}$/;
     if (!base64Regex.test(cleanInput)) {
-      validationError.value = "Invalid Base64 characters detected";
       return false;
     }
     
     // Check length (must be multiple of 4 for standard/MIME)
-        if (base64Options.outputFormat.value !== 'url-safe' && cleanInput.length % 4 !== 0) {
-      validationError.value = "Invalid Base64 length (must be multiple of 4)";
+    if (base64Options.outputFormat.value !== 'url-safe' && cleanInput.length % 4 !== 0) {
       return false;
     }
     
     // Try to decode to validate
     atob(cleanInput.replace(/-/g, '+').replace(/_/g, '/'));
-    validationError.value = "";
     return true;
   } catch {
-    validationError.value = "Invalid Base64 format";
     return false;
+  }
+});
+
+// Watch for validation errors and update the error message
+watch([input, currentTab, isValidBase64], () => {
+  if (!input.value.trim()) {
+    validationError.value = "";
+    return;
+  }
+  
+  if (currentTab.value !== 'decode') {
+    validationError.value = "";
+    return;
+  }
+  
+  if (!isValidBase64.value) {
+    try {
+      const cleanInput = input.value.replace(/\s/g, '');
+      
+      // Check basic Base64 format
+      const base64Regex = /^[A-Za-z0-9+/\-_]*={0,2}$/;
+      if (!base64Regex.test(cleanInput)) {
+        validationError.value = "Invalid Base64 characters detected";
+        return;
+      }
+      
+      // Check length (must be multiple of 4 for standard/MIME)
+      if (base64Options.outputFormat.value !== 'url-safe' && cleanInput.length % 4 !== 0) {
+        validationError.value = "Invalid Base64 length (must be multiple of 4)";
+        return;
+      }
+      
+      validationError.value = "Invalid Base64 format";
+    } catch {
+      validationError.value = "Invalid Base64 format";
+    }
+  } else {
+    validationError.value = "";
   }
 });
 
@@ -434,14 +218,16 @@ const encodeToBase64 = async (text: string): Promise<string> => {
     
     // Apply output format
     switch (currentOptions.outputFormat) {
-      case 'url-safe':
+      case 'url-safe': {
         encoded = encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
         break;
-      case 'mime':
+      }
+      case 'mime': {
         // Add line breaks for MIME format
         const chunks = encoded.match(new RegExp(`.{1,${currentOptions.lineLength}}`, 'g')) || [];
         encoded = chunks.join('\n');
         break;
+      }
       // 'standard' format needs no modification
     }
     
@@ -813,3 +599,286 @@ nextTick(() => {
   initializePills("encode", tabElements);
 });
 </script>
+
+<template>
+  <div class="container mx-auto p-6">
+    <div class="max-w-6xl mx-auto space-y-6">
+      <!-- Main Tool Interface -->
+      <div class="rounded-lg border border-border dark:border-border overflow-hidden">
+        <div class="flex border-b border-border dark:border-border bg-muted/50 dark:bg-background/50 relative">
+          <Indicator :position="indicatorStyle" />                   
+          <div
+            v-for="tab in tabs"
+            :key="tab.value"
+            ref="tabElements"
+            :data-path="tab.value"
+            class="px-4 py-3 text-sm font-medium transition-colors relative cursor-pointer"
+            :class="[
+              currentTab === tab.value
+                ? 'text-primary dark:text-primary'
+                : 'text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground',
+            ]"
+            @click="handleTabChange(tab.value, $event.target as HTMLElement)"
+          >
+            {{ tab.label }}
+          </div>
+        </div>
+
+        <div class="p-6 bg-background dark:bg-background">
+          <!-- File Upload Section (when enabled) -->
+          <div
+            v-if="base64Options.handleBinaryFiles.value && currentTab === 'encode'"
+            class="mb-6"
+          >
+            <div class="border-2 border-dashed border-border rounded-lg p-6 text-center">
+              <input
+                ref="fileInput"
+                type="file"
+                class="hidden"
+                @change="handleFileUpload"
+              >
+              <div class="space-y-2">
+                <Upload class="h-8 w-8 mx-auto text-muted-foreground" />
+                <div class="text-sm text-muted-foreground">
+                  <button
+                    class="text-primary hover:underline"
+                    @click="fileInput?.click()"
+                  >
+                    Click to upload
+                  </button>
+                  or drag and drop a file
+                </div>
+                <div class="text-xs text-muted-foreground">
+                  Maximum file size: 10MB
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid gap-6 lg:grid-cols-2">
+            <!-- Input Section -->
+            <div class="space-y-3">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-sm font-medium text-foreground dark:text-muted-foreground">
+                    Input
+                    <span
+                      v-if="selectedFileName"
+                      class="text-xs text-muted-foreground ml-2"
+                    >
+                      ({{ selectedFileName }})
+                    </span>
+                  </label>
+                  <div class="flex items-center gap-2">
+                    <BaseButton
+                      v-if="!base64Options.autoProcess.value"
+                      variant="outline"
+                      size="sm"
+                      :disabled="isProcessing"
+                      @click="handleProcess"
+                    >
+                      <Loader2
+                        v-if="isProcessing"
+                        class="h-3 w-3 animate-spin mr-1"
+                      />
+                      {{ currentTab === "encode" ? "Encode" : "Decode" }}
+                    </BaseButton>
+                    <BaseButton
+                      v-if="input"
+                      variant="ghost"
+                      class="h-6 w-6"
+                      size="icon"
+                      @click="clearInput"
+                    >
+                      <X class="h-3 w-3" />
+                    </BaseButton>
+                  </div>
+                </div>
+                <div class="relative">
+                  <textarea 
+                    ref="inputArea" 
+                    v-model="input" 
+                    rows="8"
+                    class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm resize-none placeholder:text-muted-foreground dark:border-border dark:bg-background/50 font-mono"
+                    :class="{
+                      'border-destructive': validationError && base64Options.validateInput.value,
+                      'pr-20': true
+                    }"
+                    :placeholder="currentTab === 'encode'
+                      ? 'Enter text to encode or upload a file...'
+                      : 'Enter Base64 to decode...'
+                    "
+                    @input="handleInput"
+                    @drop="handleDrop"
+                    @dragover.prevent
+                    @dragenter.prevent
+                  />
+                  <div class="absolute bottom-2 right-2 flex items-center gap-1">
+                    <BaseButton
+                      v-tippy="{ content: 'Paste' }"
+                      variant="ghost"
+                      size="icon"
+                      class="h-6 w-6"
+                      @click="pasteFromClipboard"
+                    >
+                      <ClipboardPaste class="h-3 w-3" />
+                    </BaseButton>
+                  </div>
+                </div>
+                
+                <!-- Validation Error -->
+                <div
+                  v-if="validationError && base64Options.validateInput.value"
+                  class="text-xs text-destructive flex items-center gap-1"
+                >
+                  <AlertCircle class="h-3 w-3" />
+                  {{ validationError }}
+                </div>
+
+                <!-- Character Count -->
+                <div
+                  v-if="base64Options.showCharacterCount.value"
+                  class="flex items-center justify-between text-xs text-muted-foreground"
+                >
+                  <span>{{ inputStats.characters }} characters, {{ inputStats.bytes }} bytes</span>
+                  <span v-if="inputStats.lines > 1">{{ inputStats.lines }} lines</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Output Section -->
+            <div class="space-y-3">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="text-sm font-medium text-foreground dark:text-muted-foreground">
+                    Output
+                    <span
+                      v-if="outputFormat"
+                      class="text-xs text-muted-foreground ml-2"
+                    >
+                      ({{ outputFormat }})
+                    </span>
+                  </label>
+                  <div class="flex items-center gap-2">
+                    <BaseButton
+                      v-tippy="{ content: 'Swap input/output' }"
+                      variant="ghost"
+                      size="icon"
+                      class="h-6 w-6"
+                      :disabled="!output"
+                      @click="handleSwap"
+                    >
+                      <ArrowDownUp class="h-3 w-3" />
+                    </BaseButton>
+                    <BaseButton
+                      v-tippy="{ content: 'Download as file' }"
+                      variant="ghost"
+                      size="icon"
+                      class="h-6 w-6"
+                      :disabled="!output"
+                      @click="downloadOutput"
+                    >
+                      <Download class="h-3 w-3" />
+                    </BaseButton>
+                    <BaseButton
+                      v-tippy="{ content: 'Copy to clipboard' }"
+                      variant="ghost"
+                      size="icon"
+                      class="h-6 w-6"
+                      :disabled="!output"
+                      @click="handleCopy"
+                    >
+                      <Copy class="h-3 w-3" />
+                    </BaseButton>
+                  </div>
+                </div>
+                <textarea
+                  v-model="output"
+                  rows="8"
+                  readonly
+                  class="w-full rounded-md border border-border bg-muted/50 px-3 py-2 text-sm resize-none dark:border-border dark:bg-background/50 font-mono"
+                  placeholder="Result will appear here..."
+                />
+                
+                <!-- Output Stats -->
+                <div
+                  v-if="base64Options.showCharacterCount.value && output"
+                  class="flex items-center justify-between text-xs text-muted-foreground"
+                >
+                  <span>{{ outputStats.characters }} characters, {{ outputStats.bytes }} bytes</span>
+                  <span v-if="outputStats.lines > 1">{{ outputStats.lines }} lines</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <BaseButton
+          variant="outline"
+          class="h-auto p-4 flex flex-col items-center gap-2"
+          @click="loadSampleText"
+        >
+          <FileText class="h-5 w-5" />
+          <span class="text-xs">Sample Text</span>
+        </BaseButton>
+        
+        <BaseButton
+          variant="outline"
+          class="h-auto p-4 flex flex-col items-center gap-2"
+          @click="loadSampleBase64"
+        >
+          <Code class="h-5 w-5" />
+          <span class="text-xs">Sample Base64</span>
+        </BaseButton>
+        
+        <BaseButton
+          variant="outline"
+          class="h-auto p-4 flex flex-col items-center gap-2"
+          @click="generateRandomData"
+        >
+          <Shuffle class="h-5 w-5" />
+          <span class="text-xs">Random Data</span>
+        </BaseButton>
+        
+        <BaseButton
+          variant="outline"
+          class="h-auto p-4 flex flex-col items-center gap-2"
+          @click="clearAll"
+        >
+          <Trash2 class="h-5 w-5" />
+          <span class="text-xs">Clear All</span>
+        </BaseButton>
+      </div>
+
+      <!-- Format Information -->
+      <div class="rounded-lg border border-border p-4 bg-muted/30">
+        <h3 class="text-sm font-medium mb-3">
+          Base64 Format Information
+        </h3>
+        <div class="grid md:grid-cols-3 gap-4 text-xs text-muted-foreground">
+          <div>
+            <div class="font-medium text-foreground mb-1">
+              Standard
+            </div>
+            <div>Uses +, /, and = padding. RFC 4648 compliant.</div>
+          </div>
+          <div>
+            <div class="font-medium text-foreground mb-1">
+              URL Safe
+            </div>
+            <div>Uses -, _, no padding. Safe for URLs and filenames.</div>
+          </div>
+          <div>
+            <div class="font-medium text-foreground mb-1">
+              MIME
+            </div>
+            <div>Line breaks every {{ base64Options.lineLength.value }} chars. Email compatible.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>

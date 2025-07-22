@@ -2,6 +2,7 @@
   "name": "mathlly",
   "version": "0.12.2",
   "private": true,
+  "type": "module",
     "scripts": {
     "dev": "vite --open && node scripts/generate-version-info.cjs",
     "build": "vue-tsc && vite build",
@@ -11,18 +12,7 @@
     "build:analyze": "vite build --mode production && open dist/stats.html",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "type-check": "vue-tsc --noEmit",
-    "version:bump": "node scripts/bump-version.js",
-    "pwa:dev": "vite --mode development",
-    "pwa:build": "vite build --mode production",
-    "migrate-styles": "node scripts/run-complete-migration.js",
-    "migrate-styles:dry-run": "node scripts/run-complete-migration.js --dry-run",
-    "migrate-styles:verbose": "node scripts/run-complete-migration.js --verbose",
-    "migrate-styles:master": "node scripts/master-migration.js",
-    "migrate-styles:check": "node scripts/pre-migration-check.js",
-    "migrate-styles:validate": "node scripts/post-migration-validation.js",
-    "migrate-styles:restore": "node scripts/restore-backups.js",
-    "migrate-styles:clean-backups": "find src -name '*.backup' -delete",
-    "migrate-styles:fix-remaining": "node scripts/fix-remaining-patterns.js"
+    "version:bump": "node scripts/bump-version.js"
   },
   "dependencies": {
     "@vueuse/core": "^11.3.0",
