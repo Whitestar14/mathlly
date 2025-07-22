@@ -43,11 +43,18 @@
         />
       </div>
     </div>
+    
     <ActivityPanel
       :mode="state.mode"
       :is-mobile="isMobile"
       :is-open="activityPanel.isOpen"
+      :current-input="state.input"
+      :calculator="calculator"
+      :active-base="state.activeBase"
+      :update-state="updateState"
+      :update-display-values="updateDisplayValues"
       @history-close="activityPanel.close"
+      @memory-close="activityPanel.close"
       @select-item="selectHistoryItem"
     />
   </BasePage>
@@ -56,7 +63,7 @@
 <script setup lang="ts">
 import { computed, watch, ref, provide, defineAsyncComponent, type Ref, type ComputedRef } from 'vue'
 import { useHistory, type HistoryItem } from '@/composables/useHistory'
-import { useMemory, type UseMemoryReturn } from '@/composables/useMemory'
+import { useMemory } from '@/composables/useMemory'
 import { usePanel, type LightweightPanelAPI } from '@/composables/usePanel'
 import { useCalculatorState, type CalculatorMode, type Base } from '@/composables/useCalculatorState'
 import { useCalculatorModeSwitcher } from '@/composables/useCalculatorModeSwitcher'
@@ -69,15 +76,12 @@ import CalculatorButtons from '@/layouts/calculators/main/CalculatorButtons.vue'
 import BasePage from '@/components/base/BasePage.vue'
 
 // Define props
-defineProps<Props>()
+const props = defineProps<{
+  isMobile: boolean
+}>()
 
 // Import the calculator mode switcher component
 const CalculatorModeSwitcher = defineAsyncComponent(() => import('@/components/calculator/CalculatorModeSwitcher.vue'))
-
-// Types
-interface Props {
-  isMobile: boolean
-}
 
 interface HistoryService {
   addToHistory: (expression: string, result: string) => void
@@ -88,7 +92,7 @@ const ActivityPanel = defineAsyncComponent(() => import('@/layouts/calculators/m
 
 // Use composables for state management with proper typing
 const historyService: HistoryService = useHistory()
-const memoryService: UseMemoryReturn = useMemory()
+const memoryService = useMemory()
 
 // Get the panel instance - cast to the correct type
 const activityPanelResult = usePanel('activity')
@@ -118,10 +122,16 @@ const createCalculator = (mode: CalculatorMode) => {
 
 const calculator: Ref<Calculator> = ref(createCalculator(currentMode.value))
 
-// Provide calculator instance and options to child components
-provide('calculator', computed(() => calculator.value))
+// Provide all dependencies to child components
+provide('calculator', calculator)
 provide('calculatorState', state)
 provide('calculatorOptions', calculatorOptions)
+provide('currentInput', computed(() => state.input))
+provide('activeBase', computed(() => state.activeBase))
+provide('mode', computed(() => state.mode))
+provide('updateState', updateState)
+provide('updateDisplayValues', updateDisplayValues)
+provide('isMobile', computed(() => props.isMobile))
 
 // Initialize controller with all dependencies and proper typing
 const controllerResult: ControllerReturn = CalculatorController({

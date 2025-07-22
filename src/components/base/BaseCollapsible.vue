@@ -26,7 +26,10 @@
     </CollapsibleTrigger>
       
     <CollapsibleContent class="overflow-hidden radix-collapsible-content">
-      <div class="p-4 pt-2 text-foreground" :class="contentClass">
+      <div
+        class="p-4 pt-2 text-foreground"
+        :class="contentClass"
+      >
         <slot />
       </div>
     </CollapsibleContent>

@@ -336,8 +336,8 @@ const openReleaseNotes = (): void => {
                   <BaseButton
                     variant="link"
                     size="sm"
-                    @click="openReleaseNotes"
                     class="text-xs p-0 h-auto"
+                    @click="openReleaseNotes"
                   >
                     <BookOpenIcon class="h-3 w-3" />
                     <span class="hidden sm:inline">View full release notes</span>

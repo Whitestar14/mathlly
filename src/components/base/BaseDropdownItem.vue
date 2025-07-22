@@ -28,7 +28,10 @@
     />
     
     <div class="flex-1 min-w-0">
-      <div v-if="label" class="font-medium truncate">
+      <div
+        v-if="label"
+        class="font-medium truncate"
+      >
         {{ label }}
       </div>
       <div 

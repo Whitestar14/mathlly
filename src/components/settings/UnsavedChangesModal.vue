@@ -17,18 +17,29 @@ defineEmits<Emits>();
 </script>
 
 <template>
-  <BaseModal :open="open" @update:open="$emit('update:open', $event)">
-    <template #title> Unsaved Changes </template>
+  <BaseModal
+    :open="open"
+    @update:open="$emit('update:open', $event)"
+  >
+    <template #title>
+      Unsaved Changes
+    </template>
     <p class="text-sm text-muted-foreground mb-4">
       You have unsaved changes. Are you sure you want to leave this page? Your
       changes will be lost.
     </p>
 
     <div class="flex justify-end space-x-3">
-      <Button variant="outline" @click="$emit('cancel')">
+      <Button
+        variant="outline"
+        @click="$emit('cancel')"
+      >
         Stay on Page
       </Button>
-      <Button variant="destructive" @click="$emit('confirm')">
+      <Button
+        variant="destructive"
+        @click="$emit('confirm')"
+      >
         Discard Changes
       </Button>
     </div>

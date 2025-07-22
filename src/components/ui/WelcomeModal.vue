@@ -8,12 +8,16 @@
   >
     <template #title>
       <div class="flex items-center gap-3">
-        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+        <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
           <Sparkles class="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h2 class="text-lg font-semibold text-foreground">Welcome to Mathlly</h2>
-          <p class="text-sm text-muted-foreground">Modern calculator platform</p>
+          <h2 class="text-lg font-semibold text-foreground">
+            Welcome to Mathlly
+          </h2>
+          <p class="text-sm text-muted-foreground">
+            Modern calculator platform
+          </p>
         </div>
       </div>
     </template>
@@ -27,19 +31,19 @@
 
       <!-- Key features -->
       <div class="grid grid-cols-2 gap-4">
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
           <Zap class="h-4 w-4 text-primary flex-shrink-0" />
           <span class="text-sm font-medium text-foreground">Fast & Local</span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
           <Shield class="h-4 w-4 text-primary flex-shrink-0" />
           <span class="text-sm font-medium text-foreground">Privacy First</span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
           <Heart class="h-4 w-4 text-primary flex-shrink-0" />
           <span class="text-sm font-medium text-foreground">Open Source</span>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
+        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
           <Sparkles class="h-4 w-4 text-primary flex-shrink-0" />
           <span class="text-sm font-medium text-foreground">Modern UI</span>
         </div>
@@ -87,7 +91,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, type Ref } from "vue";
+import { ref } from "vue";
+import { useLocalStorage } from "@vueuse/core";
 import { 
   Sparkles, 
   ExternalLink, 
@@ -112,11 +117,13 @@ defineProps<Props>();
 
 const emit = defineEmits<Emits>();
 
-const dontShowAgain: Ref<boolean> = ref(false);
+// Use VueUse for better localStorage handling
+const welcomeShown = useLocalStorage("mathlly-welcome-shown", false);
+const dontShowAgain = ref(false);
 
 const handleGetStarted = (): void => {
   if (dontShowAgain.value) {
-    localStorage.setItem("mathlly-welcome-shown", "true");
+    welcomeShown.value = true;
   }
   emit('update:modelValue', false);
 };

@@ -70,8 +70,10 @@ export class ExpressionConverter {
           }
         )
         
-        // Reciprocal and absolute value
+        // Reciprocal function
         .replace(/reciprocal\(([^()]*(?:\([^()]*\))*[^()]*)\)/g, '1/($1)')
+        
+        // Absolute value - convert |x| to abs(x) for mathjs
         .replace(/\|([^|]*(?:\|[^|]*\|)*[^|]*)\|/g, 'abs($1)');
 
       changed = before !== result;
@@ -186,9 +188,8 @@ export class ExpressionConverter {
         return `floor(${value}) + (floor((${value} - floor(${value})) * 100) / 60) + (((${value} - floor(${value})) * 100 - floor((${value} - floor(${value})) * 100)) * 100 / 3600)`;
       });
 
-    // Special operations
+    // Scientific notation
     result = result
-      .replace(/(\d+)!/g, 'factorial($1)')
       .replace(/(\d+(?:\.\d+)?)[eE]([+-]?\d+)/g, '$1 * 10^$2');
 
     // Modulo operation

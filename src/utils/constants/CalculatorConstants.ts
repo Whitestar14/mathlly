@@ -27,7 +27,8 @@ export const BUTTON_TYPES = {
     '10^x', '2^x', 'e^x', 'x^y', 'x²', 'x³',
     '√', '∛', 'y√x', 'nthroot', 'sqrt', 'cbrt', 'cube',
     'abs', 'ceil', 'floor', 'round', 'factorial', '1/x',
-    'rand', 'gcd', 'lcm', 'mod', 'dms', 'deg'
+    'rand', 'gcd', 'lcm', 'mod', 'dms', 'deg',
+    'n!', '|x|'
   ] as const
 } as const
 
@@ -48,7 +49,8 @@ export const REGEX = {
   LOG_FUNCTION: /^(log|ln|log2|log10|exp)\(/,
   POWER_FUNCTION: /\^/,
   FACTORIAL: /\d+!/,
-  CONSTANT: /^[πe]$/
+  CONSTANT: /^[πe]$/,
+  ABSOLUTE_VALUE: /\|.*\|/
 } as const
 
 /**
@@ -98,7 +100,9 @@ export const FUNCTION_MAPPINGS = {
   '⌈x⌉': 'ceil',
   '⌊x⌋': 'floor',
   '→DMS': 'dms',
-  '→DEG': 'deg'
+  '→DEG': 'deg',
+  'n!': 'n!',
+  '|x|': 'abs'
 } as const
 
 /**
@@ -158,5 +162,3 @@ export type MemoryType = typeof BUTTON_TYPES.MEMORY[number]
 export type ProgrammerOperatorType = typeof BUTTON_TYPES.PROGRAMMER_OPERATORS[number]
 export type ScientificFunctionType = typeof BUTTON_TYPES.SCIENTIFIC_FUNCTIONS[number]
 export type ErrorMessageType = keyof typeof ERROR_MESSAGES
-
-

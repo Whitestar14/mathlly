@@ -29,7 +29,10 @@
     </div>
       
     <!-- Main Content - This scrolls -->
-    <div class="flex-1 overflow-y-auto" :class="contentClass">
+    <div
+      class="flex-1 overflow-y-auto"
+      :class="contentClass"
+    >
       <slot />
     </div>
       

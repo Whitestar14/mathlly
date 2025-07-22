@@ -1,6 +1,9 @@
 <template>
   <div class="relative z-20 flex flex-col flex-initial">
-    <div v-if="!isMobile" class="h-full">
+    <div
+      v-if="!isMobile"
+      class="h-full"
+    >
       <!-- Side Panel -->
       <SidePanel
         v-if="type === 'side'"
@@ -18,7 +21,10 @@
         <template #header-actions>
           <slot name="header-actions" />
         </template>
-        <template v-if="$slots.footer" #footer>
+        <template
+          v-if="$slots.footer"
+          #footer
+        >
           <slot name="footer" />
         </template>
       </SidePanel>
@@ -40,7 +46,10 @@
         <template #header-actions>
           <slot name="header-actions" />
         </template>
-        <template v-if="$slots.footer" #footer>
+        <template
+          v-if="$slots.footer"
+          #footer
+        >
           <slot name="footer" />
         </template>
       </DesktopPanel>
@@ -60,7 +69,11 @@
       </Transition>
 
       <!-- Bottom Panel -->
-      <BottomPanel v-bind="mobileProps" @close="close" @toggle="toggle({ expanded: true })">
+      <BottomPanel
+        v-bind="mobileProps"
+        @close="close"
+        @toggle="toggle({ expanded: true })"
+      >
         <template #default>
           <slot />
         </template>
@@ -70,7 +83,10 @@
         <template #header-actions>
           <slot name="header-actions" />
         </template>
-        <template v-if="$slots.footer" #footer>
+        <template
+          v-if="$slots.footer"
+          #footer
+        >
           <slot name="footer" />
         </template>
       </BottomPanel>

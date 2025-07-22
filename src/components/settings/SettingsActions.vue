@@ -19,7 +19,12 @@ defineEmits<Emits>();
   <div
     class="flex justify-end space-x-4 py-4 border-t border-border"
   >
-    <Button variant="ghost" @click="$emit('cancel')"> Cancel </Button>
+    <Button
+      variant="ghost"
+      @click="$emit('cancel')"
+    >
+      Cancel
+    </Button>
     <Button
       variant="primary"
       :disabled="!hasChanges"

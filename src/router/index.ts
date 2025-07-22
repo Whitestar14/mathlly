@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import ErrorFallback from '@/layouts/navigation/ErrorFallback.vue'
 import { setupRouteErrorHandling, routeError, routePath } from './errorHandler'
-import db from '@/data/db.ts'
+import db from '@/data/db'
 
 let isInitialNavigation = true
 
@@ -121,7 +121,8 @@ router.beforeEach(async (to, _, next) => {
             return next(lastVisitedPath)
           }
 
-          if (settings.calculator) {
+          const calculatorToolSettings = await db.toolSettings.where('toolId').equals('calculator').first()
+          if (calculatorToolSettings) {
             return next('/calculator')
           }
         }

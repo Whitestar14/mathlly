@@ -9,22 +9,28 @@
     <!-- Content -->
     <div class="flex-1 overflow-hidden flex flex-col h-full">
       <!-- Show tool options or main menu -->
-      <div v-if="showToolOptions" class="flex-1 overflow-auto">
+      <div
+        v-if="showToolOptions"
+        class="flex-1 overflow-auto"
+      >
         <!-- Options loading state -->
-        <div v-if="isLoadingOptions" class="p-3 space-y-4">
+        <div
+          v-if="isLoadingOptions"
+          class="p-3 space-y-4"
+        >
           <div class="flex items-center gap-3 pb-2 border-b border-border">
-            <div class="w-8 h-8 bg-muted animate-pulse rounded-md"></div>
-            <div class="h-4 w-16 bg-muted animate-pulse rounded"></div>
+            <div class="w-8 h-8 bg-muted animate-pulse rounded-md" />
+            <div class="h-4 w-16 bg-muted animate-pulse rounded" />
           </div>
           <div class="space-y-3">
-            <div class="h-3 w-20 bg-muted animate-pulse rounded"></div>
+            <div class="h-3 w-20 bg-muted animate-pulse rounded" />
             <div class="space-y-2">
-              <div class="h-4 w-32 bg-muted animate-pulse rounded"></div>
-              <div class="h-2 w-full bg-muted animate-pulse rounded"></div>
+              <div class="h-4 w-32 bg-muted animate-pulse rounded" />
+              <div class="h-2 w-full bg-muted animate-pulse rounded" />
             </div>
             <div class="space-y-2">
-              <div class="h-4 w-28 bg-muted animate-pulse rounded"></div>
-              <div class="h-2 w-full bg-muted animate-pulse rounded"></div>
+              <div class="h-4 w-28 bg-muted animate-pulse rounded" />
+              <div class="h-2 w-full bg-muted animate-pulse rounded" />
             </div>
           </div>
         </div>
@@ -42,8 +48,8 @@
                 <BaseButton
                   variant="ghost"
                   size="icon"
-                  @click="showToolOptions = false"
                   class="shrink-0 hover:bg-accent/50 transition-colors duration-200"
+                  @click="showToolOptions = false"
                 >
                   <ArrowLeft class="h-4 w-4" />
                 </BaseButton>
@@ -59,23 +65,35 @@
       </div>
       
       <!-- Main menu -->
-      <div v-else class="flex-1 flex flex-col overflow-hidden">
+      <div
+        v-else
+        class="flex-1 flex flex-col overflow-hidden"
+      >
         <!-- Top section with options button -->
-        <div v-if="hasToolOptions || isCheckingOptions" class="flex-shrink-0 p-3 pb-0">
+        <div
+          v-if="hasToolOptions || isCheckingOptions"
+          class="flex-shrink-0 p-3 pb-0"
+        >
           <BaseButton
             variant="ghost"
             class="w-full justify-start px-3 py-2 h-auto text-muted-foreground rounded-lg border border-border/50 hover:border-border hover:bg-accent/30"
             :disabled="isCheckingOptions"
             @click="handleShowOptions"
           >
-            <div v-if="isCheckingOptions" class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent"></div>
-            <Settings v-else class="h-4 w-4" />
+            <div
+              v-if="isCheckingOptions"
+              class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent"
+            />
+            <Settings
+              v-else
+              class="h-4 w-4"
+            />
             <span class="text-sm font-medium">Tool Options</span>
           </BaseButton>
         </div>
 
         <!-- Spacer that grows to push links to bottom -->
-        <div class="flex-1"></div>
+        <div class="flex-1" />
 
         <!-- External Links at bottom -->
         <div class="flex-shrink-0 p-3">
@@ -84,15 +102,15 @@
               Quick Links
             </h3>
             
-            <!-- Links grid -->
-            <div class="grid grid-cols-1 gap-2">
+            <!-- Links - Side by side on mobile, stacked on desktop -->
+            <div class="flex flex-row md:flex-col gap-2">
               <a
                 v-for="link in externalLinks"
                 :key="link.url"
                 :href="link.url"
                 target="_blank"
                 rel="noopener noreferrer"
-                class="group flex items-center gap-3 p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 hover:shadow-sm"
+                class="group flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-3 p-2.5 md:p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 hover:shadow-sm flex-1 md:flex-none min-w-0"
               >
                 <div class="flex-shrink-0 p-1.5 rounded-md bg-muted/50 group-hover:bg-primary/10 transition-colors duration-200">
                   <component
@@ -100,15 +118,15 @@
                     class="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200"
                   />
                 </div>
-                <div class="flex-1 min-w-0">
-                  <span class="text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200 block truncate">
+                <div class="flex-1 min-w-0 text-center md:text-left">
+                  <span class="text-xs md:text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200 block truncate">
                     {{ link.text }}
                   </span>
-                  <span class="text-xs text-muted-foreground group-hover:text-muted-foreground/80 transition-colors duration-200">
+                  <span class="text-xs text-muted-foreground group-hover:text-muted-foreground/80 transition-colors duration-200 hidden md:block">
                     {{ link.description }}
                   </span>
                 </div>
-                <ExternalLink class="h-3 w-3 text-muted-foreground/50 group-hover:text-primary/70 transition-all duration-200 flex-shrink-0" />
+                <ExternalLink class="h-3 w-3 text-muted-foreground/50 group-hover:text-primary/70 transition-all duration-200 flex-shrink-0 hidden md:block" />
               </a>
             </div>
           </div>

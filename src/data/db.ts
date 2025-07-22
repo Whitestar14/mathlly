@@ -1,7 +1,6 @@
 import Dexie, { type Table } from "dexie"
 import { DEFAULT_SETTINGS } from '@/stores/settings'
 
-// Define interfaces for your database tables
 export interface HistoryEntry {
   id?: number
   timestamp: number
@@ -10,7 +9,15 @@ export interface HistoryEntry {
   mode?: string
 }
 
-// Add new interface for tool-specific settings
+export interface MemoryItem {
+  id?: number;
+  slot: number;
+  value: string;
+  label?: string;
+  mode: string;
+  timestamp: number;
+}
+
 export interface ToolSettings {
   id?: number
   toolId: string
@@ -39,16 +46,18 @@ export interface Settings {
 export class MathllyDatabase extends Dexie {
   history!: Table<HistoryEntry>
   settings!: Table<Settings>
+  memory!: Table<MemoryItem>
   toolSettings!: Table<ToolSettings>
 
   constructor() {
     super('mathlly-db')
-    
-    // Update to version 5 to include tool settings
-    this.version(5).stores({
+
+    // Update to version 6 to include tool settings
+    this.version(6).stores({
       history: '++id,timestamp',
       settings: 'id',
-      toolSettings: '++id,toolId,lastUpdated'
+      toolSettings: '++id,toolId,lastUpdated',
+      memory: '++id,slot,value,label,mode,timestamp'
     }).upgrade(tx => {
       return tx.table('settings').toCollection().modify((settings: any) => {
         if (settings && !settings.appearance?.themePack) {

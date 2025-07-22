@@ -180,7 +180,9 @@ const cancelResetDatabase = (): void => {
             Reset Database
           </span>
         </template>
-        <template v-else> Resetting... </template>
+        <template v-else>
+          Resetting...
+        </template>
       </Button>
     </div>
   </BaseModal>

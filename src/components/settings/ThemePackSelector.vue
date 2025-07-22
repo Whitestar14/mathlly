@@ -50,7 +50,7 @@ const selectedPack = computed({
             :value="packKey"
             name="themePack"
             class="sr-only"
-          />
+          >
 
           <!-- Theme Preview -->
           <div class="flex items-center justify-center mb-3 relative h-12">

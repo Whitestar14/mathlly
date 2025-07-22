@@ -34,9 +34,7 @@
               class="text-5xl md:text-6xl lg:text-7xl font-mono font-bold tracking-tight text-foreground"
             >
               Mathematical precision
-              <span class="block text-primary mt-2"
-                >for modern development</span
-              >
+              <span class="block text-primary mt-2">for modern development</span>
             </h1>
 
             <p
@@ -56,7 +54,10 @@
               class="flex justify-center md:justify-start flex-wrap gap-4 mt-8"
             >
               <RouterLink to="/calculator">
-                <Button variant="primary" class="w-full sm:w-auto">
+                <Button
+                  variant="primary"
+                  class="w-full sm:w-auto"
+                >
                   <Sparkles class="h-4 w-4" />
                   Get Started
                 </Button>
@@ -65,7 +66,10 @@
                 href="https://github.com/Whitestar14/mathlly-app"
                 target="_blank"
               >
-                <Button variant="outline" class="w-full sm:w-auto">
+                <Button
+                  variant="outline"
+                  class="w-full sm:w-auto"
+                >
                   <GithubIcon class="h-4 w-4" />
                   View GitHub
                 </Button>
@@ -129,9 +133,14 @@
     <section class="py-16 bg-muted dark:bg-background">
       <div class="container mx-auto px-4">
         <div class="flex items-center justify-between mb-10">
-          <h2 class="text-2xl md:text-3xl font-medium">Essential Tools</h2>
+          <h2 class="text-2xl md:text-3xl font-medium">
+            Essential Tools
+          </h2>
           <RouterLink to="/calculator">
-            <Button variant="link" class="group">
+            <Button
+              variant="link"
+              class="group"
+            >
               View all tools
               <ArrowRightIcon
                 class="h-4 w-4 ml-2 transition-transform duration-300 group-hover:translate-x-1"
@@ -300,9 +309,7 @@
               >
                 {math<span
                   class="text-primary/80 dark:text-primary font-black inline-block mx-0.5"
-                  >//</span
-                >y} </kbd
-              >?
+                >//</span>y} </kbd>?
             </h2>
 
             <p

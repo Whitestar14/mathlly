@@ -14,9 +14,8 @@ import type {
 } from '@/composables/useCalculatorState'
 // Import memory types to align interfaces
 import type { 
-  UseMemoryReturn,
-  MemoryOperationResult 
-} from '@/composables/useMemory'
+  UseMemoryUIReturn
+} from '@/composables/useMemoryUI'
 
 interface CalculatorResult {
   input: string
@@ -24,15 +23,6 @@ interface CalculatorResult {
   result?: string
   expression?: string
   displayValues?: Record<string, any>
-}
-
-// Use the same interface structure as useMemory
-interface MemoryOperationParams {
-  operation: string
-  mode: CalculatorMode
-  calculator: Calculator
-  currentInput: string
-  activeBase?: string
 }
 
 interface HistoryService {
@@ -47,7 +37,7 @@ interface ControllerOptions {
   updateDisplayValues: (values: Record<string, any>) => void
   setActiveBase: (base: Base) => void
   historyService: HistoryService
-  memoryService: UseMemoryReturn // Use the actual return type from useMemory
+  memoryService: UseMemoryUIReturn // Use the UI return type
   toggleActivity: () => void
 }
 
@@ -370,7 +360,5 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
 export type {
   ControllerOptions,
   ControllerReturn,
-  CalculatorResult,
-  MemoryOperationParams,
-  MemoryOperationResult
+  CalculatorResult
 }

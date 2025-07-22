@@ -269,7 +269,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { ArrowLeft, Settings } from 'lucide-vue-next'
-import type { ToolConfig } from '@/stores/toolSettings'
+import type { ToolConfig, ToolOption } from '@/stores/toolSettings'
 import BaseButton from '@/components/base/BaseButton.vue'
 import Switch from '@/components/ui/ToggleBar.vue'
 import Select from '@/components/ui/SelectBar.vue'

@@ -12,9 +12,9 @@
       <!-- Expand/Minimize Button -->
       <Button
         v-if="!(maxHeightRatio === 1)"
+        v-tippy="{ content: isExpanded ? 'Minimize Panel' : 'Expand Panel' }"
         variant="ghost"
         size="icon"
-        v-tippy="{ content: isExpanded ? 'Minimize Panel' : 'Expand Panel' }"
         class="absolute right-14 top-3.5 p-1.5 rounded-full"
         aria-label="Toggle panel expansion"
         @click="$emit('toggle')"
@@ -52,6 +52,9 @@
         >
           <template #default>
             <slot />
+          </template>
+          <template #sticky>
+            <slot name="sticky" />
           </template>
           <template #header-actions>
             <slot name="header-actions" />
@@ -127,6 +130,7 @@ const updateRefs = (): void => {
 }
 
 const mobilePanelClasses: ComputedRef<string[]> = computed(() => [
+  'overflow-hidden', // Add overflow hidden to prevent layout issues
   props.isExpanded || props.maxHeightRatio === 1 ? 'rounded-none' : 
   props.animationEnabled ? 'transition-[rounded] duration-300 rounded-t-xl' : 'rounded-t-xl'
 ])
