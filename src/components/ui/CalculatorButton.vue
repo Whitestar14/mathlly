@@ -1,8 +1,12 @@
 <template>
   <button
     :class="[
-      'calc-btn calc-btn-grid disabled:calc-btn-disabled',
+      'calc-btn calc-btn-grid',
       `calc-${variant}-btn`,
+      {
+        'disabled:calc-btn-disabled': disabled,
+        'calc-btn-disabled': disabled
+      }
     ]"
     :disabled="disabled"
     @click="$emit('click', value)"
@@ -11,6 +15,7 @@
       :is="icon" 
       v-if="icon" 
       class="w-6 h-6 mx-auto"
+      :class="{ 'opacity-50': disabled }"
     />
     <slot v-else>
       {{ value }}

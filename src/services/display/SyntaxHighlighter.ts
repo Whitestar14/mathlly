@@ -140,112 +140,110 @@ export class SyntaxHighlighter {
     return parts
   }
   
-  /**
-   * Tokenize text content while preserving whitespace structure
-   */
-  private static tokenizeWithSyntax(text: string, options: FormatOptions): Token[] {
-    if (!text) return []
+/**
+ * Tokenize text content while preserving whitespace structure
+ */
+private static tokenizeWithSyntax(text: string, options: FormatOptions): Token[] {
+  if (!text) return []
+  
+  const tokens: Token[] = []
+  const isScientificMode = options.mode === 'Scientific'
+  const isProgrammerMode = options.mode === 'Programmer'
+  
+  let i = 0
+  while (i < text.length) {
+    const char = text[i]
+    const nextChar = text[i + 1]
     
-    const tokens: Token[] = []
-    const isScientificMode = options.mode === 'Scientific'
-    const isProgrammerMode = options.mode === 'Programmer'
-    
-    let i = 0
-    while (i < text.length) {
-      const char = text[i]
-      const nextChar = text[i + 1]
-      
-      // Preserve whitespace
-      if (TokenUtils.isWhitespace(char)) {
-        tokens.push({ type: 'space', content: ' ' })
-        i++
-        continue
-      }
-      
-      // Handle numbers (including decimals in one token)
-      if (TokenUtils.isNumber(char)) {
-        let number = ''
-        while (i < text.length && (TokenUtils.isNumber(text[i]) || TokenUtils.isDecimal(text[i]))) {
-          number += text[i++]
-        }
-        tokens.push({ type: 'number', content: number })
-        continue
-      }
-      
-      // Handle decimal points separately (when not part of a number)
-      if (TokenUtils.isDecimal(char)) {
-        tokens.push({ type: 'decimal', content: '.' })
-        i++
-        continue
-      }
-      
-      // Handle shift operators (programmer mode)
-      if (isProgrammerMode && TokenUtils.isShiftOperator(char, nextChar)) {
-        tokens.push({ type: 'operator', content: char + nextChar })
-        i += 2
-        continue
-      }
-      
-      // Handle standard and programmer operators
-      if (TokenUtils.isStandardOperator(char) || TokenUtils.isProgrammerOperator(char)) {
-        tokens.push({ type: 'operator', content: char })
-        i++
-        continue
-      }
-      
-      // Handle scientific operators
-      if (isScientificMode && TokenUtils.isScientificOperator(char)) {
-        tokens.push({ type: 'operator', content: char })
-        i++
-        continue
-      }
-      
-      // Handle parentheses and absolute value bars
-      if (TokenUtils.isParenthesis(char)) {
-        tokens.push({ type: 'parenthesis', content: char })
-        i++
-        continue
-      }
-      
-      // Handle scientific constants
-      if (isScientificMode && TokenUtils.isScientificConstant(char)) {
-        tokens.push({ type: 'constant', content: char })
-        i++
-        continue
-      }
-      
-      // Handle scientific symbols
-      if (isScientificMode && TokenUtils.isScientificSymbol(char)) {
-        tokens.push({ type: 'function', content: char })
-        i++
-        continue
-      }
-      
-      // Handle scientific functions (sin, cos, tan, log, etc.)
-      if (isScientificMode && FunctionUtils.isScientificFunction(text, i)) {
-        const func = FunctionUtils.extractFunction(text, i)
-        tokens.push({ type: 'function', content: func })
-        i += func.length
-        continue
-      }
-      
-      // Handle modulo operator
-      const modulo = FunctionUtils.extractModulo(text, i)
-      if (modulo) {
-        tokens.push({ type: 'operator', content: modulo })
-        i += modulo.length
-        continue
-      }
-      
-      // Default case - treat as text
-      tokens.push({ type: 'text', content: char })
+    // Preserve whitespace
+    if (TokenUtils.isWhitespace(char)) {
+      tokens.push({ type: 'space', content: ' ' })
       i++
+      continue
     }
     
-    return tokens
+    // Handle scientific functions FIRST (before checking individual characters)
+    if (isScientificMode && FunctionUtils.isScientificFunction(text, i)) {
+      const func = FunctionUtils.extractFunction(text, i)
+      tokens.push({ type: 'function', content: func })
+      i += func.length
+      continue
+    }
+    
+    // Handle modulo operator BEFORE other character checks
+    const modulo = FunctionUtils.extractModulo(text, i)
+    if (modulo) {
+      tokens.push({ type: 'operator', content: modulo })
+      i += modulo.length
+      continue
+    }
+    
+    // Handle numbers (including decimals in one token)
+    if (TokenUtils.isNumber(char)) {
+      let number = ''
+      while (i < text.length && (TokenUtils.isNumber(text[i]) || TokenUtils.isDecimal(text[i]))) {
+        number += text[i++]
+      }
+      tokens.push({ type: 'number', content: number })
+      continue
+    }
+    
+    // Handle decimal points separately (when not part of a number)
+    if (TokenUtils.isDecimal(char)) {
+      tokens.push({ type: 'decimal', content: '.' })
+      i++
+      continue
+    }
+    
+    // Handle shift operators (programmer mode)
+    if (isProgrammerMode && TokenUtils.isShiftOperator(char, nextChar)) {
+      tokens.push({ type: 'operator', content: char + nextChar })
+      i += 2
+      continue
+    }
+    
+    // Handle standard and programmer operators
+    if (TokenUtils.isStandardOperator(char) || TokenUtils.isProgrammerOperator(char)) {
+      tokens.push({ type: 'operator', content: char })
+      i++
+      continue
+    }
+    
+    // Handle scientific operators
+    if (isScientificMode && TokenUtils.isScientificOperator(char)) {
+      tokens.push({ type: 'operator', content: char })
+      i++
+      continue
+    }
+    
+    // Handle parentheses and absolute value bars
+    if (TokenUtils.isParenthesis(char)) {
+      tokens.push({ type: 'parenthesis', content: char })
+      i++
+      continue
+    }
+    
+    // Handle scientific constants (AFTER function check to avoid conflicts)
+    if (isScientificMode && TokenUtils.isScientificConstant(char)) {
+      tokens.push({ type: 'constant', content: char })
+      i++
+      continue
+    }
+    
+    // Handle scientific symbols
+    if (isScientificMode && TokenUtils.isScientificSymbol(char)) {
+      tokens.push({ type: 'function', content: char })
+      i++
+      continue
+    }
+    
+    // Default case - treat as text
+    tokens.push({ type: 'text', content: char })
+    i++
   }
   
-
+  return tokens
+}
   
   /**
    * Clear cache when calculator options change

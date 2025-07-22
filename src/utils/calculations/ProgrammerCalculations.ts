@@ -8,12 +8,12 @@ import { ProgrammerCalculator } from '@/services/logic/ProgrammerCalculator';
  * Adds base conversion and integer-only evaluation
  */
 export class ProgrammerCalculations extends StandardCalculations {
-  private programmerCalculator: ProgrammerCalculator;
+  private programmer: ProgrammerCalculator;
   private currentBase: BaseType;
 
   constructor(calculator: ProgrammerCalculator, initialBase: BaseType = 'DEC') {
     super();
-    this.programmerCalculator = calculator;
+    this.programmer = calculator;
     this.currentBase = initialBase;
   }
 

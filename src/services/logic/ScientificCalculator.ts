@@ -31,7 +31,7 @@ export class ScientificCalculator extends ICalculator {
     
     // Create reactive computed properties that map tool settings to calculator modes
     this.angleMode = computed(() => {
-      const angleUnit = this.getToolSetting('angleUnit', 'degrees') as 'degrees' | 'radians' | 'gradians';
+      const angleUnit = this.options.angleUnit;
       const mapping: Record<'degrees' | 'radians' | 'gradians', 'DEG' | 'RAD' | 'GRAD'> = {
         'degrees': 'DEG',
         'radians': 'RAD',
@@ -42,7 +42,7 @@ export class ScientificCalculator extends ICalculator {
 
     this.notationMode = computed(() => {
       try {
-        const notationMode = this.getToolSetting('notationMode', 'standard') as 'standard' | 'scientific' | 'engineering';
+        const notationMode = this.options.notationMode;
         
         const mapping: Record<'standard' | 'scientific' | 'engineering', 'F-E' | 'SCI'> = {
           'standard': 'F-E',
@@ -58,7 +58,7 @@ export class ScientificCalculator extends ICalculator {
     });
 
     this.hyperbolicMode = computed(() => {
-      return this.getToolSetting('hyperbolicMode', false);
+      return this.options.hyperbolicMode;
     });
     
     // Use composition for calculations and operations - pass this calculator instance
@@ -78,16 +78,12 @@ export class ScientificCalculator extends ICalculator {
 
   /**
    * Evaluate expression with scientific functions
-   * Enhanced to handle factorial and other mathjs native operations
    */
   evaluateExpression(expr: string): any {
     try {
-      console.log('ScientificCalculator evaluating:', expr); // Debug log
       const result = this.calculations.evaluateExpression(expr);
-      console.log('ScientificCalculator result:', result); // Debug log
       return result;
     } catch (err: any) {
-      console.error('ScientificCalculator evaluation error:', err); // Debug log
       throw new Error(CalculatorUtils.formatError(err, CalculatorConstants.ERROR_MESSAGES.INVALID_EXPRESSION));
     }
   }
@@ -98,25 +94,19 @@ export class ScientificCalculator extends ICalculator {
    */
   handleEquals(): Record<string, any> {
     try {
-      console.log('handleEquals input:', this.input); // Debug log
-      
       // Get parentheses count from operations
       const openCount = this.operations.getParenthesesCount();
-      console.log('Open parentheses count:', openCount); // Debug log
       
       // Add missing closing parentheses if needed
       const finalExpr = openCount > 0 ? this.input + ")".repeat(openCount) : this.input;
-      console.log('Final expression:', finalExpr); // Debug log
       
       this.currentExpression = finalExpr;
       
       // Evaluate the expression - this should handle factorial natively
       const result = this.evaluateExpression(finalExpr);
-      console.log('Evaluation result:', result); // Debug log
       
       // Format the result for display
       const formattedResult = this.formatResult(result);
-      console.log('Formatted result:', formattedResult); // Debug log
       
       this.input = formattedResult;
       
@@ -129,7 +119,6 @@ export class ScientificCalculator extends ICalculator {
         input: this.input
       });
     } catch (err: any) {
-      console.error('handleEquals error:', err); // Debug log
       return this.createErrorResponse(err, this.input);
     }
   }
@@ -172,11 +161,8 @@ export class ScientificCalculator extends ICalculator {
         return this.operations.handleBackspace();
       }
 
-      // Handle scientific functions using BUTTON_TYPES and FUNCTION_MAPPINGS
-      // Now includes 'n!' and '|x|' which were added to the constants
       if (CalculatorConstants.BUTTON_TYPES.SCIENTIFIC_FUNCTIONS.includes(btn as any) || 
           Object.keys(CalculatorConstants.FUNCTION_MAPPINGS).includes(btn)) {
-        console.log('Processing scientific function:', btn); // Debug log
         return this.operations.handleScientificFunction(btn);
       }
 
@@ -209,7 +195,6 @@ export class ScientificCalculator extends ICalculator {
       console.warn(`Unexpected button input in ScientificCalculator: "${btn}"`);
       return this.operations.handleNumber(btn);
     } catch (err) {
-      console.error('processButton error:', err); // Debug log
       return this.createErrorResponse(err as Error);
     }
   }
@@ -217,9 +202,7 @@ export class ScientificCalculator extends ICalculator {
   /**
    * Handle button click - main entry point
    */
-  handleButtonClick(btn: string): Record<string, any> {
-    console.log('ScientificCalculator handleButtonClick:', btn); // Debug log
-    
+  handleButtonClick(btn: string): Record<string, any> {    
     // Handle memory operations using BUTTON_TYPES
     if (CalculatorConstants.BUTTON_TYPES.MEMORY.includes(btn as any)) {
       return super.handleButtonClick(btn);
@@ -239,10 +222,8 @@ export class ScientificCalculator extends ICalculator {
     
     try {
       const result = this.normalizeResponse(this.processButton(btn));
-      console.log('ScientificCalculator result:', result); // Debug log
       return result;
     } catch (err: any) {
-      console.error('handleButtonClick error:', err); // Debug log
       return this.createErrorResponse(err, this.input);
     }
   }

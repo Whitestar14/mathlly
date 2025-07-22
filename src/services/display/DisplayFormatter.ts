@@ -1,5 +1,5 @@
-import { useSettingsStore } from "@/stores/settings"
 import { CacheManager } from '@/services/cache/CacheManager'
+import { useCalculatorOptions } from '@/composables/useCalculatorOptions'
 
 // Define interfaces for formatting options
 interface FormattingOptions {
@@ -19,57 +19,56 @@ interface ProgrammerFormattingOptions {
 }
 
 /**
- * Handles formatting of display values for different calculator modes and bases
+ * Composable for formatting display values
  */
-export class DisplayFormatter {
+export function useDisplayFormatter() {
   // Cache names
-  static readonly CACHE_NAMES = {
+  const CACHE_NAMES = {
     FORMAT: 'display-format',
     DISPLAY: 'display-preview',
     CONTENT: 'display-content'
   } as const
 
+  // Get calculator options
+  const calculatorOptions = useCalculatorOptions()
+
   /**
    * Format a value based on calculator mode and options
-   * @param value - The value to format
-   * @param options - Formatting options
-   * @returns Formatted value
    */
-  static format(value: string | number, options: FormattingOptions = {}): string {
+  function format(value: string | number, options: FormattingOptions = {}): string {
     if (!value && value !== 0) return "0"
     if (value === 'Error') return value
 
     // Generate cache key
-    const cacheKey = this.generateCacheKey(value, options)
+    const cacheKey = generateCacheKey(value, options)
     
     // Get the format cache
-    const formatCache = CacheManager.getCache<string>(this.CACHE_NAMES.FORMAT, 100)
+    const formatCache = CacheManager.getCache<string>(CACHE_NAMES.FORMAT, 100)
     
     // Check cache first
     if (formatCache.has(cacheKey)) {
       return formatCache.get(cacheKey)!
     }
 
-    const settings = useSettingsStore()
     const {
       base = "DEC",
       mode = "Standard",
-      useThousandsSeparator = settings.display.formatting.useThousandsSeparator,
-      formatBinary = settings.display.formatting.formatBinary,
-      formatHexadecimal = settings.display.formatting.formatHexadecimal,
-      formatOctal = settings.display.formatting.formatOctal,
+      useThousandsSeparator = calculatorOptions.useThousandsSeparator.value,
+      formatBinary = calculatorOptions.formatBinary.value,
+      formatHexadecimal = calculatorOptions.formatHexadecimal.value,
+      formatOctal = calculatorOptions.formatOctal.value,
     } = options
 
     let result: string
     if (mode === "Programmer") {
-      result = this.formatProgrammer(value, base, {
+      result = formatProgrammer(value, base, {
         useThousandsSeparator,
         formatBinary,
         formatHexadecimal,
         formatOctal,
       })
     } else {
-      result = this.formatStandard(value, useThousandsSeparator)
+      result = formatStandard(value, useThousandsSeparator)
     }
 
     // Cache the result
@@ -80,16 +79,15 @@ export class DisplayFormatter {
 
   /**
    * Generate a cache key for the given value and options
-   * @private
    */
-  private static generateCacheKey(value: string | number, options: FormattingOptions): string {
+  function generateCacheKey(value: string | number, options: FormattingOptions): string {
     const {
       base = "DEC",
       mode = "Standard",
-      useThousandsSeparator = true,
-      formatBinary = true,
-      formatHexadecimal = true,
-      formatOctal = true,
+      useThousandsSeparator = calculatorOptions.useThousandsSeparator.value,
+      formatBinary = calculatorOptions.formatBinary.value,
+      formatHexadecimal = calculatorOptions.formatHexadecimal.value,
+      formatOctal = calculatorOptions.formatOctal.value,
     } = options
 
     return `${value}-${base}-${mode}-${useThousandsSeparator}-${formatBinary}-${formatHexadecimal}-${formatOctal}`
@@ -97,12 +95,8 @@ export class DisplayFormatter {
 
   /**
    * Format a value for Programmer mode
-   * @param value - The value to format
-   * @param base - The number base (BIN, OCT, DEC, HEX)
-   * @param options - Formatting options
-   * @returns Formatted value
    */
-  static formatProgrammer(
+  function formatProgrammer(
     value: string | number, 
     base: string, 
     options: ProgrammerFormattingOptions
@@ -120,13 +114,13 @@ export class DisplayFormatter {
 
         switch (base) {
           case "BIN":
-            return this.formatBinaryNumber(part, options.formatBinary)
+            return formatBinaryNumber(part, options.formatBinary)
           case "HEX":
-            return this.formatHexNumber(part, options.formatHexadecimal)
+            return formatHexNumber(part, options.formatHexadecimal)
           case "OCT":
-            return this.formatOctNumber(part, options.formatOctal)
+            return formatOctNumber(part, options.formatOctal)
           default:
-            return this.formatDecimalNumber(part, options.useThousandsSeparator)
+            return formatDecimalNumber(part, options.useThousandsSeparator)
         }
       })
       .join(" ")
@@ -138,11 +132,8 @@ export class DisplayFormatter {
 
   /**
    * Format a binary number with optional grouping
-   * @param value - Binary number to format
-   * @param useFormatting - Whether to apply formatting
-   * @returns Formatted binary number
    */
-  static formatBinaryNumber(value: string, useFormatting: boolean): string {
+  function formatBinaryNumber(value: string, useFormatting: boolean): string {
     if (!value || value === "NaN") return "0"
 
     let binString = value
@@ -161,11 +152,8 @@ export class DisplayFormatter {
 
   /**
    * Format a hexadecimal number with optional grouping
-   * @param value - Hex number to format
-   * @param useFormatting - Whether to apply formatting
-   * @returns Formatted hex number
    */
-  static formatHexNumber(value: string, useFormatting: boolean): string {
+  function formatHexNumber(value: string, useFormatting: boolean): string {
     const hexValue = String(value).toUpperCase()
     if (!useFormatting) return hexValue
     // Group hex digits in pairs
@@ -174,11 +162,8 @@ export class DisplayFormatter {
 
   /**
    * Format an octal number with optional grouping
-   * @param value - Octal number to format
-   * @param useFormatting - Whether to apply formatting
-   * @returns Formatted octal number
    */
-  static formatOctNumber(value: string, useFormatting: boolean): string {
+  function formatOctNumber(value: string, useFormatting: boolean): string {
     if (!useFormatting) return value
     // Group octal digits in threes
     return value.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
@@ -186,11 +171,8 @@ export class DisplayFormatter {
 
   /**
    * Format a decimal number with optional thousands separator
-   * @param value - Decimal number to format
-   * @param useFormatting - Whether to apply formatting
-   * @returns Formatted decimal number
    */
-  static formatDecimalNumber(value: string | number, useFormatting: boolean): string {
+  function formatDecimalNumber(value: string | number, useFormatting: boolean): string {
     if (!useFormatting) return String(value)
 
     const parts = String(value).split(".")
@@ -200,28 +182,22 @@ export class DisplayFormatter {
 
   /**
    * Format a value for Standard mode
-   * @param value - The value to format
-   * @param useFormatting - Whether to apply formatting
-   * @returns Formatted value
    */
-  static formatStandard(value: string | number, useFormatting: boolean): string {
-    return this.formatDecimalNumber(value, useFormatting)
+  function formatStandard(value: string | number, useFormatting: boolean): string {
+    return formatDecimalNumber(value, useFormatting)
   }
 
   /**
    * Format a display value for preview
-   * @param value - The value to format
-   * @param base - The number base
-   * @returns Formatted preview value
    */
-  static formatDisplayValue(value: string | number, base: string): string {
+  function formatDisplayValue(value: string | number, base: string): string {
     if (!value && value !== 0) return "0"
 
     // Generate cache key
     const cacheKey = `${value}-${base}`
     
     // Get the display cache
-    const displayCache = CacheManager.getCache<string>(this.CACHE_NAMES.DISPLAY, 50)
+    const displayCache = CacheManager.getCache<string>(CACHE_NAMES.DISPLAY, 50)
     
     // Check cache first
     if (displayCache.has(cacheKey)) {
@@ -252,8 +228,20 @@ export class DisplayFormatter {
   /**
    * Clear all formatter caches
    */
-  static clearCache(): void {
+  function clearCache(): void {
     CacheManager?.clearAllCaches?.()
+  }
+
+  return {
+    format,
+    formatProgrammer,
+    formatStandard,
+    formatBinaryNumber,
+    formatHexNumber,
+    formatOctNumber,
+    formatDecimalNumber,
+    formatDisplayValue,
+    clearCache
   }
 }
 

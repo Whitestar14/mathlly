@@ -121,9 +121,17 @@ router.beforeEach(async (to, _, next) => {
             return next(lastVisitedPath)
           }
 
-          const calculatorToolSettings = await db.toolSettings.where('toolId').equals('calculator').first()
-          if (calculatorToolSettings) {
-            return next('/calculator')
+          // Check for calculator settings in localStorage instead of IndexedDB
+          const calculatorOptionsStr = localStorage.getItem('tool-options-calculator')
+          if (calculatorOptionsStr) {
+            try {
+              const calculatorOptions = JSON.parse(calculatorOptionsStr)
+              if (calculatorOptions) {
+                return next('/calculator')
+              }
+            } catch (e) {
+              console.error('Error parsing calculator options:', e)
+            }
           }
         }
 

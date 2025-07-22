@@ -1,6 +1,5 @@
-import { ref, watch, computed, nextTick } from 'vue'
-import { useToolSettingsStore } from '@/stores/toolSettings'
-import type { ToolConfig } from '@/stores/toolSettings'
+import { computed } from 'vue'
+import { createToolOptions } from '@/composables/useToolOptions'
 
 // Base64-specific option types
 export interface Base64Options {
@@ -8,6 +7,10 @@ export interface Base64Options {
   preserveWhitespace: boolean
   outputFormat: 'standard' | 'url-safe' | 'mime'
   lineLength: number
+  handleBinaryFiles: boolean
+  validateInput: boolean
+  showCharacterCount: boolean
+  compressionLevel: 'none' | 'low' | 'medium' | 'high'
 }
 
 // Default Base64 options
@@ -15,62 +18,25 @@ const DEFAULT_BASE64_OPTIONS: Base64Options = {
   autoProcess: true,
   preserveWhitespace: false,
   outputFormat: 'standard',
-  lineLength: 76
+  lineLength: 76,
+  handleBinaryFiles: true,
+  validateInput: true,
+  showCharacterCount: true,
+  compressionLevel: 'none'
 }
 
 export function useBase64Options() {
-  const toolStore = useToolSettingsStore()
-  
-  // Create reactive refs for each option
-  const autoProcess = ref<boolean>(DEFAULT_BASE64_OPTIONS.autoProcess)
-  const preserveWhitespace = ref<boolean>(DEFAULT_BASE64_OPTIONS.preserveWhitespace)
-  const outputFormat = ref<'standard' | 'url-safe' | 'mime'>(DEFAULT_BASE64_OPTIONS.outputFormat)
-  const lineLength = ref<number>(DEFAULT_BASE64_OPTIONS.lineLength)
-
-  const isInitializing = ref(true)
-
-  // Watch for settings changes and update refs
-  watch(() => toolStore.currentToolSettings, (newSettings) => {
-    if (toolStore.currentToolId !== 'base64') return
-    
-    isInitializing.value = true
-    
-    autoProcess.value = newSettings.autoProcess ?? DEFAULT_BASE64_OPTIONS.autoProcess
-    preserveWhitespace.value = newSettings.preserveWhitespace ?? DEFAULT_BASE64_OPTIONS.preserveWhitespace
-    outputFormat.value = newSettings.outputFormat ?? DEFAULT_BASE64_OPTIONS.outputFormat
-    lineLength.value = newSettings.lineLength ?? DEFAULT_BASE64_OPTIONS.lineLength
-    
-    nextTick(() => {
-      isInitializing.value = false
-    })
-  }, { immediate: true, deep: true })
-
-  // Create watchers for all options
-  const createWatcher = (ref: any, key: string) => {
-    watch(ref, async (value) => {
-      if (!isInitializing.value && toolStore.currentToolId === 'base64') {
-        await toolStore.updateCurrentToolSetting(key, value)
-      }
-    })
-  }
-
-  createWatcher(autoProcess, 'autoProcess')
-  createWatcher(preserveWhitespace, 'preserveWhitespace')
-  createWatcher(outputFormat, 'outputFormat')
-  createWatcher(lineLength, 'lineLength')
-
-  // Register base64 configuration
-  const base64Config: ToolConfig = {
-    toolId: 'base64',
-    toolName: 'Base64 Encoder/Decoder',
-    defaultSettings: DEFAULT_BASE64_OPTIONS,
-    options: [
+  const { options, isLoading } = createToolOptions<Base64Options>(
+    'base64',
+    'Base64 Encoder/Decoder',
+    DEFAULT_BASE64_OPTIONS,
+    (options) => [
       {
         id: 'autoProcess',
         label: 'Auto Process',
         description: 'Automatically encode/decode as you type',
         type: 'toggle',
-        value: autoProcess,
+        value: options,
         section: 'Processing'
       },
       {
@@ -78,15 +44,39 @@ export function useBase64Options() {
         label: 'Preserve Whitespace',
         description: 'Keep leading and trailing whitespace in input',
         type: 'toggle',
-        value: preserveWhitespace,
+        value: options,
         section: 'Processing'
+      },
+      {
+        id: 'handleBinaryFiles',
+        label: 'Handle Binary Files',
+        description: 'Enable file upload and binary data processing',
+        type: 'toggle',
+        value: options,
+        section: 'Processing'
+      },
+      {
+        id: 'validateInput',
+        label: 'Validate Input',
+        description: 'Show validation errors for invalid Base64',
+        type: 'toggle',
+        value: options,
+        section: 'Processing'
+      },
+      {
+        id: 'showCharacterCount',
+        label: 'Show Character Count',
+        description: 'Display character and byte counts',
+        type: 'toggle',
+        value: options,
+        section: 'Display'
       },
       {
         id: 'outputFormat',
         label: 'Output Format',
         description: 'Choose the Base64 output format',
         type: 'select',
-        value: outputFormat,
+        value: options,
         options: [
           { value: 'standard', label: 'Standard' },
           { value: 'url-safe', label: 'URL Safe' },
@@ -99,31 +89,44 @@ export function useBase64Options() {
         label: 'Line Length (MIME)',
         description: 'Maximum characters per line for MIME format',
         type: 'range',
-        value: lineLength,
+        value: options,
         min: 40,
         max: 120,
         step: 4,
         section: 'Format'
+      },
+      {
+        id: 'compressionLevel',
+        label: 'Compression Level',
+        description: 'Apply compression before encoding (experimental)',
+        type: 'select',
+        value: options,
+        options: [
+          { value: 'none', label: 'None' },
+          { value: 'low', label: 'Low' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'high', label: 'High' }
+        ],
+        section: 'Advanced'
       }
     ]
-  }
-
-  // Register with the store
-  toolStore.registerTool(base64Config)
+  )
 
   return {
-    autoProcess,
-    preserveWhitespace,
-    outputFormat,
-    lineLength,
-    isLoading: toolStore.isLoading,
+    // The entire options object
+    options,
     
-    // Computed getter for all options
-    options: computed(() => ({
-      autoProcess: autoProcess.value,
-      preserveWhitespace: preserveWhitespace.value,
-      outputFormat: outputFormat.value,
-      lineLength: lineLength.value
-    }))
+    // Individual options (for convenience)
+    autoProcess: computed(() => options.value.autoProcess),
+    preserveWhitespace: computed(() => options.value.preserveWhitespace),
+    outputFormat: computed(() => options.value.outputFormat),
+    lineLength: computed(() => options.value.lineLength),
+    handleBinaryFiles: computed(() => options.value.handleBinaryFiles),
+    validateInput: computed(() => options.value.validateInput),
+    showCharacterCount: computed(() => options.value.showCharacterCount),
+    compressionLevel: computed(() => options.value.compressionLevel),
+    
+    // Store state
+    isLoading
   }
 }

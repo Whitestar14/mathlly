@@ -35,11 +35,10 @@ export interface UseMemoryUIReturn {
     activeBase?: string;
   }) => Promise<void>;
 
-  // Additional UI methods
+  // Unified slot operations
   copySlot: (slot: MemorySlot) => Promise<void>;
   handleEditLabel: (id: number, newLabel: string) => Promise<void>;
-  handleAddToSlot: (slot: MemorySlot, value: number) => Promise<void>;
-  handleSubtractFromSlot: (slot: MemorySlot, value: number) => Promise<void>;
+  handleSlotOperation: (operation: 'add' | 'subtract' | 'save', slot: MemorySlot, value: number) => Promise<void>;
 }
 
 /**
@@ -49,6 +48,68 @@ export function useMemoryUI(): UseMemoryUIReturn {
   const storage = useMemoryStorage();
   const operations = useMemoryOperations();
   const { toast } = useToast();
+
+  // Helper function to get safe label
+  const getSafeLabel = (slot: MemorySlot): string => {
+    return slot.label || `Memory ${slot.slot}` || 'Memory Slot';
+  };
+
+  // Toast messages configuration
+  const toastMessages = {
+    recall: (label: string) => ({
+      title: "Memory recalled",
+      description: `Recalled value from ${label}`,
+    }),
+    recallFailed: {
+      title: "Recall failed",
+      description: "Failed to recall memory value",
+    },
+    store: (label: string) => ({
+      title: "Value stored",
+      description: `Current value stored in ${label}`,
+    }),
+    storeFailed: {
+      title: "Store failed",
+      description: "Failed to store current value in memory",
+    },
+    cannotStore: {
+      title: "Cannot store value",
+      description: "No valid value to store in memory",
+    },
+    copied: (label: string, value: string) => ({
+      title: "Copied to clipboard",
+      description: `${label}: ${value}`,
+    }),
+    copyFailed: {
+      title: "Copy failed",
+      description: "Failed to copy the memory value to clipboard",
+    },
+    labelUpdated: {
+      title: "Label updated",
+      description: "Memory slot label has been updated",
+    },
+    operationSuccess: (operation: string, value: number, label: string) => {
+      const operationMap = {
+        save: { past: 'Saved', preposition: 'to' },
+        add: { past: 'Added', preposition: 'to' },
+        subtract: { past: 'Subtracted', preposition: 'from' }
+      };
+      
+      const { past, preposition } = operationMap[operation as keyof typeof operationMap] || 
+        { past: operation, preposition: 'to' };
+      
+      return {
+        title: `${past} ${preposition} memory`,
+        description: operation === 'save' 
+          ? `Saved current value to ${label}`
+          : `${past} ${value} ${preposition} ${label}`,
+      };
+    },
+    operationFailed: (operation: string) => ({
+      title: "Error",
+      description: `Failed to ${operation} memory slot`,
+    })
+  };
 
   /**
    * Handle memory slot recall with UI feedback
@@ -75,16 +136,10 @@ export function useMemoryUI(): UseMemoryUIReturn {
         updateDisplayValues(result.displayValues);
       }
 
-      toast({
-        title: "Memory recalled",
-        description: `Recalled value from ${slot.label}`,
-      });
+      toast(toastMessages.recall(getSafeLabel(slot)));
     } catch (error) {
       console.error('Error recalling memory slot:', error);
-      toast({
-        title: "Recall failed",
-        description: "Failed to recall memory value",
-      });
+      toast(toastMessages.recallFailed);
     }
   };
 
@@ -103,10 +158,7 @@ export function useMemoryUI(): UseMemoryUIReturn {
     
     try {
       if (!currentInput || currentInput === "Error" || currentInput === "0") {
-        toast({
-          title: "Cannot store value",
-          description: "No valid value to store in memory",
-        });
+        toast(toastMessages.cannotStore);
         return;
       }
 
@@ -138,19 +190,13 @@ export function useMemoryUI(): UseMemoryUIReturn {
       // This creates a NEW slot (different from MS button behavior)
       await storage.addMemorySlot(mode, valueToStore, label);
 
-      toast({
-        title: "Value stored",
-        description: `Current value stored in ${label}`,
-      });
+      toast(toastMessages.store(label));
 
       // Reload memory slots to update the UI
       await storage.loadMemorySlots(mode);
     } catch (error) {
       console.error('Error adding current value to memory:', error);
-      toast({
-        title: "Store failed",
-        description: "Failed to store current value in memory",
-      });
+      toast(toastMessages.storeFailed);
     }
   };
 
@@ -164,16 +210,10 @@ export function useMemoryUI(): UseMemoryUIReturn {
       
       const value = slot.value.toString();
       await copy(value);
-      toast({
-        title: "Copied to clipboard",
-        description: `${slot.label}: ${value}`,
-      });
+      toast(toastMessages.copied(getSafeLabel(slot), value));
     } catch (error) {
       console.error('Failed to copy slot:', error);
-      toast({
-        title: "Copy failed",
-        description: "Failed to copy the memory value to clipboard",
-      });
+      toast(toastMessages.copyFailed);
     }
   };
 
@@ -183,20 +223,29 @@ export function useMemoryUI(): UseMemoryUIReturn {
   const handleEditLabel = async (id: number, newLabel: string): Promise<void> => {
     const success = await storage.updateMemorySlot(id, { label: newLabel });
     if (success) {
-      toast({
-        title: "Label updated",
-        description: "Memory slot label has been updated",
-      });
+      toast(toastMessages.labelUpdated);
     }
   };
 
   /**
-   * Handle adding to slot (M+ equivalent for specific slot)
+   * Unified handler for slot operations (add, subtract, save)
    */
-  const handleAddToSlot = async (slot: MemorySlot, value: number): Promise<void> => {
+  const handleSlotOperation = async (
+    operation: 'add' | 'subtract' | 'save', 
+    slot: MemorySlot, 
+    value: number
+  ): Promise<void> => {
     try {
-      const currentValue = typeof slot.value === 'object' ? parseFloat(slot.value.toString()) : slot.value;
-      const newValue = currentValue + value;
+      let newValue: number;
+      
+      if (operation === 'save') {
+        newValue = value;
+      } else {
+        const currentValue = typeof slot.value === 'object' 
+          ? parseFloat(slot.value.toString()) 
+          : slot.value;
+        newValue = operation === 'add' ? currentValue + value : currentValue - value;
+      }
       
       const success = await storage.updateMemorySlot(slot.id!, { 
         value: newValue,
@@ -204,45 +253,11 @@ export function useMemoryUI(): UseMemoryUIReturn {
       });
       
       if (success) {
-        toast({
-          title: "Added to memory",
-          description: `Added ${value} to ${slot.label}`,
-        });
+        toast(toastMessages.operationSuccess(operation, value, getSafeLabel(slot)));
       }
     } catch (error) {
-      console.error('Error adding to memory slot:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add to memory slot",
-      });
-    }
-  };
-
-  /**
-   * Handle subtracting from slot (M- equivalent for specific slot)
-   */
-  const handleSubtractFromSlot = async (slot: MemorySlot, value: number): Promise<void> => {
-    try {
-      const currentValue = typeof slot.value === 'object' ? parseFloat(slot.value.toString()) : slot.value;
-      const newValue = currentValue - value;
-      
-      const success = await storage.updateMemorySlot(slot.id!, { 
-        value: newValue,
-        timestamp: Date.now()
-      });
-      
-      if (success) {
-        toast({
-          title: "Subtracted from memory",
-          description: `Subtracted ${value} from ${slot.label}`,
-        });
-      }
-    } catch (error) {
-      console.error('Error subtracting from memory slot:', error);
-      toast({
-        title: "Error",
-        description: "Failed to subtract from memory slot",
-      });
+      console.error(`Error ${operation} memory slot:`, error);
+      toast(toastMessages.operationFailed(operation));
     }
   };
 
@@ -258,8 +273,7 @@ export function useMemoryUI(): UseMemoryUIReturn {
     handleAddCurrentToMemory,
     copySlot,
     handleEditLabel,
-    handleAddToSlot,
-    handleSubtractFromSlot,
+    handleSlotOperation,
   };
 }
 

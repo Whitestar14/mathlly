@@ -72,7 +72,7 @@ export class TokenUtils {
    * Check if character is a scientific constant
    */
   static isScientificConstant(char: string): boolean {
-    return this.REGEX.CONSTANT.test(char)
+    return char === 'π' || char === 'e'
   }
 
   /**

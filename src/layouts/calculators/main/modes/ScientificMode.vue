@@ -127,6 +127,7 @@
           v-for="func in scientificFunctions"
           :key="func.primary"
           :value="secondFunctionActive ? func.secondary : func.primary"
+          :disabled="shouldDisableButton(secondFunctionActive ? func.secondary : func.primary, 'function')"
           variant="function"
           @click="handleClick"
         >
@@ -143,6 +144,7 @@
           :key="index"
           :value="btn.value"
           :variant="btn.variant"
+          :disabled="shouldDisableButton(btn.value, btn.variant)"
           @click="handleClick"
         >
           <span>{{ btn.display || btn.value }}</span>
@@ -155,6 +157,7 @@
           :value="btn.value"
           :icon="btn.icon"
           :variant="btn.variant"
+          :disabled="shouldDisableButton(btn.value, btn.variant)"
           @click="handleClick"
         />
 
@@ -164,6 +167,7 @@
           :key="index"
           :value="btn.value"
           :variant="btn.variant"
+          :disabled="shouldDisableButton(btn.value, btn.variant)"
           @click="handleClick"
         />
 
@@ -176,7 +180,7 @@
             v-for="(btn, btnIndex) in row" 
             :key="`row-${rowIndex}-btn-${btnIndex}`"
             :value="btn.value"
-            :disabled="isMaxLengthReached && btn.variant === 'number'"
+            :disabled="shouldDisableButton(btn.value, btn.variant)"
             :variant="btn.variant"
             @click="handleClick"
           />
@@ -236,14 +240,38 @@ const isMaxLengthReached = computed(() =>
   props.inputLength >= props.maxLength
 );
 
+// Define which buttons should never be disabled
+const alwaysEnabledButtons = new Set([
+  'C', 'CE', 'backspace', '=', 
+  'MC', 'MR', 'M+', 'M-', 'MS',
+  '2nd', 'HYP'
+]);
+
+// More efficient disable check
+const shouldDisableButton = (value, variant, checkMaxLength = false) => {
+  // Never disable always-enabled buttons
+  if (alwaysEnabledButtons.has(value)) {
+    return false;
+  }
+  
+  // If max length reached and this button adds to input, disable it
+  return isMaxLengthReached.value && (
+    variant === 'number' || 
+    variant === 'operator' || 
+    variant === 'function' ||
+    checkMaxLength === true
+  );
+};
+
 // Make first row reactive for comma/factorial toggle
 const reactiveButtonRow = computed(() => [
-  { value: '(', variant: 'function' },
-  { value: ')', variant: 'function' },
+  { value: '(', variant: 'function', checkMaxLength: true },
+  { value: ')', variant: 'function', checkMaxLength: true },
   {
     value: secondFunctionActive.value ? ',' : 'n!',
     display: secondFunctionActive.value ? ',' : 'n!',
-    variant: 'function'
+    variant: 'function',
+    checkMaxLength: true
   },
   { value: 'C', variant: 'function' }
 ]);
@@ -283,6 +311,3 @@ const toggleTrigSecondFunction = () => {
   trigSecondFunctionActive.value = !trigSecondFunctionActive.value;
 };
 </script>
-
-<style scoped>
-</style>

@@ -28,7 +28,7 @@ export const BUTTON_TYPES = {
     '√', '∛', 'y√x', 'nthroot', 'sqrt', 'cbrt', 'cube',
     'abs', 'ceil', 'floor', 'round', 'factorial', '1/x',
     'rand', 'gcd', 'lcm', 'mod', 'dms', 'deg',
-    'n!', '|x|'
+    'n!', '|x|', 'exp'
   ] as const
 } as const
 

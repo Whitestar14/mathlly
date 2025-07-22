@@ -13,31 +13,31 @@ export interface ButtonConfig {
 export const numberRows = markRaw<ButtonConfig[][]>([
   // Row 1: 7-8-9-×
   [
-    { value: '7', variant: 'number' },
-    { value: '8', variant: 'number' },
-    { value: '9', variant: 'number' },
-    { value: '×', variant: 'operator' }
+    { value: '7', variant: 'number', checkMaxLength: true },
+    { value: '8', variant: 'number', checkMaxLength: true },
+    { value: '9', variant: 'number', checkMaxLength: true },
+    { value: '×', variant: 'operator', checkMaxLength: true }
   ],
   // Row 2: 4-5-6--
   [
-    { value: '4', variant: 'number' },
-    { value: '5', variant: 'number' },
-    { value: '6', variant: 'number' },
-    { value: '-', variant: 'operator' }
+    { value: '4', variant: 'number', checkMaxLength: true },
+    { value: '5', variant: 'number', checkMaxLength: true },
+    { value: '6', variant: 'number', checkMaxLength: true },
+    { value: '-', variant: 'operator', checkMaxLength: true }
   ],
   // Row 3: 1-2-3-+
   [
-    { value: '1', variant: 'number' },
-    { value: '2', variant: 'number' },
-    { value: '3', variant: 'number' },
-    { value: '+', variant: 'operator' }
+    { value: '1', variant: 'number', checkMaxLength: true },
+    { value: '2', variant: 'number', checkMaxLength: true },
+    { value: '3', variant: 'number', checkMaxLength: true },
+    { value: '+', variant: 'operator', checkMaxLength: true }
   ],
   // Row 4: ±-0-.-=
   [
-    { value: '±', variant: 'function' },
-    { value: '0', variant: 'number' },
-    { value: '.', variant: 'number' },
-    { value: '=', variant: 'operator' }
+    { value: '±', variant: 'function', checkMaxLength: true },
+    { value: '0', variant: 'number', checkMaxLength: true },
+    { value: '.', variant: 'number', checkMaxLength: true },
+    { value: '=', variant: 'operator' } // = should never be disabled
   ]
 ]);
 
@@ -50,24 +50,24 @@ export const standardFirstRow = markRaw<ButtonConfig[]>([
 ]);
 
 export const standardSecondRow = markRaw<ButtonConfig[]>([
-  { value: '1/x', variant: 'function', display: '¹⁄ₓ' },
-  { value: 'x²', variant: 'function', display: 'x²' },
-  { value: '√', variant: 'function', display: '√x' },
-  { value: '÷', variant: 'operator' }
+  { value: '1/x', variant: 'function', display: '¹⁄ₓ', checkMaxLength: true },
+  { value: 'x²', variant: 'function', display: 'x²', checkMaxLength: true },
+  { value: '√', variant: 'function', display: '√x', checkMaxLength: true },
+  { value: '÷', variant: 'operator', checkMaxLength: true }
 ]);
 
 export const scientificSecondRow = markRaw<ButtonConfig[]>([
-  { value: 'π', variant: 'function' },
-  { value: 'e', variant: 'function' },
-  { value: 'exp', variant: 'function' },
+  { value: 'π', variant: 'function', checkMaxLength: true },
+  { value: 'e', variant: 'function', checkMaxLength: true },
+  { value: 'exp', variant: 'function', checkMaxLength: true },
   { value: 'backspace', variant: 'function', icon: Delete }
 ]);
 
 export const scientificThirdRow = markRaw<ButtonConfig[]>([
-  { value: '1/x', variant: 'function' },
-  { value: '|x|', variant: 'function' },
-  { value: 'mod', variant: 'function' },
-  { value: '÷', variant: 'operator' }
+  { value: '1/x', variant: 'function', checkMaxLength: true },
+  { value: '|x|', variant: 'function', checkMaxLength: true },
+  { value: 'mod', variant: 'function', checkMaxLength: true },
+  { value: '÷', variant: 'operator', checkMaxLength: true }
 ]);
 
 // Programmer mode specific rows
@@ -79,10 +79,10 @@ export const programmerFirstRow = markRaw<ButtonConfig[]>([
 ]);
 
 export const programmerSecondRow = markRaw<ButtonConfig[]>([
-  { value: '(', variant: 'function' },
-  { value: ')', variant: 'function' },
-  { value: '%', variant: 'function' },
-  { value: '÷', variant: 'operator' }
+  { value: '(', variant: 'function', checkMaxLength: true },
+  { value: ')', variant: 'function', checkMaxLength: true },
+  { value: '%', variant: 'function', checkMaxLength: true },
+  { value: '÷', variant: 'operator', checkMaxLength: true }
 ]);
 
 // Common memory operations
@@ -97,86 +97,92 @@ export const scientificFunctions = markRaw([
     primary: 'x²', 
     secondary: 'x³', 
     primaryDisplay: 'x²', 
-    secondaryDisplay: 'x³' 
+    secondaryDisplay: 'x³',
+    checkMaxLength: true
   },
   { 
     primary: '√', 
     secondary: '∛', 
     primaryDisplay: '²√x', 
-    secondaryDisplay: '³√x' 
+    secondaryDisplay: '³√x',
+    checkMaxLength: true
   },
   { 
     primary: 'x^y', 
     secondary: 'y√x', 
     primaryDisplay: 'xʸ', 
-    secondaryDisplay: 'ʸ√x' 
+    secondaryDisplay: 'ʸ√x',
+    checkMaxLength: true
   },
   { 
     primary: '10^x', 
     secondary: '2^x', 
     primaryDisplay: '10ˣ', 
-    secondaryDisplay: '2ˣ' 
+    secondaryDisplay: '2ˣ',
+    checkMaxLength: true
   },
   { 
     primary: 'log', 
     secondary: 'log2', 
     primaryDisplay: 'log', 
-    secondaryDisplay: 'log₂' 
+    secondaryDisplay: 'log₂',
+    checkMaxLength: true
   },
   { 
     primary: 'ln', 
     secondary: 'e^x', 
     primaryDisplay: 'ln', 
-    secondaryDisplay: 'eˣ' 
+    secondaryDisplay: 'eˣ',
+    checkMaxLength: true
   }
 ]);
 
 // Trigonometric functions
 export const primaryTrigFunctions = markRaw([
-  { value: 'sin', display: 'sin' },
-  { value: 'cos', display: 'cos' },
-  { value: 'tan', display: 'tan' },
-  { value: 'asin', display: 'sin⁻¹' },
-  { value: 'acos', display: 'cos⁻¹' },
-  { value: 'atan', display: 'tan⁻¹' }
+  { value: 'sin', display: 'sin', checkMaxLength: true },
+  { value: 'cos', display: 'cos', checkMaxLength: true },
+  { value: 'tan', display: 'tan', checkMaxLength: true },
+  { value: 'asin', display: 'sin⁻¹', checkMaxLength: true },
+  { value: 'acos', display: 'cos⁻¹', checkMaxLength: true },
+  { value: 'atan', display: 'tan⁻¹', checkMaxLength: true }
 ]);
 
 export const secondaryTrigFunctions = markRaw([
-  { value: 'csc', display: 'csc' },
-  { value: 'sec', display: 'sec' },
-  { value: 'cot', display: 'cot' },
-  { value: 'acsc', display: 'csc⁻¹' },
-  { value: 'asec', display: 'sec⁻¹' },
-  { value: 'acot', display: 'cot⁻¹' }
+  { value: 'csc', display: 'csc', checkMaxLength: true },
+  { value: 'sec', display: 'sec', checkMaxLength: true },
+  { value: 'cot', display: 'cot', checkMaxLength: true },
+  { value: 'acsc', display: 'csc⁻¹', checkMaxLength: true },
+  { value: 'asec', display: 'sec⁻¹', checkMaxLength: true },
+  { value: 'acot', display: 'cot⁻¹', checkMaxLength: true }
 ]);
 
 export const primaryHyperbolicFunctions = markRaw([
-  { value: 'sinh', display: 'sinh' },
-  { value: 'cosh', display: 'cosh' },
-  { value: 'tanh', display: 'tanh' },
-  { value: 'asinh', display: 'sinh⁻¹' },
-  { value: 'acosh', display: 'cosh⁻¹' },
-  { value: 'atanh', display: 'tanh⁻¹' }
+  { value: 'sinh', display: 'sinh', checkMaxLength: true },
+  { value: 'cosh', display: 'cosh', checkMaxLength: true },
+  { value: 'tanh', display: 'tanh', checkMaxLength: true },
+  { value: 'asinh', display: 'sinh⁻¹', checkMaxLength: true },
+  { value: 'acosh', display: 'cosh⁻¹', checkMaxLength: true },
+  { value: 'atanh', display: 'tanh⁻¹', checkMaxLength: true }
 ]);
 
 export const secondaryHyperbolicFunctions = markRaw([
-  { value: 'csch', display: 'csch' },
-  { value: 'sech', display: 'sech' },
-  { value: 'coth', display: 'coth' },
-  { value: 'acsch', display: 'csch⁻¹' },
-  { value: 'asech', display: 'sech⁻¹' },
-  { value: 'acoth', display: 'coth⁻¹' }
+  { value: 'csch', display: 'csch', checkMaxLength: true },
+  { value: 'sech', display: 'sech', checkMaxLength: true },
+  { value: 'coth', display: 'coth', checkMaxLength: true },
+  { value: 'acsch', display: 'csch⁻¹', checkMaxLength: true },
+  { value: 'asech', display: 'sech⁻¹', checkMaxLength: true },
+  { value: 'acoth', display: 'coth⁻¹', checkMaxLength: true }
 ]);
 
 // Additional functions
 export const functionsList = markRaw([
-  { value: 'abs', display: '|x|' },
-  { value: 'ceil', display: '⌈x⌉' },
-  { value: 'floor', display: '⌊x⌋' },
-  { value: 'round', display: 'round' },
-  { value: 'rand', display: 'rand' },
-  { value: 'dms', display: '→DMS' },
-  { value: 'deg', display: '→DEG' },
-  { value: 'gcd', display: 'gcd' },
-  { value: 'lcm', display: 'lcm' }
+  { value: 'abs', display: '|x|', checkMaxLength: true },
+  { value: 'ceil', display: '⌈x⌉', checkMaxLength: true },
+  { value: 'floor', display: '⌊x⌋', checkMaxLength: true },
+  { value: 'round', display: 'round', checkMaxLength: true },
+  { value: 'rand', display: 'rand', checkMaxLength: true },
+  { value: 'dms', display: '→DMS', checkMaxLength: true },
+  { value: 'deg', display: '→DEG', checkMaxLength: true },
+  { value: 'gcd', display: 'gcd', checkMaxLength: true },
+  { value: 'lcm', display: 'lcm', checkMaxLength: true }
 ]);

@@ -1,7 +1,7 @@
 import { computed, nextTick, watch, shallowRef, type Ref, type ComputedRef } from 'vue'
 import { useKeyboard } from '@/composables/useKeyboard'
 import { useEventListener, useMemoize, useThrottleFn } from '@vueuse/core'
-import { DisplayFormatter } from '@/services/display/DisplayFormatter'
+import { useDisplayFormatter } from '@/services/display/DisplayFormatter'
 import { CalculatorUtils } from '@/utils/constants/CalculatorUtils'
 import { useCalculatorOptions } from '@/composables/useCalculatorOptions'
 import type { Calculator } from '@/services/factory/CalculatorFactory'
@@ -68,6 +68,9 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
 
   // Get reactive calculator options
   const calculatorOptions = useCalculatorOptions()
+  
+  // Get display formatter
+  const displayFormatter = useDisplayFormatter()
 
   const displayRefresh = useThrottleFn(updateDisplayFn, 100)
 
@@ -206,13 +209,13 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     return {
       base: state.activeBase,
       mode: state.mode,
-      precision: calculatorOptions.precision.value,
-      useThousandsSeparator: calculatorOptions.useThousandsSeparator.value,
-      notationMode: calculatorOptions.notationMode.value,
-      useFractions: calculatorOptions.useFractions.value,
-      formatBinary: calculatorOptions.formatBinary.value,
-      formatHexadecimal: calculatorOptions.formatHexadecimal.value,
-      formatOctal: calculatorOptions.formatOctal.value,
+      precision: calculatorOptions.options.value.precision,
+      useThousandsSeparator: calculatorOptions.options.value.useThousandsSeparator,
+      notationMode: calculatorOptions.options.value.notationMode,
+      useFractions: calculatorOptions.options.value.useFractions,
+      formatBinary: calculatorOptions.options.value.formatBinary,
+      formatHexadecimal: calculatorOptions.options.value.formatHexadecimal,
+      formatOctal: calculatorOptions.options.value.formatOctal,
     }
   }
 
@@ -228,7 +231,7 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
       if (value === 'Error') return value
       
       try {
-        return DisplayFormatter.format(value, options)
+        return displayFormatter.format(value, options)
       } catch (err) {
         console.error('Error formatting display text:', err)
         return String(value)

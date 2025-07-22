@@ -18,13 +18,6 @@ export interface MemoryItem {
   timestamp: number;
 }
 
-export interface ToolSettings {
-  id?: number
-  toolId: string
-  settings: Record<string, any>
-  lastUpdated: number
-}
-
 export interface Settings {
   id: number
   display: {
@@ -47,16 +40,13 @@ export class MathllyDatabase extends Dexie {
   history!: Table<HistoryEntry>
   settings!: Table<Settings>
   memory!: Table<MemoryItem>
-  toolSettings!: Table<ToolSettings>
 
   constructor() {
     super('mathlly-db')
 
-    // Update to version 6 to include tool settings
-    this.version(6).stores({
+    this.version(5).stores({
       history: '++id,timestamp',
       settings: 'id',
-      toolSettings: '++id,toolId,lastUpdated',
       memory: '++id,slot,value,label,mode,timestamp'
     }).upgrade(tx => {
       return tx.table('settings').toCollection().modify((settings: any) => {

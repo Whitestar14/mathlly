@@ -7,23 +7,7 @@ export class FunctionUtils {
   /**
    * All scientific function names ordered by length (longest first for proper matching)
    */
-  private static readonly SCIENTIFIC_FUNCTIONS = [
-    // Hyperbolic inverse functions (longest first)
-    'asinh', 'acosh', 'atanh', 'acsch', 'asech', 'acoth',
-    // Regular inverse functions
-    'asin', 'acos', 'atan', 'acsc', 'asec', 'acot',
-    // Hyperbolic functions
-    'sinh', 'cosh', 'tanh', 'csch', 'sech', 'coth',
-    // Root functions (longest first)
-    'nthroot', 'sqrt', 'cbrt', 'cube',
-    // Utility functions
-    'floor', 'ceil', 'round',
-    // Logarithmic functions
-    'log2', 'log10', 'log',
-    // Basic functions
-    'sin', 'cos', 'tan', 'csc', 'sec', 'cot',
-    'exp', 'pow', 'abs', 'gcd', 'lcm', 'mod', 'ln'
-  ] as const
+  private static readonly SCIENTIFIC_FUNCTIONS = CalculatorConstants.BUTTON_TYPES.SCIENTIFIC_FUNCTIONS
 
   /**
    * Extract the modulo operator if present at current position

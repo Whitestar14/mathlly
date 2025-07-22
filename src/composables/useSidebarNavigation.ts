@@ -94,7 +94,7 @@ export function useSidebarNavigation() {
           name: "Base64",
           path: "/tools/base64",
           icon: BinaryIcon,
-          isNew: true,
+          isNew: false,
           comingSoon: false,
           description: "Encode and decode Base64 strings",
         },

@@ -51,8 +51,8 @@ export class StandardCalculations {
    */
   formatResult(result: number, options: Record<string, any> = {}): string {
     const settings = {
-      precision: options.precision || this.calculator?.toolSettings?.precision || 10,
-      useFractions: options.useFractions || this.calculator?.toolSettings?.useFractions || false,
+      precision: options.precision || this.calculator?.options.precision || 10,
+      useFractions: options.useFractions || this.calculator?.options.useFractions || false,
       notationMode: options.notationMode || 'F-E',
       ...options
     };

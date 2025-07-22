@@ -6,7 +6,7 @@
     >
       <template #trigger>
         <div
-          class="rounded-lg hover:bg-secondary/80 bg-secondary p-3 transition-colors cursor-pointer"
+          class="rounded-lg hover:bg-secondary/80 bg-secondary p-3 transition-colors cursor-pointer relative"
           :class="{ 'animate-highlight': selectedId === slot.id }"
           @click="$emit('recall', slot)"
         >
@@ -19,14 +19,15 @@
                 {{ slot.label }}
               </span>
             </div>
+            <!-- Desktop delete button (hover only) -->
             <Button
               v-if="slot.id !== undefined"
               v-tippy="{ content: 'Delete slot' }"
               variant="ghost"
               size="icon"
-              class="w-6 h-6"
-              :class="isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
-              @click.stop="handleDelete"
+              class="w-6 h-6 opacity-100 md:opacity-0 md:group-hover:opacity-100"
+              :class="buttonClasses"
+              @click.stop="actionHandlers.delete"
             >
               <TrashIcon class="h-3 w-3" />
             </Button>
@@ -36,65 +37,51 @@
             {{ formatValue(slot.value) }}
           </div>
           
-          <div class="text-xs text-muted-foreground mt-1">
-            {{ formatTimestamp(slot.timestamp) }}
+          <div class="flex items-end justify-between mt-2">
+            <div class="text-xs text-muted-foreground">
+              {{ timeAgo }}
+            </div>
+            
+            <!-- Action buttons with responsive styling -->
+            <div 
+              class="flex items-center gap-1"
+              :class="isMobile ? '' : 'opacity-0 group-hover:opacity-100 transition-opacity'"
+              @click.stop
+            >
+              <Button
+                v-for="action in availableActions"
+                :key="action.key"
+                v-tippy="{ content: action.tooltip }"
+                variant="ghost"
+                size="icon"
+                :class="buttonClasses"
+                @click="action.handler"
+              >
+                <component :is="action.icon" class="h-3 w-3" />
+              </Button>
+            </div>
           </div>
         </div>
       </template>
 
-      <ContextMenuItem
-        class="context-menu-item"
-        @click="$emit('recall', slot)"
-      >
-        <CheckIcon class="mr-2 h-4 w-4" />
-        <span>Recall Value</span>
-      </ContextMenuItem>
-
-      <ContextMenuItem
-        class="context-menu-item"
-        @click="$emit('copy', slot)"
-      >
-        <CopyIcon class="mr-2 h-4 w-4" />
-        <span>Copy Value</span>
-      </ContextMenuItem>
-
-      <ContextMenuItem
-        v-if="slot.id !== undefined"
-        class="context-menu-item"
-        @click="handleEditLabel"
-      >
-        <EditIcon class="mr-2 h-4 w-4" />
-        <span>Edit Label</span>
-      </ContextMenuItem>
-
-      <ContextMenuSeparator class="h-px bg-muted my-1" />
-
-      <ContextMenuItem
-        class="context-menu-item"
-        @click="handleAddToSlot"
-      >
-        <PlusIcon class="mr-2 h-4 w-4" />
-        <span>Add Current Value</span>
-      </ContextMenuItem>
-
-      <ContextMenuItem
-        class="context-menu-item"
-        @click="handleSubtractFromSlot"
-      >
-        <MinusIcon class="mr-2 h-4 w-4" />
-        <span>Subtract Current Value</span>
-      </ContextMenuItem>
-
-      <ContextMenuSeparator class="h-px bg-muted my-1" />
-
-      <ContextMenuItem
-        v-if="slot.id !== undefined"
-        class="context-menu-item-danger"
-        @click="handleDelete"
-      >
-        <TrashIcon class="mr-2 h-4 w-4" />
-        <span>Delete Slot</span>
-      </ContextMenuItem>
+      <!-- Context Menu Items with proper separators -->
+      <template v-for="item in contextMenuItems" :key="item.key">
+        <!-- Render separator -->
+        <ContextMenuSeparator 
+          v-if="item.type === 'separator'" 
+          class="h-px bg-muted my-1" 
+        />
+        
+        <!-- Render menu item -->
+        <ContextMenuItem
+          v-else
+          :class="item.class"
+          @click="item.handler"
+        >
+          <component :is="item.icon" class="mr-2 h-4 w-4" />
+          <span>{{ item.label }}</span>
+        </ContextMenuItem>
+      </template>
     </ContextMenu>
 
     <!-- Edit Label Modal -->
@@ -140,7 +127,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, inject, type Ref, type ComputedRef } from "vue";
+import { ref, computed, inject, type Ref, type ComputedRef } from "vue";
 import { 
   TrashIcon, 
   CheckIcon, 
@@ -158,6 +145,7 @@ import BaseModal from "@/components/base/BaseModal.vue";
 import ContextMenu from "@/components/base/ContextMenu.vue";
 import type { MemorySlot } from "@/composables/useMemory";
 import type { Calculator } from "@/services/factory/CalculatorFactory";
+import { useTimeAgo } from '@vueuse/core';
 
 interface Props {
   slot: MemorySlot;
@@ -171,6 +159,7 @@ interface Emits {
   (e: 'edit-label', id: number, label: string): void;
   (e: 'add-to-slot', slot: MemorySlot, value: number): void;
   (e: 'subtract-from-slot', slot: MemorySlot, value: number): void;
+  (e: 'save-to-slot', slot: MemorySlot, value: number): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -197,34 +186,150 @@ const formatValue = (value: any): string => {
 };
 
 // Format timestamp for display
-const formatTimestamp = (timestamp: number): string => {
-  const date = new Date(timestamp);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+const timeAgo = useTimeAgo(props.slot.timestamp);
 
-  if (diffMins < 1) return 'Just now';
-  if (diffMins < 60) return `${diffMins}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  
-  return date.toLocaleDateString();
-};
+// Responsive button classes
+const buttonClasses = computed(() => 
+  isMobile.value 
+    ? 'w-7 h-7 bg-background/80 hover:bg-background border border-border/50'
+    : 'w-6 h-6'
+);
 
-// Handle delete with proper type checking
-const handleDelete = (): void => {
-  if (props.slot.id !== undefined) {
-    emit('delete', props.slot.id);
+// Get current calculator value
+const getCurrentValue = (): number => {
+  if (!calculator.value || !currentInput.value) {
+    console.warn('Calculator or current input not available');
+    return 0;
+  }
+
+  try {
+    const value = calculator.value.evaluateExpression(currentInput.value);
+    return typeof value === 'number' ? value : parseFloat(String(value));
+  } catch (error) {
+    console.error('Error evaluating current input:', error);
+    return 0;
   }
 };
 
-// Handle edit label
-const handleEditLabel = (): void => {
-  editLabelValue.value = props.slot.label || '';
-  showEditLabel.value = true;
+// Action handlers
+const actionHandlers = {
+  save: () => emit('save-to-slot', props.slot, getCurrentValue()),
+  edit: () => {
+    editLabelValue.value = props.slot.label || '';
+    showEditLabel.value = true;
+  },
+  add: () => emit('add-to-slot', props.slot, getCurrentValue()),
+  subtract: () => emit('subtract-from-slot', props.slot, getCurrentValue()),
+  delete: () => {
+    if (props.slot.id !== undefined) {
+      emit('delete', props.slot.id);
+    }
+  },
+  recall: () => emit('recall', props.slot),
+  copy: () => emit('copy', props.slot)
 };
+
+// Available actions for buttons
+const availableActions = computed(() => [
+  {
+    key: 'save',
+    icon: CheckIcon,
+    tooltip: 'Save current value',
+    handler: actionHandlers.save
+  },
+  ...(props.slot.id !== undefined ? [{
+    key: 'edit',
+    icon: EditIcon,
+    tooltip: 'Edit label',
+    handler: actionHandlers.edit
+  }] : []),
+  {
+    key: 'add',
+    icon: PlusIcon,
+    tooltip: 'Add current value',
+    handler: actionHandlers.add
+  },
+  {
+    key: 'subtract',
+    icon: MinusIcon,
+    tooltip: 'Subtract current value',
+    handler: actionHandlers.subtract
+  }
+]);
+
+// Context menu items with separators in the right places
+const contextMenuItems = computed(() => {
+  const items = [
+    // Basic actions
+    {
+      key: 'recall',
+      type: 'item',
+      icon: CheckIcon,
+      label: 'Recall Value',
+      class: 'context-menu-item',
+      handler: actionHandlers.recall
+    },
+    {
+      key: 'copy',
+      type: 'item',
+      icon: CopyIcon,
+      label: 'Copy Value',
+      class: 'context-menu-item',
+      handler: actionHandlers.copy
+    },
+    // Edit label (only if slot has ID)
+    ...(props.slot.id !== undefined ? [{
+      key: 'edit-context',
+      type: 'item' as const,
+      icon: EditIcon,
+      label: 'Edit Label',
+      class: 'context-menu-item',
+      handler: actionHandlers.edit
+    }] : []),
+    
+    // First separator
+    {
+      key: 'separator1',
+      type: 'separator' as const,
+    },
+    
+    // Math operations
+    {
+      key: 'add-context',
+      type: 'item' as const,
+      icon: PlusIcon,
+      label: 'Add Value',
+      class: 'context-menu-item',
+      handler: actionHandlers.add
+    },
+    {
+      key: 'subtract-context',
+      type: 'item' as const,
+      icon: MinusIcon,
+      label: 'Subtract Value',
+      class: 'context-menu-item',
+      handler: actionHandlers.subtract
+    },
+    
+    // Second separator (only if delete option exists)
+    ...(props.slot.id !== undefined ? [{
+      key: 'separator2',
+      type: 'separator' as const,
+    }] : []),
+    
+    // Delete option (only if slot has ID)
+    ...(props.slot.id !== undefined ? [{
+      key: 'delete-context',
+      type: 'item' as const,
+      icon: TrashIcon,
+      label: 'Delete Slot',
+      class: 'context-menu-item-danger',
+      handler: actionHandlers.delete
+    }] : [])
+  ];
+
+  return items;
+});
 
 // Handle save label with proper type checking
 const handleSaveLabel = (): void => {
@@ -232,40 +337,6 @@ const handleSaveLabel = (): void => {
     emit('edit-label', props.slot.id, editLabelValue.value.trim());
   }
   showEditLabel.value = false;
-};
-
-// Handle add to slot - now gets current value from injected calculator
-const handleAddToSlot = (): void => {
-  if (!calculator.value || !currentInput.value) {
-    console.warn('Calculator or current input not available');
-    return;
-  }
-
-  try {
-    const value = calculator.value.evaluateExpression(currentInput.value);
-    const numericValue = typeof value === 'number' ? value : parseFloat(String(value));
-    emit('add-to-slot', props.slot, numericValue);
-  } catch (error) {
-    console.error('Error evaluating current input for add operation:', error);
-    emit('add-to-slot', props.slot, 0);
-  }
-};
-
-// Handle subtract from slot - now gets current value from injected calculator
-const handleSubtractFromSlot = (): void => {
-  if (!calculator.value || !currentInput.value) {
-    console.warn('Calculator or current input not available');
-    return;
-  }
-
-  try {
-    const value = calculator.value.evaluateExpression(currentInput.value);
-    const numericValue = typeof value === 'number' ? value : parseFloat(String(value));
-    emit('subtract-from-slot', props.slot, numericValue);
-  } catch (error) {
-    console.error('Error evaluating current input for subtract operation:', error);
-    emit('subtract-from-slot', props.slot, 0);
-  }
 };
 </script>
 

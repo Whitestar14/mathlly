@@ -22,7 +22,7 @@
           :key="letter"
           :value="letter"
           variant="function"
-          :disabled="!isButtonEnabled(letter) || isMaxLengthReached"
+          :disabled="!isButtonEnabled(letter) || shouldDisableButton(letter, 'function', true)"
           @click="handleClick"
         >
           {{ letter }}
@@ -37,7 +37,7 @@
           :key="index"
           :value="btn.value"
           :icon="btn.icon"
-          :disabled="btn.checkMaxLength ? isMaxLengthReached : false"
+          :disabled="shouldDisableButton(btn.value, btn.variant, btn.checkMaxLength)"
           :variant="btn.variant"
           @click="handleClick"
         />
@@ -47,7 +47,7 @@
           v-for="(btn, index) in programmerSecondRow" 
           :key="index"
           :value="btn.value"
-          :disabled="isMaxLengthReached"
+          :disabled="shouldDisableButton(btn.value, btn.variant, btn.checkMaxLength)"
           :variant="btn.variant"
           @click="handleClick"
         />
@@ -58,7 +58,7 @@
             v-for="(btn, btnIndex) in row" 
             :key="`row-${rowIndex}-btn-${btnIndex}`"
             :value="btn.value"
-            :disabled="!isButtonEnabled(btn.value) || (isMaxLengthReached && btn.variant === 'number')"
+            :disabled="!isButtonEnabled(btn.value) || shouldDisableButton(btn.value, btn.variant, btn.checkMaxLength)"
             :variant="btn.variant"
             @click="handleClick"
           />
@@ -102,6 +102,27 @@ const emit = defineEmits(["button-click", "clear"]);
 
 const isMaxLengthReached = computed(() => props.inputLength >= props.maxLength);
 
+// Define which buttons should never be disabled
+const alwaysEnabledButtons = new Set([
+  'C', 'CE', 'backspace', '=', 
+  'MC', 'MR', 'M+', 'M-', 'MS'
+]);
+
+// Check if button should be disabled due to max length
+const shouldDisableButton = (value, variant, checkMaxLength = false) => {
+  // Never disable always-enabled buttons
+  if (alwaysEnabledButtons.has(value)) {
+    return false;
+  }
+  
+  // If max length reached and this button adds to input, disable it
+  return isMaxLengthReached.value && (
+    variant === 'number' || 
+    variant === 'operator' || 
+    checkMaxLength === true
+  );
+};
+
 const handleClick = (value) => {
   emit("button-click", value);
 };
@@ -109,10 +130,6 @@ const handleClick = (value) => {
 const isButtonEnabled = computed(() => (button) => {
   if (['×', '-', '+', '=', '±'].includes(button)) {
     return true;
-  }
-  
-  if (isMaxLengthReached.value && /^[0-9A-F.]$/.test(button.toUpperCase())) {
-    return false;
   }
 
   switch (props.activeBase) {

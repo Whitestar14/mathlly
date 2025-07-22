@@ -10,13 +10,13 @@ import type { ScientificCalculator } from '@/services/logic/ScientificCalculator
  * Adds expression conversion and domain validation
  */
 export class ScientificCalculations extends StandardCalculations {
-  private scientificCalculator: ScientificCalculator;
+  private scientific: ScientificCalculator;
   private converter: ExpressionConverter;
   private validator: DomainValidator;
 
   constructor(calculator: ScientificCalculator) {
     super();
-    this.scientificCalculator = calculator;
+    this.scientific = calculator;
     this.converter = new ExpressionConverter();
     this.validator = new DomainValidator();
   }
@@ -27,7 +27,7 @@ export class ScientificCalculations extends StandardCalculations {
   evaluateExpression(expr: string, options: Record<string, any> = {}): number {
     try {
       // Scientific-specific preprocessing
-      this.converter.setAngleMode(this.scientificCalculator.angleMode.value);
+      this.converter.setAngleMode(this.scientific.options.angleUnit as 'DEG' | 'RAD' | 'GRAD');
       this.validator.validate(expr);
       const convertedExpr = this.converter.convert(expr);
 
@@ -49,9 +49,9 @@ export class ScientificCalculations extends StandardCalculations {
    */
   formatResult(result: number, options: Record<string, any> = {}): string {
     return super.formatResult(result, {
-      precision: this.scientificCalculator.toolSettings?.precision,
-      useFractions: this.scientificCalculator.toolSettings?.useFractions,
-      notationMode: this.scientificCalculator.notationMode.value,
+      precision: this.scientific.options.precision,
+      useFractions: this.scientific.options.useFractions,
+      notationMode: this.scientific.options.notationMode,
       ...options
     });
   }

@@ -11,9 +11,7 @@
           <ArrowLeft class="h-4 w-4" />
         </BaseButton>
         <div class="flex-1 min-w-0">
-          <h3 class="text-base font-semibold text-foreground">
-            Tool Options
-          </h3>
+          <h3 class="text-base font-semibold text-foreground">Tool Options</h3>
         </div>
       </div>
     </slot>
@@ -25,12 +23,14 @@
           <!-- Section Header -->
           <div class="flex items-center gap-2">
             <div class="h-px flex-1 bg-border"></div>
-            <h4 class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
+            <h4
+              class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2"
+            >
               {{ section.name }}
             </h4>
             <div class="h-px flex-1 bg-border"></div>
           </div>
-          
+
           <div class="space-y-4">
             <div
               v-for="option in section.options"
@@ -59,7 +59,7 @@
                 <div class="flex-shrink-0">
                   <Switch
                     :id="option.id"
-                    :model-value="option.value.value"
+                    :model-value="option.value.value[option.id]"
                     @update:model-value="updateOptionValue(option, $event)"
                     class="data-[state=checked]:bg-primary"
                   />
@@ -87,7 +87,7 @@
                 </div>
                 <Select
                   :id="option.id"
-                  :model-value="option.value.value"
+                  :model-value="option.value.value[option.id]"
                   :options="option.options || []"
                   @update:model-value="updateOptionValue(option, $event)"
                   class="w-full"
@@ -111,7 +111,7 @@
                   </p>
                 </div>
                 <RadioGroupRoot
-                  :model-value="option.value.value"
+                  :model-value="option.value.value[option.id]"
                   @update:model-value="updateOptionValue(option, $event)"
                   class="space-y-2"
                 >
@@ -159,20 +159,27 @@
                     <span class="text-xs text-muted-foreground">
                       {{ option.min }}
                     </span>
-                    <span class="text-sm font-medium text-foreground bg-muted px-2 py-1 rounded-md min-w-[3rem] text-center">
-                      {{ option.value.value }}
+                    <span
+                      class="text-sm font-medium text-foreground bg-muted px-2 py-1 rounded-md min-w-[3rem] text-center"
+                    >
+                      {{ option.value.value[option.id] }}
                     </span>
                     <span class="text-xs text-muted-foreground">
                       {{ option.max }}
                     </span>
                   </div>
                 </div>
-                
+
                 <div class="relative">
                   <input
                     :id="option.id"
-                    :value="option.value.value"
-                    @input="updateOptionValue(option, Number(($event.target as HTMLInputElement).value))"
+                    :value="option.value.value[option.id]"
+                    @input="
+                      updateOptionValue(
+                        option,
+                        Number(($event.target as HTMLInputElement).value)
+                      )
+                    "
                     type="range"
                     :min="option.min"
                     :max="option.max"
@@ -180,7 +187,9 @@
                     class="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all duration-200"
                   />
                   <!-- Range track indicators -->
-                  <div class="flex justify-between text-xs text-muted-foreground/60 mt-1 px-1">
+                  <div
+                    class="flex justify-between text-xs text-muted-foreground/60 mt-1 px-1"
+                  >
                     <span>{{ option.min }}</span>
                     <span>{{ option.max }}</span>
                   </div>
@@ -209,13 +218,18 @@
                 <div class="flex items-center gap-3">
                   <input
                     :id="option.id"
-                    :value="option.value.value"
-                    @input="updateOptionValue(option, ($event.target as HTMLInputElement).value)"
+                    :value="option.value.value[option.id]"
+                    @input="
+                      updateOptionValue(
+                        option,
+                        ($event.target as HTMLInputElement).value
+                      )
+                    "
                     type="color"
                     class="w-12 h-8 rounded-md border border-border cursor-pointer"
                   />
                   <span class="text-sm font-mono text-muted-foreground">
-                    {{ option.value.value }}
+                    {{ option.value.value[option.id] }}
                   </span>
                 </div>
               </div>
@@ -241,8 +255,13 @@
                 </div>
                 <input
                   :id="option.id"
-                  :value="option.value.value"
-                  @input="updateOptionValue(option, Number(($event.target as HTMLInputElement).value))"
+                  :value="option.value.value[option.id]"
+                  @input="
+                    updateOptionValue(
+                      option,
+                      Number(($event.target as HTMLInputElement).value)
+                    )
+                  "
                   type="number"
                   :min="option.min"
                   :max="option.max"
@@ -267,46 +286,46 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { ArrowLeft, Settings } from 'lucide-vue-next'
-import type { ToolConfig, ToolOption } from '@/stores/toolSettings'
-import BaseButton from '@/components/base/BaseButton.vue'
-import Switch from '@/components/ui/ToggleBar.vue'
-import Select from '@/components/ui/SelectBar.vue'
-import { RadioGroupRoot, RadioGroupItem } from 'radix-vue'
+import { computed } from 'vue';
+import { ArrowLeft, Settings } from 'lucide-vue-next';
+import type { ToolConfig, ToolOption } from '@/stores/toolSettings';
+import BaseButton from '@/components/base/BaseButton.vue';
+import Switch from '@/components/ui/ToggleBar.vue';
+import Select from '@/components/ui/SelectBar.vue';
+import { RadioGroupRoot, RadioGroupItem } from 'radix-vue';
 
 interface Props {
-  toolOptions: ToolConfig
+  toolOptions: ToolConfig;
 }
 
 defineEmits<{
-  close: []
-}>()
+  close: [];
+}>();
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 
 // Update option value with proper reactivity
 const updateOptionValue = (option: ToolOption, newValue: any) => {
-  option.value.value = newValue
-}
+  option.value.value[option.id] = newValue;
+};
 
 // Group options by section
 const groupedOptions = computed(() => {
-  const sections = new Map<string, typeof props.toolOptions.options>()
-  
-  props.toolOptions.options.forEach(option => {
-    const sectionName = option.section || 'General'
+  const sections = new Map<string, typeof props.toolOptions.options>();
+
+  props.toolOptions.options.forEach((option) => {
+    const sectionName = option.section || 'General';
     if (!sections.has(sectionName)) {
-      sections.set(sectionName, [])
+      sections.set(sectionName, []);
     }
-    sections.get(sectionName)!.push(option)
-  })
-  
+    sections.get(sectionName)!.push(option);
+  });
+
   return Array.from(sections.entries()).map(([name, options]) => ({
     name,
-    options
-  }))
-})
+    options,
+  }));
+});
 </script>
 
 <style scoped>
@@ -391,7 +410,7 @@ const groupedOptions = computed(() => {
   transition: all 0.2s ease;
 }
 
-.radio-item[data-state="checked"]::before {
+.radio-item[data-state='checked']::before {
   opacity: 1;
   transform: scale(0.5);
 }
@@ -413,7 +432,7 @@ const groupedOptions = computed(() => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-input[type="color"] {
+input[type='color'] {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
@@ -422,23 +441,23 @@ input[type="color"] {
   cursor: pointer;
 }
 
-input[type="color"]::-webkit-color-swatch {
+input[type='color']::-webkit-color-swatch {
   border-radius: 6px;
   border: 1px solid hsl(var(--border));
 }
 
-input[type="color"]::-moz-color-swatch {
+input[type='color']::-moz-color-swatch {
   border-radius: 6px;
   border: 1px solid hsl(var(--border));
 }
 
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
 
-input[type="number"] {
+input[type='number'] {
   -moz-appearance: textfield;
 }
 

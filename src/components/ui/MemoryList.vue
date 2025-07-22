@@ -20,8 +20,9 @@
         @delete="handleDeleteSlot"
         @copy="handleCopySlot"
         @edit-label="handleEditLabel"
-        @add-to-slot="handleAddToSlot"
-        @subtract-from-slot="handleSubtractFromSlot"
+        @add-to-slot="(slot, value) => handleSlotOperation('add', slot, value)"
+        @subtract-from-slot="(slot, value) => handleSlotOperation('subtract', slot, value)"
+        @save-to-slot="(slot, value) => handleSlotOperation('save', slot, value)"
       />
     </TransitionGroup>
 
@@ -164,8 +165,7 @@ const {
   selectMemorySlot,
   copySlot,
   handleEditLabel,
-  handleAddToSlot,
-  handleSubtractFromSlot,
+  handleSlotOperation,
   addMemorySlot,
   loadMemorySlots
 } = useMemoryUI()

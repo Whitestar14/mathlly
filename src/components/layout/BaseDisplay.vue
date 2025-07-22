@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
 import { computed, markRaw, type ComputedRef } from 'vue'
-import { DisplayFormatter } from "@/services/display/DisplayFormatter"
+import { useDisplayFormatter } from "@/services/display/DisplayFormatter"
 import type { Base } from '@/composables/useCalculatorState'
 import BaseButton from '@/components/base/BaseButton.vue'
 
@@ -61,16 +61,19 @@ defineEmits<Emits>()
 // Define available bases as a readonly array with proper typing
 const bases = markRaw(['HEX', 'DEC', 'OCT', 'BIN'] as const)
 
+// Get the display formatter
+const displayFormatter = useDisplayFormatter()
+
 /**
  * Computed property for formatted display values
- * Uses DisplayFormatter to format values for each base
+ * Uses displayFormatter to format values for each base
  */
 const formattedValues: ComputedRef<FormattedValues> = computed(() => {
   const result: FormattedValues = {}
   
   for (const base of bases) {
     const value = props.displayValues[base as Base]?.display
-    result[base] = value ? DisplayFormatter.formatDisplayValue(value, base) : ''
+    result[base] = value ? displayFormatter.formatDisplayValue(value, base) : ''
   }
   
   return result
