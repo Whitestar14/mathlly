@@ -13,7 +13,7 @@
       </template>
       <template #fallback>
         <div class="min-h-screen flex items-center justify-center">
-          <Loader variant="regular" />
+          <BaseLoader variant="regular" />
         </div>
       </template>
     </Suspense>
@@ -28,13 +28,12 @@
 
 <script setup lang="ts">
 import { shallowRef, onErrorCaptured, type ComponentPublicInstance } from 'vue';
-import { hasError } from "@/router/errorHandler";
-import ErrorFallback from '@/layouts/navigation/ErrorFallback.vue';
-import AppProvider from '@/components/panel/AppProvider.vue';
-import AppSetup from '@/components/layout/AppSetup.vue';
-import Loader from '@/components/base/BaseLoader.vue';
-import UpdateNotification from '@/components/ui/UpdateNotification.vue';
-import DevDock from '@/components/dev/DevDock.vue';
+import { hasError } from "@router/errorHandler";
+import ErrorFallback from '@pages/ErrorFallback.vue';
+import AppProvider from '@app/providers/AppProvider.vue';
+import { BaseLoader } from '@components/ui';
+import { AppSetup, UpdateNotification } from '@components/layout';
+import { DevDock } from '@components/ui/dev';
 
 const error = shallowRef<Error | null>(null);
 

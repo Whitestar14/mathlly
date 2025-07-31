@@ -79,7 +79,22 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': resolve(__dirname, 'src'),
+      '@components': resolve(__dirname, './src/shared/components'),
+      '@composables': resolve(__dirname, './src/shared/composables'),
+      '@stores': resolve(__dirname, './src/shared/stores'),
+      '@services': resolve(__dirname, './src/shared/services'),
+      '@utils': resolve(__dirname, './src/shared/utils'),
+      '@types': resolve(__dirname, './src/shared/types'),
+      '@features': resolve(__dirname, './src/features'),
+      '@pages': resolve(__dirname, './src/pages'),
+      '@router': resolve(__dirname, './src/router'),
+      '@assets': resolve(__dirname, './src/assets'),
+      '@app': resolve(__dirname, './src/app'),
+      '@shared': resolve(__dirname, './src/shared'),
+
+      '@calculator': resolve(__dirname, './src/features/calculator'),
+      '@base64': resolve(__dirname, './src/features/tools/base64'),
+      '@settings': resolve(__dirname, './src/features/settings'),
     },
   },
   build: {

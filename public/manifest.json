@@ -68,46 +68,6 @@
         "purpose": "maskable"
       }
     ],
-    "screenshots": [
-      {
-        "src": "img/screenshots/calculator-screen.png",
-        "sizes": "1280x720",
-        "type": "image/png",
-        "platform": "wide",
-        "form_factor": "wide",
-        "label": "Calculator Screen"
-      },
-      {
-        "src": "img/screenshots/programmer-mode.png",
-        "sizes": "1280x720",
-        "type": "image/png",
-        "platform": "wide",
-        "label": "Programmer Mode"
-      },
-      {
-        "src": "img/screenshots/base64-tool.png",
-        "sizes": "1280x720",
-        "type": "image/png",
-        "platform": "wide",
-        "label": "Base64 Encoding/Decoding Tool"
-      }
-    ],
-    "shortcuts": [
-      {
-        "name": "Calculator",
-        "short_name": "Calculator",
-        "description": "Open the calculator",
-        "url": "/calculator",
-        "icons": [{ "src": "icons/calc-icon-96x96.png", "sizes": "96x96" }]
-      },
-      {
-        "name": "Base64 Tool",
-        "short_name": "Base64",
-        "description": "Encode and decode Base64 strings",
-        "url": "/tools/base64",
-        "icons": [{ "src": "icons/base64-icon-96x96.png", "sizes": "96x96" }]
-      }
-    ],
     "related_applications": [],
     "iarc_rating_id": "",
     "share_target": {
