@@ -1,0 +1,126 @@
+
+@tailwind base;
+/* ==========================================================================
+   Theme Pack Specific Styles
+   ========================================================================== */
+@layer base {
+      :root {
+    @apply font-sans font-normal;
+    /* Border radius variable - default to rounded */
+    --radius: 0.5rem;
+    /* Classic Theme - Gray + Indigo color palette - Light Mode (OKLCH) */
+    --color-background: 100% 0 0;
+    --color-foreground: 15% 0.004 285.82;
+    --color-card: 100% 0 0;
+    --color-card-foreground: 15% 0.004 285.82;
+    --color-popover: 100% 0 0;
+    --color-popover-foreground: 15% 0.004 285.82;
+    --color-primary: 67.5% 0.196 271.75;
+    --color-primary-foreground: 98% 0 0;
+    --color-secondary: 95.9% 0.004 285.82;
+    --color-secondary-foreground: 15% 0.004 285.82;
+    --color-muted: 95.9% 0.004 285.82;
+    --color-muted-foreground: 52.1% 0.004 285.82;
+    --color-accent: 95.9% 0.004 285.82;
+    --color-accent-foreground: 15% 0.004 285.82;
+    --color-destructive: 62.8% 0.257 29.23;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 90% 0.004 285.82;
+    --color-input: 90% 0.004 285.82;
+    --color-ring: 67.5% 0.196 271.75;
+    --backdrop: 0% 0 0;
+    --backdrop-light: 100% 0 0;
+    --backdrop-surface: 100% 0 0;
+
+    --logo-bg-fill: 100% 0 0; 
+    --logo-stroke-stop-color: 67.5% 0.196 271.75;
+    --logo-fg-stop-color: 67.5% 0.196 271.75;
+  }
+  .dark {
+    --color-background: 15% 0.004 285.82;
+    --color-foreground: 92% 0 0;
+    --color-card: 15% 0.004 285.82;
+    --color-card-foreground: 92% 0 0;
+    --color-popover: 15% 0.004 285.82;
+    --color-popover-foreground: 92% 0 0;
+    --color-primary: 67.5% 0.196 271.75;
+    --color-primary-foreground: 92% 0 0;
+    --color-secondary: 25% 0.004 285.82;
+    --color-secondary-foreground: 92% 0 0;
+    --color-muted: 25% 0.004 285.82;
+    --color-muted-foreground: 65.1% 0.004 285.82;
+    --color-accent: 25% 0.004 285.82;
+    --color-accent-foreground: 92% 0 0;
+    --color-destructive: 37.8% 0.257 29.23;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 25% 0.004 285.82;
+    --color-input: 25% 0.004 285.82;
+    --color-ring: 67.5% 0.196 271.75;
+    --backdrop: 0% 0 0;
+    --backdrop-light: 25% 0.01 250;
+    --backdrop-surface: 15% 0.01 250;
+
+    --logo-bg-fill: 15% 0.004 285.82; 
+    --logo-stroke-stop-color: 92% 0 0;
+    --logo-fg-stop-color: 92% 0 0;
+  }
+
+  /* Mira Theme Pack - Light */
+  [data-theme-pack="mira"] {
+    --color-background: 100% 0 0;
+    --color-foreground: 15% 0.004 285.82;
+    --color-card: 100% 0 0;
+    --color-card-foreground: 15% 0.004 285.82;
+    --color-popover: 100% 0 0;
+    --color-popover-foreground: 15% 0.004 285.82;
+    --color-primary: 25% 0.015 285.82;
+    --color-primary-foreground: 98% 0 0;
+    --color-secondary: 95.9% 0.004 285.82;
+    --color-secondary-foreground: 25% 0.015 285.82;
+    --color-muted: 95.9% 0.004 285.82;
+    --color-muted-foreground: 52.1% 0.004 285.82;
+    --color-accent: 95.9% 0.004 285.82;
+    --color-accent-foreground: 25% 0.015 285.82;
+    --color-destructive: 62.8% 0.257 29.23;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 90% 0.004 285.82;
+    --color-input: 90% 0.004 285.82;
+    --color-ring: 25% 0.015 285.82;
+    --backdrop: 0% 0 0;
+    --backdrop-light: 98% 0 0;
+    --backdrop-surface: 100% 0 0;
+
+    --logo-bg-fill: 100% 0 0;
+    --logo-stroke-stop-color: 0% 0 0;
+    --logo-fg-stop-color: 7.5% 0.004 285.82;
+  }
+  /* Mira Theme Pack - Dark */
+  [data-theme-pack="mira"].dark {
+    --color-background: 15% 0.004 285.82;
+    --color-foreground: 98% 0 0;
+    --color-card: 15% 0.004 285.82;
+    --color-card-foreground: 98% 0 0;
+    --color-popover: 15% 0.004 285.82;
+    --color-popover-foreground: 98% 0 0;
+    --color-primary: 85% 0 0;
+    --color-primary-foreground: 25% 0.015 285.82;
+    --color-secondary: 25% 0.004 285.82;
+    --color-secondary-foreground: 98% 0 0;
+    --color-muted: 25% 0.004 285.82;
+    --color-muted-foreground: 65.1% 0.004 285.82;
+    --color-accent: 25% 0.004 285.82;
+    --color-accent-foreground: 98% 0 0;
+    --color-destructive: 37.8% 0.257 29.23;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 25% 0.004 285.82;
+    --color-input: 25% 0.004 285.82;
+    --color-ring: 98% 0 0;
+    --backdrop: 0% 0 0; 
+    --backdrop-light: 15% 0.005 270;
+    --backdrop-surface: 20% 0.01 270;
+
+    --logo-bg-fill: 15% 0.004 285.82; 
+    --logo-stroke-stop-color: 98% 0 0;
+    --logo-fg-stop-color: 98% 0 0;
+  }
+}
