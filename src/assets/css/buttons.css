@@ -1,29 +1,22 @@
 @tailwind components;
 
 @layer components {
-  /* Base Fluent Design button */
+  /* Base calculator button */
   .calc-btn {
     @apply relative text-sm font-medium rounded-lg
-          flex justify-center items-center
-           transition-all duration-200 ease-out px-3 py-1
-           sm:text-sm sm:px-3 sm:py-2 sm:min-h-10
+           flex justify-center items-center
+           transition-all duration-200 ease-out px-3 py-2
            border border-border shadow-sm
-           focus-colors
-           disabled:opacity-50 disabled:cursor-not-allowed 
-           disabled:hover:scale-100;
-    
+           /* focus-colors */
+           disabled:opacity-50 disabled:cursor-not-allowed;
+
     min-height: 2.5rem;
-    height: 2rem;
-    
-    /* Mobile-first approach - no expensive effects by default */
-    backdrop-filter: none;
-    transform: none;
-    
-    /* Touch-friendly active states for mobile */
+
+    /* Touch-friendly */
     -webkit-tap-highlight-color: transparent;
     touch-action: manipulation;
-    
-    /* Force hardware acceleration */
+
+    /* Hardware acceleration */
     transform: translateZ(0);
     backface-visibility: hidden;
   }
@@ -31,21 +24,21 @@
   /* Mobile active states */
   @media (max-width: 767px) {
     .calc-btn:active {
-      background-color: hsl(var(--accent));
-      border-color: hsl(var(--border));
+      @apply bg-accent text-accent-foreground;
     }
   }
 
-  /* Desktop hover effects - only on devices that support hover */
+  /* Desktop hover effects */
   @media (hover: hover) and (pointer: fine) {
     .calc-btn {
       backdrop-filter: blur(4px);
     }
-    
+
     .calc-btn:hover {
       transform: scale(1.02);
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-      border-color: hsl(var(--border));
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+        0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border-color: oklch(var(--color-border));
     }
   }
 
@@ -59,42 +52,28 @@
 
   /* Button grid container */
   .calc-btn-grid {
-    @apply h-full gap-1 sm:gap-1.5;
-    min-height: 44px; /* iOS recommended minimum */
+    @apply h-full gap-1.5;
+    min-height: 44px; /* iOS minimum touch target */
   }
 
-  @media (min-width: 640px) {
-    .calc-btn-grid {
-      min-height: 3rem;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .calc-btn-grid {
-      min-height: 2.5rem;
-    }
-  }
-
-  /* Number buttons - High contrast */
+  /* Number buttons */
   .calc-number-btn {
     @apply text-foreground bg-card border-border;
   }
 
-  /* Mobile: solid backgrounds for better performance */
   @media (max-width: 767px) {
     .calc-number-btn:active {
       @apply bg-accent text-accent-foreground;
     }
   }
 
-  /* Desktop hover effects */
   @media (hover: hover) and (pointer: fine) {
     .calc-number-btn:hover {
       @apply bg-accent/50 text-accent-foreground;
     }
   }
 
-  /* Function buttons - Medium contrast */
+  /* Function buttons */
   .calc-function-btn {
     @apply text-muted-foreground bg-muted border-border;
   }
@@ -111,7 +90,7 @@
     }
   }
 
-  /* Operator buttons - High contrast primary */
+  /* Operator buttons */
   .calc-operator-btn {
     @apply text-primary-foreground bg-primary border-primary;
   }
@@ -130,20 +109,17 @@
 
   /* Memory buttons */
   .calc-memory-btn {
-    @apply text-xs md:text-sm font-medium font-mono tracking-wide 
+    @apply text-xs font-medium font-mono tracking-wide 
            text-muted-foreground bg-transparent p-2 border-0 shadow-none;
-    
     min-height: 2rem;
   }
 
-  /* Mobile active states for memory buttons */
   @media (max-width: 767px) {
     .calc-memory-btn:active {
       @apply bg-accent/20 text-accent-foreground;
     }
   }
 
-  /* Desktop hover for memory buttons */
   @media (hover: hover) and (pointer: fine) {
     .calc-memory-btn:hover {
       @apply bg-accent/20 text-foreground;
@@ -169,22 +145,6 @@
     min-height: 2rem;
   }
 
-  @media (min-width: 640px) {
-    .calc-btn-top {
-      height: 2rem;
-      min-height: 2rem;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-    }
-  }
-
-  @media (min-width: 768px) {
-    .calc-btn-top {
-      height: 1.75rem;
-      min-height: 1.75rem;
-    }
-  }
-
   /* Dropdown items */
   .calc-dropdown-item {
     @apply text-sm font-medium rounded-lg
@@ -192,25 +152,14 @@
            text-muted-foreground bg-muted border border-border
            focus-colors
            transition-colors duration-150 ease-out;
-    
+
     width: 3.5rem;
     height: 2.5rem;
   }
 
-  /* Mobile active states for dropdown items */
   @media (max-width: 767px) {
     .calc-dropdown-item:active {
       @apply bg-accent text-accent-foreground;
-    }
-  }
-
-  /* Desktop styles for dropdown items */
-  @media (min-width: 640px) {
-    .calc-dropdown-item {
-      width: 3rem;
-      height: 2rem;
-      font-size: 0.75rem;
-      line-height: 1rem;
     }
   }
 
@@ -228,23 +177,14 @@
            text-muted-foreground bg-muted border border-border
            focus-colors
            transition-colors duration-150 ease-out;
-    
+
     width: 2.5rem;
     height: 2rem;
   }
 
-  /* Mobile active states for small dropdown items */
   @media (max-width: 767px) {
     .calc-dropdown-item-small:active {
       @apply bg-accent text-accent-foreground;
-    }
-  }
-
-  /* Desktop styles for small dropdown items */
-  @media (min-width: 640px) {
-    .calc-dropdown-item-small {
-      width: 2rem;
-      height: 1.5rem;
     }
   }
 
@@ -256,28 +196,23 @@
   }
 }
 
-/* Mobile-specific optimizations */
+/* Mobile optimizations */
 @media (max-width: 767px) {
-  /* Disable backdrop blur on mobile for performance */
-  * {
-    backdrop-filter: none !important;
+  /* Ensure minimum touch targets */
+  .calc-btn {
+    min-width: 44px;
+    min-height: 44px;
   }
-  
-  /* Optimize button grids for mobile */
+
+  /* Optimize grid for mobile */
   .calc-btn-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
     gap: 0.25rem;
   }
-  
-  /* Ensure all buttons meet minimum touch target size */
-  .calc-btn {
-    min-width: 44px;
-    min-height: 44px;
-  }
 }
 
-/* High-performance mode for older devices */
+/* Performance mode for older devices */
 @media (max-width: 767px) and (max-resolution: 1.5dppx) {
   .calc-btn,
   .calc-dropdown-item,
@@ -285,5 +220,6 @@
     transition: none !important;
     transform: none !important;
     box-shadow: none !important;
+    backdrop-filter: none !important;
   }
 }

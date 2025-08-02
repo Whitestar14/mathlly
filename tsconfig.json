@@ -18,9 +18,25 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
+    "rootDirs": ["./src"],
     "paths": {
-      "@/*": ["src/*"]
+      "@components/*": ["shared/components/*"],
+      "@composables/*": ["shared/composables/*"],
+      "@stores/*": ["shared/stores/*"],
+      "@services/*": ["shared/services/*"],
+      "@utils/*": ["shared/utils/*"],
+      "@types/*": ["shared/types/*"],
+      "@features/*": ["features/*"],
+      "@pages/*": ["pages/*"],
+      "@router/*": ["router/*"],
+      "@assets/*": ["assets/*"],
+      "@app/*": ["app/*"],
+      "@shared/*": ["shared/*"],
+
+      "@calculator/*" : ["features/calculator/*"],
+      "@base64/*" : ["features/tools/base64/*"],
+      "@settings/*" : ["features/settings/*"],
     },
     "types": ["vite/client", "node"]
   },
@@ -29,7 +45,7 @@
     "src/**/*.d.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
-    "src/**/*.js"
+    "src/**/*.js",
   ],
   "exclude": ["node_modules", "dist"]
 }

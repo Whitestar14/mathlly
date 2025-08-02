@@ -1,6 +1,6 @@
 {
-    "name": "Mathlly Developer Toolkit",
-    "short_name": "Mathlly",
+    "name": "Prism",
+    "short_name": "Prism",
     "description": "A comprehensive suite of mathematical tools designed to streamline your development workflow",
     "start_url": "/",
     "display": "standalone",
@@ -14,98 +14,58 @@
     "prefer_related_applications": false,
     "icons": [
       {
-        "src": "img/icons/icon-72x72.png",
+        "src": "img/icons/prism-72x72.png",
         "sizes": "72x72",
         "type": "image/png",
         "purpose": "any"
       },
       {
-        "src": "img/icons/icon-96x96.png",
+        "src": "img/icons/prism-96x96.png",
         "sizes": "96x96",
         "type": "image/png",
         "purpose": "any"
       },
       {
-        "src": "img/icons/icon-128x128.png",
+        "src": "img/icons/prism-128x128.png",
         "sizes": "128x128",
         "type": "image/png",
         "purpose": "any"
       },
       {
-        "src": "img/icons/icon-144x144.png",
-        "sizes": "144x144",
+        "src": "img/icons/prism-144x144.png",
+        "sizes": "144x143",
         "type": "image/png",
         "purpose": "any"
       },
       {
-        "src": "img/icons/icon-152x152.png",
-        "sizes": "152x152",
+        "src": "img/icons/prism-192x192.png",
+        "sizes": "192x190",
         "type": "image/png",
         "purpose": "any"
       },
       {
-        "src": "img/icons/icon-192x192.png",
-        "sizes": "192x192",
+        "src": "img/icons/prism-256x256.png",
+        "sizes": "256x254",
         "type": "image/png",
         "purpose": "any"
       },
       {
-        "src": "img/icons/icon-384x384.png",
-        "sizes": "384x384",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "img/icons/icon-512x512.png",
+        "src": "img/icons/prism-512x512.png",
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "any"
       },
       {
-        "src": "img/icons/maskable-icon-512x512.png",
+        "src": "img/icons/maskable-icon.png",
         "sizes": "512x512",
         "type": "image/png",
         "purpose": "maskable"
-      }
-    ],
-    "screenshots": [
-      {
-        "src": "img/screenshots/calculator-screen.png",
-        "sizes": "1280x720",
-        "type": "image/png",
-        "platform": "wide",
-        "form_factor": "wide",
-        "label": "Calculator Screen"
       },
       {
-        "src": "img/screenshots/programmer-mode.png",
-        "sizes": "1280x720",
-        "type": "image/png",
-        "platform": "wide",
-        "label": "Programmer Mode"
-      },
-      {
-        "src": "img/screenshots/base64-tool.png",
-        "sizes": "1280x720",
-        "type": "image/png",
-        "platform": "wide",
-        "label": "Base64 Encoding/Decoding Tool"
-      }
-    ],
-    "shortcuts": [
-      {
-        "name": "Calculator",
-        "short_name": "Calculator",
-        "description": "Open the calculator",
-        "url": "/calculator",
-        "icons": [{ "src": "icons/calc-icon-96x96.png", "sizes": "96x96" }]
-      },
-      {
-        "name": "Base64 Tool",
-        "short_name": "Base64",
-        "description": "Encode and decode Base64 strings",
-        "url": "/tools/base64",
-        "icons": [{ "src": "icons/base64-icon-96x96.png", "sizes": "96x96" }]
+      "src": "img/icons/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
       }
     ],
     "related_applications": [],
