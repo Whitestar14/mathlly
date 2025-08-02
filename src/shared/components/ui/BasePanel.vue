@@ -96,7 +96,8 @@
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent } from 'vue';
-import { usePanel, type PanelAPI } from '@composables/ui/usePanel';
+import { usePanel } from '@composables/ui/usePanel';
+import type { PanelAPI } from '@composables/ui/types';
 import { useSettingsStore } from '@stores/settings';
 
 // Define props interface
@@ -153,7 +154,7 @@ const options = {
 };
 
 // Get the panel instance and cast to PanelAPI
-const panelInstance = usePanel(props.id, options, false) as PanelAPI;
+const panelInstance = usePanel(props.id, options) as PanelAPI;
 
 // Extract properties from the panel instance
 const {

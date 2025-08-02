@@ -6,7 +6,10 @@
       class="flex-shrink-0 h-14 px-3 border-b border-border flex items-center justify-between"
     >
       <!-- New: Slot for custom title content, otherwise fallback to h2 -->
-      <div v-if="title" class="flex-grow flex items-center min-w-0">
+      <div
+        v-if="title"
+        class="flex-grow flex items-center min-w-0"
+      >
         <slot name="panel-title">
           <h2 class="text-base font-medium text-foreground">
             {{ title }}

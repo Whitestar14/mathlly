@@ -1,10 +1,6 @@
 import Dexie, { type Table } from "dexie";
 import { DEFAULT_SETTINGS } from '@stores/settings';
 
-// ============================================================================
-// INTERFACE DEFINITIONS
-// Define the data structures for each table in the database.
-// ============================================================================
 export interface HistoryEntry {
   id?: number;
   timestamp: number;
@@ -39,10 +35,6 @@ export interface Settings {
   };
 }
 
-// ============================================================================
-// DATABASE CLASS DEFINITION
-// Extends Dexie to create a strongly-typed database instance.
-// ============================================================================
 export class PrismDatabase extends Dexie {
   history!: Table<HistoryEntry>;
   settings!: Table<Settings>;
@@ -58,11 +50,6 @@ export class PrismDatabase extends Dexie {
     });
   }
 }
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// These functions are separate from the class for better organization.
-// ============================================================================
 
 /**
  * Resets the entire database by closing, deleting it, and then reloading the page.
@@ -83,10 +70,6 @@ export async function resetDatabase(dbInstance: PrismDatabase): Promise<boolean>
   }
 }
 
-// ============================================================================
-// INITIALIZATION
-// Create a single database instance and set up initial data.
-// ============================================================================
 const db = new PrismDatabase();
 
 db.on("ready", async () => {

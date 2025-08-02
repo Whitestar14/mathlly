@@ -110,7 +110,6 @@
               size="lg"
               class="relative hidden md:block scale-150 md:scale-[2.5] lg:scale-[3.5]"
             />
-            
           </div>
         </div>
       </div>
@@ -310,10 +309,10 @@
           :enter="{ opacity: 1, y: 0 }"
           class="relative overflow-hidden rounded-lg shadow-lg"
         >
-        <!-- Logo accent -->
-        <div class="flex top-10 -left-5 absolute justify-center max-h-[60px]">
-          <PrismLogo class="scale-150"/>
-        </div>
+          <!-- Logo accent -->
+          <div class="flex top-10 -left-5 absolute justify-center max-h-[60px]">
+            <PrismLogo class="scale-150" />
+          </div>
           <!-- Content -->
           <div class="relative z-5 p-8 md:p-12 text-center">
             <!-- Title with monospace accent -->
