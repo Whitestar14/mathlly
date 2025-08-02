@@ -4,7 +4,7 @@ import { CalculatorUtils } from '@calculator/utils/constants/CalculatorUtils';
 export interface FormatterSettings {
   precision?: number;
   useFractions?: boolean;
-  notationMode?: 'F-E' | 'SCI';
+  notationMode?: 'F-E' | 'SCI' | 'ENG';
   maxFractionDenominator?: number;
 }
 
@@ -25,12 +25,15 @@ export class ResultFormatter {
     } = settings;
 
     try {
-      // Scientific notation
       if (notationMode === 'SCI') {
         return format(result, { precision, notation: 'exponential' });
       }
 
-      // Auto scientific for very large/small numbers
+      if (notationMode === 'ENG') {
+        return format(result, { precision, notation: 'engineering' });
+      }
+
+      // 'F-E' or default mode logic
       if (Math.abs(result) >= 1e15 || (Math.abs(result) < 1e-10 && result !== 0)) {
         return format(result, { precision, notation: 'exponential' });
       }
@@ -48,16 +51,12 @@ export class ResultFormatter {
         }
       }
 
-      // Integer formatting
-      if (Number.isInteger(result)) {
-        return result.toString();
-      }
-
-      // Decimal formatting
+      // Default fixed-point decimal formatting
       const formatted = format(result, { precision, notation: 'fixed' });
       return CalculatorUtils.trimUnnecessaryZeros(formatted);
 
-    } catch {
+    } catch (err) {
+      console.error('Formatting error:', err);
       return result.toString();
     }
   }

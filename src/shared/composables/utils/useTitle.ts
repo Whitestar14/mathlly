@@ -3,9 +3,9 @@ import { useRoute, type RouteLocationNormalized } from 'vue-router';
 import { useDebounceFn } from '@vueuse/core';
 import { isHandlingError, networkStatus } from '@router/errorHandler';
 
-const currentTitle: Ref<string> = shallowRef('Mathlly');
+const currentTitle: Ref<string> = shallowRef('Prism');
 const titleHistory: Ref<string[]> = shallowRef([]);
-const APP_NAME = 'Mathlly';
+const APP_NAME = 'Prism';
 
 /**
  * Return type for the useTitle composable
@@ -35,7 +35,7 @@ export function useTitle(title: string | Ref<string> = ''): PageTitleReturn {
    * @returns The formatted title
    */
   const formatTitle = (newTitle: string): string => {
-    return newTitle ? `${newTitle} - ${APP_NAME}` : APP_NAME;
+    return newTitle ? `${newTitle} · ${APP_NAME}` : APP_NAME;
   };
 
   /**

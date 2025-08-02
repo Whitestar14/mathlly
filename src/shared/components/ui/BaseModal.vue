@@ -11,7 +11,6 @@
         @click="closeModal"
       />
     </Transition>
-
     <!-- Modal Container -->
     <Transition
       enter-active-class="transition duration-300 ease-out"
@@ -43,6 +42,7 @@
               <div
                 :id="titleId"
                 class="flex-1 min-w-0 pr-4"
+                :class="hideCloseButton ? '' : 'pr-4'"
               >
                 <DialogTitle
                   as="h2"
@@ -53,9 +53,9 @@
                   </slot>
                 </DialogTitle>
               </div>
-
               <!-- Close Button -->
               <BaseButton
+                v-if="!hideCloseButton"
                 variant="ghost"
                 size="icon"
                 :aria-label="closeButtonLabel"
@@ -66,14 +66,12 @@
               </BaseButton>
             </div>
           </div>
-
           <!-- Scrollable Content -->
           <div class="flex-1 overflow-y-auto min-h-0">
             <div class="p-6 pt-4">
               <slot />
             </div>
           </div>
-
           <!-- Sticky Footer -->
           <div
             v-if="$slots.footer"
@@ -98,7 +96,7 @@ import {
   DialogTitle,
 } from "radix-vue";
 import { useEventListener } from "@vueuse/core";
-import { BaseButton } from '@components/ui'
+import BaseButton from '@components/ui/BaseButton.vue'
 import { XIcon } from "lucide-vue-next";
 
 /**
@@ -122,6 +120,8 @@ interface Props {
   closeOnEscape?: boolean;
   /** Custom close button label for accessibility */
   closeButtonLabel?: string;
+  /** Whether to hide the 'x' close button */
+  hideCloseButton?: boolean; 
 }
 
 /**
@@ -143,6 +143,7 @@ const props = withDefaults(defineProps<Props>(), {
   closeOnClickOutside: true,
   closeOnEscape: true,
   closeButtonLabel: 'Close dialog',
+  hideCloseButton: false,
 });
 
 const emit = defineEmits<Emits>();
@@ -181,7 +182,7 @@ const sizeClasses: ComputedRef<string> = computed(() => {
  */
 const handleOpenChange = (isOpen: boolean): void => {
   emit('update:open', isOpen);
-  
+
   if (isOpen) {
     emit('open');
   } else {
@@ -221,7 +222,6 @@ useEventListener(document, 'keydown', handleEscapeKey, {
 .backdrop-leave-active {
   transition: opacity 0.3s ease;
 }
-
 .backdrop-enter-from,
 .backdrop-leave-to {
   opacity: 0;
@@ -231,16 +231,13 @@ useEventListener(document, 'keydown', handleEscapeKey, {
 .overflow-y-auto::-webkit-scrollbar {
   width: 6px;
 }
-
 .overflow-y-auto::-webkit-scrollbar-track {
   background: transparent;
 }
-
 .overflow-y-auto::-webkit-scrollbar-thumb {
   background-color: oklch(var(--muted-foreground) / 0.4);
   border-radius: 3px;
 }
-
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
   background-color: oklch(var(--muted-foreground) / 0.6);
 }
@@ -255,11 +252,11 @@ useEventListener(document, 'keydown', handleEscapeKey, {
   .p-6 {
     @apply p-4;
   }
-  
+
   .pb-4 {
     @apply pb-3;
   }
-  
+
   .pt-4 {
     @apply pt-3;
   }

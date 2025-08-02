@@ -1,5 +1,5 @@
 // ui components exports
-export { default as TextLogo } from './TextLogo.vue'
+export { default as PrismLogo } from './PrismLogo.vue'
 export { default as BaseCard } from './BaseCard.vue'
 export { default as BasePage } from './BasePage.vue'
 export { default as BaseMedia } from './BaseMedia.vue'

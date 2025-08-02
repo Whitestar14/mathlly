@@ -161,21 +161,25 @@ export function useCalculatorOptions() {
     const mapping = {
       'standard': 'F-E',
       'scientific': 'SCI',
-      'engineering': 'SCI'
+      'engineering': 'ENG'
     };
     return mapping[options.value.notationMode] || 'F-E';
   });
 
-  // Helper methods for UI interactions
-  const cycleAngleMode = () => {
-    const modes: Array<'degrees' | 'radians' | 'gradians'> = ['degrees', 'radians', 'gradians'];
-    const currentIndex = modes.indexOf(options.value.angleUnit);
-    options.value.angleUnit = modes[(currentIndex + 1) % modes.length];
-  };
+function cycleOption<K extends keyof CalculatorOptions>(
+  key: K,
+  values: CalculatorOptions[K][]
+) {
+  const current = options.value[key];
+  const index = values.indexOf(current);
+  options.value[key] = values[(index + 1) % values.length];
+}
 
-  const toggleNotationMode = () => {
-    options.value.notationMode = options.value.notationMode === 'standard' ? 'scientific' : 'standard';
-  };
+const cycleNotationMode = () =>
+  cycleOption('notationMode', ['standard', 'scientific', 'engineering']);
+
+const cycleAngleMode = () =>
+  cycleOption('angleUnit', ['degrees', 'radians', 'gradians']);
 
   const toggleHyperbolicMode = () => {
     options.value.hyperbolicMode = !options.value.hyperbolicMode;
@@ -204,7 +208,7 @@ export function useCalculatorOptions() {
     
     // Helper methods
     cycleAngleMode,
-    toggleNotationMode,
+    cycleNotationMode,
     toggleHyperbolicMode,
     
     // Store state

@@ -35,7 +35,7 @@
       class="mt-auto py-8 border-t border-border bg-card"
     >
       <div class="container mx-auto px-4 text-center text-sm text-muted-foreground">
-        &copy; {{ new Date().getFullYear() }} Mathlly. All rights reserved.
+        &copy; {{ new Date().getFullYear() }} Prism. 
       </div>
     </footer>
   </div>

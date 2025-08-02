@@ -1,58 +1,58 @@
-import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptions'
-import { ExpressionEvaluator } from '@calculator/utils/core/ExpressionEvaluator'
-import {
-  CalculatorConstants,
-} from '../constants/CalculatorConstants'
-import { CalculatorUtils } from '../constants/CalculatorUtils'
-import type { CalculatorOptions } from '@calculator/composables/useCalculatorOptions'
+import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptions';
+import { ExpressionEvaluator } from '@calculator/utils/core/ExpressionEvaluator';
+import { CalculatorConstants } from '../constants/CalculatorConstants';
+import { CalculatorUtils } from '../constants/CalculatorUtils';
+import type { CalculatorOptions } from '@calculator/composables/useCalculatorOptions';
 
 /**
  * Interface for calculator implementations.
  * All calculator types should implement these methods.
  */
 export class ICalculator {
-  calculatorOptions: ReturnType<typeof useCalculatorOptions>
-  options: CalculatorOptions
-  input: string
-  error: string
-  currentExpression: string
-  activeBase: string
-  evaluator: ExpressionEvaluator
-  operations: any
-  calculations: any
+  calculatorOptions: ReturnType<typeof useCalculatorOptions>;
+  options: Record<string, any> | CalculatorOptions;
+  input: string;
+  error: string;
+  currentExpression: string;
+  activeBase: string;
+  evaluator: ExpressionEvaluator;
+  operations: any;
+  calculations: any;
 
   /**
    * Create a calculator instance
    */
   constructor() {
     // Use calculator options composable
-    this.calculatorOptions = useCalculatorOptions()
-    this.options = this.calculatorOptions.options.value
-    this.input = '0'
-    this.error = ''
-    this.currentExpression = ''
-    this.activeBase = 'DEC'
+    this.calculatorOptions = useCalculatorOptions();
+    this.options = this.calculatorOptions.options;
+    this.input = '0';
+    this.error = '';
+    this.currentExpression = '';
+    this.activeBase = 'DEC';
 
     // Use shared evaluator instance
-    this.evaluator = ExpressionEvaluator.getInstance()
+    this.evaluator = ExpressionEvaluator.getInstance();
 
     // Operations will be injected by derived classes
-    this.operations = null
-    this.calculations = null
+    this.operations = null;
+    this.calculations = null;
   }
 
   /**
    * Creates a standardized error response object
    */
-  createErrorResponse(error: Error | string, fallbackInput: string = 'Error'): Record<string, any> {
-    // Use CalculatorUtils.formatError for consistent error handling
+  createErrorResponse(
+    error: Error | string,
+    fallbackInput: string = 'Error'
+  ): Record<string, any> {
     const errorMessage = CalculatorUtils.formatError(
       error instanceof Error ? error : new Error(error || 'Operation failed')
-    )
+    );
 
     // Update calculator state
-    this.error = errorMessage
-    this.input = fallbackInput
+    this.error = errorMessage;
+    this.input = fallbackInput;
 
     // Return standardized error response
     return {
@@ -60,7 +60,7 @@ export class ICalculator {
       error: this.error,
       expression: this.currentExpression,
       success: false,
-    }
+    };
   }
 
   /**
@@ -69,7 +69,7 @@ export class ICalculator {
   normalizeResponse(result: any): Record<string, any> {
     // Handle null or undefined result
     if (!result) {
-      return this.createErrorResponse('Invalid operation result')
+      return this.createErrorResponse('Invalid operation result');
     }
 
     // Use CalculatorUtils.createResponse for standardized response format
@@ -79,7 +79,7 @@ export class ICalculator {
       expression: result.expression ?? this.currentExpression,
       displayValues: result.displayValues ?? undefined,
       result: result.result,
-    })
+    });
   }
 
   /**
@@ -91,9 +91,11 @@ export class ICalculator {
         base,
         maxValue: CalculatorConstants.MAX_VALUE,
         minValue: CalculatorConstants.MIN_VALUE,
-      })
+      });
     } catch (err) {
-      throw new Error(CalculatorUtils.formatError(err as Error, 'Invalid expression'))
+      throw new Error(
+        CalculatorUtils.formatError(err as Error, 'Invalid expression')
+      );
     }
   }
 
@@ -103,7 +105,7 @@ export class ICalculator {
   formatResult(result: any, base?: string): string {
     void result;
     void base;
-    throw new Error('formatResult must be implemented in derived class')
+    throw new Error('formatResult must be implemented in derived class');
   }
 
   /**
@@ -111,68 +113,34 @@ export class ICalculator {
    */
   processButton(btn: string): Record<string, any> {
     try {
-      this.error = ''
+      this.error = '';
 
       // Handle basic calculator operations
       switch (btn) {
         // Equals operation
         case '=':
-          return this.handleEquals()
+          return this.handleEquals();
 
         // Clear operations
         case 'AC':
-          return this.handleClear()
-        case 'CE':
-          return this.handleClearEntry
-            ? this.handleClearEntry()
-            : this.handleClear()
+          return this.handleClear();
 
         // Delete operation
         case 'backspace':
-          return this.handleBackspace()
+          return this.handleBackspace();
 
         // Basic arithmetic operators
         case '+':
         case '-':
         case '×':
         case '÷':
-          return this.handleOperator(btn)
-
-        // Scientific operations
-        case 'x²':
-          return this.handleSquare
-            ? this.handleSquare()
-            : this.createErrorResponse(new Error('Operation not supported'))
-        case 'x³':
-          return this.handleCube
-            ? this.handleCube()
-            : this.createErrorResponse(new Error('Operation not supported'))
-        case '√':
-          return this.handleSquareRoot
-            ? this.handleSquareRoot()
-            : this.createErrorResponse(new Error('Operation not supported'))
-        case '∛':
-          return this.handleCubeRoot
-            ? this.handleCubeRoot()
-            : this.createErrorResponse(new Error('Operation not supported'))
-        case '1/x':
-          return this.handleReciprocal
-            ? this.handleReciprocal()
-            : this.createErrorResponse(new Error('Operation not supported'))
-        case '%':
-          return this.handlePercentage
-            ? this.handlePercentage()
-            : this.createErrorResponse(new Error('Operation not supported'))
-        case '±':
-          return this.handleToggleSign
-            ? this.handleToggleSign()
-            : this.createErrorResponse(new Error('Operation not supported'))
+          return this.handleOperator(btn);
         // Default case - handle as number or other input
         default:
-          return this.handleNumber(btn)
+          return this.handleNumber(btn);
       }
     } catch (err) {
-      return this.createErrorResponse(err as Error)
+      return this.createErrorResponse(err as Error);
     }
   }
 
@@ -182,7 +150,7 @@ export class ICalculator {
   handleButtonClick(btn: string): Record<string, any> {
     // Check for error state first
     if (this.input === 'Error' && !['AC', 'CE'].includes(btn)) {
-      this.handleClear()
+      this.handleClear();
     }
 
     // Check input length
@@ -190,14 +158,14 @@ export class ICalculator {
       return this.createErrorResponse(
         new Error('Maximum input length reached'),
         this.input
-      )
+      );
     }
 
     try {
       // Use the standardized processButton method
-      return this.normalizeResponse(this.processButton(btn))
+      return this.normalizeResponse(this.processButton(btn));
     } catch (err) {
-      return this.createErrorResponse(err as Error)
+      return this.createErrorResponse(err as Error);
     }
   }
 
@@ -205,7 +173,7 @@ export class ICalculator {
    * Handle equals operation
    */
   handleEquals(): Record<string, any> {
-    throw new Error('handleEquals must be implemented in derived class')
+    throw new Error('handleEquals must be implemented in derived class');
   }
 
   /**
@@ -213,7 +181,7 @@ export class ICalculator {
    */
   handleOperator(operator: string): Record<string, any> {
     void operator;
-    throw new Error('handleOperator must be implemented in derived class')
+    throw new Error('handleOperator must be implemented in derived class');
   }
 
   /**
@@ -221,67 +189,27 @@ export class ICalculator {
    */
   handleNumber(num: string): Record<string, any> {
     void num;
-    throw new Error('handleNumber must be implemented in derived class')
+    throw new Error('handleNumber must be implemented in derived class');
   }
 
   /**
    * Handle backspace operation
    */
   handleBackspace(): Record<string, any> {
-    throw new Error('handleBackspace must be implemented in derived class')
+    throw new Error('handleBackspace must be implemented in derived class');
   }
-
-  /**
-   * Handle clear entry operation - may be implemented by derived classes
-   */
-  handleClearEntry?(): Record<string, any>
-
-  /**
-   * Handle square operation - may be implemented by derived classes
-   */
-  handleSquare?(): Record<string, any>
-
-  /**
-   * Handle cube operation - may be implemented by derived classes
-   */
-  handleCube?(): Record<string, any>
-
-  /**
-   * Handle square root operation - may be implemented by derived classes
-   */
-  handleSquareRoot?(): Record<string, any>
-
-  /**
-   * Handle cube root operation - may be implemented by derived classes
-   */
-  handleCubeRoot?(): Record<string, any>
-
-  /**
-   * Handle reciprocal operation - may be implemented by derived classes
-   */
-  handleReciprocal?(): Record<string, any>
-
-  /**
-   * Handle percentage operation - may be implemented by derived classes
-   */
-  handlePercentage?(): Record<string, any>
-
-  /**
-   * Handle sign toggle operation - may be implemented by derived classes
-   */
-  handleToggleSign?(): Record<string, any>
 
   /**
    * Clear calculator state
    */
   handleClear(): Record<string, any> {
-    this.input = '0'
-    this.error = ''
-    this.currentExpression = ''
+    this.input = '0';
+    this.error = '';
+    this.currentExpression = '';
     return {
       input: this.input,
       error: this.error,
-    }
+    };
   }
 
   /**
@@ -294,10 +222,15 @@ export class ICalculator {
       'backspace',
       ...CalculatorConstants.BUTTON_TYPES.MEMORY,
       'CE',
-    ]
-    return (
-      this.input.length >= (this as any).MAX_INPUT_LENGTH &&
-      !excludedButtons.includes(btn)
-    )
+    ];
+
+    if (excludedButtons.includes(btn)) {
+      return false;
+    }
+
+    const newLength = this.input.length + btn.length;
+    const maxLength = (this as any).MAX_INPUT_LENGTH;
+
+    return newLength > maxLength;
   }
 }

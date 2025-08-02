@@ -96,11 +96,11 @@
           class="md:hidden"
           @click="showClearMemoryConfirmation = true"
         >
-          <TrashIcon class="w-4 h-4 mr-2" />
-          Clear All
+          <TrashIcon class="w-4 h-4" />
+          Clear
         </BaseButton>
 
-        <div class="w-[80%] flex flex-row items-center gap-1 justify-end">
+        <div class="w-full flex flex-row items-center gap-2 justify-center">
           <BaseButton
             v-if="hasMemorySlots"
             v-tippy="{ content: 'Clear All Memory Slots' }"
@@ -118,6 +118,7 @@
             }"
             variant="default"
             size="sm"
+            class="w-[80%]"
             @click="handleAddCurrentToMemory"
           >
             <PlusIcon class="w-4 h-4" />

@@ -38,9 +38,6 @@ interface ProgrammerCalculatorInterface extends BaseCalculator {
 
 // Define scientific calculator interface
 interface ScientificCalculatorInterface extends BaseCalculator {
-  angleMode: any // ComputedRef from Vue
-  notationMode: any // ComputedRef from Vue
-  hyperbolicMode: any // ComputedRef from Vue
   convertToBase: (value: string, fromBase: string, toBase: string) => string
 }
 
@@ -126,9 +123,6 @@ class ScientificCalculatorWrapper implements ScientificCalculatorInterface {
   get currentExpression(): string { return this.calculator.currentExpression }
   set currentExpression(value: string) { this.calculator.currentExpression = value }
   get MAX_INPUT_LENGTH(): number { return this.calculator.MAX_INPUT_LENGTH }
-  get angleMode(): any { return this.calculator.angleMode }
-  get notationMode(): any { return this.calculator.notationMode }
-  get hyperbolicMode(): any { return this.calculator.hyperbolicMode }
 
   handleButtonClick(button: string): CalculatorResult {
     const result = this.calculator.handleButtonClick(button)

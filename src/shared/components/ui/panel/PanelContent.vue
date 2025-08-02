@@ -5,11 +5,20 @@
       v-show="showHeader"
       class="flex-shrink-0 h-14 px-3 border-b border-border flex items-center justify-between"
     >
-      <h2 class="text-base font-medium text-foreground">
-        {{ title }}
-      </h2>
-      <div class="flex items-center gap-2 justify-between">
-        <slot name="header-actions" />
+      <!-- New: Slot for custom title content, otherwise fallback to h2 -->
+      <div v-if="title" class="flex-grow flex items-center min-w-0">
+        <slot name="panel-title">
+          <h2 class="text-base font-medium text-foreground">
+            {{ title }}
+          </h2>
+        </slot>
+      </div>
+
+      <!-- Existing header-actions slot, now correctly positioned alongside the title/logo -->
+      <slot name="header-actions" />
+
+      <!-- Mobile close button - always on the far right -->
+      <div class="flex items-center w-full justify-end">
         <BaseButton
           class="md:hidden rounded-full"
           variant="ghost"

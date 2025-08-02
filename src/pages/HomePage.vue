@@ -2,13 +2,28 @@
   <BasePage
     :show-footer="true"
     title="Home"
-    main-class="transition-colors duration-300 mx-auto text-sm"
+    main-class="transition-colors duration-300 mx-auto text-sm overflow-hidden"
   >
-    <!-- Hero Section with Gradient Background -->
+    <!-- Hero Section with Conic Gradient Background -->
     <section
-      class="pattern-grid overflow-hidden bg-gradient-to-b from-muted/20 to-background dark:from-background dark:to-muted/80"
+      class="pattern-grid overflow-hidden bg-gradient-to-b from-muted/20 to-background dark:from-background dark:to-muted/80 relative"
     >
-      <!-- Grid Pattern Background -->
+      <!-- Conic gradient background element -->
+      <div
+        class="absolute inset-0 opacity-[0.15] dark:opacity-[0.08]"
+        style="
+          background: conic-gradient(
+            from 0deg at 50% 50%,
+            oklch(var(--color-primary)),
+            transparent 60%,
+            oklch(var(--color-accent)),
+            transparent 80%,
+            oklch(var(--color-primary))
+          );
+          filter: blur(60px);
+        "
+      />
+
       <div class="container mx-auto px-4 pt-20 pb-16 md:py-24 relative">
         <div class="flex flex-col md:flex-row items-center gap-8 md:gap-12">
           <div
@@ -22,7 +37,7 @@
             >
               <BaseBadge
                 type="custom"
-                :text="`v${version.versionInfo.full}`"
+                :text="version.versionInfo.full"
                 :show-notch="true"
               />
             </div>
@@ -44,7 +59,7 @@
               class="text-base md:text-lg text-muted-foreground max-w-lg self-center md:self-start"
             >
               A comprehensive suite of mathematical tools designed to streamline
-              your development workflow
+              your development workflow with Prism
             </p>
 
             <div
@@ -62,8 +77,9 @@
                   Get Started
                 </BaseButton>
               </RouterLink>
+
               <a
-                href="https://github.com/Whitestar14/mathlly-app"
+                href="https://github.com/Whitestar14/prism-app"
                 target="_blank"
               >
                 <BaseButton
@@ -87,20 +103,22 @@
             }"
             class="w-full md:w-1/3 flex justify-center mt-8 md:mt-0"
           >
+            <!-- Logo/Icon placeholder -->
             <BaseMedia
               type="svg"
-              :svg-path="'/icons/mathlly.svg'"
+              :svg-content="PrismSvg"
               size="lg"
               class="relative hidden md:block scale-150 md:scale-[2.5] lg:scale-[3.5]"
             />
+            
           </div>
         </div>
       </div>
     </section>
 
     <!-- Statistics Section -->
-    <section class="py-16 bg-background dark:bg-background">
-      <div class="container mx-auto px-4">
+    <section class="py-16 bg-card">
+      <div class="container mx-auto px-6">
         <div
           v-motion
           :initial="{ opacity: 0, y: 20 }"
@@ -130,8 +148,8 @@
     </section>
 
     <!-- Essential Tools Section -->
-    <section class="py-16 bg-muted dark:bg-background">
-      <div class="container mx-auto px-4">
+    <section class="py-16 bg-background">
+      <div class="container mx-auto px-6">
         <div class="flex items-center justify-between mb-10">
           <h2 class="text-2xl md:text-3xl font-medium">
             Essential Tools
@@ -159,7 +177,7 @@
             v-for="tool in quickTools"
             :key="tool.path"
             :to="tool.path"
-            class="relative block h-full transition-transform duration-300 hover:-translate-y-1"
+            class="relative block h-full transition-transform duration-300 hover:-translate-y-1 focus-colors"
           >
             <FeatureCard
               :key="tool.name"
@@ -178,8 +196,8 @@
     </section>
 
     <!-- Features Grid -->
-    <section class="py-16 bg-background dark:bg-background">
-      <div class="container mx-auto px-4">
+    <section class="py-16 bg-card">
+      <div class="container mx-auto px-6">
         <h2 class="text-2xl md:text-3xl font-medium mb-10 text-center">
           Key Features
         </h2>
@@ -202,8 +220,8 @@
     </section>
 
     <!-- Why Choose Us & Mission Section -->
-    <section class="py-16 bg-muted dark:bg-background">
-      <div class="container mx-auto px-4">
+    <section class="py-16 bg-card">
+      <div class="container mx-auto px-6">
         <div class="flex flex-col gap-12">
           <!-- Why Choose Us Section -->
           <div
@@ -213,7 +231,7 @@
             class="w-full"
           >
             <h2 class="text-2xl md:text-3xl font-medium mb-6 text-foreground">
-              Why Choose Mathlly?
+              Why Choose Prism?
             </h2>
             <div
               class="bg-background dark:bg-background rounded-lg p-6 shadow-sm border border-border dark:border-border"
@@ -253,7 +271,7 @@
               <div class="flex flex-col md:flex-row">
                 <div class="md:w-2/3 p-6">
                   <p class="text-foreground/90 leading-relaxed mb-6">
-                    At Mathlly, we're committed to empowering developers with
+                    At Prism, we're committed to empowering developers with
                     powerful, intuitive, and efficient mathematical tools. Our
                     goal is to streamline complex calculations, making your
                     coding journey smoother and more productive.
@@ -283,23 +301,22 @@
       </div>
     </section>
 
-    <!-- CTA Section - Redesigned with improved dark mode support -->
-    <section class="py-16 bg-background dark:bg-background">
-      <div class="container mx-auto px-4">
+    <!-- CTA Section with Conic Gradient -->
+    <section class="py-16 bg-card">
+      <div class="container mx-auto px-6">
         <div
           v-motion
           :initial="{ opacity: 0, y: 20 }"
           :enter="{ opacity: 1, y: 0 }"
           class="relative overflow-hidden rounded-lg shadow-lg"
         >
+        <!-- Logo accent -->
+        <div class="flex top-10 -left-5 absolute justify-center max-h-[60px]">
+          <PrismLogo class="scale-150"/>
+        </div>
           <!-- Content -->
           <div class="relative z-5 p-8 md:p-12 text-center">
-            <!-- Logo accent -->
-            <div class="flex justify-center mb-6">
-              <TextLogo size="sm" />
-            </div>
-
-            <!-- Title with monospace accent - improved for dark mode -->
+            <!-- Title with monospace accent -->
             <h2
               class="text-2xl md:text-3xl font-mono font-medium mb-4 text-background"
             >
@@ -307,19 +324,17 @@
               <kbd
                 class="inline-block bg-background/10 dark:bg-background/30 px-2 py-1 rounded text-background dark:text-background border border-background/20"
               >
-                {math<span
-                  class="text-primary/80 dark:text-primary font-black inline-block mx-0.5"
-                >//</span>y} </kbd>?
+                prism</kbd>?
             </h2>
 
             <p
               class="text-background/90 dark:text-background/90 max-w-2xl mx-auto mb-8 text-lg"
             >
-              Join hundreds of developers who are already using Mathlly to
+              Join hundreds of developers who are already using Prism to
               streamline their mathematical workflows.
             </p>
 
-            <!-- Action buttons with BaseBadge - improved for dark mode -->
+            <!-- Action buttons -->
             <div
               class="flex flex-col sm:flex-row items-center justify-center gap-4"
             >
@@ -329,12 +344,12 @@
                   class="bg-background dark:bg-muted text-primary dark:text-primary hover:bg-background/90 dark:hover:bg-muted/90 shadow-md hover:shadow-lg transition-colors duration-300 w-full sm:w-auto"
                 >
                   <CalculatorIcon class="h-4 w-4" />
-                  Try Mathlly Now
+                  Try Prism Now
                 </BaseButton>
               </RouterLink>
 
               <a
-                href="https://github.com/Whitestar14/mathlly-app"
+                href="https://github.com/Whitestar14/prism-app"
                 target="_blank"
               >
                 <BaseButton
@@ -347,19 +362,27 @@
               </a>
             </div>
 
-            <!-- Version BaseBadge -->
+            <!-- Version Badge -->
             <div class="mt-8 flex justify-center">
               <BaseBadge
                 type="custom"
-                :text="`v${version.versionInfo.full}`"
+                :text="version.versionInfo.full"
                 :show-notch="false"
               />
             </div>
           </div>
 
-          <!-- Gradient overlay - adjusted for better dark mode appearance -->
+          <!-- Conic Gradient overlay -->
           <div
-            class="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 dark:from-primary/90 dark:to-primary"
+            class="absolute inset-0"
+            style="
+              background: conic-gradient(
+                from 45deg at 50% 50%,
+                oklch(var(--color-primary)),
+                oklch(var(--color-primary) / 0.8) 50%,
+                oklch(var(--color-primary))
+              );
+            "
           />
 
           <!-- Background with grid pattern -->
@@ -367,7 +390,7 @@
             class="absolute inset-0 pattern-grid opacity-10 dark:opacity-50"
           />
 
-          <!-- Decorative elements with dark mode adjustments -->
+          <!-- Decorative elements -->
           <div
             class="absolute top-0 right-0 w-64 h-64 -mt-12 -mr-12 opacity-20 dark:opacity-10"
           >
@@ -404,7 +427,14 @@ import {
 import { useTimeoutFn } from '@vueuse/core';
 import { useVersionStore } from '@stores/version';
 import { RouterLink } from 'vue-router';
-import { TextLogo, BaseMedia, BaseButton, BaseBadge, BasePage } from '@components/ui'
+import {
+  PrismLogo,
+  BaseMedia,
+  BaseButton,
+  BaseBadge,
+  BasePage,
+} from '@components/ui';
+import PrismSvg from '@assets/icons/prism-hero.svg?raw';
 import { FeatureCard, WelcomeModal } from '@components/layout';
 
 // Simple CountUp component
@@ -529,8 +559,7 @@ const showWelcomeModal = ref(false);
 onMounted(() => {
   // Check if the welcome modal has been shown before
   const hasShownWelcome =
-    localStorage.getItem('mathlly-welcome-shown') === 'true';
-
+    localStorage.getItem('prism-welcome-shown') === 'true';
   if (!hasShownWelcome) {
     // Add a delay before showing the modal
     useTimeoutFn(() => {

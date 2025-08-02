@@ -27,7 +27,6 @@
           :active-base="state.activeBase"
           :mode="state.mode"
           :display-values="state.displayValues"
-          :calculator-options="calculatorOptions"
           @open-activity="openActivity"
           @base-change="handleBaseChange"
         />
@@ -66,8 +65,8 @@ import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptio
 import { CalculatorController, type ControllerReturn } from '../composables/MainCalculator'
 import { CalculatorFactory, type Calculator } from '@calculator/services/factory/CalculatorFactory'
 import { useCalculatorSession } from '@calculator/composables/useCalculatorSession'
-import CalculatorDisplay from '@calculator/components/CalculatorDisplay.vue'
-import CalculatorButtons from '@calculator/components/CalculatorButtons.vue'
+
+import {CalculatorButtons, CalculatorDisplay} from '@calculator/components'
 import { BasePage } from '@components/ui'
 
 // Define props
@@ -78,12 +77,12 @@ const props = defineProps<{
 // Import the calculator mode switcher component
 const CalculatorModeSwitcher = defineAsyncComponent(() => import('@calculator/components/CalculatorModeSwitcher.vue'))
 
+// Async component import with proper typing
+const ActivityPanel = defineAsyncComponent(() => import('@calculator/components/ActivityPanel.vue'))
+
 interface HistoryService {
   addToHistory: (expression: string, result: string) => void
 }
-
-// Async component import with proper typing
-const ActivityPanel = defineAsyncComponent(() => import('@calculator/components/ActivityPanel.vue'))
 
 // Use composables for state management with proper typing
 const historyService: HistoryService = useHistory()
@@ -96,7 +95,6 @@ const activityPanel = activityPanelResult as LightweightPanelAPI
 // Get calculator mode switcher context
 const { currentMode } = useCalculatorModeSwitcher()
 
-// Initialize calculator options (this automatically registers with the tool settings store)
 const calculatorOptions = useCalculatorOptions()
 
 const {
@@ -110,7 +108,6 @@ const {
 
 const { saveInput, getInput } = useCalculatorSession();
 
-// Create calculator - no longer needs options since it uses tool settings directly
 const createCalculator = (mode: CalculatorMode) => {
   return CalculatorFactory.create(mode)
 }

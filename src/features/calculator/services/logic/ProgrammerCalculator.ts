@@ -256,7 +256,15 @@ export class ProgrammerCalculator extends ICalculator {
       ...CalculatorConstants.BUTTON_TYPES.PROGRAMMER_OPERATORS,
       "CE", "±", "%"
     ];
-    return this.states[this.activeBase as BaseType].input.length >= this.MAX_INPUT_LENGTH &&
-      !excludedButtons.includes(btn);
+
+    if (excludedButtons.includes(btn)) {
+      return false;
+    }
+
+    const currentInput = this.states[this.activeBase as BaseType].input;
+
+    const newLength = currentInput.length + btn.length;
+    
+    return newLength > this.MAX_INPUT_LENGTH;
   }
 }

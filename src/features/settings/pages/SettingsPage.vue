@@ -1,19 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-import { filterByQuery } from '@utils/string/queryFilter';
 import { useSettingsStore, DEFAULT_SETTINGS } from '@stores/settings';
-import { useToast } from '@composables/ui/useToast';
-import { cloneDeep } from '@utils/object/objectUtils';
 import { BasePage } from '@components/ui'
-import SettingsSearch from '@settings/components/SettingsSearch.vue';
-import StartupSection from '@settings/components/StartupSection.vue';
-import AppearanceSection from '@settings/components/AppearanceSection.vue';
-import AdvancedSection from '@settings/components/AdvancedSection.vue';
-import SettingsActions from '@settings/components/SettingsActions.vue';
-import UnsavedChangesModal from '@settings/components/UnsavedChangesModal.vue';
-import { settingsManifest } from '@settings/composables/settingsManifest';
+import { useToast } from '@composables/ui/useToast';
 import type { Settings } from '@services/storage/db';
+import { filterByQuery } from '@utils/string/queryFilter';
+import { cloneDeep } from '@utils/object/objectUtils';
+import { settingsManifest } from '@settings/composables/settingsManifest';
+import { SettingsSearch, StartupSection, AppearanceSection, AdvancedSection, SettingsActions, UnsavedChangesModal  } from '@settings/components';
 
 defineOptions({
   name: 'SettingsPage',

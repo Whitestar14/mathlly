@@ -6,7 +6,6 @@ import type { CalculatorMode } from './useCalculatorState';
 import type { Calculator } from '@calculator/services/factory/CalculatorFactory';
 
 export interface UseMemoryUIReturn {
-  // Re-export storage functionality
   memorySlots: ReturnType<typeof useMemoryStorage>['memorySlots'];
   isLoading: ReturnType<typeof useMemoryStorage>['isLoading'];
   hasMemory: (mode: CalculatorMode) => ComputedRef<boolean>;

@@ -47,7 +47,7 @@ export class ProgrammerCalculations extends StandardCalculations {
       return CalculatorUtils.formatForBase(Math.abs(result), base);
     } catch (err) {
       console.error('Error formatting result:', err);
-      return base === 'DEC' ? super.formatResult(result, options) : 'Overflow';
+      return base === 'DEC' ? super._formatResult(result) : 'Overflow';
     }
   }
 
@@ -56,19 +56,5 @@ export class ProgrammerCalculations extends StandardCalculations {
    */
   evaluateExpressionWithBase(expr: string, base: BaseType): number {
     return this.evaluateExpression(expr, { base });
-  }
-
-  /**
-   * Set the current base for calculations
-   */
-  setCurrentBase(base: BaseType): void {
-    this.currentBase = base;
-  }
-
-  /**
-   * Get the current base
-   */
-  getCurrentBase(): BaseType {
-    return this.currentBase;
   }
 }

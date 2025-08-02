@@ -4,17 +4,15 @@
     <div class="grid grid-cols-3 gap-1 h-8">
       <button
         class="calc-function-btn calc-btn calc-btn-top"
-        :class="{ 'active': calculatorOptions.angleDisplayMode !== 'DEG' }"
-        @click="calculatorOptions.cycleAngleMode"
+        @click="options.cycleAngleMode"
       >
-        <span>{{ calculatorOptions.angleDisplayMode }}</span>
+        <span>{{ options.angleDisplayMode }}</span>
       </button>
       <button
         class="calc-function-btn calc-btn calc-btn-top"
-        :class="{ 'active': calculatorOptions.notationDisplayMode === 'SCI' }"
-        @click="calculatorOptions.toggleNotationMode"
+        @click="options.cycleNotationMode"
       >
-        <span>{{ calculatorOptions.notationDisplayMode }}</span>
+        <span>{{ options.notationDisplayMode }}</span>
       </button>
       
       <!-- Memory dropdown with uniform styling -->
@@ -52,16 +50,16 @@
       >
         <template #header>
           <div class="grid grid-cols-2 gap-1 p-2">
-            <CalcButton
+            <CalculatorButton
               value="HYP"
               variant="function"
               size="sm"
-              :class="{ 'calc-active-btn': calculatorOptions.hyperbolicMode }"
-              @click="calculatorOptions.toggleHyperbolicMode"
+              :class="[options.hyperbolicMode.value ? 'calc-active-btn': '']"
+              @click="options.toggleHyperbolicMode"
             >
               HYP
-            </CalcButton>
-            <CalcButton
+            </CalculatorButton>
+            <CalculatorButton
               value="2nd"
               variant="function"
               size="sm"
@@ -69,7 +67,7 @@
               @click="toggleTrigSecondFunction"
             >
               <span>2<sup>nd</sup></span>
-            </CalcButton>
+            </CalculatorButton>
           </div>
         </template>
         
@@ -114,16 +112,16 @@
     <div class="grid grid-cols-5 gap-1 flex-grow">
       <!-- Scientific functions column -->
       <div class="flex flex-col gap-1">
-        <CalcButton
+        <CalculatorButton
           value="2nd"
           variant="function"
           :class="{ 'calc-active-btn': secondFunctionActive }"
           @click="toggleSecondFunction"
         >
           <span>2<sup>nd</sup></span>
-        </CalcButton>
+        </CalculatorButton>
         
-        <CalcButton
+        <CalculatorButton
           v-for="func in scientificFunctions"
           :key="func.primary"
           :value="secondFunctionActive ? func.secondary : func.primary"
@@ -133,13 +131,13 @@
         >
           <!-- eslint-disable-next-line vue/no-v-html -->
           <span v-html="secondFunctionActive ? func.secondaryDisplay : func.primaryDisplay" />
-        </CalcButton>
+        </CalculatorButton>
       </div>
 
       <!-- Main calculator grid -->
       <div class="col-span-4 grid grid-cols-4 gap-1">
         <!-- First row -->
-        <CalcButton 
+        <CalculatorButton 
           v-for="(btn, index) in reactiveButtonRow" 
           :key="index"
           :value="btn.value"
@@ -148,10 +146,10 @@
           @click="handleClick"
         >
           <span>{{ btn.display || btn.value }}</span>
-        </CalcButton>
+        </CalculatorButton>
 
         <!-- Second row -->
-        <CalcButton 
+        <CalculatorButton 
           v-for="(btn, index) in scientificSecondRow" 
           :key="index"
           :value="btn.value"
@@ -162,7 +160,7 @@
         />
 
         <!-- Third row -->
-        <CalcButton 
+        <CalculatorButton 
           v-for="(btn, index) in scientificThirdRow" 
           :key="index"
           :value="btn.value"
@@ -176,7 +174,7 @@
           v-for="(row, rowIndex) in numberRows"
           :key="`row-${rowIndex}`"
         >
-          <CalcButton 
+          <CalculatorButton 
             v-for="(btn, btnIndex) in row" 
             :key="`row-${rowIndex}-btn-${btnIndex}`"
             :value="btn.value"
@@ -192,7 +190,7 @@
 
 <script setup>
 import { ref, computed, inject } from "vue";
-import CalcButton from '@calculator/components/CalculatorButton.vue';
+import { CalculatorButton } from '@calculator/components';
 import { BaseDropdown, BaseDropdownItem } from '@components/ui'
 import { 
   LucideTriangle, 
@@ -229,7 +227,7 @@ const props = defineProps({
 const emit = defineEmits(['button-click', 'clear']);
 
 // Inject calculator options from parent
-const calculatorOptions = inject('calculatorOptions');
+const options = inject('calculatorOptions');
 
 // Local UI state (not related to calculator settings)
 const secondFunctionActive = ref(false);
@@ -277,7 +275,7 @@ const reactiveButtonRow = computed(() => [
 
 // Compute current trig functions based on both 2nd and hyperbolic mode
 const currentTrigFunctions = computed(() => {
-  if (calculatorOptions?.hyperbolicMode.value) {
+  if (options?.hyperbolicMode.value) {
     return trigSecondFunctionActive.value ? secondaryHyperbolicFunctions : primaryHyperbolicFunctions;
   } else {
     return trigSecondFunctionActive.value ? secondaryTrigFunctions : primaryTrigFunctions;

@@ -84,7 +84,7 @@ const router = useRouter();
 const device = useDeviceStore();
 const settings = useSettingsStore();
 
-const minLoadTime = new Promise(resolve => setTimeout(resolve, 300));
+const minLoadTime = new Promise(resolve => setTimeout(resolve, 1500));
 
 await Promise.all([
   settings.loadSettings(),

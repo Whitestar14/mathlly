@@ -707,7 +707,7 @@ const printShortcutGuide = (): void => {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Mathlly - Keyboard Shortcuts</title>
+          <title>Prism - Keyboard Shortcuts</title>
           <style>
             body { font-family: monospace; margin: 20px; }
             h1 { color: #4f46e5; }
@@ -715,7 +715,7 @@ const printShortcutGuide = (): void => {
           </style>
         </head>
         <body>
-          <h1>Mathlly - Keyboard Shortcuts</h1>
+          <h1>Prism - Keyboard Shortcuts</h1>
           <pre>${printContent}</pre>
         </body>
       </html>

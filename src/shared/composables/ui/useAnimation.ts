@@ -39,37 +39,21 @@ interface SlideAnimationOptions {
   resultTranslateY?: [string | number, string | number]
 }
 
-interface LogoAnimationOptions {
-  elements: {
-    slashTop: Ref<HTMLElement | null>
-    slashBottom: Ref<HTMLElement | null>
-    bracketLeft: Ref<HTMLElement | null>
-    bracketRight: Ref<HTMLElement | null>
-    letterM: Ref<HTMLElement | null>
-    letterA: Ref<HTMLElement | null>
-    letterT: Ref<HTMLElement | null>
-    letterH: Ref<HTMLElement | null>
-    letterY: Ref<HTMLElement | null>
-  }
-  prefersReducedMotion?: Ref<boolean>
-  isVisible?: Ref<boolean>
-}
-
 // Define animation handler interfaces
 interface AnimationHandlers {
   onBeforeEnter: (el: Element) => void
-  onEnter: (el: Element, done: () => void) => void | Promise<void>
-  onLeave: (el: Element, done: () => void) => void | Promise<void>
+  onEnter: (el: Element, done: () => void) => void
+  onLeave: (el: Element, done: () => void) => void
 }
 
 interface LogoAnimationControls {
-  playAnimation: () => Promise<void>
+  playAnimation: () => void
   stopAnimation: () => void
 }
 
 interface SlideAnimationControls {
-  animateSlide: (resultContainer: HTMLElement | null, inputContainer: HTMLElement | null) => Promise<void>
-  resetPositions: (resultContainer: HTMLElement | null, inputContainer: HTMLElement | null) => Promise<void>
+  animateSlide: (resultContainer: HTMLElement | null, inputContainer: HTMLElement | null) => void
+  resetPositions: (resultContainer: HTMLElement | null, inputContainer: HTMLElement | null) => void
 }
 
 interface UseAnimationReturn {
@@ -78,7 +62,6 @@ interface UseAnimationReturn {
   createStaggeredAnimation: (options?: StaggeredAnimationOptions) => AnimationHandlers
   createFadeAnimation: (options?: FadeAnimationOptions) => AnimationHandlers
   createListAnimation: (options?: ListAnimationOptions) => AnimationHandlers
-  createLogoAnimation: (options: LogoAnimationOptions) => LogoAnimationControls
   createSlideAnimation: (options?: SlideAnimationOptions) => SlideAnimationControls
 }
 
@@ -140,8 +123,8 @@ export function useAnimation(): UseAnimationReturn {
       }
     }
 
-    const onEnter = async (el: Element, done: () => void): Promise<void> => {
-      const anime = await getAnime()
+    const onEnter = (el: Element, done: () => void): void => {
+      const anime = getAnime()
       const element = el as HTMLElement
       
       if (isInitialAnimation.value) {
@@ -174,8 +157,8 @@ export function useAnimation(): UseAnimationReturn {
       }
     }
 
-    const onLeave = async (el: Element, done: () => void): Promise<void> => {
-      const anime = await getAnime()
+    const onLeave = (el: Element, done: () => void): void => {
+      const anime = getAnime()
       
       const animProps: any = {
         targets: el,
@@ -204,8 +187,8 @@ export function useAnimation(): UseAnimationReturn {
 
     const { onBeforeEnter, onEnter } = createStaggeredAnimation(options)
 
-    const onLeave = async (el: Element, done: () => void): Promise<void> => {
-      const anime = await getAnime()
+    const onLeave = (el: Element, done: () => void): void => {
+      const anime = getAnime()
       const element = el as HTMLElement
       const { 
         leaveAxis = 'x', 
@@ -261,8 +244,8 @@ export function useAnimation(): UseAnimationReturn {
       element.style.opacity = '0'
     }
 
-    const onEnter = async (el: Element, done: () => void): Promise<void> => {
-      const anime = await getAnime()
+    const onEnter = (el: Element, done: () => void): void => {
+      const anime = getAnime()
       const element = el as HTMLElement
       
       anime({
@@ -277,8 +260,8 @@ export function useAnimation(): UseAnimationReturn {
       })
     }
 
-    const onLeave = async (el: Element, done: () => void): Promise<void> => {
-      const anime = await getAnime()
+    const onLeave = (el: Element, done: () => void): void => {
+      const anime = getAnime()
       
       anime({
         targets: el,
@@ -290,100 +273,6 @@ export function useAnimation(): UseAnimationReturn {
     }
 
     return { onBeforeEnter, onEnter, onLeave }
-  }
-
-  /**
-   * Creates a logo animation specifically for the mathlly logo
-   */
-  const createLogoAnimation = (options: LogoAnimationOptions): LogoAnimationControls => {
-    const { elements, prefersReducedMotion, isVisible } = options
-    let firstTimeline: any = null
-    let secondTimeline: any = null
-
-    const playAnimation = async (): Promise<void> => {
-      if (isVisible && isVisible.value === false) return
-      
-      const anime = await getAnime()
-      const { 
-        slashTop, slashBottom, bracketLeft, bracketRight,
-        letterM, letterA, letterT, letterH, letterY 
-      } = elements
-
-      if (!anime || !slashTop.value || !slashBottom.value) return
-
-      if (prefersReducedMotion?.value) {
-        await animateElements(
-          [
-            slashTop.value, slashBottom.value, letterM.value, letterA.value,
-            letterT.value, letterH.value, letterY.value, bracketLeft.value, bracketRight.value
-          ].filter((el): el is HTMLElement => el !== null),
-          {
-            opacity: [0, 1],
-            duration: 600,
-            easing: 'easeOutQuad'
-          }
-        )
-        return
-      }
-
-      secondTimeline = anime({
-        targets: [bracketLeft.value, bracketRight.value],
-        opacity: [0.5, 1],
-        duration: 1000,
-        loop: true,
-        direction: 'alternate',
-        easing: 'easeInOutSine',
-        autoplay: false,
-      })
-
-      firstTimeline = anime.timeline({
-        easing: 'easeOutExpo',
-        autoplay: false
-      })
-
-      firstTimeline
-        .add({
-          targets: slashTop.value,
-          translateY: ['-100%', '0%'],
-          opacity: [0, 1],
-          duration: 600,
-        })
-        .add({
-          targets: slashBottom.value,
-          translateY: ['100%', '0%'],
-          opacity: [0, 1],
-          duration: 600,
-        }, '-=400')
-        .add({
-          targets: [letterM.value, letterA.value, letterT.value, letterH.value, letterY.value],
-          opacity: [0, 1],
-          translateY: [10, 0],
-          delay: anime.stagger(100),
-          duration: 400,
-        }, '-=200')
-        .add({
-          targets: [bracketLeft.value, bracketRight.value],
-          opacity: [0, 0.5],
-          translateX: (_: Element, i: number) => [i === 0 ? -20 : 20, 0],
-          duration: 400,
-          complete: () => secondTimeline.play(),
-        }, '-=200')
-
-      firstTimeline.play()
-    }
-
-    const stopAnimation = (): void => {
-      if (firstTimeline) {
-        firstTimeline.pause()
-        firstTimeline = null
-      }
-      if (secondTimeline) {
-        secondTimeline.pause()
-        secondTimeline = null
-      }
-    }
-
-    return { playAnimation, stopAnimation }
   }
 
   /**
@@ -399,13 +288,13 @@ export function useAnimation(): UseAnimationReturn {
       resultTranslateY = ['100%', 0],
     } = options
 
-    const animateSlide = async (
+    const animateSlide = (
       resultContainer: HTMLElement | null, 
       inputContainer: HTMLElement | null
-    ): Promise<void> => {
+    ): void => {
       if (!resultContainer || !inputContainer) return
       
-      const anime = await getAnime()
+      const anime = getAnime()
 
       anime.set(resultContainer, { 
         translateY: resultTranslateY[0], 
@@ -437,13 +326,13 @@ export function useAnimation(): UseAnimationReturn {
         }, `-=${duration - 50}`)
     }
 
-    const resetPositions = async (
+    const resetPositions = (
       resultContainer: HTMLElement | null, 
       inputContainer: HTMLElement | null
-    ): Promise<void> => {
+    ): void => {
       if (!resultContainer || !inputContainer) return
       
-      const anime = await getAnime()
+      const anime = getAnime()
 
       anime.set(resultContainer, {
         translateY: resultTranslateY[0],
@@ -464,7 +353,6 @@ export function useAnimation(): UseAnimationReturn {
     createStaggeredAnimation,
     createFadeAnimation,
     createListAnimation,
-    createLogoAnimation,
     createSlideAnimation
   }
 }
@@ -476,7 +364,6 @@ export type {
   ListAnimationOptions,
   FadeAnimationOptions,
   SlideAnimationOptions,
-  LogoAnimationOptions,
   AnimationHandlers,
   LogoAnimationControls,
   SlideAnimationControls,

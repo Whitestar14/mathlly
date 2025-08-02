@@ -1,0 +1,51 @@
+<template>
+  <svg
+    version="1.1"
+    width="231.56165"
+    height="204.66397"
+    style="
+      clip-rule: evenodd;
+      fill-rule: evenodd;
+      image-rendering: optimizeQuality;
+      shape-rendering: geometricPrecision;
+      text-rendering: geometricPrecision;
+    "
+  >
+    <defs id="defs37" />
+    <g id="g40" transform="translate(-101.5,-384.44138)">
+      <path
+        d="m 191.76758,384.44141 c -0.42074,-7.9e-4 -0.84283,0.0186 -1.26758,0.0586 -1.975,1.146 -3.475,2.813 -4.5,5 -28.586,64.003 -56.753,128.17 -84.5,192.5 0.198,3.401 1.865,5.734 5,7 6.089,0.384 12.089,-0.282 18,-2 66.305,-14.794 132.638,-29.461 199,-44 8.498,-0.523 11.332,-4.689 8.5,-12.5 -42.7,-45.032 -85.034,-90.365 -127,-136 l -9.5,-9.5 c -1.2255,-0.3705 -2.47022,-0.55625 -3.73242,-0.55859 z M 189.5,414.5 c 0.997,-0.03 1.664,0.47 2,1.5 6.133,25.993 10.966,52.16 14.5,78.5 -26.667,22 -53.333,44 -80,66 1.37,-5.771 3.37,-11.438 6,-17 19.179,-43.022 38.345,-86.022 57.5,-129 z"
+        style="opacity: 1;"
+        fill="currentColor"
+      />
+    </g>
+  </svg>
+</template>
+
+<script setup>
+import { computed } from 'vue';
+
+defineProps({
+  size: {
+    type: String,
+    default: 'md',
+    validator: (value) => ['sm', 'md', 'lg', 'xl'].includes(value),
+  },
+  clipped: {
+    type: Boolean,
+    default: false,
+  },
+  hideFromScreenReaders: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+// Size classes for the text logo - use computed to avoid re-creating on each render
+const sizeClasses = computed(() => ({
+  sm: 'text-xl px-2 py-1',
+  md: 'text-2xl px-2.5 py-1.5',
+  lg: 'text-4xl px-5 py-3',
+  xl: 'text-6xl px-6 py-4',
+}));
+</script>

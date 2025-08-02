@@ -8,13 +8,7 @@
   >
     <!-- Custom header -->
     <template #header-actions>
-      <div class="flex justify-between items-center">
-        <TextLogo
-          :clipped="isMobile"
-          size="sm"
-          class="absolute left-2"
-        />
-      </div>
+      <PrismLogo class="-left-20 absolute scale-[0.125]" />
     </template>
 
     <!-- Navigation content -->
@@ -47,7 +41,7 @@
         />
       </div>
       <p class="text-xs text-center text-muted-foreground">
-        Mathlly - The Mathlly Team
+        Stud.io · xijibomi
       </p>
     </template>
   </BasePanel>
@@ -61,7 +55,7 @@ import {
 } from "radix-vue";
 import { usePills } from "@composables/ui/usePills";
 import { useSidebarNavigation } from "@composables/ui/useSidebarNavigation";
-import { BasePanel, TextLogo, PillIndicator as Indicator } from '@components/ui'
+import { BasePanel, PrismLogo, PillIndicator as Indicator } from '@components/ui'
 import NavigationCategory from "@components/layout/sidebar/NavigationCategory.vue";
 import FooterNavigationItem from "@components/layout/sidebar/FooterNavigationItem.vue";
 import type { NavigationItem } from "@composables/ui/useSidebarNavigation";

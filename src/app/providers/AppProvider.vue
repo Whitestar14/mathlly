@@ -8,13 +8,12 @@
 </template>
   
 <script setup lang="ts">
-import { watch, onMounted, computed, type ComputedRef } from 'vue';
+import { watch, onMounted, computed } from 'vue';
 import { createPanelContext } from '@composables/ui/usePanel';
 import { useDeviceStore } from '@stores/device';
 import { useSettingsStore } from '@stores/settings';
 import { usePWATheme } from '@composables/core/usePWATheme';
 
-// Types
 type TextSize = 'small' | 'normal' | 'medium' | 'large';
 
 interface PanelActions {
@@ -26,25 +25,18 @@ const device = useDeviceStore();
 const settings = useSettingsStore();
 const { actions }: { actions: PanelActions } = createPanelContext();
 
-// Initialize PWA theme management
-const { updatePWATheme } = usePWATheme();
+usePWATheme();
 
 onMounted(() => {
-  const isMobile: boolean = device.isMobile;
-  actions.setMobile(isMobile);
-  updateTextSizeClasses(textSize.value);
-  
-  // Initialize PWA theme
-  updatePWATheme();
+  actions.setMobile(device.isMobile);
 });
 
 watch(() => device.isMobile, (newIsMobile: boolean) => {
   actions.setMobile(newIsMobile);
 });
 
-// Computed properties
-const globalClasses: ComputedRef<string[]> = computed(() => {
-  const classes: string[] = [];
+const globalClasses = computed(() => {
+  const classes = [];
   if (settings.appearance.animationDisabled) {
     classes.push('animation-disabled');
   }
@@ -52,18 +44,15 @@ const globalClasses: ComputedRef<string[]> = computed(() => {
   return classes;
 });
 
-const textSize: ComputedRef<TextSize> = computed(() => 
+const textSize = computed(() => 
   (settings.display.textSize as TextSize) || "medium"
 );
 
-// Methods
-const updateTextSizeClasses = (newSize: TextSize): void => {
+// Update text size classes
+watch(textSize, (newSize) => {
   const root = document.documentElement;
-  root.classList.remove("ts-small", "ts-normal", "ts-medium", "ts-large");
-  if (newSize) {
-    root.classList.add(`ts-${newSize}`);
-  }
-};
-
-watch(textSize, updateTextSizeClasses, { immediate: true });
+  ['small', 'normal', 'medium', 'large'].forEach(size => {
+    root.classList.toggle(`ts-${size}`, size === newSize);
+  });
+}, { immediate: true });
 </script>

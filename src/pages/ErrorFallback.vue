@@ -3,7 +3,7 @@
     :title="errorState.pageTitle"
     :show-header="false"
     :show-footer="false"
-    main-class="flex flex-col items-center justify-center min-h-screen p-4 text-center bg-background transition-colors duration-300"
+    main-class="flex flex-col items-center justify-center min-h-[clamp(700px,100%,100vh)] p-4 text-center bg-background transition-colors duration-300"
   >
     <div class="space-y-6 max-w-lg">
       <!-- Error Code Visual -->
@@ -32,7 +32,7 @@
           v-if="isOffline && autoRetryActive && !is404Error"
           class="text-primary text-sm mt-2"
         >
-          {{ networkStatus ? 'Reconnected! Attempting to reload...' : `Connection lost. Auto-retrying in ${autoRetryCountdownTime}s...` }}
+          {{ isOnline ? 'Reconnected! Attempting to reload...' : `Connection lost. Auto-retrying in ${autoRetryCountdownTime}s...` }}
           <BaseButton
             variant="link"
             size="sm"
@@ -107,9 +107,10 @@
 
 <script setup>
 import { ref, computed, watch, onUnmounted, reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { useIntervalFn, useTimeoutFn, useNetwork } from '@vueuse/core'
 import { HomeIcon, RefreshCwIcon, ArrowLeft } from 'lucide-vue-next'
-import { clearRouteError, routeError, networkStatus } from '@router/errorHandler'
+import { clearRouteError, routeError } from '@router/errorHandler'
 import { useToast } from '@composables/ui/useToast'
 import { BasePage, BaseButton } from '@components/ui'
 
@@ -135,8 +136,14 @@ const props = defineProps({
     default: false,
   }
 })
+
 const { toast } = useToast()
 const router = useRouter()
+const route = useRoute()
+
+// --- VueUse Composable Integration ---
+const { isOnline } = useNetwork()
+const isOffline = computed(() => !isOnline.value)
 
 // --- State Management ---
 const isManualRetrying = ref(false)
@@ -144,11 +151,36 @@ const manualRetryFeedbackMessage = ref('')
 const autoRetryActive = ref(false)
 const autoRetryCountdownTime = ref(0)
 const AUTO_RETRY_INITIAL_DELAY_SECONDS = 30
-let autoRetryTimerId = null
+
+// --- Auto-retry Timer with VueUse ---
+const { 
+  pause: pauseAutoRetry, 
+  resume: resumeAutoRetry,
+} = useIntervalFn(() => {
+  if (isOnline.value) {
+    handleManualRetry()
+    pauseAutoRetry()
+    return
+  }
+  
+  autoRetryCountdownTime.value--
+  
+  if (autoRetryCountdownTime.value <= 0) {
+    handleManualRetry()
+    if (isOffline.value) {
+      pauseAutoRetry()
+      useTimeoutFn(() => {
+        autoRetryCountdownTime.value = Math.min(
+          AUTO_RETRY_INITIAL_DELAY_SECONDS * 2, 
+          120
+        )
+        resumeAutoRetry()
+      }, 1000)
+    }
+  }
+}, 1000, { immediate: false })
 
 // --- Computed Properties ---
-const isOffline = computed(() => !networkStatus.value)
-
 const effectiveError = computed(() => {
   const err = props.error || routeError.value
   return err?.originalError || err
@@ -165,8 +197,8 @@ const is404Error = computed(() => {
     if (err.message && err.message.toLowerCase().includes('not found')) return true
   }
   
-  if (router.currentRoute.value.matched.length === 1 && 
-      router.currentRoute.value.matched[0].path === '/:pathMatch(.*)') {
+  if (route.matched.length === 1 && 
+      route.matched[0].path === '/:pathMatch(.*)') {
     return true
   }
   
@@ -264,7 +296,7 @@ function updateErrorState() {
 
   // Set message
   if (is404Error.value) {
-    errorState.message = `We couldn't find the page at ${props.path || router.currentRoute.value.fullPath || 'the requested URL'}. Please check the address or go back.`
+    errorState.message = `We couldn't find the page at ${props.path || route.fullPath || 'the requested URL'}. Please check the address or go back.`
   } else if (isOffline.value) {
     errorState.message = 'Please check your internet connection. We will attempt to reconnect automatically.'
   } else {
@@ -325,7 +357,7 @@ async function handleManualRetry() {
       type: 'warning',
       message: 'Still offline. Please check your connection.',
     })
-    setTimeout(() => {
+    useTimeoutFn(() => {
       isManualRetrying.value = false
     }, 1500)
     
@@ -335,21 +367,20 @@ async function handleManualRetry() {
     return
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 300)) // UX delay
+  useTimeoutFn(async () => {
+    clearRouteError()
 
-  clearRouteError()
-
-  try {
-    const targetPath = props.path || router.currentRoute.value.redirectedFrom?.fullPath || router.options.history.state.back || '/'
-    console.log(`ErrorFallback: Attempting to re-navigate to: ${targetPath}`)
-    await router.replace(targetPath)
-  } catch (err) {
-    console.error('ErrorFallback: Error during manual retry navigation attempt:', err)
-  } finally {
-    setTimeout(() => {
-      isManualRetrying.value = false
-    }, 200) // Delay to prevent rapid clicks
-  }
+    try {
+      const targetPath = props.path || route.redirectedFrom?.fullPath || router.options.history.state.back || '/'
+      await router.replace(targetPath)
+    } catch (err) {
+      console.error('ErrorFallback: Error during manual retry navigation attempt:', err)
+    } finally {
+      useTimeoutFn(() => {
+        isManualRetrying.value = false
+      }, 200)
+    }
+  }, 300)
 }
 
 // --- Auto-retry Functions ---
@@ -358,69 +389,27 @@ function startAutomaticRetry() {
     return
   }
 
-  console.log(`ErrorFallback: Starting automatic retry countdown (${AUTO_RETRY_INITIAL_DELAY_SECONDS}s)`)
   autoRetryActive.value = true
   autoRetryCountdownTime.value = AUTO_RETRY_INITIAL_DELAY_SECONDS
   manualRetryFeedbackMessage.value = ''
-
-  if (autoRetryTimerId) clearInterval(autoRetryTimerId)
-
-  autoRetryTimerId = setInterval(() => {
-    if (!isOffline.value) {
-      console.log('ErrorFallback: Network reconnected during auto-retry countdown.')
-      handleManualRetry()
-      cancelAutomaticRetry()
-      return
-    }
-    
-    autoRetryCountdownTime.value -= 1
-    
-    if (autoRetryCountdownTime.value <= 0) {
-      console.log('ErrorFallback: Auto-retry countdown complete, attempting retry...')
-      handleManualRetry()
-      
-      // If still offline after retry, restart with exponential backoff
-      if (isOffline.value) {
-        cancelAutomaticRetry()
-        setTimeout(() => {
-          autoRetryCountdownTime.value = Math.min(AUTO_RETRY_INITIAL_DELAY_SECONDS * 2, 120)
-          startAutomaticRetry()
-        }, 1000)
-      }
-    }
-  }, 1000)
+  resumeAutoRetry()
 }
 
 function cancelAutomaticRetry() {
-  if (autoRetryTimerId) {
-    clearInterval(autoRetryTimerId)
-    autoRetryTimerId = null
-  }
+  pauseAutoRetry()
   autoRetryActive.value = false
   manualRetryFeedbackMessage.value = ''
 }
 
 // --- Watchers ---
-watch(networkStatus, (isOnline) => {
-  if (isOnline && autoRetryActive.value) {
-    console.log('ErrorFallback: Network reconnected, attempting retry...')
-    setTimeout(() => {
-      manualRetryFeedbackMessage.value = 'Connection restored! Reloading...'
-      setTimeout(handleManualRetry, 1000)
-    }, 500)
-  } else if (!isOnline && !autoRetryActive.value && (props.isRouteError || props.isGlobalError) && !is404Error.value) {
+watch(isOnline, (online) => {
+  if (online && autoRetryActive.value) {
+    manualRetryFeedbackMessage.value = 'Connection restored! Reloading...'
+    useTimeoutFn(handleManualRetry, 1000)
+  } else if (!online && !autoRetryActive.value && !is404Error.value) {
     startAutomaticRetry()
   }
 }, { immediate: true })
 
-// Start automatic retry if offline (but not for 404 errors)
-if (isOffline.value && (props.isRouteError || props.isGlobalError) && !is404Error.value) {
-  startAutomaticRetry()
-}
-
-// Clean up on component unmount
-onUnmounted(() => {
-  cancelAutomaticRetry()
-})
+onUnmounted(cancelAutomaticRetry)
 </script>
-

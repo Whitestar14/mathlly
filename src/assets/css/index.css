@@ -1,78 +1,21 @@
 /* ==========================================================================
-   Tailwind Directives
+   1. Tailwind Directives & CSS Imports
    ========================================================================== */
-/* CSS Stylesheet Imports */
 @import './buttons.css';
+@import './theme.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ==========================================================================
-   CSS Custom Properties for Theme Packs
+   2. Base Layer
    ========================================================================== */
 @layer base {
-  :root {
-    @apply font-sans font-normal;
-    
-    /* Border radius variable - default to rounded */
-    --radius: 0.5rem;
-    
-    /* Classic Theme - Gray + Indigo color palette - Light Mode (OKLCH) */
-    --color-background: 100% 0 0;
-    --color-foreground: 15% 0.004 285.82;
-    --color-card: 100% 0 0;
-    --color-card-foreground: 15% 0.004 285.82;
-    --color-popover: 100% 0 0;
-    --color-popover-foreground: 15% 0.004 285.82;
-    --color-primary: 67.5% 0.196 271.75;
-    --color-primary-foreground: 98% 0 0;
-    --color-secondary: 95.9% 0.004 285.82;
-    --color-secondary-foreground: 15% 0.004 285.82;
-    --color-muted: 95.9% 0.004 285.82;
-    --color-muted-foreground: 52.1% 0.004 285.82;
-    --color-accent: 95.9% 0.004 285.82;
-    --color-accent-foreground: 15% 0.004 285.82;
-    --color-destructive: 62.8% 0.257 29.23;
-    --color-destructive-foreground: 98% 0 0;
-    --color-border: 90% 0.004 285.82;
-    --color-input: 90% 0.004 285.82;
-    --color-ring: 67.5% 0.196 271.75;
-    --backdrop: 0% 0 0;                         /* Pure black for overlays */
-    --backdrop-light: 100% 0 0;                 /* Pure white for light backdrops */
-    --backdrop-surface: 100% 0 0;               /* White surface backdrop */
-  }
-
-  .dark {
-    /* Classic Theme - Gray + Indigo color palette - Dark Mode (OKLCH) */
-    --color-background: 15% 0.004 285.82;
-    --color-foreground: 98% 0 0;
-    --color-card: 15% 0.004 285.82;
-    --color-card-foreground: 98% 0 0;
-    --color-popover: 15% 0.004 285.82;
-    --color-popover-foreground: 98% 0 0;
-    --color-primary: 67.5% 0.196 271.75;
-    --color-primary-foreground: 15% 0.004 285.82;
-    --color-secondary: 25% 0.004 285.82;
-    --color-secondary-foreground: 98% 0 0;
-    --color-muted: 25% 0.004 285.82;
-    --color-muted-foreground: 65.1% 0.004 285.82;
-    --color-accent: 25% 0.004 285.82;
-    --color-accent-foreground: 98% 0 0;
-    --color-destructive: 37.8% 0.257 29.23;
-    --color-destructive-foreground: 98% 0 0;
-    --color-border: 25% 0.004 285.82;
-    --color-input: 25% 0.004 285.82;
-    --color-ring: 67.5% 0.196 271.75;
-    --backdrop: 0% 0 0;                         /* Still black for overlays */
-    --backdrop-light: 25% 0.01 250;            /* Dark blue-gray for light backdrops */
-    --backdrop-surface: 15% 0.01 250;          /* Slightly lighter card-like surface */
-  }
-
+  /* CSS Custom Properties for Theme Packs */
   /* Border radius variants */
   .border-style-sharp {
     --radius: 0px;
   }
-  
   .border-style-rounded {
     --radius: 0.5rem;
   }
@@ -81,15 +24,12 @@
   .ts-small {
     font-size: 0.875rem; /* 14px */
   }
-
   .ts-normal {
     font-size: 0.975rem;
   }
-  
   .ts-medium {
     font-size: 1rem; /* 16px */
   }
-
   .ts-large {
     font-size: 1.125rem; /* 18px */
   }
@@ -99,11 +39,9 @@
     @apply bg-background text-foreground;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
-
   p {
     @apply text-[0.875rem];
   }
-
   h1,
   h2,
   h3,
@@ -112,16 +50,13 @@
   h6 {
     @apply font-medium text-foreground;
   }
-
   a,
   input {
     @apply focus-colors;
   }
-
   kbd {
     @apply inline bg-muted font-mono text-muted-foreground px-2 py-0.5 rounded-md text-nowrap;
   }
-
   textarea {
     @apply outline-none text-foreground bg-background transition-[border-color] duration-200 ease-linear focus:ring-1 focus:ring-ring/20 focus:border-ring/50;
   }
@@ -136,7 +71,6 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-
   ::-webkit-scrollbar {
     width: 4px;
     height: 8px;
@@ -157,112 +91,30 @@
     scrollbar-width: thin;
     scrollbar-color: oklch(var(--color-muted-foreground) / 0.5) transparent;
   }
-
   .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
   }
-
   .scrollbar-thin::-webkit-scrollbar-track {
     background: transparent;
   }
-
   .scrollbar-thin::-webkit-scrollbar-thumb {
     background-color: oklch(var(--color-muted-foreground) / 0.5);
     border-radius: 2px;
   }
-
   .scrollbar-thin::-webkit-scrollbar-thumb:hover {
     background-color: oklch(var(--color-muted-foreground) / 0.7);
   }
 
-  /* Logo SVG styling */
-  svg {
-    #logo-background {
-      @apply !fill-muted !stroke-border;
-    }
-
-    #logo-asterisk,
-    #logo-slash {
-      @apply !fill-primary;
-    }
-
-    #logo-dot {
-      @apply !stroke-foreground;
+  /* Accessibility & Motion Preferences */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
   }
-}
-
-/* ==========================================================================
-   Theme Pack Specific Styles
-   ========================================================================== */
-@layer base {
-  /* Mira Theme Pack - Light (Zinc-based neutral - keeping original) */
-  [data-theme-pack="mira"] {
-    --color-background: 100% 0 0;
-    --color-foreground: 15% 0.004 285.82;
-    --color-card: 100% 0 0;
-    --color-card-foreground: 15% 0.004 285.82;
-    --color-popover: 100% 0 0;
-    --color-popover-foreground: 15% 0.004 285.82;
-    --color-primary: 25% 0.015 285.82;
-    --color-primary-foreground: 98% 0 0;
-    --color-secondary: 95.9% 0.004 285.82;
-    --color-secondary-foreground: 25% 0.015 285.82;
-    --color-muted: 95.9% 0.004 285.82;
-    --color-muted-foreground: 52.1% 0.004 285.82;
-    --color-accent: 95.9% 0.004 285.82;
-    --color-accent-foreground: 25% 0.015 285.82;
-    --color-destructive: 62.8% 0.257 29.23;
-    --color-destructive-foreground: 98% 0 0;
-    --color-border: 90% 0.004 285.82;
-    --color-input: 90% 0.004 285.82;
-    --color-ring: 25% 0.015 285.82;
-    --backdrop: 0% 0 0;                         /* Black overlay */
-    --backdrop-light: 98% 0 0;                  /* Near-white backdrop */
-    --backdrop-surface: 100% 0 0;               /* Pure white surface */
-  }
-
-  /* Mira Theme Pack - Dark (keeping original) */
-  [data-theme-pack="mira"].dark {
-    --color-background: 15% 0.004 285.82;
-    --color-foreground: 98% 0 0;
-    --color-card: 15% 0.004 285.82;
-    --color-card-foreground: 98% 0 0;
-    --color-popover: 15% 0.004 285.82;
-    --color-popover-foreground: 98% 0 0;
-    --color-primary: 98% 0 0;
-    --color-primary-foreground: 25% 0.015 285.82;
-    --color-secondary: 25% 0.004 285.82;
-    --color-secondary-foreground: 98% 0 0;
-    --color-muted: 25% 0.004 285.82;
-    --color-muted-foreground: 65.1% 0.004 285.82;
-    --color-accent: 25% 0.004 285.82;
-    --color-accent-foreground: 98% 0 0;
-    --color-destructive: 37.8% 0.257 29.23;
-    --color-destructive-foreground: 98% 0 0;
-    --color-border: 25% 0.004 285.82;
-    --color-input: 25% 0.004 285.82;
-    --color-ring: 98% 0 0;
-    --backdrop: 0% 0 0;                         /* Black overlay */
-    --backdrop-light: 15% 0.005 270;           /* Very dark zinc */
-    --backdrop-surface: 20% 0.01 270;          /* Slightly lighter surface */
-  }
-
-  /* Classic Theme Pack - Gray + Indigo (explicit override if needed) */
-  [data-theme-pack="classic"] {
-    /* Light mode values already defined in :root */
-  }
-
-  [data-theme-pack="classic"].dark {
-    /* Dark mode values already defined in .dark */
-  }
-}
-
-/* ==========================================================================
-   Accessibility & Motion Preferences
-   ========================================================================== */
-@media (prefers-reduced-motion: reduce) {
-  * {
+  .animation-disabled * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -270,265 +122,172 @@
   }
 }
 
-.animation-disabled * {
-  animation-duration: 0.01ms !important;
-  animation-iteration-count: 1 !important;
-  transition-duration: 0.01ms !important;
-  scroll-behavior: auto !important;
-}
-
 /* ==========================================================================
-   Component Styles
+   3. Components Layer
    ========================================================================== */
 @layer components {
   /* Button styles using CSS custom properties */
   .btn {
     @apply inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium duration-200 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-colors;
   }
-
   .btn-default {
     @apply bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground;
   }
-
   .btn-primary {
     @apply bg-primary text-primary-foreground hover:bg-primary/90;
   }
-
   .btn-destructive {
     @apply bg-destructive text-destructive-foreground hover:bg-destructive/90;
   }
-
   .btn-outline {
     @apply border border-border bg-transparent hover:bg-accent/80 text-muted-foreground hover:text-accent-foreground;
   }
-
   .btn-secondary {
     @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
   }
-
   .btn-ghost {
     @apply bg-transparent text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground;
   }
-
   .btn-link {
     @apply text-primary underline-offset-4 hover:underline bg-transparent;
   }
-
   /* Button sizes */
   .btn-default-size {
     @apply h-9 py-1 px-3 rounded-md;
   }
-
   .btn-xs {
     @apply h-6 px-2 text-xs rounded;
   }
-
   .btn-sm {
     @apply h-9 px-3 rounded-md;
   }
-
   .btn-lg {
     @apply h-11 px-8 rounded-md;
   }
-
   .btn-icon {
     @apply size-8 rounded-md;
   }
-
   .btn:disabled {
     @apply opacity-50 cursor-not-allowed pointer-events-none;
   }
-  
+
   /* Loader styles */
   .loader-expanded {
     @apply fixed inset-0 z-50 bg-background/95;
   }
 
-/* Syntax highlighting classes - now theme-aware */
-.syntax-number {
-  @apply text-blue-600 dark:text-blue-400;
-}
+  /* Syntax highlighting classes - now theme-aware */
+  .syntax-number {
+    @apply text-blue-600 dark:text-blue-400;
+  }
+  .syntax-operator,
+  .syntax-programmer-operator {
+    @apply text-orange-600 dark:text-orange-400;
+  }
+  .syntax-parenthesis {
+    @apply text-muted-foreground font-semibold;
+  }
+  .syntax-function {
+    @apply text-pink-600 dark:text-pink-400;
+  }
+  .syntax-decimal {
+    @apply text-primary font-bold;
+  }
+  .syntax-text {
+    @apply text-foreground;
+  }
+  .syntax-ghost {
+    @apply text-muted-foreground opacity-40;
+  }
 
-.syntax-operator,
-.syntax-programmer-operator {
-  @apply text-orange-600 dark:text-orange-400;
-}
-
-.syntax-parenthesis {
-  @apply text-muted-foreground font-semibold;
-}
-
-.syntax-function {
-  @apply text-pink-600 dark:text-pink-400;
-}
-
-.syntax-decimal {
-  @apply text-primary font-bold;
-}
-
-.syntax-text {
-  @apply text-foreground;
-}
-
-.syntax-ghost {
-  @apply text-muted-foreground opacity-40;
-}
-
-/* Scientific mode specific syntax highlighting */
-.syntax-scientific-function {
-  @apply text-pink-600 dark:text-pink-400 font-medium;
-}
-
-.syntax-trig-function {
-  @apply text-emerald-600 dark:text-emerald-400 font-medium;
-}
-
-.syntax-hyperbolic-function {
-  @apply text-teal-600 dark:text-teal-400 font-medium;
-}
-
-.syntax-log-function {
-  @apply text-orange-600 dark:text-orange-400 font-medium;
-}
-
-.syntax-root-function {
-  @apply text-cyan-600 dark:text-cyan-400 font-bold;
-}
-
-.syntax-constant {
-  @apply text-amber-600 dark:text-amber-400 font-semibold;
-}
-
-.syntax-power-operator {
-  @apply text-red-600 dark:text-red-400 font-bold;
-}
-
-.syntax-factorial {
-  @apply text-violet-600 dark:text-violet-400 font-bold;
-}
-
-.syntax-modulo-operator {
-  @apply text-indigo-600 dark:text-indigo-400 font-medium;
-}
-
-/* Parentheses nesting levels for scientific mode */
-.paren-level-0 {
-  @apply text-blue-600 dark:text-blue-400;
-}
-
-.paren-level-1 {
-  @apply text-green-600 dark:text-green-400;
-}
-
-.paren-level-2 {
-  @apply text-purple-600 dark:text-purple-400;
-}
-
-.paren-level-3 {
-  @apply text-orange-600 dark:text-orange-400;
-}
-
-.paren-level-4 {
-  @apply text-pink-600 dark:text-pink-400;
-}
-
-.paren-level-5 {
-  @apply text-cyan-600 dark:text-cyan-400;
-}
-
-/* Fallback for deeper nesting */
-.paren-level-deep {
-  @apply text-muted-foreground;
-}
-
-/* Scientific mode expression highlighting */
-.scientific-expression {
-  @apply font-mono text-sm leading-relaxed;
-}
-
-.scientific-expression .syntax-constant {
-  @apply bg-amber-50 dark:bg-amber-900/20 px-1 rounded;
-}
-
-.scientific-expression .syntax-root-function {
-  @apply bg-cyan-50 dark:bg-cyan-900/20 px-1 rounded;
-}
-
-.scientific-expression .syntax-power-operator {
-  @apply bg-red-50 dark:bg-red-900/20 px-0.5 rounded;
-}
-
-.paren-ghost {
-  @apply opacity-40 text-muted-foreground ml-0.5;
-}
-
-.paren-open,
-.paren-close {
-  position: relative;
-  margin: 0 0.125rem;
-}
-
-.paren-open {
-  margin-right: 0.25rem;
-}
+  /* Parentheses nesting levels for scientific mode */
+  .paren-level-0 {
+    @apply text-blue-600 dark:text-blue-400;
+  }
+  .paren-level-1 {
+    @apply text-green-600 dark:text-green-400;
+  }
+  .paren-level-2 {
+    @apply text-purple-600 dark:text-purple-400;
+  }
+  .paren-level-3 {
+    @apply text-orange-600 dark:text-orange-400;
+  }
+  .paren-level-4 {
+    @apply text-pink-600 dark:text-pink-400;
+  }
+  .paren-level-5 {
+    @apply text-cyan-600 dark:text-cyan-400;
+  }
+  /* Fallback for deeper nesting */
+  .paren-level-deep {
+    @apply text-muted-foreground;
+  }
+  .paren-ghost {
+    @apply opacity-40 text-muted-foreground ml-0.5;
+  }
+  .paren-open,
+  .paren-close {
+    position: relative;
+    margin: 0 0.125rem;
+  }
+  .paren-open {
+    margin-right: 0.25rem;
+  }
 
   /* Scrollbar hiding utility */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Tooltip Styles */
+  .tippy-box[data-theme~='custom'] {
+    @apply text-xs p-0.5 shadow-lg border;
+    background-color: oklch(var(--color-popover));
+    color: oklch(var(--color-popover-foreground));
+    border: 1px solid oklch(var(--color-border));
+    border-radius: 0.5rem;
+  }
+  /* Dark mode specific shadow */
+  .dark .tippy-box[data-theme~='custom'] {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3),
+      0 4px 6px -4px rgb(0 0 0 / 0.2), 0 0 0 1px oklch(var(--color-border));
+  }
+  .tippy-box[data-theme~='custom'][data-placement^='top']
+    > .tippy-arrow::before {
+    border-top-color: oklch(var(--color-popover));
+  }
+  .tippy-box[data-theme~='custom'][data-placement^='bottom']
+    > .tippy-arrow::before {
+    border-bottom-color: oklch(var(--color-popover));
+  }
+  .tippy-box[data-theme~='custom'][data-placement^='left']
+    > .tippy-arrow::before {
+    border-left-color: oklch(var(--color-popover));
+  }
+  .tippy-box[data-theme~='custom'][data-placement^='right']
+    > .tippy-arrow::before {
+    border-right-color: oklch(var(--color-popover));
+  }
+
+  /* Logo styles */
+  .logo-stroke-stop {
+    stop-color: oklch(var(--logo-stroke-stop-color));
+  }
+  .logo-fg-stroke {
+    stop-color: oklch(var(--logo-fg-stop-color));
+  }
+  .logo-bg-fill {
+    fill: oklch(var(--logo-bg-fill));
   }
 }
 
 /* ==========================================================================
-   Tooltip Styles
-   ========================================================================== */
-.tippy-box[data-theme~='custom'] {
-  @apply text-xs p-0.5 shadow-lg border;
-  background-color: oklch(var(--color-popover));
-  color: oklch(var(--color-popover-foreground));
-  border: 1px solid oklch(var(--color-border));
-  border-radius: 0.5rem;
-}
-
-/* Dark mode specific shadow */
-.dark .tippy-box[data-theme~='custom'] {
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.3), 0 4px 6px -4px rgb(0 0 0 / 0.2), 0 0 0 1px oklch(var(--color-border));
-}
-
-.tippy-box[data-theme~='custom'][data-placement^='top'] > .tippy-arrow::before { border-top-color: oklch(var(--color-popover)); }
-.tippy-box[data-theme~='custom'][data-placement^='bottom'] > .tippy-arrow::before { border-bottom-color: oklch(var(--color-popover)); }
-.tippy-box[data-theme~='custom'][data-placement^='left'] > .tippy-arrow::before { border-left-color: oklch(var(--color-popover)); }
-.tippy-box[data-theme~='custom'][data-placement^='right'] > .tippy-arrow::before { border-right-color: oklch(var(--color-popover)); }
-
-/* ==========================================================================
-   Transition Animations
-   ========================================================================== */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-.scale-enter-active,
-.scale-leave-active {
-  transition: transform 0.3s ease;
-}
-
-.scale-enter-from,
-.scale-leave-to {
-  transform: scale(0.985);
-}
-
-/* ==========================================================================
-   Utility Classes
+   4. Utility Classes
    ========================================================================== */
 @layer utilities {
   /* Pattern utilities */
@@ -538,10 +297,13 @@
         oklch(var(--color-border) / 0.3) 1px,
         transparent 1px
       ),
-      linear-gradient(to bottom, oklch(var(--color-border) / 0.3) 1px, transparent 1px);
+      linear-gradient(
+        to bottom,
+        oklch(var(--color-border) / 0.3) 1px,
+        transparent 1px
+      );
     background-size: 20px 20px;
   }
-
   .pattern-dots {
     background-image: radial-gradient(
       oklch(var(--color-border) / 0.5) 1px,
@@ -549,12 +311,30 @@
     );
     background-size: 16px 16px;
   }
-
   .z-5 {
     z-index: 5;
   }
-
   .focus-colors {
     @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-ring;
   }
+}
+
+/* ==========================================================================
+   5. Transition Animations
+   ========================================================================== */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.scale-enter-active,
+.scale-leave-active {
+  transition: transform 0.3s ease;
+}
+.scale-enter-from,
+.scale-leave-to {
+  transform: scale(0.985);
 }

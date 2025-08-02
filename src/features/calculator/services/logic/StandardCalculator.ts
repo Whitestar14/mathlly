@@ -5,8 +5,7 @@ import { CalculatorConstants } from "@calculator/utils/constants/CalculatorConst
 
 /**
  * Calculator implementation for standard mode
- * 
- * @class StandardCalculator
+ * * @class StandardCalculator
  * @extends ICalculator
  */
 export class StandardCalculator extends ICalculator {
@@ -20,7 +19,6 @@ export class StandardCalculator extends ICalculator {
   constructor() {
     super();
     this.MAX_INPUT_LENGTH = CalculatorConstants.MAX_INPUT_LENGTH.STANDARD;
-    // Use composition for calculations and operations - pass this calculator instance
     this.calculations = new StandardCalculations(this);
     this.operations = new StandardOperations(this);
   }
@@ -66,68 +64,99 @@ export class StandardCalculator extends ICalculator {
   }
 
   /**
-   * Handle operator input (delegates to operations)
-   * @param {string} op - Operator symbol
-   * @returns {Object} Updated state
+   * Handle clear operation
    */
-  handleOperator(op: string): Record<string, any> {
-    return this.normalizeResponse(this.operations.handleOperator(op));
+  handleClear(): Record<string, any> {
+    super.handleClear();
+    return {
+      input: this.input,
+      error: this.error
+    };
   }
 
   /**
-   * Handle number input (delegates to operations)
-   * @param {string} num - Number or digit
+   * Process button input and route to appropriate handler.
+   * This centralizes the handling logic, making the class more maintainable.
+   * @param {string} btn - Button value
    * @returns {Object} Updated state
    */
-  handleNumber(num: string): Record<string, any> {
-    return this.normalizeResponse(this.operations.handleNumber(num));
+  processButton(btn: string): Record<string, any> {
+    try {
+      this.error = '';
+
+      // Handle equals
+      if (btn === '=') {
+        return this.handleEquals();
+      }
+
+      // Handle specific standard functions
+      if (btn === 'backspace') {
+        return this.operations.handleBackspace();
+      }
+      if (btn === '±') {
+        return this.operations.handleToggleSign();
+      }
+      if (btn === '%') {
+        return this.operations.handlePercentage();
+      }
+      if (btn === '1/x') {
+        return this.operations.handleReciprocal();
+      }
+      if (btn === 'x²') {
+        return this.operations.handleSquare();
+      }
+      if (btn === '√') {
+        return this.operations.handleSquareRoot();
+      }
+
+      // Handle basic operators
+      if (CalculatorConstants.BUTTON_TYPES.OPERATORS.includes(btn as any)) {
+        return this.operations.handleOperator(btn);
+      }
+
+      // Handle number input
+      if (CalculatorConstants.REGEX.NUMBER.test(btn)) {
+        return this.operations.handleNumber(btn);
+      }
+
+      // Log unexpected inputs
+      console.warn(`Unexpected button input in StandardCalculator: "${btn}"`);
+      return { input: this.input, error: this.error };
+
+    } catch (err) {
+      return this.createErrorResponse(err as Error);
+    }
   }
 
   /**
-   * Handle backspace operation (delegates to operations)
+   * Main entry point for handling button clicks.
+   * This method now delegates to other functions for specific logic.
+   * @param {string} btn - Button value
    * @returns {Object} Updated state
    */
-  handleBackspace(): Record<string, any> {
-    return this.normalizeResponse(this.operations.handleBackspace());
-  }
+  handleButtonClick(btn: string): Record<string, any> {
+    if (CalculatorConstants.BUTTON_TYPES.MEMORY.includes(btn as any)) {
+      return super.handleButtonClick(btn);
+    }
 
-  /**
-   * Handle square operation (delegates to operations)
-   * @returns {Object} Updated state
-   */
-  handleSquare(): Record<string, any> {
-    return this.normalizeResponse(this.operations.handleSquare());
-  }
-
-  /**
-   * Handle square root operation (delegates to operations)
-   * @returns {Object} Updated state
-   */
-  handleSquareRoot(): Record<string, any> {
-    return this.normalizeResponse(this.operations.handleSquareRoot());
-  }
-
-  /**
-   * Handle reciprocal operation (delegates to operations)
-   * @returns {Object} Updated state
-   */
-  handleReciprocal(): Record<string, any> {
-    return this.normalizeResponse(this.operations.handleReciprocal());
-  }
-
-  /**
-   * Handle percentage operation (delegates to operations)
-   * @returns {Object} Updated state
-   */
-  handlePercentage(): Record<string, any> {
-    return this.normalizeResponse(this.operations.handlePercentage());
-  }
-
-  /**
-   * Handle sign toggle operation (delegates to operations)
-   * @returns {Object} Updated state
-   */
-  handleToggleSign(): Record<string, any> {
-    return this.normalizeResponse(this.operations.handleToggleSign());
+    if (['AC', 'C'].includes(btn)) {
+      this.handleClear();
+      return { input: this.input, error: this.error };
+    }
+    
+    if (btn === 'CE') {
+      return this.operations.handleClearEntry();
+    }
+    
+    // Check for max input length before processing the button
+    if (this.isInputTooLong(btn)) {
+      return this.createErrorResponse(
+        new Error(CalculatorConstants.ERROR_MESSAGES.MAX_INPUT_LENGTH),
+        this.input
+      );
+    }
+    
+    // Process all other buttons
+    return this.normalizeResponse(this.processButton(btn));
   }
 }

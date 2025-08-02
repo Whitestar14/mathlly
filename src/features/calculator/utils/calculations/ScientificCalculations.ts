@@ -27,17 +27,19 @@ export class ScientificCalculations extends StandardCalculations {
   evaluateExpression(expr: string, options: Record<string, any> = {}): number {
     try {
       // Scientific-specific preprocessing
-      this.converter.setAngleMode(this.scientific.options.angleUnit as 'DEG' | 'RAD' | 'GRAD');
+      const angle = this.normalizeAngle(this.scientific.options.angleUnit);
       this.validator.validate(expr);
-      const convertedExpr = this.converter.convert(expr);
+      const convertedExpr = this.converter.convert(expr, angle);
 
       // Use parent evaluation with scientific mode
       return super.evaluateExpression(convertedExpr, {
         mode: 'scientific',
-        ...options
+        ...options,
       });
     } catch (err: any) {
-      if (err.message?.includes(CalculatorConstants.ERROR_MESSAGES.DOMAIN_ERROR)) {
+      if (
+        err.message?.includes(CalculatorConstants.ERROR_MESSAGES.DOMAIN_ERROR)
+      ) {
         throw err;
       }
       throw new Error(CalculatorUtils.formatError(err, 'Invalid expression'));
@@ -45,14 +47,28 @@ export class ScientificCalculations extends StandardCalculations {
   }
 
   /**
-   * Formats results with scientific notation support
+   * Extended formatResult function wit notation support
    */
-  formatResult(result: number, options: Record<string, any> = {}): string {
-    return super.formatResult(result, {
-      precision: this.scientific.options.precision,
-      useFractions: this.scientific.options.useFractions,
-      notationMode: this.scientific.options.notationMode,
-      ...options
-    });
+  public formatResult(result: number): string {
+    const options = this.scientific?.options;
+    return this._formatResult(result, options);
+  }
+
+  /**
+   * Normalizes an angle mode string to a consistent format.
+   * @param mode The angle mode string (e.g., 'gradians', 'degrees', 'radians').
+   * @returns The normalized angle mode ('RAD', 'DEG', 'GRAD') or null if invalid.
+   */
+  private normalizeAngle(mode: string): 'RAD' | 'DEG' | 'GRAD' {
+    switch (mode) {
+      case 'radians':
+        return 'RAD';
+      case 'degrees':
+        return 'DEG';
+      case 'gradient':
+        return 'GRAD';
+      default:
+        return 'DEG';
+    }
   }
 }

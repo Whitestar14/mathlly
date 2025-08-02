@@ -14,7 +14,7 @@
         </h2>
 
         <p class="text-base md:text-lg text-muted-foreground max-w-lg self-center md:self-start">
-          Started as a developer's side project, Mathlly has grown into a community-driven platform 
+          Started as a developer's side project, Prism has grown into a community-driven platform 
           that pushes the boundaries of development tools.
         </p>
       </div>
@@ -73,8 +73,8 @@
       <div class="bg-background rounded-lg border border-border p-6">
         <div class="space-y-4">
           <p class="text-sm text-muted-foreground leading-relaxed">
-            Mathlly is open source and welcomes contributions from developers worldwide. Whether you're fixing bugs, 
-            adding features, or improving documentation, your help makes Mathlly better for everyone.
+            Prism is open source and welcomes contributions from developers worldwide. Whether you're fixing bugs, 
+            adding features, or improving documentation, your help makes Prism better for everyone.
           </p>
           <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
             <BaseButton
@@ -154,7 +154,7 @@ const devProcess: DevPhase[] = [
   {
     title: 'Continuous Delivery',
     icon: RocketIcon,
-    description: 'Regular updates and improvements keep Mathlly cutting edge.'
+    description: 'Regular updates and improvements keep Prism cutting edge.'
   }
 ];
 

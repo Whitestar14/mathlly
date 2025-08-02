@@ -232,7 +232,7 @@ export const CalculatorUtils = {
   /**
    * Check if expression ends with a shift operator
    * @param expr - Expression to check
-     * @returns True if expression ends with a shift operator
+   * @returns True if expression ends with a shift operator
    */
   endsWithShiftOperator(expr: string): boolean {
     return REGEX.SHIFT_OPERATOR.test(expr.trim());
@@ -430,6 +430,20 @@ export const CalculatorUtils = {
   },
 
   /**
+   * Check if a multiplication symbol should be added before a number.
+   * This handles cases like `π4` or `(5)3`
+   * @param currentInput - The current calculator input string.
+   * @returns True if a multiplication symbol is needed.
+   */
+  needsMultiplication(currentInput: string): boolean {
+    const trimmedInput = currentInput.trim();
+    if (!trimmedInput) return false;
+    
+    const lastChar = trimmedInput.slice(-1);
+    return /[πe)!]/.test(lastChar);
+  },
+
+  /**
    * Handle special backspace cases for functions and operators
    * @param currentInput - Current input string
    * @returns Object with handled flag and updated input
@@ -441,7 +455,7 @@ export const CalculatorUtils = {
       /sin\($/, /cos\($/, /tan\($/, /asin\($/, /acos\($/, /atan\($/,
       /csc\($/, /sec\($/, /cot\($/, /acsc\($/, /asec\($/, /acot\($/,
       
-      // Hyperbolic functions  
+      // Hyperbolic functions   
       /sinh\($/, /cosh\($/, /tanh\($/, /asinh\($/, /acosh\($/, /atanh\($/,
       /csch\($/, /sech\($/, /coth\($/, /acsch\($/, /asech\($/, /acoth\($/,
       
@@ -455,7 +469,7 @@ export const CalculatorUtils = {
       /sqr\($/, /cube\($/,
       
       // Other functions
-      /abs\($/, /ceil\($/, /floor\($/, /round\($/, /dms\($/, /deg\($/,
+      /abs\($/, /ceil\($/, /floor\($/, /round\($/, /dms\($/, /deg\($/, /gcd\($/, /lcm\($/,
       
       // Base power functions
       /10\^\($/, /2\^\($/, /e\^\($/

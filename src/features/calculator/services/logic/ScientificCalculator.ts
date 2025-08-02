@@ -3,63 +3,23 @@ import { ScientificOperations } from "@calculator/utils/operations/ScientificOpe
 import { ScientificCalculations } from '@calculator/utils/calculations/ScientificCalculations';
 import { CalculatorConstants } from "@calculator/utils/constants/CalculatorConstants.ts";
 import { CalculatorUtils } from '@calculator/utils/constants/CalculatorUtils';
-import { computed, type ComputedRef } from 'vue';
 
 /**
  * Calculator implementation for scientific mode
- * 
- * @class ScientificCalculator
+ * * @class ScientificCalculator
  * @extends ICalculator
  */
 export class ScientificCalculator extends ICalculator {
   MAX_INPUT_LENGTH: number;
   calculations: ScientificCalculations;
   operations: ScientificOperations;
-  
-  // Reactive computed properties for modes
-  angleMode: ComputedRef<'RAD' | 'DEG' | 'GRAD'>;
-  notationMode: ComputedRef<'F-E' | 'SCI'>;
-  hyperbolicMode: ComputedRef<boolean>;
 
   /**
    * Create a new scientific calculator
-   * No settings parameter needed - uses tool settings store directly
    */
   constructor() {
-    super(); // No settings parameter needed
+    super();
     this.MAX_INPUT_LENGTH = CalculatorConstants.MAX_INPUT_LENGTH.SCIENTIFIC;
-    
-    // Create reactive computed properties that map tool settings to calculator modes
-    this.angleMode = computed(() => {
-      const angleUnit = this.options.angleUnit;
-      const mapping: Record<'degrees' | 'radians' | 'gradians', 'DEG' | 'RAD' | 'GRAD'> = {
-        'degrees': 'DEG',
-        'radians': 'RAD',
-        'gradians': 'GRAD'
-      };
-      return mapping[angleUnit] ?? 'DEG';
-    });
-
-    this.notationMode = computed(() => {
-      try {
-        const notationMode = this.options.notationMode;
-        
-        const mapping: Record<'standard' | 'scientific' | 'engineering', 'F-E' | 'SCI'> = {
-          'standard': 'F-E',
-          'scientific': 'SCI',
-          'engineering': 'SCI' // Map engineering to SCI for now
-        };
-        
-        return mapping[notationMode] ?? 'F-E';
-      } catch (err) {
-        console.error('Error in notationMode computed:', err);
-        return 'F-E';
-      }
-    });
-
-    this.hyperbolicMode = computed(() => {
-      return this.options.hyperbolicMode;
-    });
     
     // Use composition for calculations and operations - pass this calculator instance
     this.calculations = new ScientificCalculations(this);
@@ -68,8 +28,7 @@ export class ScientificCalculator extends ICalculator {
 
   /**
    * Format a result for display
-   * 
-   * @param {*} result - Result to format
+   * * @param {*} result - Result to format
    * @returns {string} Formatted result
    */
   formatResult(result: any): string {
@@ -145,17 +104,6 @@ export class ScientificCalculator extends ICalculator {
         return this.handleEquals();
       }
 
-      // Handle clear operations using BUTTON_TYPES
-      if (btn === 'AC' || btn === 'C') {
-        this.handleClear();
-        this.operations.resetParentheses();
-        return { input: this.input, error: this.error };
-      }
-
-      if (btn === 'CE') {
-        return this.operations.handleClearEntry();
-      }
-
       // Handle backspace
       if (btn === 'backspace') {
         return this.operations.handleBackspace();
@@ -193,26 +141,32 @@ export class ScientificCalculator extends ICalculator {
 
       // Log unexpected inputs
       console.warn(`Unexpected button input in ScientificCalculator: "${btn}"`);
-      return this.operations.handleNumber(btn);
+      return { input: this.input, error: this.error };
     } catch (err) {
       return this.createErrorResponse(err as Error);
     }
   }
 
   /**
-   * Handle button click - main entry point
+   * Handle button click - main entry point.
+   * This method now delegates to other functions for specific logic.
    */
-  handleButtonClick(btn: string): Record<string, any> {    
-    // Handle memory operations using BUTTON_TYPES
+  handleButtonClick(btn: string): Record<string, any> {
+    // Handle memory and clear operations directly
     if (CalculatorConstants.BUTTON_TYPES.MEMORY.includes(btn as any)) {
       return super.handleButtonClick(btn);
     }
     
-    // Handle control buttons
-    if (['backspace', 'AC', 'CE', 'C'].includes(btn)) {
-      return this.normalizeResponse(this.processButton(btn));
+    if (['AC', 'C'].includes(btn)) {
+      this.handleClear();
+      return { input: this.input, error: this.error };
     }
     
+    if (btn === 'CE') {
+      return this.operations.handleClearEntry();
+    }
+
+    // Check for max input length before processing the button
     if (this.isInputTooLong(btn)) {
       return this.createErrorResponse(
         new Error(CalculatorConstants.ERROR_MESSAGES.MAX_INPUT_LENGTH),
@@ -220,12 +174,8 @@ export class ScientificCalculator extends ICalculator {
       );
     }
     
-    try {
-      const result = this.normalizeResponse(this.processButton(btn));
-      return result;
-    } catch (err: any) {
-      return this.createErrorResponse(err, this.input);
-    }
+    // Process all other buttons
+    return this.normalizeResponse(this.processButton(btn));
   }
 
   /**
@@ -240,4 +190,3 @@ export class ScientificCalculator extends ICalculator {
     };
   }
 }
-

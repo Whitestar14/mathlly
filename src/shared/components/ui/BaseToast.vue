@@ -1,16 +1,16 @@
 <template>
-  <div 
-    class="fixed z-30 bottom-4 right-4 h-auto w-80" 
+  <div
+    class="fixed z-30 bottom-4 right-4 h-auto w-80"
     :class="{ '-translate-x-1/2 left-1/2 right-auto': isMobile }"
   >
-    <TransitionGroup 
-      name="toast-transition" 
+    <TransitionGroup
+      name="toast-transition"
       tag="div"
       class="relative"
     >
-      <div 
-        v-for="toast in toasts" 
-        :key="toast.id" 
+      <div
+        v-for="toast in toasts"
+        :key="toast.id"
         class="absolute overflow-hidden origin-bottom-right duration-300 transform-gpu flex items-start gap-2"
         :class="[
           toastTypeClasses[toast.type] || toastTypeClasses.info,
@@ -21,16 +21,20 @@
           bottom: isMobile ? `${toasts.indexOf(toast) * 4}px` : `${toasts.indexOf(toast) * 8}px`,
           right: isMobile ? `${toasts.indexOf(toast) * 2}px` : `${toasts.indexOf(toast) * 4}px`,
         }"
+        :role="toast.ariaRole"
+        :aria-live="toast.ariaRole === 'alert' ? 'assertive' : 'polite'"
+        @mouseenter="pauseToast(toast.id)"
+        @mouseleave="resumeToast(toast.id)"
       >
         <!-- Toast Icon -->
         <div class="flex-shrink-0 mt-0.5">
-          <component 
-            :is="toastIcons[toast.type] || toastIcons.info" 
+          <component
+            :is="toastIcons[toast.type] || toastIcons.info"
             :class="iconClasses[toast.type] || iconClasses.info"
-            class="h-4 w-4" 
+            class="h-4 w-4"
           />
         </div>
-        
+
         <!-- Toast Content -->
         <div class="flex-grow">
           <div class="flex justify-between items-start">
@@ -41,22 +45,37 @@
               {{ toast.title || defaultTitles[toast.type] || defaultTitles.info }}
             </h3>
           </div>
-          <p 
-            class="text-xs mt-0.5" 
+          <p
+            class="text-xs mt-0.5"
             :class="messageClasses[toast.type] || messageClasses.info"
           >
             {{ toast.message || toast.description }}
           </p>
+          <!-- New: Action Button -->
+          <div
+            v-if="toast.action"
+            class="mt-2"
+          >
+            <BaseButton
+              size="sm"
+              variant="link"
+              class="h-auto p-0 text-xs font-medium"
+              :class="actionClasses[toast.type] || actionClasses.info"
+              @click="handleActionClick(toast.id, toast.action.onClick)"
+            >
+              {{ toast.action.label }}
+            </BaseButton>
+          </div>
         </div>
-        
+
         <!-- Close Button -->
         <div
           v-if="toast.dismissible !== false"
           class="flex-shrink-0"
         >
-          <BaseButton 
-            size="sm" 
-            variant="ghost" 
+          <BaseButton
+            size="sm"
+            variant="ghost"
             class="rounded-full p-1 h-auto"
             @click="removeToast(toast.id)"
           >
@@ -71,16 +90,15 @@
 <script setup lang="ts">
 import { BadgeXIcon, BadgeAlertIcon, CheckCircle2Icon, BadgeInfoIcon, XIcon } from 'lucide-vue-next';
 import { useToast, type ToastType } from '@composables/ui/useToast';
-import { BaseButton } from '@components/ui'
+import { BaseButton } from '@components/ui';
 import type { Component } from 'vue';
 
 interface Props {
   isMobile: boolean;
 }
-
 defineProps<Props>();
 
-const { toasts, removeToast } = useToast();
+const { toasts, removeToast, pauseToast, resumeToast } = useToast();
 
 type ToastTypeClasses = Record<ToastType, string>;
 type ToastIcons = Record<ToastType, Component>;
@@ -110,8 +128,15 @@ const messageClasses: ToastTypeClasses = {
 const iconClasses: ToastTypeClasses = {
   info: 'text-foreground',
   success: 'text-green-700 dark:text-green-400',
-  warning: 'text-yellow-700 dark:text-yellow-400', 
+  warning: 'text-yellow-700 dark:text-yellow-400',
   error: 'text-red-700 dark:text-destructive'
+};
+
+const actionClasses: ToastTypeClasses = {
+  info: 'text-foreground hover:text-foreground/80',
+  success: 'text-green-700 hover:text-green-600 dark:text-green-400 dark:hover:text-green-300',
+  warning: 'text-yellow-700 hover:text-yellow-600 dark:text-yellow-400 dark:hover:text-yellow-300',
+  error: 'text-red-500 hover:text-red-600 dark:text-destructive dark:hover:text-red-300'
 };
 
 const toastIcons: ToastIcons = {
@@ -127,6 +152,11 @@ const defaultTitles: DefaultTitles = {
   warning: 'Warning',
   error: 'Error'
 };
+
+const handleActionClick = (id: number, onClick: () => void) => {
+  onClick();
+  removeToast(id);
+};
 </script>
 
 <style scoped>
@@ -136,11 +166,9 @@ const defaultTitles: DefaultTitles = {
 .toast-transition-move {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
 .toast-transition-enter-from,
 .toast-transition-leave-to {
   transform: translateY(20px);
   opacity: 0;
-  @apply md:translate-x-[20px] md:translate-y-0;
 }
 </style>

@@ -1,64 +1,40 @@
 {
-  "version": "0.12.0",
+  "version": "0.12.2",
   "date": "June 27, 2025",
   "features": [
-    "Implemented comprehensive TypeScript migration across all components, utilities, stores, and core logic files",
-    "Enhanced PWA functionality with service worker updates, offline support improvements, and dedicated PWA test panel for development",
-    "Refactored UI components with improved TypeScript interfaces and better type safety",
-    "Enhanced responsive design with improved button layouts and mobile-optimized scientific calculator interface",
-    "Enhanced developer dock with improved mobile UI, better navigation, and refined panel management",
-    "Improved state management with TypeScript-enhanced stores for better type safety",
-    "Updated font loading system and manifest configurations for better PWA compliance",
-    "Enhanced calculator input validation with increased maximum length for scientific mode calculations"
+    "Optimized calculator buttons for low-end devices",
+    "Rectified dev dock beta testpoint inconsistent appearance on mobile devices"
   ],
   "fullFeatures": [
-    "@warning: This update includes major architectural changes with TypeScript migration. Full application restart recommended",
-    "@milestone: Complete migration to TypeScript for enhanced type safety and code maintainability",
-    "@milestone: Introduced Scientific Calculator mode with advanced mathematical operations including trigonometric, logarithmic, and exponential functions",
-    "Implemented comprehensive TypeScript migration across all components, utilities, stores, and core logic files",
-    "Enhanced PWA functionality with service worker updates, offline support improvements, and dedicated PWA test panel for development",
-    "Refactored UI components with improved TypeScript interfaces and better type safety",
-    "Enhanced responsive design with improved button layouts and mobile-optimized scientific calculator interface",
-    "Enhanced developer dock with improved mobile UI, better navigation, and refined panel management",
-    "Improved state management with TypeScript-enhanced stores for better type safety",
-    "Updated font loading system and manifest configurations for better PWA compliance",
-    "Enhanced calculator input validation with increased maximum length for scientific mode calculations",
-    "Fixed critical bug where calculator returned empty strings instead of '0' during evaluation errors",
-    "Improved base conversion functionality across all calculator modes with proper error handling",
-    "Enhanced memory operations with better formatting and cross-mode compatibility",
-    "Updated keyboard shortcuts system to support scientific calculator functions",
-    "Improved accessibility with better ARIA labels and enhanced keyboard navigation for scientific mode",
-    "Optimized performance with strategic TypeScript optimizations and reduced bundle size",
-    "Enhanced error boundaries with TypeScript-based error handling for better application stability",
-    "Updated dependencies to latest versions with full TypeScript compatibility",
-    "Comprehensive code cleanup removing obsolete JavaScript files and updating import statements",
-    "Improved code documentation with TypeScript-enhanced JSDoc comments and type annotations"
+    "@milestone: migrated to new domain: mathlly.vercel.app",
+    "Optimized calculator buttons for low-end devices",
+    "Rectified dev dock beta testpoint inconsistent appearance on mobile devices"
   ],
   "hasChangelog": true,
   "source": "changelog",
-  "currentDeployedVersion": "0.12.0",
-  "totalUpdates": 35,
+  "currentDeployedVersion": "0.12.2",
+  "totalUpdates": 37,
   "updateType": "patch",
   "versionInfo": {
     "major": 0,
     "minor": 12,
-    "patch": 0,
+    "patch": 2,
     "prerelease": null,
     "prereleaseNumber": 0,
     "isBeta": false,
     "isAlpha": false,
     "isStable": true,
-    "raw": "0.12.0"
+    "raw": "0.12.2"
   },
   "currentVersionInfo": {
     "major": 0,
     "minor": 12,
-    "patch": 0,
+    "patch": 2,
     "prerelease": null,
     "prereleaseNumber": 0,
     "isBeta": false,
     "isAlpha": false,
     "isStable": true,
-    "raw": "0.12.0"
+    "raw": "0.12.2"
   }
 }

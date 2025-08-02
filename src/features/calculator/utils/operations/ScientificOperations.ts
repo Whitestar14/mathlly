@@ -126,28 +126,24 @@ export class ScientificOperations extends StandardOperations {
       const input = this.calculator.input
       
       if (input !== "0" && input !== "Error") {
-        // Try to clear just the current entry (e.g., inside parentheses)
-        const lastOpenIndex = input.lastIndexOf("(")
-        const lastCloseIndex = input.lastIndexOf(")")
+        // Find the index of the last opening parenthesis
+        const lastOpenIndex = input.lastIndexOf("(");
+        // Find the index of the last closing parenthesis
+        const lastCloseIndex = input.lastIndexOf(")");
         
         if (lastOpenIndex > lastCloseIndex) {
-          // We're inside parentheses, clear just that part
-          this.calculator.input = input.substring(0, lastOpenIndex + 1)
+          // We're inside parentheses. Clear the content back to the opening parenthesis
+          this.calculator.input = input.substring(0, lastOpenIndex + 1);
         } else {
-          // Clear the last part of the expression
-          const parts = input.split(/([+\-×÷])/)
-          if (parts.length > 1) {
-            this.calculator.input = parts.slice(0, -1).join("")
-          } else {
-            this.calculator.input = "0"
-          }
+          // No open parentheses at the end, so delegate to the standard clear entry logic
+          return super.handleClearEntry();
         }
       } else {
-        this.calculator.input = "0"
-        this.resetParentheses()
+        this.calculator.input = "0";
+        this.resetParentheses();
       }
       
-      return this.createResponse()
+      return this.createResponse();
     } catch (err: any) {
       return this.createResponse(CalculatorUtils.formatError(err, "Clear entry failed"));
     }

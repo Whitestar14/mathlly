@@ -2,7 +2,7 @@
   <div class="flex flex-col gap-1">
     <!-- Memory buttons row -->
     <div class="grid grid-cols-5 gap-1">
-      <CalcButton
+      <CalculatorButton
         v-for="op in memoryOperations"
         :key="op"
         :value="op"
@@ -11,13 +11,13 @@
         @click="handleClick"
       >
         {{ op }}
-      </CalcButton>
+      </CalculatorButton>
     </div>
     
     <!-- Calculator buttons grid -->
     <div class="grid grid-cols-4 gap-1 flex-grow">
       <!-- First row -->
-      <CalcButton 
+      <CalculatorButton 
         v-for="(btn, index) in standardFirstRow" 
         :key="index"
         :value="btn.value"
@@ -28,7 +28,7 @@
       />
 
       <!-- Second row -->
-      <CalcButton 
+      <CalculatorButton 
         v-for="(btn, index) in standardSecondRow" 
         :key="index"
         :value="btn.value"
@@ -38,14 +38,14 @@
       >
         <!-- eslint-disable-next-line vue/no-v-html -->
         <span v-html="btn.display || btn.value" />
-      </CalcButton>
+      </CalculatorButton>
 
       <!-- Number pad and operations -->
       <template
         v-for="(row, rowIndex) in numberRows"
         :key="`row-${rowIndex}`"
       >
-        <CalcButton 
+        <CalculatorButton 
           v-for="(btn, btnIndex) in row" 
           :key="`row-${rowIndex}-btn-${btnIndex}`"
           :value="btn.value"
@@ -60,7 +60,7 @@
 
 <script setup>
 import { computed } from "vue";
-import CalcButton from '@calculator/components/CalculatorButton.vue';
+import { CalculatorButton } from '@calculator/components';
 import { 
   numberRows, 
   standardFirstRow, 

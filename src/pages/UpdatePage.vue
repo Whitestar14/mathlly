@@ -27,7 +27,7 @@
               :enter="{ opacity: 1, y: 0, transition: { delay: 0.3 } }"
               class="text-4xl md:text-5xl lg:text-6xl font-mono font-bold tracking-tight text-foreground"
             >
-              What's New in Mathlly
+              What's New in Prism
               <span class="block text-primary mt-2">Continuous improvements</span>
             </h1>
 
@@ -37,7 +37,7 @@
               :enter="{ opacity: 1, y: 0, transition: { delay: 0.4 } }"
               class="text-base md:text-lg text-muted-foreground max-w-lg self-center md:self-start"
             >
-              We're constantly working to make Mathlly better. Check out our latest updates and upcoming features.
+              We're constantly working to make Prism better. Check out our latest updates and upcoming features.
             </p>
           </div>
 
@@ -52,7 +52,7 @@
                 size="lg"
                 type="svg"
                 class="relative hidden md:block fill-primary scale-150 md:scale-[2.5] lg:scale-[3.5]"
-                :svg-path="'/icons/sparkles.svg'"
+                :svg-path="SparkleSvg"
               />
             </div>
           </div>
@@ -132,6 +132,7 @@ import { ref, computed, watch, type Ref, type ComputedRef } from 'vue';
 import { HistoryIcon, ChevronDownIcon } from 'lucide-vue-next';
 import { updates } from '@services/storage/changelog.json';
 import { useVersionStore } from '@stores/version';
+import SparkleSvg from '@assets/icons/sparkles.svg';
 import { BaseButton, BasePage, BaseCard, SelectBar, BaseBadge, BaseMedia } from '@components/ui'
 
 // TypeScript interfaces

@@ -53,10 +53,19 @@ export class StandardOperations {
       return this.handleComma();
     }
     
-    if (this.calculator.input === "0" && num !== ".") {
+    const currentInput = this.calculator.input;
+
+    // Special case for starting a new input
+    if (currentInput === "0" && num !== ".") {
       this.calculator.input = num;
       return this.createResponse();
     }
+
+    // Check if implicit multiplication is needed before appending the number
+    if (CalculatorUtils.needsMultiplication(currentInput)) {
+      this.calculator.input += " × ";
+    }
+
     if (!this.validateNumberInput(num)) {
       return this.createResponse();
     }
@@ -148,6 +157,27 @@ export class StandardOperations {
       : this.calculator.input.length === 1
       ? "0"
       : this.calculator.input.slice(0, -1);
+    return this.createResponse();
+  }
+
+  /**
+   * Handles clearing the last entered number or operator.
+   * This is a basic implementation for standard mode.
+   * @returns {Object} Updated input state and error message
+   */
+  handleClearEntry(): Record<string, any> {
+    const input = this.calculator.input;
+    if (input !== "0" && input !== "Error") {
+      const parts = input.split(/([+\-×÷])/);
+      if (parts.length > 1) {
+        this.calculator.input = parts.slice(0, -1).join("");
+      } else {
+        this.calculator.input = "0";
+      }
+      if (this.calculator.input.trim() === '') {
+        this.calculator.input = '0';
+      }
+    }
     return this.createResponse();
   }
 

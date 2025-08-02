@@ -1,23 +1,24 @@
 <!-- eslint-disable vue/no-v-html -->
 <template>
-  <div 
+  <div
     :class="containerClasses"
     :aria-label="alt"
     :role="role"
   >
     <!-- SVG content -->
-    <div 
-      v-if="type === 'svg' && svgContent" 
+    <div
+      v-if="type === 'svg' && internalSvgContent && !hasError"
       class="inline-block"
+      :class="svgContainerClasses"
       :aria-hidden="hideFromScreenReaders"
-      v-html="svgContent"
+      v-html="internalSvgContent"
     />
-    
+
     <!-- Image -->
-    <img 
+    <img
       v-else-if="type === 'img'"
-      :src="effectiveSrc" 
-      :alt="alt" 
+      :src="effectiveSrc"
+      :alt="alt"
       :class="mediaClasses"
       :loading="lazyLoad ? 'lazy' : 'eager'"
       :width="width"
@@ -26,7 +27,7 @@
       @error="handleMediaError"
       @load="handleMediaLoad"
     >
-    
+
     <!-- Video -->
     <video
       v-else-if="type === 'video'"
@@ -54,13 +55,14 @@
 
     <!-- Fallback content -->
     <div
-      v-else-if="showFallback"
+      v-else-if="showFallback || (type === 'svg' && !internalSvgContent && !isFetching)"
       class="fallback"
     >
       <slot name="fallback">
         <div
           class="flex items-center justify-center bg-muted dark:bg-background rounded-md"
-          :style="`width: ${width}px; height: ${height}px;`"
+          :style="`width: ${width || 'auto'}; height: ${height || 'auto'};`"
+          :class="sizeClasses"
         >
           <ImageIcon class="h-6 w-6 text-muted-foreground dark:text-muted-foreground" />
         </div>
@@ -69,8 +71,8 @@
   </div>
 </template>
 
-<script setup>
-import { computed, ref, watch, onMounted } from 'vue';
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue';
 import { ImageIcon } from 'lucide-vue-next';
 import { useTheme } from '@composables/core/useTheme';
 import { useFetch } from '@vueuse/core';
@@ -79,12 +81,12 @@ const props = defineProps({
   type: {
     type: String,
     default: "img",
-    validator: (value) => ["img", "svg", "video"].includes(value),
+    validator: (value: string) => ["img", "svg", "video"].includes(value),
   },
   size: {
     type: String,
     default: "md",
-    validator: (value) => ["sm", "md", "lg", "xl", "custom"].includes(value),
+    validator: (value: string) => ["sm", "md", "lg", "xl", "custom"].includes(value),
   },
   src: {
     type: String,
@@ -95,6 +97,10 @@ const props = defineProps({
     default: "",
   },
   svgPath: {
+    type: String,
+    default: "",
+  },
+  svgContent: {
     type: String,
     default: "",
   },
@@ -149,26 +155,109 @@ const props = defineProps({
   objectFit: {
     type: String,
     default: "cover",
-    validator: (value) => ["contain", "cover", "fill", "none", "scale-down"].includes(value),
+    validator: (value: string) => ["contain", "cover", "fill", "none", "scale-down"].includes(value),
   },
   rounded: {
     type: String,
     default: "none",
-    validator: (value) => ["none", "sm", "md", "lg", "full"].includes(value),
+    validator: (value: string) => ["none", "sm", "md", "lg", "full"].includes(value),
   }
 });
 
 const emit = defineEmits(['error', 'load']);
 
 const { isDark } = useTheme();
+const internalSvgContent = ref<string>('');
+const hasError = ref<boolean>(false);
+const isLoaded = ref<boolean>(false);
+const showFallback = ref<boolean>(false);
 
-const svgContent = ref('');
-const svgCache = new Map();
-const hasError = ref(false);
-const isLoaded = ref(false);
-const showFallback = ref(false);
+const { data: fetchedSvgData, error: fetchError, isFetching } = useFetch(
+  computed(() => (props.type === 'svg' && !props.svgContent ? props.svgPath : '')),
+  { refetch: true }
+).text();
 
-// Use Tailwind classes directly
+const processSvg = (svgString: string) => {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgString, 'image/svg+xml');
+    const svgElement = doc.querySelector('svg');
+
+    if (svgElement) {
+      // Ensure fill="currentColor" is set on the root SVG for styling
+      if (!svgElement.hasAttribute('fill')) {
+        svgElement.setAttribute('fill', 'currentColor');
+      }
+
+      // Attempt to infer viewBox if missing, using width/height
+      if (!svgElement.hasAttribute('viewBox')) {
+        const widthAttr = svgElement.getAttribute('width');
+        const heightAttr = svgElement.getAttribute('height');
+        if (widthAttr && heightAttr) {
+          // If width and height are present, create a viewBox from them
+          svgElement.setAttribute('viewBox', `0 0 ${widthAttr} ${heightAttr}`);
+          console.warn(`SVG missing viewBox. Inferred from width/height: 0 0 ${widthAttr} ${heightAttr}`);
+        } else {
+          console.warn('SVG missing viewBox and no width/height attributes to infer from. SVG may not scale predictably.');
+        }
+      }
+
+      // Remove hardcoded width/height from the SVG itself if present,
+      // so it scales to the parent container's sizeClasses
+      svgElement.removeAttribute('width');
+      svgElement.removeAttribute('height');
+
+      internalSvgContent.value = new XMLSerializer().serializeToString(svgElement);
+      isLoaded.value = true;
+      hasError.value = false;
+      showFallback.value = false;
+      emit('load');
+    } else {
+      // If no <svg> element is found, treat as an error
+      throw new Error('Invalid SVG content: No <svg> element found.');
+    }
+  } catch (e) {
+    console.error('Error parsing or manipulating SVG:', e);
+    hasError.value = true;
+    showFallback.value = true;
+    internalSvgContent.value = '';
+    emit('error', e);
+  }
+};
+
+watch([fetchedSvgData, fetchError], () => {
+  if (props.type !== 'svg' || props.svgContent) return; // Only process if type is svg and svgContent is not provided
+
+  if (fetchError.value) {
+    console.error('Error fetching SVG:', fetchError.value);
+    hasError.value = true;
+    showFallback.value = true;
+    internalSvgContent.value = '';
+    emit('error', fetchError.value);
+    return;
+  }
+
+  if (fetchedSvgData.value) {
+    processSvg(fetchedSvgData.value);
+  } else if (!isFetching.value) {
+    // If data is null/empty and not fetching, it means no SVG content
+    hasError.value = true;
+    showFallback.value = true;
+    internalSvgContent.value = '';
+  }
+}, { immediate: true });
+
+watch(() => props.svgContent, (newContent) => {
+  if (props.type === 'svg' && newContent) {
+    processSvg(newContent);
+  } else if (props.type === 'svg' && !newContent) {
+    // If svgContent is explicitly cleared or becomes empty
+    hasError.value = true;
+    showFallback.value = true;
+    internalSvgContent.value = '';
+  }
+}, { immediate: true });
+
 const containerClasses = computed(() => [
   'inline-flex items-center justify-center overflow-hidden',
   {
@@ -176,35 +265,44 @@ const containerClasses = computed(() => [
     'rounded-md': props.rounded === 'md',
     'rounded-lg': props.rounded === 'lg',
     'rounded-full': props.rounded === 'full',
-  }
+  },
+  // Apply explicit width/height if provided, otherwise use sizeClasses for container
+  props.width && props.height ? `w-[${props.width}px] h-[${props.height}px]` : sizeClasses.value,
 ]);
 
+const svgContainerClasses = computed(() => {
+  if (props.width && props.height) {
+    return `w-[${props.width}px] h-[${props.height}px]`;
+  }
+  return sizeClasses.value;
+});
+
 const sizeClasses = computed(() => {
-  if (props.width && props.height) return '';
-  
+  if (props.size === 'custom') return ''; // Custom size handled by width/height props
   switch (props.size) {
-    case 'sm': return 'h-6 w-auto';
-    case 'lg': return 'h-14 w-auto';
-    case 'xl': return 'h-24 w-auto';
-    default: return 'h-8 w-auto'; // md
+    case 'sm': return 'h-6 w-6';
+    case 'lg': return 'h-14 w-14';
+    case 'xl': return 'h-24 w-24';
+    default: return 'h-8 w-8'; // md
   }
 });
 
 const mediaClasses = computed(() => [
   'max-w-full transition-opacity duration-300',
-  sizeClasses.value,
+  // Apply size classes directly to img/video if width/height not provided
+  !props.width && !props.height ? sizeClasses.value : '',
   {
     'opacity-0': !isLoaded.value && !hasError.value,
     'opacity-100': isLoaded.value && !hasError.value,
     [`object-${props.objectFit}`]: props.objectFit,
-  }
+  },
 ]);
 
 const role = computed(() => {
   if (props.hideFromScreenReaders) return 'presentation';
   if (props.type === 'img' || props.type === 'svg') return 'img';
   if (props.type === 'video') return 'video';
-  return null;
+  return undefined; // Changed from null to undefined
 });
 
 const effectiveSrc = computed(() => {
@@ -214,55 +312,20 @@ const effectiveSrc = computed(() => {
   return props.src;
 });
 
-// Use vueuse's useFetch for SVG loading
-const loadSvgContent = async () => {
-  const path = props.svgPath;
-  if (!path) return;
-  
-  if (svgCache.has(path)) {
-    svgContent.value = svgCache.get(path);
-    isLoaded.value = true;
-    return;
-  }
-
-  try {
-    const { data, error } = await useFetch(path).get().text();
-    
-    if (error.value) throw new Error('Failed to load SVG');
-    
-    let svg = data.value;
-    
-    // Add size classes to SVG
-    svg = svg.replace(/<svg/, `<svg class="${sizeClasses.value}"`);
-    
-    svgCache.set(path, svg);
-    svgContent.value = svg;
-    isLoaded.value = true;
-  } catch (error) {
-    console.error('Error loading SVG:', error);
-    hasError.value = true;
-    showFallback.value = true;
-    emit('error', error);
-  }
-};
-
-// Handle media load error
-const handleMediaError = (error) => {
+// Handle media load error (for img/video)
+const handleMediaError = (error: Event) => {
   hasError.value = true;
   showFallback.value = true;
   emit('error', error);
 };
 
-// Handle media load success
+// Handle media load success (for img/video)
 const handleMediaLoad = () => {
   isLoaded.value = true;
   emit('load');
 };
 
-// Watch for changes in svgPath
-watch(() => props.svgPath, loadSvgContent);
-
-// Watch for changes in dark mode or src
+// Watch for changes in dark mode or src for img/video
 watch([isDark, () => props.src, () => props.darkSrc], () => {
   if (props.type === 'img' || props.type === 'video') {
     // Reset loading state when source changes
@@ -271,18 +334,14 @@ watch([isDark, () => props.src, () => props.darkSrc], () => {
     showFallback.value = false;
   }
 });
-
-// Load SVG on mount
-onMounted(() => {
-  if (props.type === 'svg' && props.svgPath) {
-    loadSvgContent();
-  }
-});
 </script>
 
 <style scoped>
+/* Use :deep() for styling injected SVG content */
 :deep(svg) {
-  display: inline-block;
+  display: block; /* Ensures it takes up full space of its container */
+  width: 100%;
+  height: 100%;
 }
 
 :deep(svg path),

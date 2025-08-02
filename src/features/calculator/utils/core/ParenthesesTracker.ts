@@ -2,9 +2,9 @@
  * Interface for parentheses group tracking
  */
 interface ParenthesesGroup {
-  start: number
-  end?: number
-  content: string
+  start: number;
+  end?: number;
+  content: string;
 }
 
 /**
@@ -13,52 +13,52 @@ interface ParenthesesGroup {
  * and maintain groups for syntax highlighting and validation
  */
 export class ParenthesesTracker {
-  private count: number
-  private groups: ParenthesesGroup[]
+  private count: number;
+  private groups: ParenthesesGroup[];
 
   /**
    * Create a new ParenthesesTracker instance
    */
   constructor() {
-    this.count = 0
-    this.groups = []
+    this.count = 0;
+    this.groups = [];
   }
 
-/**
- * Register an opening parenthesis at the given position
- * @param position - Position of the opening parenthesis
- */
-open(position: number): void {
-  this.count++
-  this.groups.push({
-    start: position,
-    content: ""
-  })
-}
+  /**
+   * Register an opening parenthesis at the given position
+   * @param position - Position of the opening parenthesis
+   */
+  open(position: number): void {
+    this.count++;
+    this.groups.push({
+      start: position,
+      content: '',
+    });
+  }
 
-/**
- * Register a closing parenthesis at the given position
- * @param position - Position of the closing parenthesis
- * @returns True if successfully closed, false if no matching opening parenthesis
- */
-close(position: number): boolean {  
-  if (this.count > 0) {
-    this.count--
-    const group = this.groups[this.groups.length - 1]
-    if (group) {
-      group.end = position
+  /**
+   * Register a closing parenthesis at the given position
+   * @param position - Position of the closing parenthesis
+   * @returns True if successfully closed, false if no matching opening parenthesis
+   */
+  close(position: number): boolean {
+    if (this.count > 0) {
+      this.count--;
+      const group = this.groups[this.groups.length - 1];
+      if (group) {
+        group.end = position;
+      }
+      return true;
     }
-    return true
+    return false;
   }
-  return false
-}
 
   /**
    * Get the current count of unclosed parentheses
    * @returns Number of unclosed opening parentheses
    */
   getOpenCount(): number {
-    return this.count
+    return this.count;
   }
 
   /**
@@ -66,15 +66,15 @@ close(position: number): boolean {
    * @returns Array of parentheses groups
    */
   getGroups(): readonly ParenthesesGroup[] {
-    return Object.freeze([...this.groups])
+    return Object.freeze([...this.groups]);
   }
 
   /**
    * Reset the tracker to initial state
    */
   reset(): void {
-    this.count = 0
-    this.groups = []
+    this.count = 0;
+    this.groups = [];
   }
 
   /**
@@ -82,7 +82,7 @@ close(position: number): boolean {
    * @returns True if all parentheses are properly closed
    */
   isBalanced(): boolean {
-    return this.count === 0
+    return this.count === 0;
   }
 
   /**
@@ -90,7 +90,7 @@ close(position: number): boolean {
    * @returns The most recent unclosed parentheses group, or undefined if none
    */
   getLastOpenGroup(): ParenthesesGroup | undefined {
-    return this.groups.find(group => group.end === undefined)
+    return this.groups.find((group) => group.end === undefined);
   }
 
   /**
@@ -99,17 +99,12 @@ close(position: number): boolean {
    * @returns True if a closing parenthesis can be added
    */
   canCloseParenthesis(expr: string): boolean {
-    if (this.getOpenCount() <= 0) return false
-    if (!expr.trim()) return false
-    
-    const lastOpenIndex = expr.lastIndexOf("(")
-    if (lastOpenIndex === -1) return false
-    
-    const contentAfterOpen = expr.slice(lastOpenIndex + 1).trim()
-    if (!contentAfterOpen) return false
-    
-    const lastChar = expr.trim().slice(-1)
-    return /[0-9A-Fa-fπe)]/.test(lastChar)
+    const trimmedExpr = expr.trim();
+    if (this.getOpenCount() <= 0) return false;
+    if (!trimmedExpr) return false;
+
+    const lastChar = trimmedExpr.slice(-1);
+    return /[0-9A-Fa-fπe)!]/.test(lastChar);
   }
 
   /**
@@ -118,15 +113,15 @@ close(position: number): boolean {
    * @returns Number of unclosed opening parentheses
    */
   static getOpenParenthesesCount(expr: string): number {
-    let count = 0
+    let count = 0;
     for (let i = 0; i < expr.length; i++) {
       if (expr[i] === '(') {
-        count++
+        count++;
       } else if (expr[i] === ')') {
-        count--
+        count--;
       }
     }
-    return Math.max(0, count)
+    return Math.max(0, count);
   }
 
   /**
@@ -135,31 +130,45 @@ close(position: number): boolean {
    * @param parenthesis - The parenthesis character ('(' or ')')
    * @returns Object with updated input and any error
    */
-  handleParenthesisInput(currentInput: string, parenthesis: string): { input: string; error: string } {
+  handleParenthesisInput(
+    currentInput: string,
+    parenthesis: string
+  ): { input: string; error: string } {
     try {
-      const position = currentInput.length
-      
-      if (parenthesis === "(") {
-        if (currentInput === "0" || currentInput === "Error") {
-          const newInput = "("
-          this.open(0)
-          return { input: newInput, error: "" }
-        } else {
-          const lastChar = currentInput.slice(-1)
-          const needsMultiplication = /[0-9A-Fa-fπe)]/.test(lastChar);
-          const newInput = `${currentInput}${needsMultiplication ? " × " : ""}(`
-          this.open(position + (needsMultiplication ? 3 : 1))
-          return { input: newInput, error: "" }
+      const position = currentInput.length;
+
+      if (parenthesis === '(') {
+        const trimmedInput = currentInput.trim();
+
+        // Handle starting a new expression with a parenthesis
+        if (trimmedInput === '0' || trimmedInput === 'Error') {
+          this.open(0);
+          return { input: '(', error: '' };
         }
-      } else if (parenthesis === ")" && this.canCloseParenthesis(currentInput)) {
-        const newInput = `${currentInput})`
-        this.close(position)
-        return { input: newInput, error: "" }
+
+        const lastChar = trimmedInput.slice(-1);
+
+        if (lastChar === '(' || /[+\-×÷]/.test(lastChar)) {
+          const newInput = `${currentInput}(`;
+          this.open(position);
+          return { input: newInput, error: '' };
+        } else {
+          const newInput = `${currentInput} × (`;
+          this.open(position + 3);
+          return { input: newInput, error: '' };
+        }
+      } else if (
+        parenthesis === ')' &&
+        this.canCloseParenthesis(currentInput)
+      ) {
+        const newInput = `${currentInput})`;
+        this.close(position);
+        return { input: newInput, error: '' };
       }
-      
-      return { input: currentInput, error: "" }
+
+      return { input: currentInput, error: '' };
     } catch (err: any) {
-      return { input: "Error", error: err.message }
+      return { input: 'Error', error: err.message };
     }
   }
 
@@ -168,22 +177,25 @@ close(position: number): boolean {
    * @param currentInput - Current calculator input
    * @returns Object indicating if parentheses were handled and the updated input
    */
-  handleParenthesesBackspace(currentInput: string): { handled: boolean; input: string } {
-    const lastChar = currentInput.slice(-1)
-    
+  handleParenthesesBackspace(currentInput: string): {
+    handled: boolean;
+    input: string;
+  } {
+    const lastChar = currentInput.slice(-1);
+
     if (lastChar === '(') {
       // If removing an opening parenthesis, update tracker
       if (this.getOpenCount() > 0) {
-        this.close(currentInput.length - 1)
+        this.close(currentInput.length - 1);
       }
-      return { handled: true, input: currentInput.slice(0, -1) }
+      return { handled: true, input: currentInput.slice(0, -1) };
     } else if (lastChar === ')') {
       // If removing a closing parenthesis, update tracker
-      this.open(currentInput.length - 1)
-      return { handled: true, input: currentInput.slice(0, -1) }
+      this.open(currentInput.length - 1);
+      return { handled: true, input: currentInput.slice(0, -1) };
     }
-    
-    return { handled: false, input: currentInput }
+
+    return { handled: false, input: currentInput };
   }
 
   /**
@@ -193,8 +205,8 @@ close(position: number): boolean {
    */
   static needsParentheses(expr: string): boolean {
     // If the expression contains operators at the top level, it needs parentheses
-    const hasTopLevelOperator = /[+\-×÷]/.test(expr)
-    return hasTopLevelOperator
+    const hasTopLevelOperator = /[+\-×÷]/.test(expr);
+    return hasTopLevelOperator;
   }
 
   /**
@@ -202,14 +214,14 @@ close(position: number): boolean {
    * @param expr - Expression to analyze
    * @returns The last expression part or null if none found
    */
-static getLastExpressionPart(expr: string): string | null {
+  static getLastExpressionPart(expr: string): string | null {
     // Handle nested parentheses properly
     let parenCount = 0;
-    
+
     // Scan from right to left to find the last complete expression
     for (let i = expr.length - 1; i >= 0; i--) {
       const char = expr[i];
-      
+
       if (char === ')') {
         parenCount++;
       } else if (char === '(') {
@@ -228,16 +240,16 @@ static getLastExpressionPart(expr: string): string | null {
         break;
       }
     }
-    
+
     // If no parenthesized expression found, try to match the last number
     const lastNumberMatch = expr.match(/(\d+(?:\.\d+)?)(?!.*\d)/);
     if (lastNumberMatch) {
       return lastNumberMatch[0];
     }
-    
+
     return null;
   }
 }
 
 // Export types for external use
-export type { ParenthesesGroup }
+export type { ParenthesesGroup };

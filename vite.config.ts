@@ -1,35 +1,20 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { VitePWA } from 'vite-plugin-pwa'
+import { VitePWA, type ManifestOptions } from 'vite-plugin-pwa'
 import { visualizer } from 'rollup-plugin-visualizer'
 import { resolve } from 'path'
 import type { PluginOption } from 'vite'
+
+import manifestJson from './public/manifest.json'
+const manifest: Partial<ManifestOptions> = manifestJson as Partial<ManifestOptions>;
 
 export default defineConfig({
   plugins: [
     vue(),
     VitePWA({
       registerType: 'prompt',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
-      manifest: {
-        name: 'Mathlly',
-        short_name: 'Mathlly',
-        description: 'Math learning application',
-        background_color: '#ffffff',
-        display: 'standalone',
-        icons: [
-          {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
-          },
-          {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
-      },
+      includeAssets: ['favicon.svg', 'favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      manifest: manifest,
       workbox: {
         skipWaiting: false,
         clientsClaim: true,
@@ -91,7 +76,6 @@ export default defineConfig({
       '@assets': resolve(__dirname, './src/assets'),
       '@app': resolve(__dirname, './src/app'),
       '@shared': resolve(__dirname, './src/shared'),
-
       '@calculator': resolve(__dirname, './src/features/calculator'),
       '@base64': resolve(__dirname, './src/features/tools/base64'),
       '@settings': resolve(__dirname, './src/features/settings'),
