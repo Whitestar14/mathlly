@@ -15,7 +15,7 @@
     --color-card-foreground: 15% 0.004 285.82;
     --color-popover: 100% 0 0;
     --color-popover-foreground: 15% 0.004 285.82;
-    --color-primary: 67.5% 0.196 271.75;
+    --color-primary: 65% 0.5 270;
     --color-primary-foreground: 98% 0 0;
     --color-secondary: 95.9% 0.004 285.82;
     --color-secondary-foreground: 15% 0.004 285.82;
@@ -27,14 +27,14 @@
     --color-destructive-foreground: 98% 0 0;
     --color-border: 90% 0.004 285.82;
     --color-input: 90% 0.004 285.82;
-    --color-ring: 67.5% 0.196 271.75;
+    --color-ring: 65% 0.5 270;
     --backdrop: 0% 0 0;
     --backdrop-light: 100% 0 0;
     --backdrop-surface: 100% 0 0;
 
     --logo-bg-fill: 100% 0 0; 
-    --logo-stroke-stop-color: 67.5% 0.196 271.75;
-    --logo-fg-stop-color: 67.5% 0.196 271.75;
+    --logo-stroke-stop-color: 65% 0.5 270;
+    --logo-fg-stop-color: 65% 0.5 270;
   }
   .dark {
     --color-background: 15% 0.004 285.82;
