@@ -1,6 +1,29 @@
 {
   "updates": [
     {
+      "version": "0.13.0",
+      "date": "August 3, 2025",
+      "features": [
+        "@milestone: Brand transition from Mathlly to Prism with complete visual overhaul",
+        "@milestone: Introduced new default 'Mira' theme with refreshed color palette",
+        "Complete application restructuring into modular architecture for better maintainability",
+        "Revamped icon system with updated SVG assets and improved theming support",
+        "Implemented new lightweight loader with smoother transition animations",
+        "Fixed critical race condition bugs in MemoryItem component",
+        "Resolved major stability issues in Scientific Calculator mode",
+        "Optimized calculator core for improved evaluation reliability",
+        "Significant performance improvements across all application modules",
+        "Refactored UI components with updated Prism design language",
+        "Enhanced theme management system with new Mira theme as default",
+        "Updated PWA assets and manifest with new Prism branding",
+        "Improved memory operations with better synchronization",
+        "Streamlined component initialization sequences",
+        "Reduced bundle size through optimized asset loading",
+        "Enhanced scientific mode validation and error handling",
+        "Updated documentation reflecting new architecture and branding"
+      ]
+    },
+    {
       "version": "0.12.2",
       "date": "June 27, 2025",
       "features": [

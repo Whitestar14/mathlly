@@ -10,12 +10,14 @@
       @toggle-menubar="menuPanel.toggle()"
       @open-shortcut-modal="openShortcutModal"
     />
+
     <div class="relative">
-      <SidebarMenu
+      <sidebar-menu
         :is-mobile="device.isMobile"
         @sidebar-close="sidebarPanel.close()"
       />
     </div>
+
     <Suspense>
       <app-view
         :settings="settings"
@@ -27,50 +29,69 @@
         </div>
       </template>
     </Suspense>
+
     <div class="relative">
-      <MainMenu />
+      <main-menu />
     </div>
+
     <Suspense>
       <toast :is-mobile="device.isMobile" />
     </Suspense>
+
     <Suspense>
-      <ShortcutGuide v-model:show="isShortcutModalOpen" />
+      <ShortcutGuide
+        v-if="panelStates.isLoaded"
+        v-model:show="isShortcutModalOpen"
+      />
     </Suspense>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onUnmounted, computed, unref, shallowRef, defineAsyncComponent } from "vue";
-import { useRouter } from "vue-router";
-import { useFullscreen } from "@vueuse/core";
-import { useDeviceStore } from "@stores/device";
-import { useSettingsStore } from "@stores/settings.ts";
-import { useKeyboard } from "@composables/ui/useKeyboard";
-import { usePanel } from "@composables/ui/usePanel";
-import { useTheme } from "@composables/core/useTheme";
-import { AppHeader } from "@components/layout";
+import {
+  onUnmounted,
+  computed,
+  unref,
+  shallowRef,
+  reactive,
+  defineAsyncComponent,
+} from 'vue';
+import { useRouter } from 'vue-router';
+import { useFullscreen } from '@vueuse/core';
+import { useDeviceStore } from '@stores/device';
+import { useSettingsStore } from '@stores/settings.ts';
+import { useKeyboard } from '@composables/ui/useKeyboard';
+import { usePanel } from '@composables/ui/usePanel';
+import { useTheme } from '@composables/core/useTheme';
+import { AppHeader } from '@components/layout';
 
-const SidebarMenu = defineAsyncComponent(() => import("../sidebar/SidebarMenu.vue"));
-const AppView = defineAsyncComponent(() => import("./AppView.vue"));
-const MainMenu = defineAsyncComponent(() => import("../sidebar/MainMenu.vue"));
-const Toast = defineAsyncComponent(() => import("@components/ui/BaseToast.vue"));
-const ShortcutGuide = defineAsyncComponent(() => import("../modal/ShortcutGuide.vue"));
+const AppView = defineAsyncComponent(() => import('./AppView.vue'));
+import MainMenu from '../sidebar/MainMenu.vue';
+import SidebarMenu from '../sidebar/SidebarMenu.vue';
+const Toast = defineAsyncComponent(
+  () => import('@components/ui/BaseToast.vue')
+);
+const ShortcutGuide = defineAsyncComponent(
+  () => import('../modal/ShortcutGuide.vue')
+);
 
 const router = useRouter();
 const device = useDeviceStore();
 const settings = useSettingsStore();
 
-const minLoadTime = new Promise(resolve => setTimeout(resolve, 1500));
+const minLoadTime = new Promise((resolve) => setTimeout(resolve, 1500));
 
-await Promise.all([
-  settings.loadSettings(),
-  router.isReady(),
-  minLoadTime,
-]);
+await Promise.all([settings.loadSettings(), router.isReady(), minLoadTime]);
 
 device.initializeDeviceInfo();
 
 const { toggleTheme } = useTheme();
+
+const panelStates = reactive({
+  sidebar: { isOpen: false, isLoaded: false },
+  menu: { isOpen: false, isLoaded: false },
+  isLoaded: false,
+});
 
 const isShortcutModalOpen = shallowRef(false);
 
@@ -81,7 +102,7 @@ function openShortcutModal() {
   isShortcutModalOpen.value = true;
 }
 
-useKeyboard("global", {
+useKeyboard('global', {
   toggleSidebar: () => sidebarPanel.toggle(),
   toggleMenubar: () => menuPanel.toggle(),
   toggleFullscreen: () => useFullscreen(document.documentElement).toggle(),
@@ -91,15 +112,8 @@ useKeyboard("global", {
 
 const mainContentClasses = computed(() => {
   if (device.isMobile) return [];
-  
+
   const classes = [];
-  
-  if (unref(sidebarPanel.preloadIsOpen)) {
-    classes.push('md:pl-64');
-  }
-  if (unref(menuPanel.preloadIsOpen)) {
-    classes.push('md:pr-64');
-  }
 
   if (unref(sidebarPanel.isOpen)) classes.push('md:pl-64');
   if (unref(menuPanel.isOpen)) classes.push('md:pr-64');
