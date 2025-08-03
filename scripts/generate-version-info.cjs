@@ -11,7 +11,7 @@ try {
 }
 
 // Read changelog.json - FIXED PATH
-const changelogPath = path.resolve(__dirname, '../src/data/changelog.json');
+const changelogPath = path.resolve(__dirname, '../src/shared/services/storage/changelog.json');
 const publicDir = path.resolve(__dirname, '../public');
 
 let versionInfo;

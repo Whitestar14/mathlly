@@ -1,13 +1,7 @@
 import { ref } from 'vue'
 import { useOnline } from '@vueuse/core'
 import type { Router, RouteLocationNormalized } from 'vue-router'
-
-// Define error interface
-interface RouteError {
-  message: string
-  status?: number
-  originalError?: Error
-}
+import { RouteError } from './types'
 
 export const routeError = ref<RouteError | null>(null)
 export const routePath = ref<string>('')

@@ -1,0 +1,68 @@
+interface SettingsManifestItem {
+  id: string;
+  title: string;
+  icon: string;
+  keywords: string[];
+}
+
+export const settingsManifest: SettingsManifestItem[] = [
+  {
+    id: 'startup',
+    title: 'Startup Preferences',
+    icon: 'PowerIcon',
+    keywords: [
+      'launch',
+      'open page',
+      'initial screen',
+      'home',
+      'calculator page',
+      'last visited',
+      'boot',
+    ],
+  },
+  {
+    id: 'themes',
+    title: 'Themes & Preferences',
+    icon: 'PaletteIcon',
+    keywords: [
+      'color theme',
+      'appearance',
+      'light mode',
+      'dark mode',
+      'system theme',
+      'animations',
+      'disable transitions',
+      'visuals',
+      'text size',
+      'font size',
+      'small',
+      'normal',
+      'medium',
+      'large',
+      'theme pack',
+      'classic',
+      'mira',
+      'vercel',
+      'shadcn',
+      'border radius',
+      'sharp',
+      'rounded',
+    ],
+  },
+  {
+    id: 'advanced',
+    title: 'Advanced Settings',
+    icon: 'SettingsIcon',
+    keywords: [
+      'reset',
+      'database',
+      'clear',
+      'troubleshoot',
+      'fix',
+      'issues',
+      'problems',
+      'data',
+      'storage',
+    ],
+  },
+];
