@@ -89,10 +89,13 @@
             v-model="dontShowAgain"
             type="checkbox"
             class="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/20 bg-background"
-          />
+          >
           <span class="text-sm text-muted-foreground">Don't show again</span>
         </label>
-        <BaseButton variant="primary" @click="handleGetStarted">
+        <BaseButton
+          variant="primary"
+          @click="handleGetStarted"
+        >
           Get Started
           <ArrowRight class="h-4 w-4" />
         </BaseButton>

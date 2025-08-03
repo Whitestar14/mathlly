@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import { AlertTriangle, CircleHelp } from 'lucide-vue-next';
 import {BaseButton, BaseModal, BaseCollapsible} from '@components/ui';
-import { resetDatabase } from '@services/storage/db';
+import db, { resetDatabase } from '@services/storage/db';
 import { useToast } from '@composables/ui/useToast';
 
 interface Props {
@@ -24,7 +24,7 @@ const handleResetDatabase = async (): Promise<void> => {
   isResettingDatabase.value = true;
 
   try {
-    const success = await resetDatabase();
+    const success = await resetDatabase(db);
 
     if (!success) throw new Error('Failed to reset database');
   } catch (error) {

@@ -9,7 +9,7 @@
   
 <script setup lang="ts">
 import { watch, onMounted, computed } from 'vue';
-import { createPanelContext } from '@composables/ui/usePanel';
+import { createPanelContext } from '@composables/ui/panelContext';
 import { useDeviceStore } from '@stores/device';
 import { useSettingsStore } from '@stores/settings';
 import { usePWATheme } from '@composables/core/usePWATheme';

@@ -6,7 +6,7 @@
     main-class="flex"
     :is-tool-layout="true"
   >
-    <!-- Calculator Mode Switcher - teleports to header -->
+    <!-- this teleports to header -->
     <CalculatorModeSwitcher />
     
     <div class="flex-grow flex-initial bg-card overflow-hidden transition-colors duration-300">
@@ -58,7 +58,8 @@
 import { computed, watch, ref, provide, defineAsyncComponent, type Ref, type ComputedRef } from 'vue'
 import { useHistory, type HistoryItem } from '@calculator/composables/useHistory'
 import { useMemory } from '@calculator/composables/useMemory'
-import { usePanel, type LightweightPanelAPI } from '@composables/ui/usePanel'
+import { usePanel } from '@composables/ui/usePanel'
+import type { LightweightPanelAPI } from '@composables/ui/types'
 import { useCalculatorState, type CalculatorMode, type Base } from '@calculator/composables/useCalculatorState'
 import { useCalculatorModeSwitcher } from '@calculator/composables/useCalculatorModeSwitcher'
 import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptions'
@@ -69,30 +70,24 @@ import { useCalculatorSession } from '@calculator/composables/useCalculatorSessi
 import {CalculatorButtons, CalculatorDisplay} from '@calculator/components'
 import { BasePage } from '@components/ui'
 
-// Define props
 const props = defineProps<{
   isMobile: boolean
 }>()
 
-// Import the calculator mode switcher component
 const CalculatorModeSwitcher = defineAsyncComponent(() => import('@calculator/components/CalculatorModeSwitcher.vue'))
 
-// Async component import with proper typing
 const ActivityPanel = defineAsyncComponent(() => import('@calculator/components/ActivityPanel.vue'))
 
 interface HistoryService {
   addToHistory: (expression: string, result: string) => void
 }
 
-// Use composables for state management with proper typing
 const historyService: HistoryService = useHistory()
 const memoryService = useMemory()
 
-// Get the panel instance - cast to the correct type
 const activityPanelResult = usePanel('activity')
 const activityPanel = activityPanelResult as LightweightPanelAPI
 
-// Get calculator mode switcher context
 const { currentMode } = useCalculatorModeSwitcher()
 
 const calculatorOptions = useCalculatorOptions()
@@ -114,7 +109,6 @@ const createCalculator = (mode: CalculatorMode) => {
 
 const calculator: Ref<Calculator> = ref(createCalculator(currentMode.value))
 
-// Provide all dependencies to child components
 provide('calculator', calculator)
 provide('calculatorState', state)
 provide('calculatorOptions', calculatorOptions)
@@ -125,7 +119,6 @@ provide('updateState', updateState)
 provide('updateDisplayValues', updateDisplayValues)
 provide('isMobile', computed(() => props.isMobile))
 
-// Initialize controller with all dependencies and proper typing
 const controllerResult: ControllerReturn = CalculatorController({
   state,
   calculator,
@@ -147,19 +140,15 @@ const {
   handleBaseChange,
 } = controllerResult
 
-// Memoized computed properties with proper typing
 const maxInputLength: ComputedRef<number> = computed(() => calculator.value.MAX_INPUT_LENGTH)
 const hasMemoryValue: ComputedRef<boolean> = computed(() => memoryService.hasMemory(currentMode.value).value)
 
-// Activity panel methods
 const openActivity = (): void => activityPanel.open()
 
-// Watch for input changes with proper typing
 watch(() => state.input, (newRawInput: string) => {
   saveInput(currentMode.value, newRawInput)
 })
 
-// Centralized mode change handler
 const handleModeChange = (newMode: CalculatorMode, oldMode?: CalculatorMode) => {
   if (oldMode) {
     saveInput(oldMode, state.input)
@@ -188,12 +177,10 @@ const handleModeChange = (newMode: CalculatorMode, oldMode?: CalculatorMode) => 
   }
 }
 
-// Watch for mode changes from the switcher
 watch(() => currentMode.value, (newMode: CalculatorMode, oldMode?: CalculatorMode) => {
   handleModeChange(newMode, oldMode)
 }, { immediate: true })
 
-// Handle activity item selection with proper typing
 const selectHistoryItem = ({ expression }: HistoryItem): void => {
   if (state.mode === 'Programmer') {
     return

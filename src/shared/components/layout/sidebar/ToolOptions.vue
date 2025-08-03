@@ -17,7 +17,6 @@
         </div>
       </div>
     </slot>
-
     <!-- Options grouped by section -->
     <div class="space-y-6 p-3">
       <template
@@ -38,7 +37,6 @@
             </h4>
             <div class="h-px flex-1 bg-border" />
           </div>
-
           <div class="space-y-4">
             <div
               v-for="option in section.options"
@@ -73,7 +71,6 @@
                   />
                 </div>
               </div>
-
               <!-- SelectBar Option -->
               <div
                 v-else-if="option.type === 'select'"
@@ -101,7 +98,6 @@
                   @update:model-value="updateOptionValue(option, $event)"
                 />
               </div>
-
               <!-- Radio Option -->
               <div
                 v-else-if="option.type === 'radio'"
@@ -142,7 +138,6 @@
                   </div>
                 </RadioGroupRoot>
               </div>
-
               <!-- Range Option -->
               <div
                 v-else-if="option.type === 'range'"
@@ -177,33 +172,22 @@
                     </span>
                   </div>
                 </div>
-
                 <div class="relative">
-                  <input
+                  <BaseSlider
                     :id="option.id"
-                    :value="option.value.value[option.id]"
-                    type="range"
+                    v-model="option.value.value[option.id]"
                     :min="option.min"
                     :max="option.max"
                     :step="option.step"
-                    class="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer slider focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-all duration-200"
-                    @input="
-                      updateOptionValue(
-                        option,
-                        Number(($event.target as HTMLInputElement).value)
-                      )
-                    "
-                  >
+                    @update:model-value="updateOptionValue(option, Number($event))"
+                  />
                   <!-- Range track indicators -->
-                  <div
-                    class="flex justify-between text-xs text-muted-foreground/60 mt-1 px-1"
-                  >
+                  <div class="flex justify-between text-xs text-muted-foreground/60 mt-1 px-1">
                     <span>{{ option.min }}</span>
                     <span>{{ option.max }}</span>
                   </div>
                 </div>
               </div>
-
               <!-- Color Option -->
               <div
                 v-else-if="option.type === 'color'"
@@ -241,7 +225,6 @@
                   </span>
                 </div>
               </div>
-
               <!-- Number Input Option -->
               <div
                 v-else-if="option.type === 'number'"
@@ -281,7 +264,6 @@
           </div>
         </div>
       </template>
-
       <!-- Empty state -->
       <div
         v-if="groupedOptions.length === 0"
@@ -300,7 +282,7 @@
 import { computed } from 'vue';
 import { ArrowLeft, Settings } from 'lucide-vue-next';
 import type { ToolConfig, ToolOption } from '@stores/toolSettings';
-import { BaseButton, SelectBar, ToggleBar } from '@components/ui'
+import { BaseButton, SelectBar, ToggleBar, BaseSlider } from '@components/ui'
 import { RadioGroupRoot, RadioGroupItem } from 'radix-vue';
 
 interface Props {
@@ -308,7 +290,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
 defineEmits<{
   close: [];
 }>();
@@ -321,7 +302,6 @@ const updateOptionValue = (option: ToolOption, newValue: any) => {
 // Group options by section
 const groupedOptions = computed(() => {
   const sections = new Map<string, typeof props.toolOptions.options>();
-
   props.toolOptions.options.forEach((option) => {
     const sectionName = option.section || 'General';
     if (!sections.has(sectionName)) {
@@ -329,7 +309,6 @@ const groupedOptions = computed(() => {
     }
     sections.get(sectionName)!.push(option);
   });
-
   return Array.from(sections.entries()).map(([name, options]) => ({
     name,
     options,
@@ -338,72 +317,6 @@ const groupedOptions = computed(() => {
 </script>
 
 <style scoped>
-.slider::-webkit-slider-thumb {
-  appearance: none;
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  background: hsl(var(--primary));
-  cursor: pointer;
-  border: 3px solid hsl(var(--background));
-  box-shadow: 0 0 0 1px hsl(var(--border)), 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
-
-.slider::-webkit-slider-thumb:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 0 1px hsl(var(--border)), 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.slider::-moz-range-thumb {
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  background: hsl(var(--primary));
-  cursor: pointer;
-  border: 3px solid hsl(var(--background));
-  box-shadow: 0 0 0 1px hsl(var(--border)), 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
-}
-
-.slider::-moz-range-thumb:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 0 1px hsl(var(--border)), 0 4px 8px rgba(0, 0, 0, 0.15);
-}
-
-.slider:focus::-webkit-slider-thumb {
-  box-shadow: 0 0 0 1px hsl(var(--border)), 0 0 0 3px hsl(var(--ring) / 0.2);
-}
-
-.slider:focus::-moz-range-thumb {
-  box-shadow: 0 0 0 1px hsl(var(--border)), 0 0 0 3px hsl(var(--ring) / 0.2);
-}
-
-.slider::-webkit-slider-track {
-  background: hsl(var(--muted));
-  border-radius: 4px;
-  height: 8px;
-}
-
-.slider::-moz-range-track {
-  background: hsl(var(--muted));
-  border-radius: 4px;
-  height: 8px;
-  border: none;
-}
-
-.slider::-webkit-slider-runnable-track {
-  background: linear-gradient(
-    to right,
-    hsl(var(--primary)) 0%,
-    hsl(var(--primary)) var(--progress, 50%),
-    hsl(var(--muted)) var(--progress, 50%),
-    hsl(var(--muted)) 100%
-  );
-  border-radius: 4px;
-  height: 8px;
-}
-
 .radio-item {
   position: relative;
 }
