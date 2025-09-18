@@ -5,6 +5,7 @@ import { createToolOptions } from '@composables/ui/useToolOptions'
 export interface Base64Options {
   autoProcess: boolean
   preserveWhitespace: boolean
+  preserveMode: boolean
   outputFormat: 'standard' | 'url-safe' | 'mime'
   lineLength: number
   handleBinaryFiles: boolean
@@ -17,6 +18,7 @@ export interface Base64Options {
 const DEFAULT_BASE64_OPTIONS: Base64Options = {
   autoProcess: true,
   preserveWhitespace: false,
+  preserveMode: true,
   outputFormat: 'standard',
   lineLength: 76,
   handleBinaryFiles: true,
@@ -31,6 +33,14 @@ export function useBase64Options() {
     'Base64 Encoder/Decoder',
     DEFAULT_BASE64_OPTIONS,
     (options) => [
+      {
+        id: 'preserveMode',
+        label: 'Preserve Mode Inputs',
+        description: 'Keep separate input buffers for Encode and Decode',
+        type: 'toggle',
+        value: options,
+        section: 'Processing'
+      },
       {
         id: 'autoProcess',
         label: 'Auto Process',
@@ -119,6 +129,7 @@ export function useBase64Options() {
     // Individual options (for convenience)
     autoProcess: computed(() => options.value.autoProcess),
     preserveWhitespace: computed(() => options.value.preserveWhitespace),
+    preserveMode: computed(() => options.value.preserveMode),
     outputFormat: computed(() => options.value.outputFormat),
     lineLength: computed(() => options.value.lineLength),
     handleBinaryFiles: computed(() => options.value.handleBinaryFiles),
