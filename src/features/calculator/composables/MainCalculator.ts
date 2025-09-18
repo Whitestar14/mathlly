@@ -6,13 +6,13 @@ import { CalculatorUtils } from '@calculator/utils/constants/CalculatorUtils'
 import { useCalculatorOptions } from './useCalculatorOptions'
 import type { Calculator } from '@calculator/services/factory/CalculatorFactory'
 import { isProgrammerCalculator } from '@calculator/services/factory/CalculatorFactory'
-// Import types from useCalculatorState to align interfaces
+
 import type { 
   CalculatorState, 
   Base,
   CalculatorMode
 } from './useCalculatorState'
-// Import memory types to align interfaces
+
 import type { 
   UseMemoryUIReturn
 } from './useMemoryUI'
@@ -37,7 +37,7 @@ interface ControllerOptions {
   updateDisplayValues: (values: Record<string, any>) => void
   setActiveBase: (base: Base) => void
   historyService: HistoryService
-  memoryService: UseMemoryUIReturn // Use the UI return type
+  memoryService: UseMemoryUIReturn
   toggleActivity: () => void
 }
 
@@ -66,10 +66,8 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     toggleActivity
   } = options
 
-  // Get reactive calculator options
   const calculatorOptions = useCalculatorOptions()
   
-  // Get display formatter
   const displayFormatter = useDisplayFormatter()
 
   const displayRefresh = useThrottleFn(updateDisplayFn, 100)
@@ -79,7 +77,6 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
    */
   const handleButtonClick = (btn: string): void => {
     try {
-      // Handle memory operations
       if (['MC', 'MR', 'M+', 'M-', 'MS'].includes(btn)) {
         const result = memoryService.handleMemoryOperation({
           operation: btn,
@@ -94,7 +91,6 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
           error: result.error || ""
         })
 
-        // For Programmer mode memory recall, update display values
         if (result.displayValues) {
           nextTick(() => updateDisplayValues(result.displayValues!))
         }
@@ -102,27 +98,22 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
         return
       }
       
-      // Use calculator's button click handler
       const result = calculator.value.handleButtonClick(btn)
 
-      // Update state with result
       updateState({
         input: result.input,
         error: result.error || ""
       })
 
-      // Handle special cases for Programmer mode
       if (btn === "=" && state.mode === "Programmer") {
         if (result.displayValues) {
           updateDisplayValues(result.displayValues)
           setAnimation(result.result!)
         }
       } else if (state.mode === "Programmer") {
-        // Update display values for programmer mode - throttled for performance
         nextTick(() => displayRefresh())
       }
 
-      // Add to history for standard mode calculations
       if (btn === "=" && state.mode !== "Programmer" && result.result) {
         historyService.addToHistory(result.expression!, result.result)
         setAnimation(result.result)
@@ -223,7 +214,6 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
    * Format text for display with centralized formatting logic
    */
   const formatDisplayText = computed(() => {
-    // Create reactive dependency on formatting options
     const options = getFormattingOptions()
     
     return (value: string | number): string => {
@@ -338,7 +328,6 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     }
   }, 100)
 
-  // Set up keyboard event listener
   useEventListener('keydown', handleKeyboardShortcuts)
 
   /**
@@ -359,7 +348,6 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
   }
 }
 
-// Export types for external use
 export type {
   ControllerOptions,
   ControllerReturn,
