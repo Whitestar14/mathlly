@@ -25,12 +25,20 @@ const handleDragOver = (event: DragEvent): void => {
 const handleDragEnter = (event: DragEvent): void => {
   event.preventDefault();
 };
+
+const handleDrop = (event: DragEvent): void => {
+  event.preventDefault();
+  emit('drop', event);
+};
 </script>
 
 <template>
   <div
     v-if="handleBinaryFiles && currentTab === 'encode'"
     class="mb-6"
+    @dragover.prevent="handleDragOver"
+    @dragenter.prevent="handleDragEnter"
+    @drop.prevent="handleDrop"
   >
     <div class="border-2 border-dashed border-border rounded-lg p-6 text-center">
       <input

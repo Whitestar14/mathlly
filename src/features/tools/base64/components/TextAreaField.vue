@@ -43,7 +43,6 @@ const handlePaste = (): void => {
         {{ label }}
       </label>
 
-      <!-- fixed-width container for actions to prevent layout shift when action icons appear/disappear -->
       <div class="w-10 flex items-center justify-end">
         <slot name="actions" />
       </div>
@@ -80,6 +79,7 @@ const handlePaste = (): void => {
           <ClipboardPaste class="h-3 w-3" />
         </BaseButton>
       </div>
+
     </div>
     
     <div
