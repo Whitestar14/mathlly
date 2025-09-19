@@ -2,7 +2,7 @@ import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptio
 import { ExpressionEvaluator } from '@calculator/utils/core/ExpressionEvaluator';
 import { CalculatorConstants } from '../constants/CalculatorConstants';
 import { CalculatorUtils } from '../constants/CalculatorUtils';
-import type { CalculatorOptions } from '@calculator/composables/useCalculatorOptions';
+import type { CalculatorOptions } from '@features/calculator/types/calculator';
 
 /**
  * Interface for calculator implementations.
