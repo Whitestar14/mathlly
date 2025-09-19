@@ -6,8 +6,8 @@ import { useTheme, type ThemePackOption } from './useTheme'
  */
 const THEME_COLORS = {
   classic: {
-    light: '#4f46e5',
-    dark: '#818cf8'
+    light: '#5a00ff',
+    dark: '#6e89ff'
   },
   mira: {
     light: '#18181b',
