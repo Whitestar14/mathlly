@@ -78,6 +78,7 @@ export default defineConfig({
       '@shared': resolve(__dirname, './src/shared'),
       '@calculator': resolve(__dirname, './src/features/calculator'),
       '@base64': resolve(__dirname, './src/features/tools/base64'),
+      '@color': resolve(__dirname, './src/features/tools/color'),
       '@settings': resolve(__dirname, './src/features/settings'),
     },
   },

@@ -117,8 +117,6 @@ const onFileUpload = async (event: Event): Promise<void> => {
   }
 };
 
-// triggerFilePicker now provided by the composable
-
 // Drop wrapper to trigger processing after file is assigned to the hidden input
 const onDrop = async (event: DragEvent): Promise<void> => {
   await handleDropEvent(event, handleDrop, processInput, currentTab, base64Options.options);
