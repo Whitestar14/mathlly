@@ -67,7 +67,7 @@ const handlePaste = (): void => {
       
       <div 
         v-if="showPasteButton" 
-        class="absolute bottom-2 right-2 flex items-center gap-1"
+        class="absolute bottom-3 right-2 flex items-center gap-1"
       >
         <BaseButton
           v-tippy="{ content: 'Paste' }"

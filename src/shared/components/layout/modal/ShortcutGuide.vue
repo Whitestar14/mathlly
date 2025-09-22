@@ -17,24 +17,11 @@
     </template>
 
     <div class="mt-2">
-      <div class="flex border-b border-border relative">
-        <Indicator :position="indicatorStyle" />
-        <button
-          v-for="category in Object.keys(shortcutGroups)"
-          :key="category"
-          ref="tabElements"
-          :data-path="category"
-          class="px-4 py-3 text-sm font-medium transition-colors relative"
-          :class="[
-            currentPill === category
-              ? 'text-primary'
-              : 'text-muted-foreground hover:text-foreground',
-          ]"
-          @click="handleTabChange(category, $event.target as HTMLElement)"
-        >
-          {{ category }}
-        </button>
-      </div>
+        <BaseTabs
+          ref="tabsRef"
+          v-model:model-value="currentTab"
+          :tabs="tabs"
+        />
 
       <div class="relative overflow-hidden h-[250px] overflow-y-auto">
         <TransitionGroup
@@ -47,7 +34,7 @@
         >
           <div
             v-for="(group, category) in shortcutGroups"
-            v-show="currentPill === category"
+              v-show="currentTab === category"
             :key="category"
             class="p-4 space-y-2"
           >
@@ -94,9 +81,8 @@
 </template>
 
 <script setup lang="ts">
-import { shallowRef, type ShallowRef } from "vue";
-import { BaseModal, PillIndicator as Indicator } from '@components/ui'
-import { usePills } from "@composables/ui/usePills";
+import { ref, nextTick, computed } from "vue";
+import { BaseModal, BaseTabs } from '@components/ui'
 
 interface Shortcut {
   description: string;
@@ -121,7 +107,9 @@ defineProps<Props>();
 
 const emit = defineEmits<Emits>();
 
-const tabElements: ShallowRef<HTMLElement[]> = shallowRef([]);
+const tabsRef = ref<InstanceType<typeof BaseTabs> | null>(null as any);
+
+const tabs = computed(() => Object.keys(shortcutGroups).map((k) => ({ value: k, label: k })));
 
 const shortcutGroups: ShortcutGroups = {
   Global: {
@@ -158,18 +146,12 @@ function handleModalUpdate(isOpen: boolean): void {
   }
 }
 
-const {
-  currentPill,
-  indicatorStyle,
-  handleNavigation
-} = usePills({
-  position: "bottom",
-  updateRoute: false,
-  defaultPill: "Global",
-  containerRef: tabElements
-});
+const currentTab = ref('Global');
 
-function handleTabChange(category: string, tabElement: HTMLElement): void {
-  handleNavigation(category, tabElement);
-}
+// Initialize the tabs component after mount so the visual indicator can place itself
+nextTick(() => {
+  if (tabsRef.value?.initializePills) {
+    tabsRef.value.initializePills?.(currentTab.value as unknown as string);
+  }
+});
 </script>

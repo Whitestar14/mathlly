@@ -10,41 +10,38 @@ import {
 } from "lucide-vue-next";
 import { useToast } from "@composables/ui/useToast";
 import Base64Actions from "../components/Base64Actions.vue";
-import { useBase64Options } from "@base64/composables/useBase64Options";
-import { useBase64Operations } from "@base64/composables/useBase64Operations";
-import { useFileOperations } from "@base64/composables/useFileOperations";
-import { useSampleData } from "@base64/composables/useSampleData";
-import { useBase64FileUI } from "@base64/composables/useBase64FileUI";
+import { useBase64Options } from "../composables/useBase64Options";
+import { useBase64Operations } from "../composables/useBase64Operations";
+import { useFileOperations } from "../composables/useFileOperations";
+import { useSampleData } from "../composables/useSampleData";
+import { useBase64FileUI } from "../composables/useBase64FileUI";
 import { Tab } from "../types/base64";
-import { BaseButton } from '@components/ui'
-import Base64Tabs from '@base64/components/Base64Tabs.vue';
-import FileUpload from '@base64/components/FileUpload.vue';
-import TextAreaField from '@base64/components/TextAreaField.vue';
+import { BaseButton, BaseTabs, BasePage, BaseCard } from '@components/ui'
+import InputPanel from '../components/InputPanel.vue'
+import OutputPanel from '../components/OutputPanel.vue'
+import FileProcessingOverlay from '../components/FileProcessingOverlay.vue'
+import FileUpload from '../components/FileUpload.vue';
 
 const tabs: Tab[] = [
   { value: "encode", label: "Encode" },
   { value: "decode", label: "Decode" },
 ];
 
-// Reactive state and mode buffers
 const singleInput = ref("");
 const encodeBuffer = ref("");
 const decodeBuffer = ref("");
 const currentTab = ref<'encode' | 'decode'>("encode");
 const selectedFileName = ref("");
 const inputArea = ref<HTMLTextAreaElement | null>(null);
-const tabElements = ref<any>(null);
+const tabsRef = ref<InstanceType<typeof BaseTabs> | null>(null as any);
 const outputValidationError = ref("");
 
-// Composables
 const { copy } = useClipboard();
 const { toast } = useToast();
 const base64Options = useBase64Options();
 
-// Computed input that maps to the appropriate buffer based on preserveMode
 const input = computed<string>({
   get() {
-    // If preserveMode enabled, return the buffer for the active tab
     if (base64Options.options.value.preserveMode) {
       return currentTab.value === 'encode' ? encodeBuffer.value : decodeBuffer.value;
     }
@@ -75,8 +72,8 @@ const outputFormat = computed(() => {
   }
 });
 
-// File UI + drag state handled by composable to keep this file small
 const { fileInput, isDragActive, triggerFilePicker, handleDropEvent } = useBase64FileUI();
+const isFileProcessing = ref(false);
 
 const handleInput = async (): Promise<void> => {
   selectedFileName.value = "";
@@ -99,29 +96,34 @@ const handleProcess = async (): Promise<void> => {
       { type: "success" }
     );
   } else if (!result.success) {
-    // show error by highlighting output instead of using a toast
     outputValidationError.value = result.error ?? "Processing failed";
   }
 };
 
-// File upload wrapper to trigger processing after the composable handles the file
 const onFileUpload = async (event: Event): Promise<void> => {
-  await handleFileUpload(event);
-  if (base64Options.options.value.autoProcess) {
-    const result = await processInput(currentTab.value);
-    if (!result.success) {
-      outputValidationError.value = result.error ?? "Processing failed";
-    } else {
-      outputValidationError.value = "";
+  try {
+    isFileProcessing.value = true;
+    await handleFileUpload(event);
+    if (base64Options.options.value.autoProcess) {
+      const result = await processInput(currentTab.value);
+      if (!result.success) {
+        outputValidationError.value = result.error ?? "Processing failed";
+      } else {
+        outputValidationError.value = "";
+      }
     }
+  } finally {
+    setTimeout(() => (isFileProcessing.value = false), 150);
   }
 };
 
-// triggerFilePicker now provided by the composable
-
-// Drop wrapper to trigger processing after file is assigned to the hidden input
 const onDrop = async (event: DragEvent): Promise<void> => {
-  await handleDropEvent(event, handleDrop, processInput, currentTab, base64Options.options);
+  try {
+    isFileProcessing.value = true;
+    await handleDropEvent(event, handleDrop, processInput, currentTab, base64Options.options);
+  } finally {
+    setTimeout(() => (isFileProcessing.value = false), 150);
+  }
 };
 
 const handleTabChange = async (tabValue: string): Promise<void> => {
@@ -155,18 +157,14 @@ const handleSwap = (): void => {
   const currOutput = output.value;
 
   if (base64Options.options.value.preserveMode) {
-    // When preserving mode buffers, put the output into the other mode's buffer
     if (currentTab.value === 'encode') {
-      // place output into decode buffer so user can decode it immediately
       decodeBuffer.value = currOutput;
     } else {
       encodeBuffer.value = currOutput;
     }
 
-    // Move current input into output
     output.value = currInput;
   } else {
-    // simpler swap when not preserving mode
     input.value = currOutput;
     output.value = currInput;
   }
@@ -195,7 +193,6 @@ const clearInput = (): void => {
 };
 
 const clearAll = (): void => {
-  // Clear all buffers and output
   singleInput.value = '';
   encodeBuffer.value = '';
   decodeBuffer.value = '';
@@ -206,7 +203,6 @@ const clearAll = (): void => {
   toast("All fields cleared!", { type: "success" });
 };
 
-// Watchers
 watch(currentTab, async (newTab) => {
   if (input.value.trim() && base64Options.options.value.autoProcess) {
     const result = await processInput(newTab);
@@ -253,173 +249,173 @@ const pasteFromClipboard = async (): Promise<void> => {
   }
 };
 
-// Initialize
 nextTick(() => {
-  if (tabElements.value) {
-    tabElements.value.initializePills("encode");
+  if (tabsRef.value?.initializePills) {
+    tabsRef.value.initializePills("encode");
   }
 });
 </script>
 
 <template>
-  <div class="container mx-auto p-6">
-    <div class="max-w-6xl mx-auto space-y-6">
-      <!-- Main Tool Interface -->
-      <div class="rounded-lg border border-border dark:border-border overflow-hidden">
-        <Base64Tabs
-          ref="tabElements"
-          :tabs="tabs"
-          :current-tab="currentTab"
-          @tab-change="handleTabChange"
-        >
-          <template #actions>
-            <Base64Actions
-              :load-sample-text="loadSampleText"
-              :load-sample-base64="loadSampleBase64"
-              :generate-random-data="generateRandomData"
-              :clear-all="clearAll"
-              :trigger-file-picker="triggerFilePicker"
-            />
-          </template>
-        </Base64Tabs>
-
-        <div class="p-6 bg-background dark:bg-background">
-          <!-- File Upload Section (visually hidden - textarea becomes drop target) -->
-          <!-- Hidden native file input used for mobile upload and programmatic triggers -->
-          <input
-            ref="fileInput"
-            type="file"
-            class="hidden"
-            @change="onFileUpload"
+  <BasePage 
+  :title="'Base64'" 
+  :is-tool-layout="true"
+  >
+    <div class="container mx-auto p-3 md:p-6">
+      <div class="max-w-6xl mx-auto space-y-6">
+        <!-- Main Tool Interface -->
+        <div class="rounded-lg border border-border dark:border-border overflow-hidden">
+          <BaseTabs
+            ref="tabsRef"
+            v-model:model-value="currentTab"
+            :tabs="tabs"
+            @tab-change="handleTabChange"
           >
+            <template #actions>
+              <Base64Actions
+                :load-sample-text="loadSampleText"
+                :load-sample-base64="loadSampleBase64"
+                :generate-random-data="generateRandomData"
+                :clear-all="clearAll"
+                :trigger-file-picker="triggerFilePicker"
+              />
+            </template>
+          </BaseTabs>
 
-          <div class="relative">
-            <!-- Animated global drop overlay covering both input/output areas -->
-            <div
-              v-if="isDragActive"
-              class="absolute inset-0 z-20 flex items-center justify-center pointer-events-auto"
+          <div class="p-3 md:p-6 bg-background dark:bg-background">
+            <input
+              ref="fileInput"
+              type="file"
+              class="hidden"
+              @change="onFileUpload"
             >
-              <transition
-                name="fade-scale"
-                enter-active-class="transition ease-out duration-200"
-                enter-from-class="opacity-0 scale-95"
-                enter-to-class="opacity-100 scale-100"
-                leave-active-class="transition ease-in duration-150"
-                leave-from-class="opacity-100 scale-100"
-                leave-to-class="opacity-0 scale-95"
+
+              <FileProcessingOverlay :open="isFileProcessing" />
+            <div class="relative">
+              <div
+                v-if="isDragActive"
+                class="absolute inset-0 z-20 flex items-center justify-center pointer-events-auto"
               >
-                <FileUpload
-                  :handle-binary-files="true"
-                  :current-tab="currentTab"
-                  class="w-full max-w-md mx-auto"
-                  @file-upload="onFileUpload"
-                  @drop="onDrop"
-                />
-              </transition>
-            </div>
-
-            <div
-              :class="{ 'invisible': isDragActive }"
-              class="grid gap-6 lg:grid-cols-2"
-            >
-              <!-- Input Section -->
-              <div class="space-y-3">
-                <TextAreaField
-                  v-model="input"
-                  :label="`Input${selectedFileName ? ` (${selectedFileName})` : ''}`"
-                  :placeholder="currentTab === 'encode' ? 'Enter text to encode or upload a file...' : 'Enter Base64 to decode...'"
-                  :stats="inputStats"
-                  :show-stats="base64Options.options.value.showCharacterCount"
-                  :validation-error="validationError"
-                  :validate-input="base64Options.options.value.validateInput"
-                  :show-paste-button="true"
-                  @input="handleInput"
-                  @drop="onDrop"
-                  @dragover.prevent
-                  @dragenter.prevent
-                  @paste="pasteFromClipboard"
+                <transition
+                  name="fade-scale"
+                  enter-active-class="transition ease-out duration-200"
+                  enter-from-class="opacity-0 scale-95"
+                  enter-to-class="opacity-100 scale-100"
+                  leave-active-class="transition ease-in duration-150"
+                  leave-from-class="opacity-100 scale-100"
+                  leave-to-class="opacity-0 scale-95"
                 >
-                  <template #actions>
-                    <div class="flex items-center gap-2">
-                      <BaseButton
-                        v-if="!base64Options.options.value.autoProcess"
-                        variant="outline"
-                        size="sm"
-                        :disabled="isProcessing"
-                        @click="handleProcess"
-                      >
-                        <Loader2
-                          v-if="isProcessing"
-                          class="h-3 w-3 animate-spin mr-1"
-                        />
-                        {{ currentTab === 'encode' ? 'Encode' : 'Decode' }}
-                      </BaseButton>
-                      <BaseButton
-                        v-if="input"
-                        variant="ghost"
-                        class="h-6 w-6"
-                        size="icon"
-                        @click="clearInput"
-                      >
-                        <X class="h-3 w-3" />
-                      </BaseButton>
-                    </div>
-                  </template>
-                </TextAreaField>
+                  <FileUpload
+                    :handle-binary-files="true"
+                    :current-tab="currentTab"
+                    class="w-full max-w-md mx-auto"
+                    @file-upload="onFileUpload"
+                    @drop="onDrop"
+                  />
+                </transition>
               </div>
 
-              <!-- Output Section -->
-              <div class="space-y-3">
-                <TextAreaField
-                  v-model="output"
-                  :label="`Output (${outputFormat})`"
-                  placeholder="Result will appear here..."
-                  :stats="outputStats"
-                  :show-stats="base64Options.options.value.showCharacterCount && !!output"
-                  :read-only="true"
-                  :validation-error="outputValidationError"
-                  :validate-input="true"
-                >
-                  <template #actions>
-                    <div class="flex items-center gap-2">
-                      <BaseButton
-                        v-tippy="{ content: 'Swap input/output' }"
-                        variant="ghost"
-                        size="icon"
-                        class="h-6 w-6"
-                        :disabled="!output"
-                        @click="handleSwap"
-                      >
-                        <ArrowDownUp class="h-3 w-3" />
-                      </BaseButton>
-                      <BaseButton
-                        v-tippy="{ content: 'Download as file' }"
-                        variant="ghost"
-                        size="icon"
-                        class="h-6 w-6"
-                        :disabled="!output"
-                        @click="downloadOutput(output, currentTab)"
-                      >
-                        <Download class="h-3 w-3" />
-                      </BaseButton>
-                      <BaseButton
-                        v-tippy="{ content: 'Copy to clipboard' }"
-                        variant="ghost"
-                        size="icon"
-                        class="h-6 w-6"
-                        :disabled="!output"
-                        @click="handleCopy"
-                      >
-                        <Copy class="h-3 w-3" />
-                      </BaseButton>
-                    </div>
-                  </template>
-                </TextAreaField>
+              <div
+                :class="{ 'invisible': isDragActive }"
+                class="grid gap-2 md:gap-6 lg:grid-cols-2"
+              >
+                <!-- Input Section -->
+                <BaseCard class="border-none">
+                  <InputPanel
+                    :model-value="input"
+                    :label="`Input${selectedFileName ? ` (${selectedFileName})` : ''}`"
+                    :placeholder="currentTab === 'encode' ? 'Enter text to encode or upload a file...' : 'Enter Base64 to decode...'"
+                    :stats="inputStats"
+                    :show-stats="base64Options.options.value.showCharacterCount"
+                    :validation-error="validationError"
+                    :show-paste-button="true"
+                    @update:model-value="(v) => input = v"
+                    @input="handleInput"
+                    @drop="onDrop"
+                    @paste="pasteFromClipboard"
+                  >
+                    <template #actions>
+                      <div class="flex items-center gap-2">
+                        <BaseButton
+                          v-if="!base64Options.options.value.autoProcess"
+                          variant="outline"
+                          size="sm"
+                          :disabled="isProcessing"
+                          @click="handleProcess"
+                        >
+                          <Loader2
+                            v-if="isProcessing"
+                            class="h-3 w-3 animate-spin mr-1"
+                          />
+                          {{ currentTab === 'encode' ? 'Encode' : 'Decode' }}
+                        </BaseButton>
+                        <BaseButton
+                          v-if="input"
+                          variant="ghost"
+                          class="h-6 w-6"
+                          size="icon"
+                          @click="clearInput"
+                        >
+                          <X class="h-3 w-3" />
+                        </BaseButton>
+                      </div>
+                    </template>
+                  </InputPanel>
+                </BaseCard>
+
+                <!-- Output Section -->
+                <BaseCard class="border-none">
+                  <OutputPanel
+                    :model-value="output"
+                    :label="`Output (${outputFormat})`"
+                    placeholder="Result will appear here..."
+                    :stats="outputStats"
+                    :show-stats="base64Options.options.value.showCharacterCount && !!output"
+                    :read-only="true"
+                    :validation-error="outputValidationError"
+                    @update:model-value="(v) => output = v"
+                  >
+                    <template #actions>
+                      <div class="flex items-center gap-2">
+                        <BaseButton
+                          v-tippy="{ content: 'Swap input/output' }"
+                          variant="ghost"
+                          size="icon"
+                          class="h-6 w-6"
+                          :disabled="!output"
+                          @click="handleSwap"
+                        >
+                          <ArrowDownUp class="h-3 w-3" />
+                        </BaseButton>
+                        <BaseButton
+                          v-tippy="{ content: 'Download as file' }"
+                          variant="ghost"
+                          size="icon"
+                          class="h-6 w-6"
+                          :disabled="!output"
+                          @click="downloadOutput(output, currentTab)"
+                        >
+                          <Download class="h-3 w-3" />
+                        </BaseButton>
+                        <BaseButton
+                          v-tippy="{ content: 'Copy to clipboard' }"
+                          variant="ghost"
+                          size="icon"
+                          class="h-6 w-6"
+                          :disabled="!output"
+                          @click="handleCopy"
+                        >
+                          <Copy class="h-3 w-3" />
+                        </BaseButton>
+                      </div>
+                    </template>
+                  </OutputPanel>
+                </BaseCard>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </BasePage>
 </template>
