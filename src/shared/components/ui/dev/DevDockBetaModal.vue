@@ -5,6 +5,7 @@
     title="Developer Tools Beta"
     :close-on-click-outside="false"
     :close-on-escape="false"
+    :hide-close-button="true"
     @update:open="handleModalClose"
   >
     <template #title>

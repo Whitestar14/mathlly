@@ -114,6 +114,9 @@ const mainContentClasses = computed(() => {
 
   const classes = [];
 
+  if (!panelStates.sidebar.isLoaded && panelStates.sidebar.isOpen) return classes.push('md:pl-64');
+  if (!panelStates.menu.isLoaded && panelStates.menu.isOpen) return classes.push('md:pr-64'); 
+
   if (unref(sidebarPanel.isOpen)) classes.push('md:pl-64');
   if (unref(menuPanel.isOpen)) classes.push('md:pr-64');
 
