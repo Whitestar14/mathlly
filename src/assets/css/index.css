@@ -171,11 +171,6 @@
     @apply opacity-50 cursor-not-allowed pointer-events-none;
   }
 
-  /* Loader styles */
-  .loader-expanded {
-    @apply fixed inset-0 z-50 bg-background/95;
-  }
-
   /* Syntax highlighting classes - now theme-aware */
   .syntax-number {
     @apply text-blue-600 dark:text-blue-400;
@@ -283,6 +278,13 @@
   }
   .logo-bg-fill {
     fill: oklch(var(--logo-bg-fill));
+  }
+
+  .prism-logo {
+    width: 100%;
+    height: 100%;
+    display: block;
+    color: oklch(var(--color-muted-foreground) / 0.8);
   }
 }
 

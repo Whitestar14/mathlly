@@ -13,7 +13,7 @@
       </template>
       <template #fallback>
         <div class="min-h-screen flex items-center justify-center">
-          <BaseLoader variant="expanded" />
+          <BaseLoader variant="compact" />
         </div>
       </template>
     </Suspense>

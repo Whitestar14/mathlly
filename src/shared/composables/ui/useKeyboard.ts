@@ -2,7 +2,6 @@ import { onMounted, onUnmounted, ref, computed, type Ref, type ComputedRef } fro
 import { useEventListener } from '@vueuse/core'
 import { useKeyboardStore } from '@stores/keyboard'
 
-// Define interfaces for keyboard handlers
 interface KeyboardHandlers {
   input?: (key: string) => void
   clear?: () => void
@@ -20,8 +19,6 @@ interface KeyboardHandlers {
   copy?: () => void
   [key: string]: ((payload?: any) => void) | undefined
 }
-
-// Define the return type of the composable
 interface UseKeyboardReturn {
   setContext: (context: string) => void
   clearContext: (context: string) => void
@@ -59,7 +56,6 @@ export function useKeyboard(
     if (event.altKey) combo.push('alt')
     if (event.metaKey) combo.push('meta')
     
-    // Normalize key name
     const key = keyboardStore.normalizeKey(event.key?.toLowerCase?.() || '')
     combo.push(key)
     
@@ -86,7 +82,6 @@ export function useKeyboard(
       const combo = getKeyCombo(event)
       const singleKey = keyboardStore.normalizeKey(event.key?.toLowerCase?.() || '')
 
-      // Check for shortcuts first
       const shortcut = keyboardStore.activeShortcuts[combo]
       if (shortcut && handlers[shortcut.action]) {
         event.preventDefault()
@@ -94,7 +89,6 @@ export function useKeyboard(
         return
       }
 
-      // Process single key input if valid
       if (keyboardStore.isValidInput(singleKey) && handlers.input) {
         event.preventDefault()
         handlers.input(singleKey)
@@ -120,17 +114,14 @@ export function useKeyboard(
     keyboardStore.clearContext(context)
   }
 
-  // Use VueUse's useEventListener for better cleanup
   useEventListener('keydown', handleKeyDown)
 
-  // Set initial context if provided
   onMounted(() => {
     if (initialContext && initialContext !== 'global') {
       keyboardStore.setContext(initialContext)
     }
   })
 
-  // Clean up context when component is unmounted
   onUnmounted(() => {
     if (initialContext && initialContext !== 'global') {
       keyboardStore.clearContext(initialContext)
@@ -144,5 +135,4 @@ export function useKeyboard(
   }
 }
 
-// Export types for external use
 export type { KeyboardHandlers, UseKeyboardReturn }

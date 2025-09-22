@@ -1,135 +1,128 @@
 <template>
   <div
-    :class="[
-      `loader-${variant} flex flex-col justify-center items-center`,
-    ]"
+    :class="[`loader-${variant} flex flex-col justify-center items-center`]"
     class="h-full font-mono"
   >
-    <!-- Compact Loader (grid-based) -->
     <template v-if="variant === 'compact'">
-      <div 
-        class="grid-loader" 
+      <div
+        class="prism-loader"
         :style="{ '--loader-size': size }"
         aria-label="Loading"
-      />
+      >
+        <svg
+          viewBox="0 0 500 500"
+          xmlns="http://www.w3.org/2000/svg"
+          class="prism-logo"
+        >
+          <defs>
+            <!-- Gloss gradient -->
+            <linearGradient id="gloss" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="transparent" />
+              <stop
+                offset="35%"
+                stop-color="currentColor"
+                stop-opacity="0.15"
+              />
+              <stop
+                offset="50%"
+                stop-color="currentColor"
+                stop-opacity="0.55"
+              />
+              <stop
+                offset="65%"
+                stop-color="currentColor"
+                stop-opacity="0.15"
+              />
+              <stop offset="100%" stop-color="transparent" />
+            </linearGradient>
+
+            <!-- Moving gloss rectangle with blur -->
+            <mask id="sweep-mask">
+              <rect
+                width="500"
+                height="500"
+                fill="url(#gloss)"
+                filter="url(#blur)"
+              >
+                <animateTransform
+                  attributeName="transform"
+                  type="translate"
+                  from="-500 500"
+                  to="500 -500"
+                  dur="2.5s"
+                  repeatCount="indefinite"
+                />
+              </rect>
+            </mask>
+
+            <!-- Blur filter for soft edges -->
+            <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="12" />
+            </filter>
+          </defs>
+
+          <!-- Prism path, revealed only by gloss sweep -->
+          <g mask="url(#sweep-mask)">
+            <path
+              d="m 191.76758,384.44141 c -0.42074,-7.9e-4 -0.84283,0.0186 -1.26758,0.0586 -1.975,1.146 -3.475,2.813 -4.5,5 -28.586,64.003 -56.753,128.17 -84.5,192.5 0.198,3.401 1.865,5.734 5,7 6.089,0.384 12.089,-0.282 18,-2 66.305,-14.794 132.638,-29.461 199,-44 8.498,-0.523 11.332,-4.689 8.5,-12.5 -42.7,-45.032 -85.034,-90.365 -127,-136 l -9.5,-9.5 c -1.2255,-0.3705 -2.47022,-0.55625 -3.73242,-0.55859 z M 189.5,414.5 c 0.997,-0.03 1.664,0.47 2,1.5 6.133,25.993 10.966,52.16 14.5,78.5 -26.667,22 -53.333,44 -80,66 1.37,-5.771 3.37,-11.438 6,-17 19.179,-43.022 38.345,-86.022 57.5,-129 z"
+              transform="translate(-101.5,-384.44138)"
+              fill="currentColor"
+            />
+          </g>
+        </svg>
+      </div>
     </template>
 
-    <!-- Expanded Loader (rotating icon) -->
     <template v-else-if="variant === 'expanded'">
-      <div class="icon-loader">
-        <component
-          :is="loaderIcon"
-          :size="size"
-          class="animate-spin"
-        />
+      <div class="h-auto overflow-hidden">
+        <div class="icon-loader">
+          <component :is="loaderIcon" :size="Number(size) || 5" class="animate-spin" />
+        </div>
+        <div
+          v-if="message"
+          class="mt-3 text-sm text-center text-muted-foreground"
+        >
+          {{ message }}
+        </div>
       </div>
     </template>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { shallowRef } from 'vue';
 import { LoaderIcon } from 'lucide-vue-next';
 
 defineProps({
   variant: {
     type: String,
-    default: "compact",
-    validator: (value) => ["compact", "expanded"].includes(value),
+    default: 'compact',
+    validator: (v: string) => ['compact', 'expanded'].includes(v),
   },
-  size: {
-    type: [String, Number],
-    default: "1.5rem"
-  }
+  size: { type: [String, Number], default: '1.5rem' },
+  message: { type: String, default: '' },
 });
 
 const loaderIcon = shallowRef(LoaderIcon);
 </script>
 
 <style scoped>
-/* Grid-based Loader (compact variant) */
-.grid-loader {
-  width: var(--loader-size, 1.5rem);
-  height: var(--loader-size, 1.5rem);
-  aspect-ratio: 1;
-  display: grid;
-  position: relative;
+.prism-loader {
+  width: var(--loader-size, 2rem);
+  height: var(--loader-size, 2rem);
+  scale: 5;
 }
 
-.grid-loader,
-.grid-loader::before,
-.grid-loader::after {
-  --c: no-repeat linear-gradient(currentColor 0 0);
-  background: 
-    var(--c), 
-    var(--c), 
-    var(--c), 
-    var(--c);
-  animation: 
-    grid-loader-anim1 1.5s infinite, 
-    grid-loader-anim2 1.5s infinite;
-}
-
-.grid-loader::before,
-.grid-loader::after {
-  content: "";
-  grid-area: 1/1;
-  transform: translate(calc(50% - 2px), calc(2px - 50%)) rotate(90deg);
-  animation-delay: -0.25s;
-}
-
-.grid-loader::after {
-  transform: translate(calc(2px - 50%), calc(50% - 2px)) rotate(90deg);
-}
-
-@keyframes grid-loader-anim1 {
-  0%, 10%   { background-size: 0 4px, 4px 0 }
-  40%, 60%  { background-size: 100% 4px, 4px 100% }
-  90%, 100% { background-size: 0 4px, 4px 0 }
-}
-
-@keyframes grid-loader-anim2 {
-  0%, 49.9% { background-position: 0 0, 0 0, 100% 100%, 100% 100% }
-  50%, 100% { background-position: 100% 0, 0 100%, 0 100%, 100% 0 }
-}
-
-/* Icon Loader (expanded variant) */
-.icon-loader {
+.icon-loader,
+.prism-loader {
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin {
-  animation: spin 1s linear infinite;
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  .grid-loader,
-  .grid-loader::before,
-  .grid-loader::after,
-  .animate-spin {
-    animation: none !important;
-  }
-  
-  .icon-loader {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-}
-
-/* Dark mode support */
-.dark .grid-loader {
-  --c: no-repeat linear-gradient(#94a3b8 0 0);
+g {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: translate(50%, 50%);
 }
 </style>
