@@ -11,7 +11,6 @@ defineProps<{
   stats?: TextStats;
   showStats?: boolean;
   validationError?: string;
-  validateInput?: boolean;
   readOnly?: boolean;
   showPasteButton?: boolean;
 }>();
@@ -43,7 +42,7 @@ const handlePaste = (): void => {
         {{ label }}
       </label>
 
-      <div class="w-10 flex items-center justify-end">
+      <div class="flex-1 flex items-center justify-end">
         <slot name="actions" />
       </div>
     </div>
@@ -53,11 +52,11 @@ const handlePaste = (): void => {
         ref="textareaRef"
         :value="modelValue"
         :rows="8"
-        :placeholder="placeholder"
+        :placeholder="validationError ? '' : placeholder"
         :readonly="readOnly"
         class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm resize-none font-mono pr-20"
         :class="{
-          'border-destructive/50 bg-destructive/10': validationError && validateInput
+          'border-destructive/50 bg-destructive/10': validationError
         }"
         @input="handleInput"
         @drop="$emit('drop', $event)"
@@ -83,7 +82,7 @@ const handlePaste = (): void => {
     </div>
     
     <div
-      v-if="validationError && validateInput"
+      v-if="validationError"
       class="text-xs text-destructive flex items-center gap-1"
     >
       <AlertCircle class="h-3 w-3" />

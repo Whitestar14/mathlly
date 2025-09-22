@@ -9,8 +9,8 @@ defineProps({
   stats: { type: Object as () => any, default: null },
   showStats: { type: Boolean, default: false },
   validationError: { type: String, default: '' },
-  showPasteButton: { type: Boolean, default: false },
-  readOnly: { type: Boolean, default: false }
+  readOnly: { type: Boolean, default: false },
+  showPasteButton: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['update:modelValue','input','drop','paste'])
@@ -22,7 +22,6 @@ function updateValue(v: string) {
 
 <template>
   <div class="space-y-3">
-    <slot name="before" />
     <TextAreaField
       :model-value="modelValue"
       @update:model-value="updateValue"
@@ -37,8 +36,9 @@ function updateValue(v: string) {
       @drop="$emit('drop', $event)"
       @paste="$emit('paste')"
     >
+    <template #actions>
       <slot name="actions" />
+    </template>
     </TextAreaField>
-    <slot />
   </div>
 </template>
