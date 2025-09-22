@@ -16,13 +16,18 @@
 
     <!-- Expanded Loader (rotating icon) -->
     <template v-else-if="variant === 'expanded'">
-      <div class="icon-loader">
-        <component
-          :is="loaderIcon"
-          :size="size"
-          class="animate-spin"
-        />
-      </div>
+      <div class="h-auto overflow-hidden">
+        <div class="icon-loader">
+          <component
+            :is="loaderIcon"
+            :size="size"
+            class="animate-spin"
+          />
+        </div>
+        <div v-if="message" class="mt-3 text-sm text-center text-muted-foreground">
+          {{ message }}
+        </div>
+    </div>
     </template>
   </div>
 </template>
@@ -40,6 +45,10 @@ defineProps({
   size: {
     type: [String, Number],
     default: "1.5rem"
+  },
+  message: {
+    type: String,
+    default: ""
   }
 });
 
