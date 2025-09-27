@@ -11,7 +11,8 @@ import {
   RegexIcon,
   LineChartIcon,
   ArrowRightLeftIcon,
-  BinaryIcon
+  BinaryIcon,
+  PaletteIcon
 } from 'lucide-vue-next';
 
 export interface NavigationItem {

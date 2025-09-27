@@ -12,7 +12,7 @@ defineProps({
   <component
     :is="as || 'div'"
     :v-bind="$attrs"
-    :class="['rounded-lg border border-border overflow-hidden border-collapse']"
+    :class="['rounded-lg border bg-card border-border overflow-hidden border-collapse']"
   >
     <div v-if="title || $slots.header" class="px-6 py-4 bg-muted/50 dark:bg-muted/40 border-b border-border">
       <div class="flex items-center justify-between gap-4">
