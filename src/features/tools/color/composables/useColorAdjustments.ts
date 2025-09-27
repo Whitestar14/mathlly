@@ -4,8 +4,11 @@ import { adjustBrightness, adjustSaturation, adjustHue, adjustContrast } from '.
 import type { RGB } from '../types/color'
 
 export function useColorAdjustments(onUpdate: (c: RGB) => void) {
+  // Brightness: -1 → 1 (relative factor offset)
   const brightness = ref(0)
+  // Saturation: 0 → 2 (factor)
   const saturation = ref(1)
+  // Hue: -180 → 180 (degrees)
   const hue = ref(0)
 
   const setBrightness = (v: number) => { brightness.value = v }
@@ -13,17 +16,19 @@ export function useColorAdjustments(onUpdate: (c: RGB) => void) {
   const setHue = (v: number) => { hue.value = v }
 
   const applyBrightness = (color: RGB) => {
-    onUpdate(adjustBrightness(color, brightness.value))
-    brightness.value = 0
+    // brightness.value is -1..1, so convert to factor
+    const factor = 1 + brightness.value
+    onUpdate(adjustBrightness(color, factor))
   }
+
   const applySaturation = (color: RGB) => {
     onUpdate(adjustSaturation(color, saturation.value))
-    saturation.value = 1
   }
+
   const applyHue = (color: RGB) => {
     onUpdate(adjustHue(color, hue.value))
-    hue.value = 0
   }
+
   const applyContrast = (color: RGB, factor = 1.2) => {
     onUpdate(adjustContrast(color, factor))
   }
