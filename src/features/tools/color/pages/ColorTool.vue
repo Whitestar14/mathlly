@@ -12,10 +12,8 @@
                 <Shuffle class="h-4 w-4 mr-2" /> Random
               </BaseButton>
             </template>
-
             <div class="space-y-4">
               <div class="w-full h-32 rounded-lg border border-border" :style="{ backgroundColor: formats.hex }" />
-
               <div class="space-y-4">
                 <div v-for="k in ['r','g','b']" :key="k" class="space-y-2">
                   <BaseLabel>{{ labelMap[k] }}: {{ current[k] }}</BaseLabel>
@@ -27,44 +25,34 @@
                   />
                 </div>
               </div>
-
               <div class="space-y-2">
                 <BaseLabel for="hex-input">Hex color</BaseLabel>
-                <BaseInput id="hex-input" :value="formats.hex" @input="onHexInput" placeholder="#000000" />
+                <BaseInput
+                  id="hex-input"
+                  :value="formats.hex"
+                  @input="onHexInput"
+                  placeholder="#000000"
+                />
               </div>
             </div>
           </BaseCard>
 
-          <!-- Color Tools -->
-          <BaseCard title="Color tools">
-            <template #header>
-              <BaseTabs
-                v-model="tab"
-                :tabs="[
-                  { value: 'adjustments', label: 'Adjust' },
-                  { value: 'temperature', label: 'Temp' },
-                  { value: 'mixing', label: 'Mix' }
-                ]"
-              />
-            </template>
+          <!-- Adjustments -->
+          <AdjustmentsCard :current-color="current" :update-color="updateColor" />
 
-            <div class="mt-4">
-              <ColorAdjustments v-if="tab === 'adjustments'" :current-color="current" :update-color="updateColor" />
-              <ColorTemperature v-else-if="tab === 'temperature'" :current-color="current" :update-color="updateColor" />
-              <ColorMixing v-else :current-color="current" :update-color="updateColor" />
-            </div>
-          </BaseCard>
-
-          <!-- Color Formats -->
-          <BaseCard title="Color formats">
-            <ColorFormats :formats="formats" />
-          </BaseCard>
+          <!-- Formats & Info -->
+          <FormatsInfoCard :formats="formats" />
         </div>
 
         <!-- Sidebar -->
         <div class="space-y-6">
           <PaletteManager :current-color="current" :on-color-select="updateColor" />
-          <MicroTools :current-color="current" :on-color-select="updateColor" />
+
+          <!-- Accessibility Tools -->
+          <AccessibilityToolsCard :current-color="current" :on-color-select="updateColor" />
+
+          <!-- Generators -->
+          <GeneratorsCard :current-color="current" :on-color-select="updateColor" />
 
           <!-- Harmonies -->
           <BaseCard title="Color harmonies">
@@ -79,7 +67,6 @@
                 ]"
               />
             </template>
-
             <ColorHarmonies
               :current="current"
               :active="harmoniesTab"
@@ -95,30 +82,25 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import {
-  BaseSlider, BaseCard, BaseButton, BaseInput, BaseLabel, BasePage,
-} from '@components/ui'
+import { BaseSlider, BaseCard, BaseButton, BaseInput, BaseLabel, BasePage } from '@components/ui'
 import BaseTabs from '@components/ui/BaseTabs.vue'
 import { Shuffle } from 'lucide-vue-next'
-import {
-  convertColor,
-  generateRandomColor as getRandomColor,
-} from '../composables/useColor'
+import { convertColor, generateRandomColor as getRandomColor } from '../composables/useColor'
 import type { RGB, ColorFormats as Formats } from '../types/color'
 
 import PaletteManager from '@color/components/PaletteManager.vue'
-import MicroTools from '@color/components/MicroTools.vue'
-import ColorAdjustments from '../components/ColorAdjustments.vue'
-import ColorTemperature from '../components/ColorTemperature.vue'
-import ColorMixing from '../components/ColorMixing.vue'
-import ColorFormats from '../components/ColorFormats.vue'
+import AdjustmentsCard from '../components/AdjustmentsCard.vue'
+import FormatsInfoCard from '../components/FormatsInfoCard.vue'
+import AccessibilityToolsCard from '../components/AccessibilityToolsCard.vue'
+import GeneratorsCard from '../components/GeneratorsCard.vue'
 import ColorHarmonies from '../components/ColorHarmonies.vue'
+
 import { useToast } from '@composables/ui/useToast'
 
 const current = ref<RGB>({ r: 34, g: 197, b: 94 })
 const formats = ref<Formats>(convertColor(current.value))
-const tab = ref<'adjustments' | 'temperature' | 'mixing'>('adjustments')
 const harmoniesTab = ref<'complementary' | 'triadic' | 'analogous' | 'monochromatic'>('complementary')
+
 const { toast } = useToast()
 
 const labelMap: Record<'r'|'g'|'b', string> = { r: 'Red', g: 'Green', b: 'Blue' }
