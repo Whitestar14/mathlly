@@ -14,7 +14,7 @@ defineProps({
     :v-bind="$attrs"
     :class="['rounded-lg border bg-card border-border overflow-hidden border-collapse']"
   >
-    <div v-if="title || $slots.header" class="px-6 py-4 bg-muted/50 dark:bg-muted/40 border-b border-border">
+    <div v-if="title || $slots.header" class="px-4 py-2 bg-muted/50 dark:bg-muted/40 border-b border-border">
       <div class="flex items-center justify-between gap-4">
         <div>
           <h3 v-if="title" class="text-sm font-medium leading-6">{{ title }}</h3>
@@ -30,7 +30,7 @@ defineProps({
       <slot />
     </div>
 
-    <div v-if="$slots.footer || $slots.actions" class="px-6 py-3 border-t border-border bg-muted/25 dark:bg-muted/20">
+    <div v-if="$slots.footer || $slots.actions" class="px-3 py-2 border-t border-border bg-muted/25 dark:bg-muted/20">
       <div class="flex items-center justify-between">
         <div>
           <slot name="footer" />
