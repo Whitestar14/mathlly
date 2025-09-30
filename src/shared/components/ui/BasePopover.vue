@@ -1,5 +1,9 @@
 <template>
-  <PopoverRoot v-model:open="open">
+  <PopoverRoot
+    :open="isControlled ? modelValue : internalOpen"
+    :modal="modal"
+    @update:open="handleUpdate"
+  >
     <!-- Trigger -->
     <PopoverTrigger as-child>
       <slot name="trigger" />
@@ -7,12 +11,15 @@
 
     <!-- Portal + Content -->
     <PopoverPortal>
-      <PopoverContent
+    <PopoverContent
         class="z-30 min-w-[180px] bg-background rounded-lg overflow-hidden border border-border p-1 shadow-md popover-content"
         :side-offset="sideOffset"
         :align="align"
         :side="side"
         :avoid-collisions="true"
+      :trap-focus="trapFocus"
+      :disable-outside-pointer-events="disableOutsidePointerEvents"
+      :prevent-scroll="preventScroll"
       >
         <slot />
       </PopoverContent>
@@ -21,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, watch, computed } from 'vue'
 import {
   PopoverRoot,
   PopoverTrigger,
@@ -30,19 +37,48 @@ import {
 } from 'radix-vue'
 
 const props = defineProps({
-  modelValue: { type: Boolean, default: false },
+  modelValue: { type: Boolean, default: undefined }, // undefined => uncontrolled
   sideOffset: { type: Number, default: 6 },
-  align: { type: String as () => 'start' | 'center' | 'end', default: 'start' },
-  side: { type: String as () => 'top' | 'right' | 'bottom' | 'left', default: 'bottom' },
+  align: {
+    type: String as () => 'start' | 'center' | 'end',
+    default: 'start',
+  },
+  side: {
+    type: String as () => 'top' | 'right' | 'bottom' | 'left',
+    default: 'bottom',
+  },
   animationDuration: { type: Number, default: 200 },
+  // Radix Popover advanced behaviors
+  modal: { type: Boolean, default: false },
+  trapFocus: { type: Boolean, default: true },
+  disableOutsidePointerEvents: { type: Boolean, default: true },
+  preventScroll: { type: Boolean, default: true },
 })
 
-const emit = defineEmits<{ (e: 'update:modelValue', v: boolean): void }>()
+const emit = defineEmits<{
+  (e: 'update:modelValue', v: boolean): void
+}>()
 
-const open = computed({
-  get: () => props.modelValue,
-  set: (v: boolean) => emit('update:modelValue', v),
-})
+// Controlled if parent provides a boolean; uncontrolled otherwise
+const isControlled = computed(() => typeof props.modelValue === 'boolean')
+
+// Internal open state always exists; it mirrors modelValue when controlled
+const internalOpen = ref<boolean>(false)
+
+watch(
+  () => props.modelValue,
+  (v) => {
+    if (isControlled.value && typeof v === 'boolean') {
+      internalOpen.value = v
+    }
+  },
+  { immediate: true }
+)
+
+const handleUpdate = (next: boolean) => {
+  internalOpen.value = next
+  if (isControlled.value) emit('update:modelValue', next)
+}
 </script>
 
 <style>

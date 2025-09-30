@@ -15,7 +15,40 @@
       </div>
     </slot>
     
-    <input
+    <div v-if="dropdown && options && options.length" class="flex items-center">
+      <SelectBar
+        class="max-w-24 rounded-e-none"
+        :is-dropdown="true"
+        :model-value="dropdownValue"
+        @update:model-value="$emit('update:dropdownValue', $event)"
+        :options="options"
+        :label="dropdownLabel"
+        :placeholder="dropdownPlaceholder"
+      />
+      <input
+        :id="id"
+        ref="inputRef"
+        :type="type"
+        :value="modelValue"
+        :placeholder="placeholder"
+        :disabled="disabled"
+        :aria-label="ariaLabel || placeholder"
+        :aria-invalid="!!error"
+        :aria-describedby="error ? `${id}-error` : undefined"
+        :class="[
+          'w-full rounded-lg rounded-s-none border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
+          error ? 'border-destructive' : 'border-border',
+          $slots.icon || icon ? 'pl-10' : 'pl-4',
+          $slots.suffix ? 'pr-10' : 'pr-4',
+          'py-1'
+        ]"
+        v-bind="$attrs"
+        @input="$emit('update:modelValue', $event.target.value)"
+        @blur="$emit('blur', $event)"
+        @focus="$emit('focus', $event)"
+      >
+    </div>
+    <input v-else
       :id="id"
       ref="inputRef"
       :type="type"
@@ -52,6 +85,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import SelectBar from '@components/ui/SelectBar.vue'
 
 const props = defineProps({
   modelValue: {
@@ -89,10 +123,30 @@ const props = defineProps({
   autofocus: {
     type: Boolean,
     default: false
+  },
+  dropdown: {
+    type: Boolean,
+    default: false
+  },
+  options: {
+    type: Array,
+    default: () => []
+  },
+  dropdownValue: {
+    type: [String, Number],
+    default: ''
+  },
+  dropdownLabel: {
+    type: String,
+    default: ''
+  },
+  dropdownPlaceholder: {
+    type: String,
+    default: 'Select'
   }
 });
 
-defineEmits(['update:modelValue', 'blur', 'focus']);
+defineEmits(['update:modelValue', 'blur', 'focus', 'update:dropdownValue']);
 
 const inputRef = ref(null);
 

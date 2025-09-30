@@ -1,23 +1,18 @@
-<template>
-    <BasePopover v-model:open="open">
-      <!-- Trigger -->
+  <template>
+    <BasePopover v-model:open="open" :modal="true" :prevent-scroll="true" :trap-focus="true" :disable-outside-pointer-events="true">
       <template #trigger>
         <BaseButton variant="outline" size="sm" class="flex items-center gap-2">
-          <div
-            class="w-4 h-4 rounded border border-border"
-            :style="{ backgroundColor: rgbaCss }"
-          />
+          <div class="w-4 h-4 rounded border border-border" :style="{ backgroundColor: rgbaCss }" />
           <Palette class="w-4 h-4" />
         </BaseButton>
       </template>
   
-      <!-- Content -->
       <template #default>
-        <div class="p-4 w-72 space-y-4 bg-card rounded-lg shadow-md">
-          <!-- Saturation/Value panel -->
+        <div class="p-4 w-72 space-y-4 bg-card rounded-lg">
+          <!-- SV panel -->
           <div
             ref="svEl"
-            class="relative w-full h-36 rounded-md border border-border cursor-crosshair select-none"
+            class="relative w-full h-36 rounded-md cursor-crosshair select-none"
             :style="{ background: `hsl(${hsva.h}, 100%, 50%)` }"
           >
             <div class="absolute inset-0 bg-gradient-to-r from-white to-transparent"></div>
@@ -35,8 +30,10 @@
           <!-- Hue slider -->
           <BaseSlider
             :model-value="[hsva.h]"
-            @update:modelValue="v => hsva.h = v[0]"
-            :min="0" :max="360" :step="1"
+            @update:modelValue="onHueUpdate"
+            :min="0"
+            :max="360"
+            :step="1"
             class="w-full"
           />
   
@@ -44,8 +41,10 @@
           <div class="bg-checkerboard rounded-md p-2">
             <BaseSlider
               :model-value="[Math.round(hsva.a * 100)]"
-              @update:modelValue="v => hsva.a = v[0] / 100"
-              :min="0" :max="100" :step="1"
+              @update:modelValue="onAlphaUpdate"
+              :min="0"
+              :max="100"
+              :step="1"
               class="w-full"
             />
           </div>
@@ -65,40 +64,50 @@
   import { useMouseInElement, useMousePressed } from '@vueuse/core'
   import { BasePopover, BaseSlider, BaseInput, BaseButton } from '@components/ui'
   import { Palette } from 'lucide-vue-next'
-  import { hexToHsva, hsvaToRgba, rgbaToHex } from '@color/composables/useColor'
-  import type { RGB } from '@color/types/color'
+  import { type RGBA, hexToHsva, hsvaToRgba, rgbaToHex } from '@features/tools/color/composables/useColor.deprecated'
   
-  const props = defineProps<{ modelValue: RGB }>()
-  const emit = defineEmits<{ (e: 'update:modelValue', val: RGB): void }>()
+  const props = defineProps<{ modelValue: RGBA }>()
+  const emit = defineEmits<{ (e: 'update:modelValue', val: RGBA): void }>()
   
-  // Popover open state
   const open = ref(false)
   
-  // HSVA state
   const hsva = reactive({ h: 0, s: 1, v: 1, a: 1 })
   
-  // Derived RGBA + CSS
   const rgba = computed(() => hsvaToRgba(hsva))
   const rgbaCss = computed(() => `rgba(${rgba.value.r}, ${rgba.value.g}, ${rgba.value.b}, ${rgba.value.a})`)
   
-  // Hex input
   const hexInput = ref('#000000')
   
-  // Keep hsva in sync with incoming RGB
-  watch(() => props.modelValue, (rgb) => {
-    const hex = rgbaToHex({ ...rgb, a: 1 })
-    const parsed = hexToHsva(hex)
-    if (parsed) Object.assign(hsva, parsed)
-    hexInput.value = hex
-  }, { immediate: true })
+  watch(
+    () => props.modelValue,
+    (rgbaVal) => {
+      const hex = rgbaToHex(rgbaVal, true)
+      const parsed = hexToHsva(hex)
+      if (parsed) Object.assign(hsva, parsed)
+      hexInput.value = hex
+    },
+    { immediate: true }
+  )
+
+  // Scroll locking is handled by Radix Popover via BasePopover props
   
-  // Emit RGB when hsva changes
-  watch(hsva, () => {
-    const { r, g, b } = rgba.value
-    emit('update:modelValue', { r, g, b })
-    hexInput.value = rgbaToHex(rgba.value, true)
-  }, { deep: true })
+  watch(
+    hsva,
+    () => {
+      const next = { r: rgba.value.r, g: rgba.value.g, b: rgba.value.b, a: rgba.value.a }
+      emit('update:modelValue', next)
+      hexInput.value = rgbaToHex(next, true)
+    },
+    { deep: true }
+  )
   
+  function onHueUpdate(valueArray: number[]) {
+    hsva.h = valueArray[0]
+  }
+  function onAlphaUpdate(valueArray: number[]) {
+    hsva.a = valueArray[0] / 100
+  }
+
   function onHexType() {
     const parsed = hexToHsva(hexInput.value)
     if (parsed) Object.assign(hsva, parsed)
