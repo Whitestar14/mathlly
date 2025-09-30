@@ -1,3 +1,4 @@
+<!-- src/features/tools/color/components/CurrentColorCard.vue -->
 <template>
   <BaseCard title="Current color">
     <template #header>
@@ -17,9 +18,6 @@
         <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
           <Copy class="h-6 w-6 text-foreground mb-1" />
           <span class="text-xs text-foreground font-medium">{{ rgbaText }}</span>
-        </div>
-        <div class="absolute bottom-2 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-background/40 text-[10px] text-foreground font-medium lg:hidden transition-opacity group-hover:opacity-0">
-          Tap to copy
         </div>
         <span
           v-for="r in ripples"
@@ -53,14 +51,24 @@
           </div>
         </div>
 
-        <!-- Hex input + Picker -->
+        <!-- Unified input + SelectBar + picker -->
         <div class="flex gap-2 items-center">
+          <SelectBar
+            class="max-w-24"
+            v-model="selectedFormat"
+            :options="formatOptions"
+            label="Input format"
+            placeholder="Auto"
+          />
           <BaseInput
-            id="hex-input"
-            v-model="hexInput"
-            :error="hexError"
-            placeholder="#000000"
-            @input="onHexInput"
+            id="color-input"
+            v-model="colorInput"
+            :error="inputError"
+            :placeholder="placeholderForFormat"
+            @focus="onFocus"
+            @blur="onBlur"
+            @input="onTyping"
+            @keydown.enter="onEnter"
             class="flex-1"
           />
           <BaseColorPicker v-model="rgbaProxy" />
@@ -70,145 +78,178 @@
 
     <BaseAccordion :multiple="false" :collapsible="true">
       <AccordionItem id="formats" title="Formats & Info">
-        <FormatsInfoCard :formats="formats" />
+        <FormatsInfoCard :formats="localFormats" />
       </AccordionItem>
     </BaseAccordion>
   </BaseCard>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import { Copy, Shuffle } from 'lucide-vue-next'
-import {
-  BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider,
-  BaseAccordion, AccordionItem
-} from '@components/ui'
+import { BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider, BaseAccordion, AccordionItem } from '@components/ui'
+import SelectBar from '@components/ui/SelectBar.vue'
 import BaseColorPicker from '@components/ui/BaseColorPicker.vue'
 import FormatsInfoCard from './FormatsInfoCard.vue'
 import { useClipboard } from '@vueuse/core'
 import { useToast } from '@composables/ui/useToast'
 import { useRipple } from '@composables/ui/useRipple'
+import { convertColor } from '@color/lib/color'
+import type { RGBA, RGB, ColorFormats } from '@color/lib/color'
 import {
-  convertColor,
-  hexToHsva,
-  hsvaToRgba,
-  generateRandomColor,
-  type RGB,
-  type RGBA,
-  type ColorFormats as Formats,
-} from '../composables/useColor.deprecated'
+  detectFormat,
+  parseWithFormatTolerant,
+  parseAutoSimple,
+  normalizeDisplay,
+  formatRgbaPretty,
+  type InputFormat,
+  type ResolvedFormat,
+  expandShorthandHex,
+  isShorthandHex,
+} from '@color/lib/utils'
 
-const props = defineProps<{
-  current: RGBA
-  formats: Formats
-  updateColor: (c: RGBA) => void
-}>()
+const props = defineProps<{ current: RGBA; formats: ColorFormats; updateColor: (c: RGBA) => void }>()
 
 const previewEl = ref<HTMLElement | null>(null)
 const { ripples, triggerRipple } = useRipple()
 const { copy } = useClipboard()
 const { toast } = useToast()
 
-// RGBA sliders
+// Sliders
 const rgbaKeys = ['r', 'g', 'b', 'a'] as const
 type RgbaKey = typeof rgbaKeys[number]
 const labelMap: Record<RgbaKey, string> = { r: 'Red', g: 'Green', b: 'Blue', a: 'Alpha' }
-
-const getValue = (k: RgbaKey) => (k === 'a' ? Math.round((props.current.a ?? 1) * 100) : props.current[k] as number)
-const displayValue = (k: RgbaKey) => (k === 'a' ? `${Math.round((props.current.a ?? 1) * 100)}%` : props.current[k])
-
-const setRgba = (component: RgbaKey, value: number) => {
-  const next: RGBA =
-    component === 'a'
-      ? { ...props.current, a: Math.max(0, Math.min(1, value / 100)) }
-      : { ...props.current, [component]: Math.max(0, Math.min(255, Math.round(value))) } as RGBA
-
-  // Guard to prevent redundant updates
-  if (
-    next.r === props.current.r &&
-    next.g === props.current.g &&
-    next.b === props.current.b &&
-    next.a === (props.current.a ?? 1)
-  ) return
-
-  props.updateColor(next)
-}
-
-const onSliderUpdate = (component: RgbaKey, valueArray: number[]) => {
-  setRgba(component, valueArray[0])
-}
-
-// Hex input handling (updates RGBA)
-const hexInput = ref(props.formats.hex)
-const hexError = ref('')
-
-const normalizeHex = (val: string): string | null => {
-  let h = val.trim().replace(/^#/, '')
-  if (/^[0-9A-Fa-f]{3,4}$/.test(h)) h = h.split('').map(c => c + c).join('')
-  if (/^[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$/.test(h)) return `#${h.toUpperCase()}`
-  return null
-}
-
-const debouncedValidate = useDebounceFn((val: string) => {
-  const normalized = normalizeHex(val)
-  if (normalized) {
-    hexError.value = ''
-    const hsva = hexToHsva(normalized)
-    if (hsva) {
-      const rgba = hsvaToRgba(hsva)
-      props.updateColor(rgba)
-    } else {
-      const converted = convertColor(normalized)
-      props.updateColor(converted.rgba)
-    }
-  } else {
-    const h = val.replace(/^#/, '')
-    if ([3, 4, 6, 8].includes(h.length)) {
-      hexError.value = 'Please enter a valid 3, 4, 6, or 8 digit hex code'
-    } else {
-      hexError.value = ''
-    }
+const getValue = (k: RgbaKey) => k === 'a' ? Math.round((props.current.a ?? 1) * 100) : props.current[k]
+const displayValue = (k: RgbaKey) => k === 'a' ? `${Math.round((props.current.a ?? 1) * 100)}%` : props.current[k]
+const setRgba = (k: RgbaKey, v: number) => {
+  const next: RGBA = k === 'a'
+    ? { ...props.current, a: Math.max(0, Math.min(1, v / 100)) }
+    : { ...props.current, [k]: Math.max(0, Math.min(255, Math.round(v))) } as RGBA
+  if (next.r !== props.current.r || next.g !== props.current.g || next.b !== props.current.b || next.a !== props.current.a) {
+    props.updateColor(next)
   }
-}, 300)
+}
+const onSliderUpdate = (k: RgbaKey, arr: number[]) => setRgba(k, arr[0])
 
-const onHexInput = (e: Event) => {
-  const input = e.target as HTMLInputElement
-  if (!input.value.startsWith('#')) input.value = `#${input.value}`
-  hexInput.value = input.value
-  debouncedValidate(input.value)
+// Unified input
+const selectedFormat = ref<InputFormat>('auto')
+const lastAutoFormat = ref<ResolvedFormat | null>('hex')
+const isEditing = ref(false)
+const colorInput = ref(props.formats.hex)
+const inputError = ref('')
+
+// SelectBar options (array API expected by component)
+const formatOptions = [
+  { value: 'auto', label: 'Auto' },
+  { value: 'hex', label: 'HEX' },
+  { value: 'rgba', label: 'RGBA' },
+  { value: 'hsla', label: 'HSLA' },
+  { value: 'oklch', label: 'OKLCH' },
+]
+
+// Local computed formats from canonical RGBA
+const localFormats = computed<ColorFormats>(() => convertColor(props.current))
+
+// Placeholders
+const placeholderForFormat = computed(() => {
+  switch (selectedFormat.value) {
+    case 'hex': return '#22C55E or #22C55E80'
+    case 'rgba': return 'rgba(34 197 94 / 1) or rgba(34, 197, 94, 1)'
+    case 'hsla': return 'hsla(150 50% 50% / 1) or hsla(150, 50%, 50%, 1)'
+    case 'oklch': return 'oklch(0.650 0.150 150 / 1)'
+    default: return '#22C55E or rgba(...) or hsla(...) or oklch(...)'
+  }
+})
+
+// Preview text (not tied to input formatting)
+const rgbaText = computed(() => formatRgbaPretty(props.current))
+
+// Editing lifecycle
+const onFocus = () => { isEditing.value = true }
+const onEnter = () => { isEditing.value = false; normalizeInputPresentation() }
+const onBlur = () => {
+  isEditing.value = false
+  // QoL: expand shorthand hex on blur
+  if (selectedFormat.value === 'hex' && isShorthandHex(colorInput.value)) {
+    colorInput.value = expandShorthandHex(colorInput.value)
+  }
+  normalizeInputPresentation()
 }
 
-// Keep hex input in sync (one-way from formats)
-const rgbaText = computed(() => `rgba(${props.current.r}, ${props.current.g}, ${props.current.b}, ${props.current.a ?? 1})`)
+// Typing handler: auto just detects and delegates to explicit parser
+const processInput = (raw: string) => {
+  const alpha = props.current.a ?? 1
 
-// Picker v-model proxy via computed to avoid watcher loops
+  if (selectedFormat.value === 'auto') {
+    const { state, rgba, format } = parseAutoSimple(raw, alpha)
+    if (state === 'valid' && rgba) {
+      lastAutoFormat.value = format ?? detectFormat(raw) ?? lastAutoFormat.value
+      inputError.value = ''
+      props.updateColor(rgba)
+    } else if (state === 'partial') {
+      inputError.value = ''
+    } else {
+      inputError.value = 'Invalid color format'
+    }
+    return
+  }
+
+  const { state, rgba } = parseWithFormatTolerant(raw, selectedFormat.value as ResolvedFormat, alpha)
+  if (state === 'valid' && rgba) {
+    inputError.value = ''
+    props.updateColor(rgba)
+  } else if (state === 'partial') {
+    inputError.value = ''
+  } else {
+    inputError.value = 'Invalid color format'
+  }
+}
+
+const onTyping = useDebounceFn((e: Event) => {
+  const val = (e.target as HTMLInputElement).value
+  processInput(val)
+}, 90)
+
+// Normalize input display (preserve user’s format; don’t clobber while editing)
+const normalizeInputPresentation = () => {
+  if (isEditing.value) return
+  colorInput.value = normalizeDisplay(
+    props.current,
+    localFormats.value,
+    selectedFormat.value,
+    lastAutoFormat.value
+  )
+}
+
+// Keep input in sync with current color but never clobber while editing
+watch(
+  () => props.current,
+  () => { if (!isEditing.value) normalizeInputPresentation() },
+  { deep: true, immediate: true }
+)
+
+// Picker proxy
 const rgbaProxy = computed<RGBA>({
   get: () => ({ r: props.current.r, g: props.current.g, b: props.current.b, a: props.current.a ?? 1 }),
   set: (val) => {
-    // Guard redundant updates
-    if (
-      val.r === props.current.r &&
-      val.g === props.current.g &&
-      val.b === props.current.b &&
-      (val.a ?? 1) === (props.current.a ?? 1)
-    ) return
-    props.updateColor({ r: val.r, g: val.g, b: val.b, a: val.a ?? 1 })
+    if (val.r !== props.current.r || val.g !== props.current.g || val.b !== props.current.b || (val.a ?? 1) !== (props.current.a ?? 1)) {
+      props.updateColor({ r: val.r, g: val.g, b: val.b, a: val.a ?? 1 })
+    }
   },
 })
 
 // Preview copy
 const handlePreviewClick = async (e: MouseEvent) => {
   if (!previewEl.value) return
+  triggerRipple(e, previewEl.value)
   await copy(rgbaText.value)
   toast({ title: 'Copied!', description: `${rgbaText.value} copied to clipboard` })
-  triggerRipple(e, previewEl.value)
-  if (navigator.vibrate) navigator.vibrate(30)
 }
 
 // Random color (preserve alpha)
 const genRandomColor = () => {
-  const rnd: RGB = generateRandomColor()
+  const rnd: RGB = { r: Math.round(Math.random() * 255), g: Math.round(Math.random() * 255), b: Math.round(Math.random() * 255) }
   props.updateColor({ r: rnd.r, g: rnd.g, b: rnd.b, a: props.current.a ?? 1 })
 }
 </script>
@@ -218,7 +259,5 @@ const genRandomColor = () => {
   from { transform: scale(0); opacity: 0.6; }
   to { transform: scale(1); opacity: 0; }
 }
-.animate-ripple {
-  animation: ripple 0.6s ease-out forwards;
-}
+.animate-ripple { animation: ripple 0.6s ease-out forwards; }
 </style>
