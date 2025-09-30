@@ -16,7 +16,6 @@
 
 <script setup lang="ts">
 import { PopoverClose } from 'radix-vue';
-import { defineProps, defineEmits } from 'vue';
 
 const props = defineProps<{
   label: string;

@@ -17,7 +17,7 @@
     
     <div v-if="dropdown && options && options.length" class="flex items-center">
       <SelectBar
-        class="max-w-24 rounded-e-none"
+        class="max-w-20 rounded-e-none"
         :is-dropdown="true"
         :model-value="dropdownValue"
         @update:model-value="$emit('update:dropdownValue', $event)"
@@ -159,6 +159,7 @@ onMounted(() => {
 defineExpose({
   focus: () => inputRef.value?.focus(),
   blur: () => inputRef.value?.blur(),
+  select: () => inputRef.value?.select(),
   input: inputRef
 });
 </script>
