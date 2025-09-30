@@ -15,7 +15,7 @@
         />
         <BaseButton
           size="sm"
-          variant="ghost"
+          variant="outline"
           @click="applyBrightness(currentColor)"
         >
           Apply
@@ -37,7 +37,7 @@
         />
         <BaseButton
           size="sm"
-          variant="ghost"
+          variant="outline"
           @click="applySaturation(currentColor)"
         >
           Apply
@@ -55,29 +55,41 @@
           :max="180"
           :step="1"
         />
-        <BaseButton size="sm" variant="ghost" @click="applyHue(currentColor)">
+        <BaseButton size="sm" variant="outline" @click="applyHue(currentColor)">
           Apply
         </BaseButton>
       </div>
     </div>
 
-    <div class="pt-2">
-      <BaseButton
-        size="sm"
-        variant="outline"
-        @click="applyContrast(currentColor)"
-      >
-        <Contrast class="h-4 w-4 mr-2" /> Contrast
-      </BaseButton>
+        <!-- Contrast Section -->
+      <div class="pt-4 border-t border-border">
+      <div class="space-y-2">
+        <div class="flex items-center gap-2">
+        <BaseLabel class="text-sm font-medium">Quick Adjustments</BaseLabel>
+        </div>
+        <BaseButton
+          size="sm"
+          variant="outline"
+          class="w-full justify-start"
+          v-tippy="{ 
+            content: 'Automatically adjust contrast for better visual clarity and accessibility compliance',
+            placement: 'top'
+          }"
+          @click="applyContrast(currentColor)"
+        >
+          <Contrast class="h-4 w-4 mr-2" />
+          Auto Contrast
+        </BaseButton>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Contrast } from 'lucide-vue-next';
-import { useColorAdjustments } from '../composables/useColorAdjustments';
-import type { RGB } from '../types/color';
+import type { RGB } from '@color/lib/color';
 import { BaseSlider, BaseButton, BaseLabel } from '@components/ui';
+import { useColorAdjustments } from '@color/composables/useColorAdjustments';
 
 const props = defineProps<{
   currentColor: RGB;

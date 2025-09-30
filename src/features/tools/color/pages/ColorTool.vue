@@ -1,83 +1,126 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import { BaseCard, BasePage, BaseButton } from '@components/ui'
-import BaseTabs from '@components/ui/BaseTabs.vue'
-import { convertColor } from '@color/lib/color'
-import type { RGB, RGBA, ColorFormats as Formats } from '@color/lib/color'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import {
+  BasePage,
+  BaseButton,
+  BaseAccordion,
+  AccordionItem,
+} from '@components/ui';
+import { convertColor } from '@color/lib/color';
+import type { RGB, RGBA, ColorFormats as Formats } from '@color/lib/color';
+import { useClipboard } from '@vueuse/core';
+import { usePanel } from '@composables/ui/usePanel';
 
-import CurrentColorCard from '../components/CurrentColorCard.vue'
-import PaletteManager from '@color/components/PaletteManager.vue'
-import AdjustmentsCard from '../components/AdjustmentsCard.vue'
-import AccessibilityToolsCard from '../components/AccessibilityToolsCard.vue'
-import GeneratorsCard from '../components/GeneratorsCard.vue'
-import ColorHarmonies from '../components/ColorHarmonies.vue'
+import CurrentColorCard from '../components/CurrentColorCard.vue';
+import PaletteManager from '../components/PaletteManager.vue';
+import AdjustmentsCard from '../components/AdjustmentsCard.vue';
+import AccessibilityToolsCard from '../components/AccessibilityToolsCard.vue';
+import GeneratorsCard from '../components/GeneratorsCard.vue';
+import HarmoniesCard from '../components/HarmoniesCard.vue';
 
-const current = ref<RGBA>({ r: 34, g: 197, b: 94, a: 1 })
-const formats = ref<Formats>(convertColor(current.value))
-const harmoniesTab = ref<'complementary' | 'triadic' | 'analogous' | 'monochromatic'>('complementary')
+// --- State ---
+const current = ref<RGBA>({ r: 34, g: 197, b: 94, a: 1 });
+const formats = ref<Formats>(convertColor(current.value));
+const harmoniesTab = ref<
+  'complementary' | 'triadic' | 'analogous' | 'monochromatic'
+>('complementary');
 
+// --- Methods ---
 const updateColor = (c: RGB & { a?: number }) => {
-  const next: RGBA = { r: c.r, g: c.g, b: c.b, a: c.a ?? current.value.a ?? 1 }
-  const same =
+  const next: RGBA = { r: c.r, g: c.g, b: c.b, a: c.a ?? current.value.a ?? 1 };
+  if (
     next.r === current.value.r &&
     next.g === current.value.g &&
     next.b === current.value.b &&
     next.a === current.value.a
-  if (same) return
-  current.value = next
-  formats.value = convertColor(next)
-}
+  )
+    return;
+  current.value = next;
+  formats.value = convertColor(next);
+};
 
 // --- Sticky mini-preview logic (mobile only) ---
-const currentCardRoot = ref<HTMLElement | null>(null)
-const showMiniPreview = ref(false)
+const currentCardRoot = ref<HTMLElement | null>(null);
+const showMiniPreview = ref(false);
+const adjustmentsPanel = usePanel('adjustments');
 
-let observer: IntersectionObserver | null = null
-let observedEl: Element | null = null
+let observer: IntersectionObserver | null = null;
+let observedEl: Element | null = null;
 
 onMounted(() => {
   observer = new IntersectionObserver(
     ([entry]) => {
-      // Show mini-preview when less than 50% visible
-      showMiniPreview.value = entry.intersectionRatio < 0.5
+      showMiniPreview.value =
+        entry.intersectionRatio < 0.5 || adjustmentsPanel.isOpen;
     },
-    {
-      // Fire at every 1% visibility change for smoothness
-      threshold: Array.from({ length: 101 }, (_, i) => i / 100),
-    }
-  )
+    { threshold: Array.from({ length: 101 }, (_, i) => i / 100) }
+  );
 
   if (currentCardRoot.value) {
-    observedEl = currentCardRoot.value
-    observer.observe(observedEl)
+    observedEl = currentCardRoot.value;
+    observer.observe(observedEl);
   }
-})
+
+  watch(
+    () => adjustmentsPanel.isOpen,
+    (open) => {
+      if (open) {
+        showMiniPreview.value = true;
+      } else if (observedEl) {
+        const rect = observedEl.getBoundingClientRect();
+        const ratio = rect.height
+          ? Math.min(
+              1,
+              Math.max(0, (window.innerHeight - rect.top) / rect.height)
+            )
+          : 0;
+        showMiniPreview.value = ratio < 0.5;
+      } else {
+        showMiniPreview.value = false;
+      }
+    },
+    { immediate: true }
+  );
+});
 
 onBeforeUnmount(() => {
-  observer?.disconnect()
-  observer = null
-  observedEl = null
-})
+  observer?.disconnect();
+  observer = null;
+  observedEl = null;
+});
 
-const rgbaText = () =>
-  `rgba(${current.value.r}, ${current.value.g}, ${current.value.b}, ${current.value.a})`
+const rgba = ref(`rgba(${current.value.r}, ${current.value.g}, ${current.value.b}, ${current.value.a})`)
 
+// --- Clipboard ---
+const { copy } = useClipboard();
 const copyRgba = async () => {
-  await navigator.clipboard.writeText(rgbaText())
-}
+  await copy(rgba.value);
+};
 
+// --- Scroll helper ---
 const scrollToCard = () => {
-  currentCardRoot.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
+  currentCardRoot.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+};
+
+const harmonyTabs = [
+  { value: 'complementary', label: 'Comp' },
+  { value: 'triadic', label: 'Triadic' },
+  { value: 'analogous', label: 'Analogous' },
+  { value: 'monochromatic', label: 'Mono' },
+]
 </script>
 
 <template>
-  <BasePage title="Color Manipulation Tool" :is-tool-layout="true" main-class="flex">
+  <BasePage
+    title="Color Manipulation Tool"
+    :is-tool-layout="true"
+    main-class="flex"
+  >
     <div class="container mx-auto px-4 py-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Main -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- Wrap the card in a real element to observe -->
+          <!-- Current Color -->
           <div ref="currentCardRoot">
             <CurrentColorCard
               :current="current"
@@ -85,68 +128,106 @@ const scrollToCard = () => {
               :update-color="updateColor"
             />
           </div>
-          <AdjustmentsCard :current-color="current" :update-color="updateColor" />
+
+          <AccessibilityToolsCard
+            :current-color="current"
+            :on-color-select="updateColor"
+          />
         </div>
 
         <!-- Sidebar -->
-        <div class="space-y-6">
-          <PaletteManager :current-color="current" :on-color-select="updateColor" />
-          <AccessibilityToolsCard :current-color="current" :on-color-select="updateColor" />
-          <GeneratorsCard :current-color="current" :on-color-select="updateColor" />
-          <BaseCard title="Color harmonies">
-            <template #header>
-              <BaseTabs
-                v-model="harmoniesTab"
-                :tabs="[
-                  { value: 'complementary', label: 'Comp' },
-                  { value: 'triadic', label: 'Triadic' },
-                  { value: 'analogous', label: 'Analogous' },
-                  { value: 'monochromatic', label: 'Mono' },
-                ]"
-              />
-            </template>
-            <ColorHarmonies
+        <div class="space-y-2">
+          <!-- Desktop: Show individual components -->
+          <div class="hidden lg:block space-y-6">
+            <PaletteManager
+              :current-color="current"
+              :on-color-select="updateColor"
+            />
+            <GeneratorsCard
+              :current-color="current"
+              :on-color-select="updateColor"
+            />
+            <HarmoniesCard
+              v-model="harmoniesTab"
               :current="current"
-              :active="harmoniesTab"
-              @update:active="harmoniesTab = $event"
+              :tabs="harmonyTabs"
               :onSelect="updateColor"
             />
-          </BaseCard>
+          </div>
+
+          <!-- Mobile: Show accordion -->
+          <div class="lg:hidden pb-10">
+            <BaseAccordion
+              default-value="palette"
+              :multiple="false"
+              :collapsible="true"
+              class="w-full"
+            >
+              <!-- Palette Manager -->
+              <AccordionItem id="palette" title="Color Palettes">
+                <PaletteManager
+                  :current-color="current"
+                  :on-color-select="updateColor"
+                />
+              </AccordionItem>
+
+              <!-- Generators -->
+              <AccordionItem id="generators" title="Color Generators">
+                <GeneratorsCard
+                  :current-color="current"
+                  :on-color-select="updateColor"
+                />
+              </AccordionItem>
+
+              <!-- Color Harmonies -->
+              <AccordionItem id="harmonies" title="Color Harmonies">
+                <HarmoniesCard
+                  v-model="harmoniesTab"
+                  :current="current"
+                  :tabs="harmonyTabs"
+                  :onSelect="updateColor"
+                />
+              </AccordionItem>
+            </BaseAccordion>
+          </div>
         </div>
       </div>
     </div>
+
+    <AdjustmentsCard :current-color="current" :update-color="updateColor" />
 
     <!-- Mini sticky preview (mobile only) -->
     <transition name="slide-up-fade">
       <div
         v-if="showMiniPreview"
-        class="lg:hidden fixed bottom-0 left-0 right-0 px-4 py-3 flex items-center justify-between fixed-mini-preview"
+        ref="miniPreviewEl"
+        class="lg:hidden fixed bottom-0 left-0 right-0 z-30 px-4 py-3 flex items-center justify-between fixed-mini-preview touch-pan-y"
         @click="scrollToCard"
       >
         <div class="flex items-center gap-3">
           <div
             class="w-6 h-6 rounded border"
-            :style="{ backgroundColor: rgbaText() }"
+            :style="{ backgroundColor: rgba }"
           />
           <div class="flex flex-col text-xs font-mono">
-            <span>{{ rgbaText() }}</span>
+            <span>{{ rgba }}</span>
             <span class="text-muted-foreground">{{ formats.hex }}</span>
           </div>
         </div>
-        <BaseButton size="sm" variant="outline" @click.stop="copyRgba">Copy</BaseButton>
+        <BaseButton size="sm" variant="outline" @click.stop="copyRgba"
+          >Copy</BaseButton
+        >
       </div>
     </transition>
   </BasePage>
 </template>
 
 <style scoped>
-.slide-up-fade-enter-active {
+.slide-up-fade-enter-active,
+.slide-up-fade-leave-active {
   transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.slide-up-fade-enter-from {
-  opacity: 0;
-  transform: translateY(100%) scale(0.95);
-}
+.slide-up-fade-enter-from,
 .slide-up-fade-leave-to {
   opacity: 0;
   transform: translateY(100%) scale(0.95);

@@ -52,7 +52,7 @@
   <script setup lang="ts">
   import { ref, computed } from 'vue'
   import { BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider } from '@components/ui'
-  import { convertColor } from '@color/composables/useColor'
+  import { convertColor } from '@features/tools/color/composables/useColor.deprecated'
   import type { RGB } from '@color/types/color'
   
   const props = defineProps<{ currentColor: RGB, onColorSelect: (c: RGB) => void }>()

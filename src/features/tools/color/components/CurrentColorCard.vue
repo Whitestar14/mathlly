@@ -60,6 +60,7 @@
         <div class="flex gap-2 items-center">
           <BaseInput
             id="color-input"
+            ref="colorInputEl"
             v-model="colorInput"
             v-model:dropdownValue="selectedFormat"
             :dropdown="true"
@@ -168,9 +169,10 @@ const placeholderForFormat = computed(() => {
 
 // Preview text (not tied to input formatting)
 const rgbaText = computed(() => formatRgbaPretty(props.current))
+const colorInputEl = ref<{select: () => void} | null>(null);
 
 // Editing lifecycle
-const onFocus = () => { isEditing.value = true }
+const onFocus = () => { isEditing.value = true; colorInputEl.value?.select() }
 const onEnter = () => { isEditing.value = false; normalizeInputPresentation() }
 const onBlur = () => {
   isEditing.value = false

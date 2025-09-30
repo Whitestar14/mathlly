@@ -1,14 +1,11 @@
 // src/features/tools/color/composables/useColorAdjustments.ts
 import { ref } from 'vue'
-import { adjustBrightness, adjustSaturation, adjustHue, adjustContrast } from './useColor'
+import { adjustBrightness, adjustSaturation, adjustHue, adjustContrast } from './useColor.deprecated'
 import type { RGB } from '../types/color'
 
 export function useColorAdjustments(onUpdate: (c: RGB) => void) {
-  // Brightness: -1 → 1 (relative factor offset)
   const brightness = ref(0)
-  // Saturation: 0 → 2 (factor)
   const saturation = ref(1)
-  // Hue: -180 → 180 (degrees)
   const hue = ref(0)
 
   const setBrightness = (v: number) => { brightness.value = v }
@@ -16,7 +13,6 @@ export function useColorAdjustments(onUpdate: (c: RGB) => void) {
   const setHue = (v: number) => { hue.value = v }
 
   const applyBrightness = (color: RGB) => {
-    // brightness.value is -1..1, so convert to factor
     const factor = 1 + brightness.value
     onUpdate(adjustBrightness(color, factor))
   }

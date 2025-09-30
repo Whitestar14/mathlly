@@ -31,7 +31,7 @@ import { Blend } from 'lucide-vue-next'
 import { computed } from 'vue'
 import { BaseInput, BaseSlider, BaseButton, BaseLabel } from '@components/ui'
 import { useColorMixing } from '../composables/useColorMixing'
-import { convertColor } from '../composables/useColor'
+import { convertColor } from '../composables/useColor.deprecated'
 import { useToast } from '@composables/ui/useToast'
 import type { RGB } from '../types/color'
 

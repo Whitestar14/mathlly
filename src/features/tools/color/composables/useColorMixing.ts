@@ -1,6 +1,6 @@
 // src/features/tools/color/composables/useColorMixing.ts
 import { ref } from 'vue'
-import { mixColors, convertColor } from './useColor'
+import { mixColors, convertColor } from './useColor.deprecated'
 import type { RGB } from '../types/color'
 
 const HEX6 = /^#[0-9A-Fa-f]{6}$/
@@ -11,6 +11,7 @@ export function useColorMixing(onUpdate: (c: RGB) => void) {
 
   const setMixHex = (hex: string) => {
     if (!HEX6.test(hex)) return false
+    
     mixColor.value = convertColor(hex).rgb
     return true
   }

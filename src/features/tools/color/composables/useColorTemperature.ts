@@ -1,5 +1,5 @@
 // src/features/tools/color/composables/useColorTemperature.ts
-import { adjustTemperature } from './useColor'
+import { adjustTemperature } from './useColor.deprecated'
 import type { RGB } from '../types/color'
 
 export function useColorTemperature(onUpdate: (c: RGB) => void) {

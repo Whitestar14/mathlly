@@ -5,7 +5,7 @@ import {
   generateTriadic,
   generateAnalogous,
   generateMonochromatic,
-} from './useColor'
+} from './useColor.deprecated'
 import type { RGB } from '../types/color'
 
 export function useColorHarmonies(current: () => RGB) {

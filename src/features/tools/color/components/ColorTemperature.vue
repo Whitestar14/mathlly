@@ -15,8 +15,8 @@
 
 <script setup lang="ts">
 import { Sun, Moon } from 'lucide-vue-next'
-import { useColorTemperature } from '../composables/useColorTemperature'
-import type { RGB } from '../types/color'
+import { useColorTemperature } from '@color/composables/useColorTemperature'
+import type { RGB } from '@color/lib/color'
 import { BaseButton } from '@components/ui'
 
 const props = defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void }>()
