@@ -1,4 +1,10 @@
-// src/features/tools/color/utils.ts
+/**
+ * Color parsing and formatting utilities for the color tools.
+ *
+ * Supports both modern CSS Color Level 4 space-separated syntax with optional
+ * slash alpha and legacy comma-separated function syntax. Parsing is tolerant
+ * to partial input to support live-editing UX.
+ */
 import { hslToRgb, oklchToRgb } from '@color/lib/color'
 import type { RGBA, ColorFormats } from '@color/lib/color'
 
@@ -12,7 +18,11 @@ const clampInt = (v: number, min: number, max: number) => Math.round(clamp(v, mi
 // Limit alpha precision to prevent ballooning like 0.50196078…
 const roundAlpha = (a: number) => Number(clamp(a, 0, 1).toFixed(3))
 
-// Detect format quickly (router for auto mode)
+/**
+ * Detect the explicit color notation of a string (excluding auto).
+ * @param val Raw color string
+ * @returns A concrete format or null if undetected
+ */
 export function detectFormat(val: string): ResolvedFormat | null {
   const s = val.trim().toLowerCase()
   if (s.startsWith('#')) return 'hex'
@@ -22,8 +32,9 @@ export function detectFormat(val: string): ResolvedFormat | null {
   return null
 }
 
-// Shorthand hex helpers (#RGB, #RGBA)
+/** Check if a hex string is shorthand (#RGB or #RGBA, with or without #). */
 export const isShorthandHex = (s: string) => /^#?[0-9a-fA-F]{3,4}$/.test(s.trim())
+/** Expand shorthand hex (#RGB or #RGBA) to full form (#RRGGBB or #RRGGBBAA). */
 export const expandShorthandHex = (s: string) => {
   const h = s.trim().replace(/^#/, '')
   if (!isShorthandHex(s)) return s.startsWith('#') ? s : `#${s}`
@@ -31,35 +42,55 @@ export const expandShorthandHex = (s: string) => {
   return `#${full}`
 }
 
-// Partial-input heuristics (don’t commit or normalize mid-typing)
 const isPartialHex = (s: string) => /^#?[0-9a-fA-F]{0,8}$/.test(s.trim())
 const isLikelyPartialFunc = (s: string) => {
   const hasOpen = /\(/.test(s) && !/\)/.test(s)
-  const endsWithComma = /,\s*$/.test(s) // trailing comma means still typing
+  const endsWithComma = /,\s*$/.test(s)
   const endsWithOpen = /\(\s*$/.test(s)
   return hasOpen || endsWithComma || endsWithOpen
 }
 
-// CSS Color Level 4 functional syntax helpers (commas OR spaces, optional slash for alpha)
+/**
+ * Extract the inner argument list of a CSS color function.
+ * Supports rgb/rgba, hsl/hsla, and oklch.
+ * @param raw The full function string, e.g. "rgba(1, 2, 3, 0.5)"
+ * @param func Function name to match
+ * @returns Inner arguments string or null if not matched
+ */
 const extractFuncArgs = (raw: string, func: 'rgb' | 'rgba' | 'hsl' | 'hsla' | 'oklch') => {
   const m = raw.match(new RegExp(`^${func}\\(([^)]*)\\)$`, 'i'))
   return m ? m[1].trim() : null
 }
-// Split "a b c / d" OR "a, b, c, d" into [parts, alpha?]
+/**
+ * Split a color function's argument list into channel parts and alpha.
+ * Accepts both space-separated and comma-separated syntaxes.
+ * If there is no explicit slash alpha, a 4th comma-separated item is treated as alpha.
+ * @param args Inner arguments string (without the function wrapper)
+ * @returns Parts (channels), slash alpha token if present, and whether commas were used
+ */
 const splitArgsWithAlpha = (args: string) => {
   const [left, right] = args.split('/')
-  const parts = (left.includes(',') ? left.split(',') : left.trim().split(/\s+/))
+  const leftHasComma = left.includes(',')
+  const parts = (leftHasComma ? left.split(',') : left.trim().split(/\s+/))
     .map(s => s.trim())
     .filter(Boolean)
   const alpha = right !== undefined ? right.trim() : undefined
-  return { parts, alpha }
+  return { parts, alpha, leftHasComma }
 }
+/**
+ * Parse a numeric token possibly expressed as a percentage.
+ * For alpha: "50%" -> 0.5; For channels: caller decides mapping.
+ */
 const parseNumber = (s: string): number => {
-  if (/%$/.test(s)) return parseFloat(s) / 100 // percentages to 0..1
+  if (/%$/.test(s)) return parseFloat(s) / 100
   return parseFloat(s)
 }
 
-// Strict hex parse with alpha support (#RRGGBB or #RRGGBBAA, and shorthand expanded first)
+/**
+ * Strict hex parse with optional alpha (#RRGGBB or #RRGGBBAA).
+ * Shorthand is expanded prior to validation.
+ * @internal
+ */
 function parseHexStrict(raw: string): RGBA | null {
   const s0 = raw.trim()
   const s1 = isShorthandHex(s0) ? expandShorthandHex(s0) : (s0.startsWith('#') ? s0 : `#${s0}`)
@@ -76,7 +107,14 @@ function parseHexStrict(raw: string): RGBA | null {
   return { r, g, b, a }
 }
 
-// Main tolerant parser for explicit modes
+/**
+ * Parse a color string for an explicit format, tolerant to partial input.
+ * Supports modern space-separated with optional "/ alpha" and legacy comma-separated forms.
+ * Alpha precedence: slash alpha > 4th comma component > currentAlpha.
+ * @param val Raw color string
+ * @param fmt Explicit format ('hex' | 'rgba' | 'hsla' | 'oklch')
+ * @param currentAlpha Alpha to fall back to when not specified
+ */
 export function parseWithFormatTolerant(
   val: string,
   fmt: ResolvedFormat,
@@ -84,23 +122,20 @@ export function parseWithFormatTolerant(
 ): { state: ParseState; rgba: RGBA | null } {
   const raw = val.trim()
 
-  // HEX: commit only when full length; do not carry previous alpha if hex lacks it
   if (fmt === 'hex') {
     if (isPartialHex(raw)) {
       const rgba = parseHexStrict(raw)
       if (!rgba) return { state: 'partial', rgba: null }
-      // If user supplied #RRGGBB, alpha should be 1; only #RRGGBBAA defines alpha
       return { state: 'valid', rgba }
     }
     return { state: 'invalid', rgba: null }
   }
 
-  // RGBA: support commas or spaces, optional slash alpha; accept percentages
   if (fmt === 'rgba') {
     if (isLikelyPartialFunc(raw)) return { state: 'partial', rgba: null }
     const args = extractFuncArgs(raw, 'rgba') ?? extractFuncArgs(raw, 'rgb')
     if (!args) return { state: 'invalid', rgba: null }
-    const { parts, alpha } = splitArgsWithAlpha(args)
+    const { parts, alpha, leftHasComma } = splitArgsWithAlpha(args)
     if (parts.length < 3) return { state: 'partial', rgba: null }
 
     const rN = parseNumber(parts[0])
@@ -113,18 +148,21 @@ export function parseWithFormatTolerant(
     const g = clampInt(to255(gN), 0, 255)
     const b = clampInt(to255(bN), 0, 255)
 
-    const aRaw = alpha !== undefined ? parseNumber(alpha) : currentAlpha
-    const a = roundAlpha(aRaw) // round to prevent alpha ballooning
+    let alphaToken: string | undefined = alpha
+    if (alphaToken === undefined && leftHasComma && parts.length >= 4) {
+      alphaToken = parts[3]
+    }
+    const aRaw = alphaToken !== undefined ? parseNumber(alphaToken) : currentAlpha
+    const a = roundAlpha(aRaw)
 
     return { state: 'valid', rgba: { r, g, b, a } }
   }
 
-  // HSLA: support commas or spaces, optional slash alpha
   if (fmt === 'hsla') {
     if (isLikelyPartialFunc(raw)) return { state: 'partial', rgba: null }
     const args = extractFuncArgs(raw, 'hsla') ?? extractFuncArgs(raw, 'hsl')
     if (!args) return { state: 'invalid', rgba: null }
-    const { parts, alpha } = splitArgsWithAlpha(args)
+    const { parts, alpha, leftHasComma } = splitArgsWithAlpha(args)
     if (parts.length < 3) return { state: 'partial', rgba: null }
 
     const h = parseFloat(parts[0])
@@ -133,13 +171,16 @@ export function parseWithFormatTolerant(
     if ([h, s, l].some(Number.isNaN)) return { state: 'invalid', rgba: null }
     const rgb = hslToRgb({ h, s: s * 100, l: l * 100 })
 
-    const aRaw = alpha !== undefined ? parseNumber(alpha) : currentAlpha
+    let alphaToken: string | undefined = alpha
+    if (alphaToken === undefined && leftHasComma && parts.length >= 4) {
+      alphaToken = parts[3]
+    }
+    const aRaw = alphaToken !== undefined ? parseNumber(alphaToken) : currentAlpha
     const a = roundAlpha(aRaw)
 
     return { state: 'valid', rgba: { r: rgb.r, g: rgb.g, b: rgb.b, a } }
   }
 
-  // OKLCH: support spaces with optional slash alpha
   if (fmt === 'oklch') {
     if (isLikelyPartialFunc(raw)) return { state: 'partial', rgba: null }
     const args = extractFuncArgs(raw, 'oklch')
@@ -165,7 +206,11 @@ export function parseWithFormatTolerant(
   return { state: 'invalid', rgba: null }
 }
 
-// SIMPLE AUTO: detect, then route to the same tolerant parser used by explicit modes
+/**
+ * Auto-detect and parse a color string using the tolerant explicit parser.
+ * @param val Raw color string
+ * @param currentAlpha Alpha to fall back to when not specified
+ */
 export function parseAutoSimple(
   val: string,
   currentAlpha = 1
@@ -173,18 +218,13 @@ export function parseAutoSimple(
   const fmt = detectFormat(val)
   if (!fmt) return { state: 'invalid', rgba: null, format: null }
 
-  // Respect partial typing (so backspace doesn’t snap)
   if (fmt === 'hex' && isPartialHex(val)) {
     const rgba = parseHexStrict(val)
     if (!rgba) return { state: 'partial', rgba: null, format: 'hex' }
-    // While typing hex, just mark partial unless fully valid handled above
-    // Fall through to return valid if parseHexStrict succeeded
     return { state: 'valid', rgba, format: 'hex' }
   }
   if (isLikelyPartialFunc(val)) return { state: 'partial', rgba: null, format: fmt }
 
-  // IMPORTANT: When auto detects HEX, do NOT carry previous alpha.
-  // Use hex-defined alpha if present; otherwise set a = 1.
   if (fmt === 'hex') {
     const rgba = parseHexStrict(val)
     if (!rgba) return { state: 'invalid', rgba: null, format: 'hex' }
@@ -195,16 +235,23 @@ export function parseAutoSimple(
   return { state, rgba, format: fmt }
 }
 
-// Pretty formatters (QoL)
+/** Pretty rgba() formatter with normalized alpha */
 export const formatRgbaPretty = (c: RGBA) =>
   `rgba(${c.r}, ${c.g}, ${c.b}, ${roundAlpha(c.a ?? 1)})`
 
+/** Pretty hsla() formatter with normalized alpha */
 export const formatHslaPretty = (c: RGBA, f: ColorFormats) =>
   `hsla(${Math.round(f.hsl.h)}, ${Math.round(f.hsl.s)}%, ${Math.round(f.hsl.l)}%, ${roundAlpha(c.a ?? 1)})`
 
+/** Pretty oklch() formatter with normalized alpha */
 export const formatOklchPretty = (c: RGBA, f: ColorFormats) =>
   `oklch(${(f.oklch.l / 100).toFixed(3)} ${(f.oklch.c / 100).toFixed(3)} ${Math.round(f.oklch.h)} / ${roundAlpha(c.a ?? 1)})`
 
+/**
+ * Normalize a display string for the current color given the selected mode.
+ * While editing, pass the raw string to avoid overwriting user input.
+ * Auto mode preserves the last detected presentation to reduce flicker.
+ */
 export function normalizeDisplay(
   current: RGBA,
   formats: ColorFormats,
@@ -212,7 +259,6 @@ export function normalizeDisplay(
   lastAuto: ResolvedFormat | null,
   raw?: string
 ): string {
-  // While editing, never overwrite the raw string.
   if (raw !== undefined) return raw
 
   if (mode === 'hex') return formats.hex
@@ -220,7 +266,6 @@ export function normalizeDisplay(
   if (mode === 'hsla') return formatHslaPretty(current, formats)
   if (mode === 'oklch') return formatOklchPretty(current, formats)
 
-  // Auto: preserve last detected presentation; fallback to RGBA to keep alpha visible
   switch (lastAuto) {
     case 'hex': return formats.hex
     case 'hsla': return formatHslaPretty(current, formats)

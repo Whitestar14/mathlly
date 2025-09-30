@@ -2,9 +2,14 @@
 <template>
   <BaseCard title="Current color">
     <template #header>
-      <BaseButton variant="ghost" size="sm" @click="genRandomColor">
-        <Shuffle class="h-4 w-4" /> Random
-      </BaseButton>
+      <div class="flex items-center gap-2">
+        <BaseButton variant="ghost" size="sm" @click="genRandomColor">
+          <Shuffle class="h-4 w-4" /> Random
+        </BaseButton>
+        <BaseButton variant="outline" size="sm" @click="openAdjustments" aria-label="Open adjustments">
+          <Settings2 class="h-4 w-4" />
+        </BaseButton>
+      </div>
     </template>
 
     <div class="flex flex-col lg:flex-row gap-6 mb-3">
@@ -51,18 +56,16 @@
           </div>
         </div>
 
-        <!-- Unified input + SelectBar + picker -->
+        <!-- Unified dropdown + input + picker -->
         <div class="flex gap-2 items-center">
-          <SelectBar
-            class="max-w-24"
-            v-model="selectedFormat"
-            :options="formatOptions"
-            label="Input format"
-            placeholder="Auto"
-          />
           <BaseInput
             id="color-input"
             v-model="colorInput"
+            v-model:dropdownValue="selectedFormat"
+            :dropdown="true"
+            :options="formatOptions"
+            dropdown-label="Input format"
+            dropdown-placeholder="Auto"
             :error="inputError"
             :placeholder="placeholderForFormat"
             @focus="onFocus"
@@ -87,9 +90,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
-import { Copy, Shuffle } from 'lucide-vue-next'
+import { Copy, Shuffle, Settings2 } from 'lucide-vue-next'
+import { usePanel } from '@composables/ui/usePanel'
 import { BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider, BaseAccordion, AccordionItem } from '@components/ui'
-import SelectBar from '@components/ui/SelectBar.vue'
 import BaseColorPicker from '@components/ui/BaseColorPicker.vue'
 import FormatsInfoCard from './FormatsInfoCard.vue'
 import { useClipboard } from '@vueuse/core'
@@ -115,6 +118,7 @@ const previewEl = ref<HTMLElement | null>(null)
 const { ripples, triggerRipple } = useRipple()
 const { copy } = useClipboard()
 const { toast } = useToast()
+const panel = usePanel('adjustments')
 
 // Sliders
 const rgbaKeys = ['r', 'g', 'b', 'a'] as const
@@ -229,6 +233,21 @@ watch(
   { deep: true, immediate: true }
 )
 
+// When the user switches the selected format (e.g., HEX -> RGBA),
+// immediately convert the input to the target presentation.
+watch(
+  () => selectedFormat.value,
+  () => {
+    if (isEditing.value) return
+    colorInput.value = normalizeDisplay(
+      props.current,
+      localFormats.value,
+      selectedFormat.value,
+      lastAutoFormat.value
+    )
+  }
+)
+
 // Picker proxy
 const rgbaProxy = computed<RGBA>({
   get: () => ({ r: props.current.r, g: props.current.g, b: props.current.b, a: props.current.a ?? 1 }),
@@ -251,6 +270,11 @@ const handlePreviewClick = async (e: MouseEvent) => {
 const genRandomColor = () => {
   const rnd: RGB = { r: Math.round(Math.random() * 255), g: Math.round(Math.random() * 255), b: Math.round(Math.random() * 255) }
   props.updateColor({ r: rnd.r, g: rnd.g, b: rnd.b, a: props.current.a ?? 1 })
+}
+
+// Open adjustments drawer panel
+function openAdjustments() {
+  panel.toggle()
 }
 </script>
 
