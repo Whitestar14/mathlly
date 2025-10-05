@@ -129,10 +129,10 @@ const harmonyTabs = [
             />
           </div>
 
-          <AccessibilityToolsCard
-            :current-color="current"
-            :on-color-select="updateColor"
-          />
+          <GeneratorsCard
+              :current-color="current"
+              :on-color-select="updateColor"
+            />
         </div>
 
         <!-- Sidebar -->
@@ -143,10 +143,12 @@ const harmonyTabs = [
               :current-color="current"
               :on-color-select="updateColor"
             />
-            <GeneratorsCard
-              :current-color="current"
-              :on-color-select="updateColor"
-            />
+            
+          <AccessibilityToolsCard
+            :current-color="current"
+            :on-color-select="updateColor"
+          />
+
             <HarmoniesCard
               v-model="harmoniesTab"
               :current="current"
@@ -172,11 +174,11 @@ const harmonyTabs = [
               </AccordionItem>
 
               <!-- Generators -->
-              <AccordionItem id="generators" title="Color Generators">
-                <GeneratorsCard
-                  :current-color="current"
-                  :on-color-select="updateColor"
-                />
+              <AccordionItem id="accessibility" title="Accessibility">  
+              <AccessibilityToolsCard
+                :current-color="current"
+                :on-color-select="updateColor"
+              />
               </AccordionItem>
 
               <!-- Color Harmonies -->

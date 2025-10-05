@@ -1,8 +1,8 @@
 <template>
   <BaseCard title="Accessibility Tools">
-    <BaseTabs
+    <SegmentedControl
       v-model="activeTab"
-      :tabs="[
+      :options="[
         { value: 'contrast', label: 'Contrast' },
         { value: 'vision', label: 'Vision' }
       ]"
@@ -18,7 +18,7 @@
           <div class="w-8 h-8 rounded border" :style="{ backgroundColor: convertColor(contrastBg).hex }" />
           <BaseInput
             :value="convertColor(contrastBg).hex"
-            @input="(e) => setContrastBg(convertColor((e.target as HTMLInputElement).value).rgb)"
+            @input="(e: Event) => setContrastBg(convertColor((e.target as HTMLInputElement).value).rgb)"
             placeholder="#ffffff"
             class="flex-1"
           />
@@ -61,8 +61,8 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import SegmentedControl from '@components/ui/SegmentedControl.vue'
 import { BaseCard, BaseInput, BaseLabel, BaseBadge } from '@components/ui'
-import BaseTabs from '@components/ui/BaseTabs.vue'
 import { Eye, EyeOff } from 'lucide-vue-next'
 import { convertColor, simulateColorBlindness, getContrastRatio } from '@color/lib/color'
 import type { RGB } from '@color/lib/color'

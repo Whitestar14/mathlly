@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { useColorHarmonies } from '../composables/useColorHarmonies'
-import type { RGB } from '../types/color'
+import type { RGB } from '@color/lib/color'
 import Swatch from './Swatch.vue'
 
 const props = defineProps<{

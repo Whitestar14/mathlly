@@ -1,28 +1,35 @@
-<!-- HarmoniesCard.vue -->
 <template>
-    <BaseCard title="Color harmonies">
-      <template #header>
-        <BaseTabs v-model="tab" :tabs="tabs" />
-      </template>
-  
-      <ColorHarmonies
-        :current="current"
-        :active="tab"
-        @update:active="val => (tab = val)"
-        :onSelect="onSelect"
+  <BaseCard>
+    <template #head>
+      <SegmentedControl
+        v-model="tab"
+        :options="tabs"
+        :max-visible="4"
       />
-    </BaseCard>
-  </template>
-  
-  <script setup lang="ts">
-  import { BaseCard, BaseTabs } from '@components/ui'
-  import ColorHarmonies from './ColorHarmonies.vue'
-  const tab = defineModel<string>()
-  
-  defineProps<{
-    current: any
-    tabs: { value: string; label: string }[]
-    onSelect: (c: any) => void
-  }>()
-  </script>
-  
+    </template>
+
+    <!-- Body -->
+    <ColorHarmonies
+      :current="current"
+      :active="tab"
+      @update:active="(val: Harmonies) => (tab = val)"
+      :onSelect="onSelect"
+    />
+  </BaseCard>
+</template>
+
+<script setup lang="ts">
+import { BaseCard } from '@components/ui'
+import SegmentedControl from '@components/ui/SegmentedControl.vue'
+import ColorHarmonies from './ColorHarmonies.vue'
+
+type Harmonies = 'complementary' | 'triadic' | 'analogous' | 'monochromatic'
+
+const tab = defineModel<Harmonies>('tab', { default: 'complementary' })
+
+defineProps<{
+  current: any
+  tabs: { value: string; label: string }[]
+  onSelect: (c: any) => void
+}>()
+</script>

@@ -17,9 +17,30 @@
       <div
         ref="previewEl"
         class="relative group w-full min-h-32 lg:h-auto flex-1 rounded-lg border border-border cursor-pointer overflow-hidden"
-        :style="{ backgroundColor: rgbaText }"
         @click="handlePreviewClick"
       >
+        <!-- Checkered background pattern (more visible) -->
+        <div 
+          class="absolute inset-0"
+          :style="{
+            backgroundImage: `
+              linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+              linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+              linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+              linear-gradient(-45deg, transparent 75%, #f0f0f0 75%)
+            `,
+            backgroundSize: '10px 10px',
+            backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
+          }"
+        ></div>
+        
+        <!-- Semi-transparent color overlay -->
+        <div 
+          class="absolute inset-0"
+          :style="{ backgroundColor: rgbaText }"
+        ></div>
+        
+        <!-- Content overlay -->
         <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
           <Copy class="h-6 w-6 text-foreground mb-1" />
           <span class="text-xs text-foreground font-medium">{{ rgbaText }}</span>
