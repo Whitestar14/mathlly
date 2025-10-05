@@ -72,11 +72,11 @@
               <!-- Start color -->
               <div class="space-y-2">
                 <BaseLabel class="text-xs">Start color</BaseLabel>
-                <div class="flex items-center gap-2">
-                  <Swatch :color="startRgb" @click="onStartColorSelect(startRgb)" class="w-8 h-8" />
+                <div class="flex items-center w-full gap-2">
+                  <Swatch :color="startRgb" @click="onStartColorSelect(startRgb)" class="flex-none w-8 h-8" />
                   <BaseInput
                     v-model="hexStart"
-                    class="w-40"
+                    class="w-full md:w-40"
                     placeholder="#22c55e"
                     aria-label="Start color hex"
                     v-tippy="{ content: 'Type hex (e.g. #22c55e) or use the picker' }"
@@ -88,11 +88,11 @@
               <!-- End color -->
               <div class="space-y-2">
                 <BaseLabel class="text-xs">End color</BaseLabel>
-                <div class="flex items-center gap-2">
-                  <Swatch :color="endRgb" @click="onEndColorSelect(endRgb)" class="w-8 h-8" />
+                <div class="flex items-center w-full gap-2">
+                  <Swatch :color="endRgb" @click="onEndColorSelect(endRgb)" class="flex-none w-8 h-8" />
                   <BaseInput
                     v-model="hexEnd"
-                    class="w-40"
+                    class="w-full md:w-40"
                     placeholder="#ef4444"
                     aria-label="End color hex"
                     v-tippy="{ content: 'Type hex (e.g. #ef4444) or use the picker' }"
@@ -111,7 +111,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <!-- Steps -->
               <div class="space-y-2">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 justify-between">
                   <BaseLabel class="text-sm font-medium">Steps</BaseLabel>
                   <BaseInput
                     type="number"
@@ -137,7 +137,7 @@
 
               <!-- Angle -->
               <div class="space-y-2">
-                <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 justify-between">
                   <BaseLabel class="text-sm font-medium">Angle</BaseLabel>
                   <BaseInput
                     type="number"

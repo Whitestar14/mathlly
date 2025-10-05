@@ -5,7 +5,7 @@
         <SegmentedControl
           v-model="selectedPaletteId"
           :options="paletteTabs"
-          :max-visible="3"
+          :max-visible="2"
         />
       </template>
 
@@ -40,7 +40,7 @@
         v-for="palette in palettes"
         :key="palette.id"
         v-show="selectedPaletteId === palette.id"
-        class="space-y-3 mt-4"
+        class="space-y-3 mt-2"
       >
         <!-- Header row: inline rename + compact actions -->
         <div class="flex items-center justify-between">

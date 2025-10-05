@@ -1,14 +1,15 @@
 <template>
   <BaseCard>
+    <!-- Head: segmented control for harmony type -->
     <template #head>
       <SegmentedControl
         v-model="tab"
         :options="tabs"
-        :max-visible="4"
+        :max-visible="2"
       />
     </template>
 
-    <!-- Body -->
+    <!-- Body: active harmony swatches -->
     <ColorHarmonies
       :current="current"
       :active="tab"
@@ -25,6 +26,7 @@ import ColorHarmonies from './ColorHarmonies.vue'
 
 type Harmonies = 'complementary' | 'triadic' | 'analogous' | 'monochromatic'
 
+// v-model for active harmony
 const tab = defineModel<Harmonies>('tab', { default: 'complementary' })
 
 defineProps<{

@@ -2,62 +2,76 @@
   <!-- Single idle state hint -->
   <div
     v-if="options.length === 1"
-    class="inline-flex items-center gap-2 rounded-lg border border-dashed border-border/60 px-3 py-1.5 text-sm text-muted-foreground"
+    class="inline-flex items-center gap-2 rounded-lg border border-dashed border-border/60 px-3 py-1.5 text-sm text-muted-foreground transition-all duration-200 hover:border-border/80"
     aria-label="Segmented control (single option)"
   >
-    <component v-if="options[0].icon" :is="options[0].icon" class="h-4 w-4" />
+    <component v-if="options[0].icon" :is="options[0].icon" class="h-4 w-4 transition-transform duration-200 hover:scale-105" />
     <span>{{ options[0].label }}</span>
-    <Ellipsis class="h-3 w-3 opacity-40 ml-1" />
+    <Ellipsis class="h-3 w-3 opacity-40 ml-1 transition-opacity duration-200" />
   </div>
 
   <!-- Normal segmented control -->
   <div
     v-else
-    class="inline-flex items-center gap-1 rounded-lg border border-border bg-background p-1"
+    class="inline-flex items-center gap-0.5 rounded-lg border border-border bg-background p-1 shadow-sm transition-all duration-200"
     role="radiogroup"
     aria-label="Segmented control"
     @keydown="onKeydown"
   >
-    <!-- Visible deck with subtle separators -->
+    <!-- Visible deck with enhanced animations -->
     <template v-for="(opt, i) in visibleDeck" :key="opt.value">
       <button
         :aria-checked="modelValue === opt.value"
         role="radio"
         type="button"
         @click="select(opt.value)"
-        class="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-md transition-colors"
-        :class="modelValue === opt.value
-          ? 'bg-primary/10 text-primary shadow-sm'
-          : 'bg-transparent text-muted-foreground hover:bg-muted/40'"
+        class="relative inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-all duration-200 group"
+        :class="[
+          'hover:scale-[1.02] active:scale-[0.98]',
+          modelValue === opt.value
+            ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
+            : 'bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-foreground'
+        ]"
       >
-        <component v-if="opt.icon" :is="opt.icon" class="h-4 w-4" />
-        <span class="truncate">{{ opt.label }}</span>
+        <!-- Active indicator with smooth animation -->
+        <div 
+          v-if="modelValue === opt.value"
+          class="absolute inset-0 bg-primary/5 rounded-md animate-pulse"
+        />
+        
+        <component 
+          v-if="opt.icon" 
+          :is="opt.icon" 
+          class="h-4 w-4 transition-all duration-200"
+          :class="modelValue === opt.value ? 'text-primary' : 'group-hover:scale-105'"
+        />
+        <span class="truncate transition-colors duration-200">{{ opt.label }}</span>
       </button>
 
-      <!-- 1px width, 10px height separator between pills -->
+      <!-- Enhanced separator with animation -->
       <span
         v-if="i < visibleDeck.length - 1"
         aria-hidden="true"
-        class="mx-1 h-[10px] w-px bg-border/60"
+        class="mx-1 h-[10px] w-px bg-border/60 transition-colors duration-200 hover:bg-border/80"
       />
     </template>
 
-    <!-- Overflow popover (auto-close via PopoverItem) -->
+    <!-- Enhanced overflow popover -->
     <BasePopover v-if="overflowOptions.length > 0">
       <template #trigger>
         <button
           type="button"
-          class="inline-flex items-center gap-1 px-3 py-1.5 text-sm rounded-md transition-colors bg-transparent text-muted-foreground hover:bg-muted/40"
+          class="inline-flex items-center gap-1 px-2 py-1.5 text-sm rounded-md transition-all duration-200 bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-foreground hover:scale-[1.02] active:scale-[0.98] group"
           aria-haspopup="menu"
           aria-expanded="false"
           :aria-label="overflowLabel"
         >
-          <Ellipsis class="h-4 w-4" />
+          <Ellipsis class="h-4 w-4 transition-transform duration-200 group-hover:rotate-12" />
           <span class="sr-only">{{ overflowLabel }}</span>
         </button>
       </template>
 
-      <div class="flex flex-col">
+      <div class="flex flex-col animate-in slide-in-from-top-2 duration-200">
         <PopoverItem
           v-for="opt in overflowOptions"
           :key="opt.value"
@@ -158,3 +172,30 @@ function onKeydown(e: KeyboardEvent) {
   }
 }
 </script>
+
+<style scoped>
+/* Enhanced animations */
+@keyframes slide-in-from-top-2 {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation-fill-mode: forwards;
+}
+
+/* Smooth hover transitions */
+.group:hover .group-hover\:scale-105 {
+  transform: scale(1.05);
+}
+
+.group:hover .group-hover\:rotate-12 {
+  transform: rotate(12deg);
+}
+</style>
