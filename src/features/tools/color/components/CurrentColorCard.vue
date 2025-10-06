@@ -3,10 +3,19 @@
   <BaseCard title="Current color">
     <template #header>
       <div class="flex items-center gap-2">
-        <BaseButton variant="ghost" size="sm" @click="genRandomColor">
+        <BaseButton
+          variant="ghost"
+          size="sm"
+          @click="genRandomColor"
+        >
           <Shuffle class="h-4 w-4" /> Random
         </BaseButton>
-        <BaseButton variant="outline" size="sm" @click="openAdjustments" aria-label="Open adjustments">
+        <BaseButton
+          variant="outline"
+          size="sm"
+          aria-label="Open adjustments"
+          @click="openAdjustments"
+        >
           <Settings2 class="h-4 w-4" />
         </BaseButton>
       </div>
@@ -32,13 +41,13 @@
             backgroundSize: '10px 10px',
             backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
           }"
-        ></div>
+        />
         
         <!-- Semi-transparent color overlay -->
         <div 
           class="absolute inset-0"
           :style="{ backgroundColor: rgbaText }"
-        ></div>
+        />
         
         <!-- Content overlay -->
         <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -64,15 +73,19 @@
       <div class="flex-1 space-y-4">
         <!-- RGBA sliders -->
         <div class="space-y-4">
-          <div v-for="k in rgbaKeys" :key="k" class="space-y-2">
+          <div
+            v-for="k in rgbaKeys"
+            :key="k"
+            class="space-y-2"
+          >
             <BaseLabel>{{ labelMap[k] }}: {{ displayValue(k) }}</BaseLabel>
             <BaseSlider
               :model-value="[getValue(k)]"
-              @update:modelValue="onSliderUpdate(k, $event)"
               :min="0"
               :max="k === 'a' ? 100 : 255"
               :step="1"
               class="w-full"
+              @update:model-value="onSliderUpdate(k, $event)"
             />
           </div>
         </div>
@@ -83,26 +96,32 @@
             id="color-input"
             ref="colorInputEl"
             v-model="colorInput"
-            v-model:dropdownValue="selectedFormat"
+            v-model:dropdown-value="selectedFormat"
             :dropdown="true"
             :options="formatOptions"
             dropdown-label="Input format"
             dropdown-placeholder="Auto"
             :error="inputError"
             :placeholder="placeholderForFormat"
+            class="flex-1"
             @focus="onFocus"
             @blur="onBlur"
             @input="onTyping"
             @keydown.enter="onEnter"
-            class="flex-1"
           />
           <BaseColorPicker v-model="rgbaProxy" />
         </div>
       </div>
     </div>
 
-    <BaseAccordion :multiple="false" :collapsible="true">
-      <AccordionItem id="formats" title="Formats & Info">
+    <BaseAccordion
+      :multiple="false"
+      :collapsible="true"
+    >
+      <AccordionItem
+        id="formats"
+        title="Formats & Info"
+      >
         <FormatsInfoCard :formats="localFormats" />
       </AccordionItem>
     </BaseAccordion>

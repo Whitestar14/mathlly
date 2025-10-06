@@ -23,8 +23,18 @@ defineProps({
           <!-- If head slot provided, render it instead of title/subtitle -->
           <slot name="head">
             <div v-if="title || subtitle">
-              <h3 v-if="title" class="text-sm font-medium leading-6 truncate">{{ title }}</h3>
-              <p v-if="subtitle" class="text-xs text-muted-foreground mt-1 truncate">{{ subtitle }}</p>
+              <h3
+                v-if="title"
+                class="text-sm font-medium leading-6 truncate"
+              >
+                {{ title }}
+              </h3>
+              <p
+                v-if="subtitle"
+                class="text-xs text-muted-foreground mt-1 truncate"
+              >
+                {{ subtitle }}
+              </p>
             </div>
           </slot>
         </div>

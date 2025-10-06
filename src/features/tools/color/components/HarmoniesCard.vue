@@ -13,8 +13,8 @@
     <ColorHarmonies
       :current="current"
       :active="tab"
+      :on-select="onSelect"
       @update:active="(val: Harmonies) => (tab = val)"
-      :onSelect="onSelect"
     />
   </BaseCard>
 </template>
@@ -26,12 +26,13 @@ import ColorHarmonies from './ColorHarmonies.vue'
 
 type Harmonies = 'complementary' | 'triadic' | 'analogous' | 'monochromatic'
 
-// v-model for active harmony
-const tab = defineModel<Harmonies>('tab', { default: 'complementary' })
-
 defineProps<{
   current: any
   tabs: { value: string; label: string }[]
   onSelect: (c: any) => void
 }>()
+
+// v-model for active harmony
+const tab = defineModel<Harmonies>('tab', { default: 'complementary' })
+
 </script>

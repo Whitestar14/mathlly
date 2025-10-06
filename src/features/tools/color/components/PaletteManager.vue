@@ -13,13 +13,18 @@
         <div class="flex items-center gap-2">
           <!-- Import -->
           <input
+            id="import-palette"
             type="file"
             accept=".json"
-            @change="importPalette"
             class="hidden"
-            id="import-palette"
-          />
-          <BaseButton size="sm" variant="outline" @click="openImport" aria-label="Import palette">
+            @change="importPalette"
+          >
+          <BaseButton
+            size="sm"
+            variant="outline"
+            aria-label="Import palette"
+            @click="openImport"
+          >
             <Upload class="h-4 w-4" />
           </BaseButton>
 
@@ -27,8 +32,8 @@
           <BaseButton
             size="sm"
             variant="outline"
-            @click="setIsCreateDialogOpen(true)"
             aria-label="Create palette"
+            @click="setIsCreateDialogOpen(true)"
           >
             <Plus class="h-4 w-4" />
           </BaseButton>
@@ -38,8 +43,8 @@
       <!-- Active palette content -->
       <div
         v-for="palette in palettes"
-        :key="palette.id"
         v-show="selectedPaletteId === palette.id"
+        :key="palette.id"
         class="space-y-3 mt-2"
       >
         <!-- Header row: inline rename + compact actions -->
@@ -77,8 +82,8 @@
               size="sm"
               variant="ghost"
               class="h-7 px-2"
-              @click="addColorToPalette(palette.id)"
               aria-label="Add current color"
+              @click="addColorToPalette(palette.id)"
             >
               <Plus class="h-3 w-3" />
             </BaseButton>
@@ -88,8 +93,8 @@
               variant="ghost"
               class="h-7 px-2"
               :disabled="palette.id === 'default'"
-              @click="startEditingPalette(palette)"
               aria-label="Rename palette"
+              @click="startEditingPalette(palette)"
             >
               <Edit3 class="h-3 w-3" />
             </BaseButton>
@@ -108,10 +113,26 @@
               </template>
 
               <!-- PopoverItem ensures popover closes on select -->
-              <PopoverItem label="Export JSON" :icon="Download" @click="exportPalette(palette, 'json')" />
-              <PopoverItem label="Export HEX" :icon="Download" @click="exportPalette(palette, 'hex')" />
-              <PopoverItem label="Export CSS" :icon="Download" @click="exportPalette(palette, 'css')" />
-              <PopoverItem label="Export SVG" :icon="Download" @click="exportPalette(palette, 'svg')" />
+              <PopoverItem
+                label="Export JSON"
+                :icon="Download"
+                @click="exportPalette(palette, 'json')"
+              />
+              <PopoverItem
+                label="Export HEX"
+                :icon="Download"
+                @click="exportPalette(palette, 'hex')"
+              />
+              <PopoverItem
+                label="Export CSS"
+                :icon="Download"
+                @click="exportPalette(palette, 'css')"
+              />
+              <PopoverItem
+                label="Export SVG"
+                :icon="Download"
+                @click="exportPalette(palette, 'svg')"
+              />
 
               <PopoverItem
                 v-if="palette.id !== 'default'"
@@ -131,7 +152,10 @@
             :key="swatchKey(palette.id, color, index)"
             class="relative"
           >
-            <Swatch :color="color" @click="onColorSelect(color)">
+            <Swatch
+              :color="color"
+              @click="onColorSelect(color)"
+            >
               <template #actions>
                 <div class="absolute top-0 right-0 flex gap-1 p-1">
                   <BasePopover>
@@ -147,7 +171,11 @@
                       </BaseButton>
                     </template>
 
-                    <PopoverItem label="Copy HEX" :icon="Copy" @click="copyHex(color)" />
+                    <PopoverItem
+                      label="Copy HEX"
+                      :icon="Copy"
+                      @click="copyHex(color)"
+                    />
                     <PopoverItem
                       label="Remove"
                       :icon="Trash2"
@@ -161,10 +189,20 @@
           </div>
 
           <!-- Empty state -->
-          <div v-if="palette.colors.length === 0" class="col-span-5 text-center py-8 text-muted-foreground">
+          <div
+            v-if="palette.colors.length === 0"
+            class="col-span-5 text-center py-8 text-muted-foreground"
+          >
             <Palette class="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p class="text-sm">No colors in this palette</p>
-            <BaseButton size="sm" variant="outline" class="mt-2" @click="addColorToPalette(palette.id)">
+            <p class="text-sm">
+              No colors in this palette
+            </p>
+            <BaseButton
+              size="sm"
+              variant="outline"
+              class="mt-2"
+              @click="addColorToPalette(palette.id)"
+            >
               Add current color
             </BaseButton>
           </div>
@@ -173,15 +211,22 @@
     </BaseCard>
 
     <!-- Create palette modal -->
-    <BaseModal :open="isCreateDialogOpen" @update:open="setIsCreateDialogOpen">
-      <template #title>Create new palette</template>
+    <BaseModal
+      :open="isCreateDialogOpen"
+      @update:open="setIsCreateDialogOpen"
+    >
+      <template #title>
+        Create new palette
+      </template>
 
       <div class="space-y-4">
         <div class="space-y-2">
-          <BaseLabel for="palette-name">Palette name</BaseLabel>
+          <BaseLabel for="palette-name">
+            Palette name
+          </BaseLabel>
           <BaseInput
-            ref="createInputRef"
             id="palette-name"
+            ref="createInputRef"
             v-model="newPaletteName"
             :maxlength="MAX_NAME_LENGTH"
             placeholder="Enter palette name"
@@ -193,8 +238,18 @@
         </div>
 
         <div class="flex justify-end gap-2">
-          <BaseButton variant="outline" @click="setIsCreateDialogOpen(false)">Cancel</BaseButton>
-          <BaseButton @click="handleCreateSubmit" :disabled="creating || !newPaletteName.trim()">Create</BaseButton>
+          <BaseButton
+            variant="outline"
+            @click="setIsCreateDialogOpen(false)"
+          >
+            Cancel
+          </BaseButton>
+          <BaseButton
+            :disabled="creating || !newPaletteName.trim()"
+            @click="handleCreateSubmit"
+          >
+            Create
+          </BaseButton>
         </div>
       </div>
     </BaseModal>

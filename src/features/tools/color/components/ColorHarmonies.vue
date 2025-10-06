@@ -8,10 +8,10 @@
       <button
         v-for="(c, i) in activeColors"
         :key="i"
+        v-tippy="{ content: rgbToHex(c) }"
         class="w-12 h-12 rounded border border-border transition hover:scale-105"
         :style="{ backgroundColor: rgbToHex(c) }"
         :aria-label="`${active} color ${i+1}`"
-        v-tippy="{ content: rgbToHex(c) }"
         @click="onSelect(c)"
         @dblclick="copyHex(c)"
       />
@@ -42,6 +42,7 @@ const activeColors = computed(() => {
     case 'triadic': return harmonies.triadicColors.value
     case 'analogous': return harmonies.analogousColors.value
     case 'monochromatic': return harmonies.monochromaticColors.value
+    default: return props.current
   }
 })
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, unref, watch, onMounted, onBeforeUnmount } from 'vue';
 import {
   BasePage,
   BaseButton,
@@ -13,7 +13,7 @@ import { usePanel } from '@composables/ui/usePanel';
 
 import CurrentColorCard from '../components/CurrentColorCard.vue';
 import PaletteManager from '../components/PaletteManager.vue';
-import AdjustmentsCard from '../components/AdjustmentsCard.vue';
+import AdjustmentsCard from '../components/AdjustmentsPanel.vue';
 import AccessibilityToolsCard from '../components/AccessibilityToolsCard.vue';
 import GeneratorsCard from '../components/GeneratorsCard.vue';
 import HarmoniesCard from '../components/HarmoniesCard.vue';
@@ -51,7 +51,7 @@ onMounted(() => {
   observer = new IntersectionObserver(
     ([entry]) => {
       showMiniPreview.value =
-        entry.intersectionRatio < 0.5 || adjustmentsPanel.isOpen;
+        entry.intersectionRatio < 0.5 || unref(adjustmentsPanel.isOpen);
     },
     { threshold: Array.from({ length: 101 }, (_, i) => i / 100) }
   );
@@ -130,9 +130,9 @@ const harmonyTabs = [
           </div>
 
           <GeneratorsCard
-              :current-color="current"
-              :on-color-select="updateColor"
-            />
+            :current-color="current"
+            :on-color-select="updateColor"
+          />
         </div>
 
         <!-- Sidebar -->
@@ -144,16 +144,16 @@ const harmonyTabs = [
               :on-color-select="updateColor"
             />
             
-          <AccessibilityToolsCard
-            :current-color="current"
-            :on-color-select="updateColor"
-          />
+            <AccessibilityToolsCard
+              :current-color="current"
+              :on-color-select="updateColor"
+            />
 
             <HarmoniesCard
               v-model="harmoniesTab"
               :current="current"
               :tabs="harmonyTabs"
-              :onSelect="updateColor"
+              :on-select="updateColor"
             />
           </div>
 
@@ -166,7 +166,10 @@ const harmonyTabs = [
               class="w-full"
             >
               <!-- Palette Manager -->
-              <AccordionItem id="palette" title="Color Palettes">
+              <AccordionItem
+                id="palette"
+                title="Color Palettes"
+              >
                 <PaletteManager
                   :current-color="current"
                   :on-color-select="updateColor"
@@ -174,20 +177,26 @@ const harmonyTabs = [
               </AccordionItem>
 
               <!-- Generators -->
-              <AccordionItem id="accessibility" title="Accessibility">  
-              <AccessibilityToolsCard
-                :current-color="current"
-                :on-color-select="updateColor"
-              />
+              <AccordionItem
+                id="accessibility"
+                title="Accessibility"
+              >  
+                <AccessibilityToolsCard
+                  :current-color="current"
+                  :on-color-select="updateColor"
+                />
               </AccordionItem>
 
               <!-- Color Harmonies -->
-              <AccordionItem id="harmonies" title="Color Harmonies">
+              <AccordionItem
+                id="harmonies"
+                title="Color Harmonies"
+              >
                 <HarmoniesCard
                   v-model="harmoniesTab"
                   :current="current"
                   :tabs="harmonyTabs"
-                  :onSelect="updateColor"
+                  :on-select="updateColor"
                 />
               </AccordionItem>
             </BaseAccordion>
@@ -196,13 +205,15 @@ const harmonyTabs = [
       </div>
     </div>
 
-    <AdjustmentsCard :current-color="current" :update-color="updateColor" />
+    <AdjustmentsCard
+      :current-color="current"
+      :update-color="updateColor"
+    />
 
     <!-- Mini sticky preview (mobile only) -->
     <transition name="slide-up-fade">
       <div
         v-if="showMiniPreview"
-        ref="miniPreviewEl"
         class="lg:hidden fixed bottom-0 left-0 right-0 z-30 px-4 py-3 flex items-center justify-between fixed-mini-preview touch-pan-y"
         @click="scrollToCard"
       >
@@ -216,9 +227,13 @@ const harmonyTabs = [
             <span class="text-muted-foreground">{{ formats.hex }}</span>
           </div>
         </div>
-        <BaseButton size="sm" variant="outline" @click.stop="copyRgba"
-          >Copy</BaseButton
+        <BaseButton
+          size="sm"
+          variant="outline"
+          @click.stop="copyRgba"
         >
+          Copy
+        </BaseButton>
       </div>
     </transition>
   </BasePage>

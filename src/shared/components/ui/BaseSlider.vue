@@ -3,9 +3,9 @@
     <!-- Left Chevron -->
     <button
       v-if="showChevrons"
-      @click="decrement"
       class="p-1 rounded hover:bg-accent disabled:opacity-50"
       :disabled="disabled"
+      @click="decrement"
     >
       <ChevronLeft class="w-4 h-4" />
     </button>
@@ -21,24 +21,23 @@
       :disabled="disabled"
     >
       <SliderTrack class="relative h-1.5 w-full grow overflow-hidden rounded-full bg-muted opacity-70 group-hover:opacity-100">
-        <SliderRange class="absolute h-full bg-primary" />
+        <SliderRange class="absolute transition-all duration-100 h-full bg-primary" />
       </SliderTrack>
       <SliderThumb
-  class="size-5 cursor-pointer rounded-full border border-primary bg-background
-         ring-offset-background transition-colors
+        class="size-5 cursor-pointer transition-all duration-100 rounded-full border border-primary bg-background
+         ring-offset-background
          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
          disabled:pointer-events-none disabled:opacity-50 touch-none"
-  :class="thumbClass"
-/>
-
+        :class="thumbClass"
+      />
     </SliderRoot>
 
     <!-- Right Chevron -->
     <button
       v-if="showChevrons"
-      @click="increment"
       class="p-1 rounded hover:bg-accent disabled:opacity-50"
       :disabled="disabled"
+      @click="increment"
     >
       <ChevronRight class="w-4 h-4" />
     </button>

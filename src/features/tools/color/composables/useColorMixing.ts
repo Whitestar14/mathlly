@@ -1,7 +1,7 @@
 // src/features/tools/color/composables/useColorMixing.ts
 import { ref } from 'vue'
-import { mixColors, convertColor } from './useColor.deprecated'
-import type { RGB } from '../types/color'
+import { mixColors, convertColor } from '@color/lib/color'
+import type { RGB } from '@color/lib/color'
 
 const HEX6 = /^#[0-9A-Fa-f]{6}$/
 

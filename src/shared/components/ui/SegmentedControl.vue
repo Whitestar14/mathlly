@@ -5,7 +5,11 @@
     class="inline-flex items-center gap-2 rounded-lg border border-dashed border-border/60 px-3 py-1.5 text-sm text-muted-foreground transition-all duration-200 hover:border-border/80"
     aria-label="Segmented control (single option)"
   >
-    <component v-if="options[0].icon" :is="options[0].icon" class="h-4 w-4 transition-transform duration-200 hover:scale-105" />
+    <component
+      :is="options[0].icon"
+      v-if="options[0].icon"
+      class="h-4 w-4 transition-transform duration-200 hover:scale-105"
+    />
     <span>{{ options[0].label }}</span>
     <Ellipsis class="h-3 w-3 opacity-40 ml-1 transition-opacity duration-200" />
   </div>
@@ -19,12 +23,14 @@
     @keydown="onKeydown"
   >
     <!-- Visible deck with enhanced animations -->
-    <template v-for="(opt, i) in visibleDeck" :key="opt.value">
+    <template
+      v-for="(opt, i) in visibleDeck"
+      :key="opt.value"
+    >
       <button
         :aria-checked="modelValue === opt.value"
         role="radio"
         type="button"
-        @click="select(opt.value)"
         class="relative inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-all duration-200 group"
         :class="[
           'hover:scale-[1.02] active:scale-[0.98]',
@@ -32,6 +38,7 @@
             ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
             : 'bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-foreground'
         ]"
+        @click="select(opt.value)"
       >
         <!-- Active indicator with smooth animation -->
         <div 
@@ -40,8 +47,8 @@
         />
         
         <component 
-          v-if="opt.icon" 
           :is="opt.icon" 
+          v-if="opt.icon" 
           class="h-4 w-4 transition-all duration-200"
           :class="modelValue === opt.value ? 'text-primary' : 'group-hover:scale-105'"
         />
@@ -77,7 +84,7 @@
           :key="opt.value"
           :label="opt.label"
           :icon="opt.icon"
-          className="px-3 py-2 text-left text-sm rounded-md hover:bg-muted/30"
+          class-name="px-3 py-2 text-left text-sm rounded-md hover:bg-muted/30"
           @click="select(opt.value, true)"
         />
       </div>
@@ -114,11 +121,10 @@ const overflowLabel = computed(() => props.overflowLabel ?? 'More options')
 // Deck state for MCR promotion; kept in sync with options
 const visibleDeck = ref<SegmentedOption[]>(props.options.slice(0, maxVisible.value))
 
-// Keep deck stable when options change (e.g., palettes added/removed/renamed)
 watch(
   () => props.options,
   (opts) => {
-    // Preserve existing promoted choices if still present; fill up to maxVisible
+
     const preserved = visibleDeck.value.filter(v => opts.some(o => o.value === v.value))
     const fill = opts.filter(o => !preserved.some(v => v.value === o.value)).slice(0, Math.max(0, maxVisible.value - preserved.length))
     visibleDeck.value = [...preserved, ...fill].slice(0, maxVisible.value)
@@ -135,12 +141,11 @@ function select(value: string, fromOverflow = false) {
   emit('change', value)
 
   if (fromOverflow) {
-    // Promote chosen into deck (MCR): replace the last deck item
     const chosen = props.options.find(o => o.value === value)
     if (chosen) {
       const deck = visibleDeck.value.slice()
       deck[deck.length - 1] = chosen
-      // De-duplicate in case chosen already existed somewhere in the deck
+
       const seen = new Set<string>()
       visibleDeck.value = deck.filter(d => {
         if (seen.has(d.value)) return false

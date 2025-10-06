@@ -11,15 +11,15 @@
 
     <!-- Portal + Content -->
     <PopoverPortal>
-    <PopoverContent
+      <PopoverContent
         class="z-30 min-w-[180px] bg-background rounded-lg overflow-hidden border border-border p-1 shadow-md popover-content"
         :side-offset="sideOffset"
         :align="align"
         :side="side"
         :avoid-collisions="true"
-      :trap-focus="trapFocus"
-      :disable-outside-pointer-events="disableOutsidePointerEvents"
-      :prevent-scroll="preventScroll"
+        :trap-focus="trapFocus"
+        :disable-outside-pointer-events="disableOutsidePointerEvents"
+        :prevent-scroll="preventScroll"
       >
         <slot />
       </PopoverContent>

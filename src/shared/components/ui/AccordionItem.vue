@@ -1,5 +1,9 @@
 <template>
-  <AccordionItem :value="id" :disabled="disabled" class="overflow-hidden">
+  <AccordionItem
+    :value="id"
+    :disabled="disabled"
+    class="overflow-hidden"
+  >
     <AccordionHeader>
       <AccordionTrigger
         class="group flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-foreground hover:bg-muted/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 transition"

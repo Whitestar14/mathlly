@@ -18,6 +18,8 @@ import type { RGB } from '@color/lib/color'
 import { rgbToHex } from '@color/lib/color'
 
 const props = defineProps<{ color: RGB }>()
+type EmitType = { (event: "click", value: RGB ) : void }
+defineEmits<EmitType>()
 
 const hex = computed(() => rgbToHex(props.color))
 </script>

@@ -89,9 +89,9 @@ export function convertColor(input: string | RGB | RGBA | HSL | HSV | OKLCH | LA
     c = { h: (input as HSL).h, s: (input as HSL).s / 100, l: (input as HSL).l / 100, mode: "hsl" }
   } else if ("h" in (input as any) && "s" in (input as any) && "v" in (input as any)) {
     c = { h: (input as HSV).h, s: (input as HSV).s / 100, v: (input as HSV).v / 100, mode: "hsv" }
-  } else if ("l" in (input as any) && "c" in (input as any)) {
+  } else if ("l" in (input as any) && "c" in (input as any) && !("a" in (input as any))) {
     c = { l: (input as OKLCH).l / 100, c: (input as OKLCH).c / 100, h: (input as OKLCH).h, mode: "oklch" }
-  } else if ("l" in (input as any) && "a" in (input as any) && "b" in (input as any)) {
+  } else if ("l" in (input as any) && "a" in (input as any) && "b" in (input as any) && !("c" in (input as any))) {
     c = { l: (input as LAB).l / 100, a: (input as LAB).a / 100, b: (input as LAB).b / 100, mode: "lab" }
   } else {
     c = toCuloriRgb({ r: 0, g: 0, b: 0 })

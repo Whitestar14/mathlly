@@ -10,17 +10,28 @@
 
     <div class="mt-4">
       <!-- Contrast Checker -->
-      <div v-if="activeTab === 'contrast'" class="space-y-4">
-        <BaseLabel class="text-sm font-medium">Contrast checker</BaseLabel>
+      <div
+        v-if="activeTab === 'contrast'"
+        class="space-y-4"
+      >
+        <BaseLabel class="text-sm font-medium">
+          Contrast checker
+        </BaseLabel>
         <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded border" :style="{ backgroundColor: convertColor(currentSafe).hex }" />
+          <div
+            class="w-8 h-8 rounded border"
+            :style="{ backgroundColor: convertColor(currentSafe).hex }"
+          />
           <span class="text-sm">vs</span>
-          <div class="w-8 h-8 rounded border" :style="{ backgroundColor: convertColor(contrastBg).hex }" />
+          <div
+            class="w-8 h-8 rounded border"
+            :style="{ backgroundColor: convertColor(contrastBg).hex }"
+          />
           <BaseInput
             :value="convertColor(contrastBg).hex"
-            @input="(e: Event) => setContrastBg(convertColor((e.target as HTMLInputElement).value).rgb)"
             placeholder="#ffffff"
             class="flex-1"
+            @input="(e: Event) => setContrastBg(convertColor((e.target as HTMLInputElement).value).rgb)"
           />
         </div>
         <div class="flex items-center justify-between">
@@ -28,7 +39,10 @@
           <span class="font-mono text-sm">{{ contrastRatio.toFixed(2) }}:1</span>
         </div>
         <div class="flex items-center gap-2">
-          <BaseBadge :variant="contrastLevel.variant" :text="contrastLevel.text" />
+          <BaseBadge
+            :variant="contrastLevel.variant"
+            :text="contrastLevel.text"
+          />
           <span class="text-xs text-muted-foreground">
             WCAG {{ contrastLevel.text === 'Fail' ? 'Non-compliant' : 'Compliant' }}
           </span>
@@ -42,10 +56,20 @@
       </div>
 
       <!-- Vision Simulation -->
-      <div v-else class="grid grid-cols-2 gap-3">
-        <div v-for="sim in simulations" :key="sim.label" class="space-y-2">
+      <div
+        v-else
+        class="grid grid-cols-2 gap-3"
+      >
+        <div
+          v-for="sim in simulations"
+          :key="sim.label"
+          class="space-y-2"
+        >
           <div class="flex items-center gap-2">
-            <component :is="sim.icon" class="h-4 w-4" />
+            <component
+              :is="sim.icon"
+              class="h-4 w-4"
+            />
             <span class="text-sm">{{ sim.label }}</span>
           </div>
           <div

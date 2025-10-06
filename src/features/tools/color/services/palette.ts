@@ -153,7 +153,7 @@ export function serializePalette(palette: PaletteEntity, format: ExportFormat): 
 export async function importPaletteFromJSON(text: string, maxNameLength: number): Promise<PaletteEntity> {
   const data = JSON.parse(text) as Partial<PaletteEntity>
   if (!data?.name || !Array.isArray(data?.colors)) throw new Error('Invalid palette')
-  let name = String(data.name).trim()
+  const name = String(data.name).trim()
   if (!name) throw new Error('Invalid name')
   if (name.length > maxNameLength) throw new Error('Name too long')
 

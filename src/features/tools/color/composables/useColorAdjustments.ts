@@ -1,7 +1,7 @@
 // src/features/tools/color/composables/useColorAdjustments.ts
 import { ref } from 'vue'
-import { adjustBrightness, adjustSaturation, adjustHue, adjustContrast } from './useColor.deprecated'
-import type { RGB } from '../types/color'
+import { adjustBrightness, adjustSaturation, adjustHue, adjustContrast } from '@color/lib/color'
+import type { RGB } from '@color/lib/color'
 
 export function useColorAdjustments(onUpdate: (c: RGB) => void) {
   const brightness = ref(0)

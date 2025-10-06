@@ -15,15 +15,18 @@
       </div>
     </slot>
     
-    <div v-if="dropdown && options && options.length" class="flex items-center">
+    <div
+      v-if="dropdown && options && options.length"
+      class="flex items-center"
+    >
       <SelectBar
         class="max-w-20 rounded-e-none"
         :is-dropdown="true"
         :model-value="dropdownValue"
-        @update:model-value="$emit('update:dropdownValue', $event)"
         :options="options"
         :label="dropdownLabel"
         :placeholder="dropdownPlaceholder"
+        @update:model-value="$emit('update:dropdownValue', $event)"
       />
       <input
         :id="id"
@@ -48,7 +51,8 @@
         @focus="$emit('focus', $event)"
       >
     </div>
-    <input v-else
+    <input
+      v-else
       :id="id"
       ref="inputRef"
       :type="type"

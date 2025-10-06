@@ -5,8 +5,15 @@
     <div class="space-y-2">
       <BaseLabel>HEX</BaseLabel>
       <div class="flex items-center gap-2">
-        <BaseInput :value="formats.hex" readonly />
-        <BaseButton size="icon" variant="outline" @click="copy(formats.hex, 'HEX')">
+        <BaseInput
+          :value="formats.hex"
+          readonly
+        />
+        <BaseButton
+          size="icon"
+          variant="outline"
+          @click="copy(formats.hex, 'HEX')"
+        >
           <Copy class="h-5 w-5" />
         </BaseButton>
       </div>
@@ -16,8 +23,15 @@
     <div class="space-y-2">
       <BaseLabel>RGBA</BaseLabel>
       <div class="flex items-center gap-2">
-        <BaseInput :value="rgbaText" readonly />
-        <BaseButton size="icon" variant="outline" @click="copy(rgbaText, 'RGBA')">
+        <BaseInput
+          :value="rgbaText"
+          readonly
+        />
+        <BaseButton
+          size="icon"
+          variant="outline"
+          @click="copy(rgbaText, 'RGBA')"
+        >
           <Copy class="h-5 w-5" />
         </BaseButton>
       </div>
@@ -62,31 +76,43 @@
     <!-- Color Name -->
     <div class="space-y-2">
       <BaseLabel>Name</BaseLabel>
-      <BaseInput :value="colorName" readonly />
+      <BaseInput
+        :value="colorName"
+        readonly
+      />
     </div>
 
-        <!-- Luminance -->
-        <div class="space-y-2">
+    <!-- Luminance -->
+    <div class="space-y-2">
       <div class="flex items-center gap-2">
         <BaseLabel>Luminance</BaseLabel>
         <HelpCircle 
-          class="h-4 w-4 text-muted-foreground cursor-help"
           v-tippy="{ 
             content: 'Luminance measures the perceived brightness of a color. It ranges from 0 (black) to 1 (white) and accounts for how humans perceive light intensity.',
             placement: 'top',
             onShow() { return true }
-          }" 
+          }"
+          class="h-4 w-4 text-muted-foreground cursor-help" 
         />
       </div>
-      <BaseInput :value="luminance.toFixed(3)" readonly />
+      <BaseInput
+        :value="luminance.toFixed(3)"
+        readonly
+      />
     </div>
 
     <!-- Readable Text Color -->
     <div class="space-y-2">
       <BaseLabel>Readable Text Color</BaseLabel>
       <div class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded border" :style="{ backgroundColor: rgbToHex(readableTextColor) }" />
-        <BaseInput :value="rgbToHex(readableTextColor)" readonly />
+        <div
+          class="w-8 h-8 rounded border"
+          :style="{ backgroundColor: rgbToHex(readableTextColor) }"
+        />
+        <BaseInput
+          :value="rgbToHex(readableTextColor)"
+          readonly
+        />
       </div>
     </div>
   </div>
