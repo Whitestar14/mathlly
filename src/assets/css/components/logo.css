@@ -1,0 +1,13 @@
+/* styles/components/logo.css */
+@layer components {
+  .logo-stroke-stop { stop-color: oklch(var(--logo-stroke-stop-color)); }
+  .logo-fg-stroke   { stop-color: oklch(var(--logo-fg-stop-color)); }
+  .logo-bg-fill     { fill:       oklch(var(--logo-bg-fill)); }
+
+  .prism-logo {
+    width: 100%;
+    height: 100%;
+    display: block;
+    color: oklch(var(--color-muted-foreground) / 0.8);
+  }
+}

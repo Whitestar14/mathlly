@@ -11,7 +11,7 @@ import 'tippy.js/dist/border.css'
 import 'tippy.js/animations/scale.css'
 
 if (process.env.NODE_ENV === 'development') {
-  import('@assets/css/fonts.css')
+  import('@assets/css/base/fonts.css')
 }
 
 defineLoadGoogleFonts()

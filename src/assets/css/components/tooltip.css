@@ -1,0 +1,25 @@
+/* styles/components/tooltip.css */
+@layer components {
+  /* Tippy custom theme */
+  .tippy-box[data-theme~='custom'] {
+    @apply text-xs p-0.5 shadow-lg border;
+    background-color: oklch(var(--color-popover));
+    color: oklch(var(--color-popover-foreground));
+    border: 1px solid oklch(var(--color-border));
+    border-radius: 0.5rem;
+  }
+
+  /* Dark mode shadow enhancement */
+  .dark .tippy-box[data-theme~='custom'] {
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.3),
+      0 4px 6px -4px rgb(0 0 0 / 0.2),
+      0 0 0 1px oklch(var(--color-border));
+  }
+
+  /* Arrow colors per placement */
+  .tippy-box[data-theme~='custom'][data-placement^='top']    > .tippy-arrow::before { border-top-color:    oklch(var(--color-popover)); }
+  .tippy-box[data-theme~='custom'][data-placement^='bottom'] > .tippy-arrow::before { border-bottom-color: oklch(var(--color-popover)); }
+  .tippy-box[data-theme~='custom'][data-placement^='left']   > .tippy-arrow::before { border-left-color:   oklch(var(--color-popover)); }
+  .tippy-box[data-theme~='custom'][data-placement^='right']  > .tippy-arrow::before { border-right-color:  oklch(var(--color-popover)); }
+}

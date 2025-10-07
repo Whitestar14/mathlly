@@ -1,0 +1,6 @@
+/* styles/base/theme-vars.css */
+@layer base {
+  /* Theme-pack driven radius toggles */
+  .border-style-sharp   { --radius: 0px; }
+  .border-style-rounded { --radius: 0.5rem; }
+}

@@ -1,0 +1,27 @@
+/* styles/components/syntax.css */
+@layer components {
+  /* Theme-aware syntax tokens */
+  .syntax-number   { @apply text-blue-600 dark:text-blue-400; }
+  .syntax-operator,
+  .syntax-programmer-operator { @apply text-orange-600 dark:text-orange-400; }
+  .syntax-parenthesis { @apply text-muted-foreground font-semibold; }
+  .syntax-function { @apply text-pink-600 dark:text-pink-400; }
+  .syntax-decimal  { @apply text-primary font-bold; }
+  .syntax-text     { @apply text-foreground; }
+  .syntax-ghost    { @apply text-muted-foreground opacity-40; }
+
+  /* Parentheses nesting levels (scientific mode) */
+  .paren-level-0 { @apply text-blue-600   dark:text-blue-400; }
+  .paren-level-1 { @apply text-green-600  dark:text-green-400; }
+  .paren-level-2 { @apply text-purple-600 dark:text-purple-400; }
+  .paren-level-3 { @apply text-orange-600 dark:text-orange-400; }
+  .paren-level-4 { @apply text-pink-600   dark:text-pink-400; }
+  .paren-level-5 { @apply text-cyan-600   dark:text-cyan-400; }
+
+  .paren-level-deep { @apply text-muted-foreground; }
+  .paren-ghost      { @apply opacity-40 text-muted-foreground ml-0.5; }
+
+  .paren-open,
+  .paren-close { position: relative; margin: 0 0.125rem; }
+  .paren-open  { margin-right: 0.25rem; }
+}
