@@ -6,8 +6,6 @@
     main-class="flex"
     :is-tool-layout="true"
   >
-    <!-- this teleports to header -->
-    <CalculatorModeSwitcher />
     
     <div class="flex-grow flex-initial bg-background overflow-hidden transition-colors duration-300">
       <div
@@ -73,8 +71,6 @@ import { BasePage } from '@components/ui'
 const props = defineProps<{
   isMobile: boolean
 }>()
-
-const CalculatorModeSwitcher = defineAsyncComponent(() => import('@calculator/components/CalculatorModeSwitcher.vue'))
 
 const ActivityPanel = defineAsyncComponent(() => import('@calculator/components/ActivityPanel.vue'))
 

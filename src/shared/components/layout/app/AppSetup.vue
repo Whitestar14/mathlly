@@ -10,19 +10,19 @@
       @toggle-menubar="menuPanel.toggle()"
       @open-shortcut-modal="openShortcutModal"
     />
-
-    <div class="relative">
-      <sidebar-menu
-        :is-mobile="device.isMobile"
-        @sidebar-close="sidebarPanel.close()"
-      />
-    </div>
+    <PanelLoader
+      :component="SidebarMenu"
+      :componentProps="{
+        isMobile: device.isMobile,
+        onSidebarClose: sidebarPanel.close,
+      }"
+      side="left"
+      :isOpen="unref(sidebarPanel.isOpen)"
+      :widthRem="16"
+    />
 
     <Suspense>
-      <app-view
-        :settings="settings"
-        :is-mobile="device.isMobile"
-      />
+      <app-view :settings="settings" :is-mobile="device.isMobile" />
       <template #fallback>
         <div class="flex-grow flex items-center justify-center">
           <div class="w-20 h-20 rounded-full bg-muted animate-pulse" />
@@ -30,29 +30,26 @@
       </template>
     </Suspense>
 
-    <div class="relative">
-      <main-menu />
-    </div>
+    <PanelLoader
+      :component="MainMenu"
+      side="right"
+      :isOpen="unref(menuPanel.isOpen)"
+      :widthRem="16"
+    />
 
-    <Suspense>
-      <toast :is-mobile="device.isMobile" />
-    </Suspense>
+    <toast :is-mobile="device.isMobile" />
 
-    <Suspense>
-      <ShortcutGuide
-        v-model:show="isShortcutModalOpen"
-      />
-    </Suspense>
+    <ShortcutGuide v-model:show="isShortcutModalOpen" />
   </div>
 </template>
 
 <script setup lang="ts">
 import {
+  onMounted,
   onUnmounted,
   computed,
   unref,
   shallowRef,
-  reactive,
   defineAsyncComponent,
 } from 'vue';
 import { useRouter } from 'vue-router';
@@ -63,10 +60,13 @@ import { useKeyboard } from '@composables/ui/useKeyboard';
 import { usePanel } from '@composables/ui/usePanel';
 import { useTheme } from '@composables/core/useTheme';
 import { AppHeader } from '@components/layout';
+import PanelLoader from '@components/ui/panel/PanelLoader.vue';
 
+const SidebarMenu = defineAsyncComponent(
+  () => import('../sidebar/SidebarMenu.vue')
+);
 const AppView = defineAsyncComponent(() => import('./AppView.vue'));
-import MainMenu from '../sidebar/MainMenu.vue';
-import SidebarMenu from '../sidebar/SidebarMenu.vue';
+const MainMenu = defineAsyncComponent(() => import('../sidebar/MainMenu.vue'));
 const Toast = defineAsyncComponent(
   () => import('@components/ui/BaseToast.vue')
 );
@@ -78,19 +78,13 @@ const router = useRouter();
 const device = useDeviceStore();
 const settings = useSettingsStore();
 
-const minLoadTime = new Promise((resolve) => setTimeout(resolve, 1500));
-
-await Promise.all([settings.loadSettings(), router.isReady(), minLoadTime]);
-
-device.initializeDeviceInfo();
+onMounted(async () => {
+  const minLoadTime = new Promise((resolve) => setTimeout(resolve, 300));
+  await Promise.all([settings.loadSettings(), router.isReady(), minLoadTime]);
+  device.initializeDeviceInfo();
+});
 
 const { toggleTheme } = useTheme();
-
-const panelStates = reactive({
-  sidebar: { isOpen: false, isLoaded: false },
-  menu: { isOpen: false, isLoaded: false },
-  isLoaded: false,
-});
 
 const isShortcutModalOpen = shallowRef(false);
 
@@ -111,15 +105,10 @@ useKeyboard('global', {
 
 const mainContentClasses = computed(() => {
   if (device.isMobile) return [];
-
-  const classes = [];
-
-  if (!panelStates.sidebar.isLoaded && panelStates.sidebar.isOpen) return classes.push('md:pl-64');
-  if (!panelStates.menu.isLoaded && panelStates.menu.isOpen) return classes.push('md:pr-64'); 
+  const classes: string[] = [];
 
   if (unref(sidebarPanel.isOpen)) classes.push('md:pl-64');
   if (unref(menuPanel.isOpen)) classes.push('md:pr-64');
-
   return classes;
 });
 

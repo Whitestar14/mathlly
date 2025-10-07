@@ -20,11 +20,9 @@
 
       <div class="flex-grow flex justify-center sm:justify-end items-center">
         <div class="w-full sm:w-auto flex justify-end items-center space-x-4">
-          <!-- Teleport target for calculator mode switcher -->
-          <div
-            id="calculator-mode-switcher-slot"
-            class="w-full"
-          />
+          <Suspense>
+            <HeaderDock />
+          </Suspense>
 
           <div class="flex items-center justify-between gap-2">
             <BaseButton
@@ -64,6 +62,7 @@ import {
 } from "lucide-vue-next";
 import { BaseButton } from "@components/ui"
 import { OfflineIndicator } from '@components/layout'
+import { defineAsyncComponent } from "vue"
 
 interface Props {
   isSidebarOpen: boolean;
@@ -76,6 +75,7 @@ interface Emits {
   (e: 'open-shortcut-modal'): void;
 }
 
+const HeaderDock = defineAsyncComponent(() => import('./HeaderDock.vue'))
 defineProps<Props>();
 defineEmits<Emits>();
 </script>

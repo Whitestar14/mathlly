@@ -16,7 +16,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/calculator',
     name: 'calculator',
     component: () => import('@calculator/pages/MainCalculator.vue'),
-    meta: { transition: 'fade', group: 'calculators' },
+    meta: { transition: 'fade', group: 'calculators', header: { widgetNames: ['CalculatorModeSwitcher'] } },
   },
   {
     path: '/tools/base64',

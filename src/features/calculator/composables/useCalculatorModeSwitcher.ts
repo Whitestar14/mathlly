@@ -1,5 +1,4 @@
-import { ref, readonly, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { ref, readonly, watch } from 'vue';
 import { useLocalStorage } from '@vueuse/core';
 import { useCalculatorOptions } from './useCalculatorOptions';
 import type { CalculatorMode } from './useCalculatorState';
@@ -63,18 +62,10 @@ export function initializeCalculatorModeSwitcher(initialMode?: CalculatorMode) {
  * Main composable for calculator mode switching
  */
 export function useCalculatorModeSwitcher() {
-  const route = useRoute();
-
   // Auto-initialize if not already done
   if (!isInitialized.value) {
     initializeCalculatorModeSwitcher();
   }
-
-  const isCalculatorRoute = computed(
-    () => route.path === '/calculator' || route.path.startsWith('/calculator/')
-  );
-
-  const shouldShowSwitcher = computed(() => isCalculatorRoute.value);
 
   const updateMode = (newMode: CalculatorMode) => {
     if (availableModes.some((mode) => mode.value === newMode)) {
@@ -86,8 +77,6 @@ export function useCalculatorModeSwitcher() {
   return {
     currentMode: readonly(currentMode),
     availableModes,
-    isCalculatorRoute,
-    shouldShowSwitcher,
     updateMode,
   };
 }
