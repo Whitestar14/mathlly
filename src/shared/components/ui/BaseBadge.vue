@@ -1,6 +1,6 @@
 <template>
   <span
-    class="inline-flex items-center text-xs px-2 py-1 font-medium rounded-full border"
+    class="inline-flex items-center text-xs px-2 py-0.5 font-medium rounded-full"
     :class="variantClasses"
   >
     <slot>{{ text }}</slot>
@@ -24,7 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const variantClasses = computed(() => {
-  const baseClasses = 'inline-flex items-center font-medium rounded-full border';
+  const baseClasses = 'inline-flex items-center font-medium rounded-full';
   const sizeClasses = {
     sm: 'px-2 py-0.5 text-xs',
     md: 'px-2.5 py-0.5 text-xs',

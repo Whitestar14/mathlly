@@ -13,7 +13,7 @@ import { usePanel } from '@composables/ui/usePanel';
 
 import CurrentColorCard from '../components/CurrentColorCard.vue';
 import PaletteManager from '../components/PaletteManager.vue';
-import AdjustmentsCard from '../components/AdjustmentsPanel.vue';
+import AdjustmentsPanel from '../components/AdjustmentsPanel.vue';
 import AccessibilityToolsCard from '../components/AccessibilityToolsCard.vue';
 import GeneratorsCard from '../components/GeneratorsCard.vue';
 import HarmoniesCard from '../components/HarmoniesCard.vue';
@@ -205,16 +205,11 @@ const harmonyTabs = [
       </div>
     </div>
 
-    <AdjustmentsCard
-      :current-color="current"
-      :update-color="updateColor"
-    />
-
     <!-- Mini sticky preview (mobile only) -->
     <transition name="slide-up-fade">
       <div
         v-if="showMiniPreview"
-        class="lg:hidden fixed bottom-0 left-0 right-0 z-30 px-4 py-3 flex items-center justify-between fixed-mini-preview touch-pan-y"
+        class="lg:hidden bg-card shadow-xl fixed bottom-0 left-0 right-0 z-30 px-4 py-3 flex items-center justify-between fixed-mini-preview touch-pan-y"
         @click="scrollToCard"
       >
         <div class="flex items-center gap-3">
@@ -236,6 +231,12 @@ const harmonyTabs = [
         </BaseButton>
       </div>
     </transition>
+
+    <AdjustmentsPanel
+      :current-color="current"
+      :update-color="updateColor"
+    />
+
   </BasePage>
 </template>
 
@@ -250,6 +251,6 @@ const harmonyTabs = [
   transform: translateY(100%) scale(0.95);
 }
 .fixed-mini-preview {
-  @apply rounded-t-lg backdrop-blur-md bg-background/90 shadow-2xl;
+  @apply rounded-t-lg backdrop-blur-lg bg-background/90 shadow-2xl;
 }
 </style>

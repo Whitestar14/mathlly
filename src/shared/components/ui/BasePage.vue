@@ -2,12 +2,12 @@
   <div
     :class="[
       isToolLayout ? 'flex flex-col flex-grow' : 'h-full',
-      'bg-muted/50 dark:bg-background/50 text-foreground'
+      'bg-background dark:bg-background/50 text-foreground'
     ]"
   >
     <header
       v-if="showHeader"
-      class="sticky -top-px z-10 bg-card backdrop-blur-sm border-b border-border"
+      class="sticky -top-px z-10 bg-background backdrop-blur-sm border-b border-border"
     >
       <div class="container mx-auto flex items-center gap-2 h-14 px-4">
         <BaseButton

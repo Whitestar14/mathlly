@@ -12,7 +12,6 @@ import {
   LineChartIcon,
   ArrowRightLeftIcon,
   BinaryIcon,
-  PaletteIcon
 } from 'lucide-vue-next';
 
 export interface NavigationItem {

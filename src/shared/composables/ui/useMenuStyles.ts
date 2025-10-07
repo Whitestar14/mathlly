@@ -25,7 +25,7 @@ export function useMenuStyles(currentPill: ComputedRef<string>) {
     return [
       'flex w-full items-center justify-center gap-2 rounded-md p-2 text-sm transition-colors duration-200',
       currentPill.value === path
-        ? 'bg-primary/10 text-primary'
+        ? 'bg-accent/70 text-primary'
         : 'text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground',
     ];
   };

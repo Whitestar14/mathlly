@@ -12,7 +12,7 @@
     <!-- Portal + Content -->
     <PopoverPortal>
       <PopoverContent
-        class="z-30 min-w-[180px] bg-background rounded-lg overflow-hidden border border-border p-1 shadow-md popover-content"
+        class="z-30 min-w-[180px] bg-popover rounded-lg overflow-hidden border border-border p-1 shadow-md popover-content"
         :side-offset="sideOffset"
         :align="align"
         :side="side"

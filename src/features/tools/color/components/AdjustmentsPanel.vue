@@ -5,6 +5,7 @@
     title="Adjustments"
     type="drawer"
     position="left"
+    :max-height-ratio="1"
     :default-desktop-state="false"
   >
     <!-- Accordion Layout -->

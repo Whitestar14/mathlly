@@ -5,7 +5,7 @@
   >
     <div
       ref="panelRef"
-      class="bg-background fixed inset-x-0 bottom-0 overflow-hidden"
+      class="bg-panel fixed inset-x-0 bottom-0 overflow-hidden"
       :class="mobilePanelClasses"
       :style="mobilePanelStyle"
     >

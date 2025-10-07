@@ -4,7 +4,7 @@
     :collapsible="collapsible"
     :default-value="defaultValue"
     :value="modelValue"
-    class="w-full divide-y divide-border rounded-md border border-border bg-card"
+    class="w-full divide-y divide-border rounded-md border border-border bg-background"
     :class="rootClass"
     @update:value="$emit('update:modelValue', $event)"
   >

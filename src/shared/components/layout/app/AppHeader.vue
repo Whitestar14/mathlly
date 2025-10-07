@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex justify-center items-center bg-card border-b border-border px-4 min-h-14"
+    class="flex justify-center items-center bg-background border-b border-border px-4 min-h-14"
   >
     <div class="container mx-auto flex justify-between items-center gap-2">
       <div class="flex items-center justify-between gap-3">

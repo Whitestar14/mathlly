@@ -36,6 +36,9 @@ module.exports = {
           DEFAULT: "oklch(var(--color-card) / <alpha-value>)",
           foreground: "oklch(var(--color-card-foreground) / <alpha-value>)",
         },
+        panel: {
+          DEFAULT: "oklch(var(--color-panel) / <alpha-value>)",
+        },
         backdrop: {
           DEFAULT: "oklch(var(--backdrop) / <alpha-value>)",
           light: "oklch(var(--backdrop-light) / <alpha-value>)",

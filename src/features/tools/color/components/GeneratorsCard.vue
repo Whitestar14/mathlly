@@ -139,7 +139,7 @@
       <!-- Steps + Angle controls -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <!-- Steps -->
-        <div class="space-y-2">
+        <div class="space-y-3">
                 <div class="flex items-center gap-2 justify-between">
                   <BaseLabel class="text-sm font-medium">
                     Steps
@@ -169,7 +169,7 @@
         </div>
 
         <!-- Angle -->
-        <div class="space-y-2">
+        <div class="space-y-3">
                 <div class="flex items-center gap-2 justify-between">
                   <BaseLabel class="text-sm font-medium">
                     Angle
