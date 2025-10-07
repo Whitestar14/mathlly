@@ -1,7 +1,7 @@
 <template>
   <div
     v-show="true"
-    class="relative md:flex h-full flex-col flex-auto overflow-hidden hidden transition-[width] duration-300 ease-in-out bg-card border-border"
+    class="relative md:flex h-full flex-col flex-auto overflow-hidden hidden transition-[width] duration-300 ease-in-out bg-background border-border"
     :class="panelClasses"
   >
     <!-- Panel Content with Transition -->

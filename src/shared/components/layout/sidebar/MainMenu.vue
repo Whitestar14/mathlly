@@ -44,7 +44,7 @@
           <!-- Sticky header slot -->
           <template #header>
             <div class="sticky top-0 z-20 -p-3 bg-backdrop-surface/95 backdrop-blur-md border-b border-border">
-              <div class="flex items-center gap-2 p-3">
+              <div class="flex items-center gap-2 p-2">
                 <BaseButton
                   variant="ghost"
                   size="icon"
@@ -148,7 +148,7 @@
             v-for="item of themeItems"
             :key="item.id"
             :value="item.id"
-            class="text-muted-foreground flex justify-center items-center w-8 h-8 rounded-md transition-all duration-200 outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 ring-ring data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm data-[state=on]:border-border hover:bg-accent/50 hover:text-accent-foreground"
+            class="text-secondary-foreground flex justify-center items-center w-8 h-8 rounded-md transition-all duration-200 outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 ring-ring data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm data-[state=on]:border-border hover:bg-accent/50 hover:text-accent-foreground"
             :title="item.title"
           >
             <component

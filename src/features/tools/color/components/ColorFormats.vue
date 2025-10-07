@@ -4,8 +4,15 @@
     <div class="space-y-2">
       <BaseLabel>HEX</BaseLabel>
       <div class="flex items-center gap-2">
-        <BaseInput :value="formats.hex" readonly />
-        <BaseButton size="sm" variant="outline" @click="copy(formats.hex, 'HEX')">
+        <BaseInput
+          :value="formats.hex"
+          readonly
+        />
+        <BaseButton
+          size="sm"
+          variant="outline"
+          @click="copy(formats.hex, 'HEX')"
+        >
           <Copy class="h-4 w-4" />
         </BaseButton>
       </div>
@@ -14,7 +21,10 @@
     <div class="space-y-2">
       <BaseLabel>RGB</BaseLabel>
       <div class="flex items-center gap-2">
-        <BaseInput :value="`rgb(${formats.rgb.r}, ${formats.rgb.g}, ${formats.rgb.b})`" readonly />
+        <BaseInput
+          :value="`rgb(${formats.rgb.r}, ${formats.rgb.g}, ${formats.rgb.b})`"
+          readonly
+        />
         <BaseButton
           size="sm"
           variant="outline"
@@ -64,10 +74,10 @@
 <script setup lang="ts">
 import { Copy } from 'lucide-vue-next'
 import { BaseInput, BaseButton, BaseLabel } from '@components/ui'
-import type { ColorFormats } from '../types/color'
+import type { ColorFormats } from '@color/lib/color'
 import { useToast } from '@composables/ui/useToast'
 
-const props = defineProps<{ formats: ColorFormats }>()
+defineProps<{ formats: ColorFormats }>()
 const { toast } = useToast()
 
 const copy = async (text: string, label: string) => {

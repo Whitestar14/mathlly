@@ -1,7 +1,7 @@
 <template>
   <div class="space-y-6">
     <slot name="header">
-      <div class="flex items-center gap-2 pb-3 border-b border-border">
+      <div class="flex items-center gap-2 pb-3 border-b border-border bg-card">
         <BaseButton
           variant="ghost"
           size="icon"

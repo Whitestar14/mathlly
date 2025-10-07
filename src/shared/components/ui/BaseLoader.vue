@@ -24,10 +24,13 @@
             class="animate-spin"
           />
         </div>
-        <div v-if="message" class="mt-3 text-sm text-center text-muted-foreground">
+        <div
+          v-if="message"
+          class="mt-3 text-sm text-center text-muted-foreground"
+        >
           {{ message }}
         </div>
-    </div>
+      </div>
     </template>
   </div>
 </template>

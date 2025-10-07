@@ -9,7 +9,7 @@
     <!-- this teleports to header -->
     <CalculatorModeSwitcher />
     
-    <div class="flex-grow flex-initial bg-card overflow-hidden transition-colors duration-300">
+    <div class="flex-grow flex-initial bg-background overflow-hidden transition-colors duration-300">
       <div
         class="grid grid-cols-1 h-full p-4 gap-1 mx-auto"
         :class="state.mode === 'Programmer' 

@@ -10,28 +10,10 @@
   >
     <!-- Sticky Tab Navigation -->
     <template #sticky>
-      <div
-        class="border-b border-border bg-backdrop-surface/95 backdrop-blur-md shadow-sm"
-      >
-        <div class="flex relative justify-evenly">
-          <PillIndicator :position="indicatorStyle" />
-          <div
-            v-for="tab in tabs"
-            :key="tab.value"
-            ref="tabElements"
-            :data-path="tab.value"
-            class="px-4 py-3 text-sm font-medium transition-colors relative cursor-pointer"
-            :class="[
-              currentTab === tab.value
-                ? 'text-primary'
-                : 'text-muted-foreground hover:text-foreground',
-            ]"
-            @click="handleTabChange(tab.value, $event.target as HTMLElement)"
-          >
-            {{ tab.label }}
-          </div>
-        </div>
-      </div>
+      <BaseTabs
+        v-model="currentTab"
+        :tabs="tabs"
+      />
     </template>
 
     <!-- Scrollable Content -->
@@ -203,21 +185,15 @@ import {
   type ComputedRef,
 } from 'vue'
 import { TrashIcon, AlertTriangleIcon, PlusIcon } from 'lucide-vue-next'
-import { BaseButton, BaseModal, BasePanel, PillIndicator } from '@components/ui'
+import { BaseButton, BaseModal, BasePanel, BaseTabs } from '@components/ui'
 import { useHistory, type HistoryItem } from '@calculator/composables/useHistory'
 import { useMemoryUI, type MemorySlot } from '@calculator/composables/useMemory'
 import { useAnimation } from '@shared/composables/ui/useAnimation'
 import { useToast } from '@shared/composables/ui/useToast'
-import { usePills } from '@shared/composables/ui/usePills'
 import type { Calculator } from '@calculator/services/factory/CalculatorFactory'
 import type { CalculatorMode } from '@calculator/composables/useCalculatorState'
 
 // Types
-interface Tab {
-  label: string
-  value: string
-}
-
 interface Emits {
   (e: 'select-item', item: HistoryItem): void
   (e: 'history-close'): void
@@ -249,12 +225,15 @@ const MemoryList = defineAsyncComponent(
 )
 
 // Tabs configuration
-const tabs: Ref<Tab[]> = ref([
+const tabs = [
   { label: 'History', value: 'history' },
   { label: 'Memory', value: 'memory' },
-])
+]
 
-const tabElements: Ref<HTMLElement[]> = ref([])
+// Local state
+const currentTab = ref('history')
+const showClearConfirmation: Ref<boolean> = ref(false)
+const showClearMemoryConfirmation: Ref<boolean> = ref(false)
 
 // Composables
 const { historyItems, clearAll: clearAllHistory, loadHistory } = useHistory()
@@ -268,20 +247,7 @@ const {
 const { toast } = useToast()
 const { setInitialAnimation } = useAnimation()
 
-// Tab navigation using usePills
-const { currentPill, indicatorStyle, handleNavigation } = usePills({
-  position: 'bottom',
-  updateRoute: false,
-  defaultPill: 'history',
-  containerRef: tabElements,
-})
-
-// Local state
-const showClearConfirmation: Ref<boolean> = ref(false)
-const showClearMemoryConfirmation: Ref<boolean> = ref(false)
-
 // Computed properties with explicit typing
-const currentTab: ComputedRef<string> = computed(() => currentPill.value)
 const isProgrammerMode: ComputedRef<boolean> = computed(
   () => props.mode === 'Programmer'
 )
@@ -294,11 +260,6 @@ const showClearButton: ComputedRef<boolean> = computed(
 const hasMemorySlots: ComputedRef<boolean> = computed(
   () => memorySlots.value.filter((slot: MemorySlot) => slot.mode === props.mode).length > 0
 )
-
-// Handle tab change
-const handleTabChange = (value: string, tabElement: HTMLElement): void => {
-  handleNavigation(value, tabElement)
-}
 
 // Watch for panel open/close
 watch(

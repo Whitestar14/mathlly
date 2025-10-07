@@ -5,8 +5,8 @@ import {
   generateTriadic,
   generateAnalogous,
   generateMonochromatic,
-} from './useColor'
-import type { RGB } from '../types/color'
+} from '@color/lib/color'
+import type { RGB } from '@color/lib/color'
 
 export function useColorHarmonies(current: () => RGB) {
   const complementaryColor = computed(() => generateComplementary(current()))

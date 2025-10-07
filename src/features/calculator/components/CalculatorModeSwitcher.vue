@@ -9,7 +9,7 @@
           :class="[
             currentMode === mode.value 
               ? 'bg-card text-foreground shadow-sm' 
-              : 'text-muted-foreground hover:bg-card/30 hover:text-foreground',
+              : 'text-secondary-foreground hover:bg-card/30 hover:text-foreground',
           ]"
           @click="updateMode(mode.value)"
         >

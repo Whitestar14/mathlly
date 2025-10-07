@@ -202,6 +202,6 @@ const backdropClasses = computed(() => [
 
 <style scoped>
 :deep(.panel-side) {
-  @apply overflow-hidden h-screen hidden md:flex flex-col fixed top-0 z-20 bottom-0 bg-background inset-y-0;
+  @apply overflow-hidden h-screen hidden md:flex flex-col fixed top-0 z-20 bottom-0 bg-panel inset-y-0;
 }
 </style>

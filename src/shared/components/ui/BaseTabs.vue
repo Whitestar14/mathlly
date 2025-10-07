@@ -3,9 +3,9 @@ import { ref, type Ref, watch, toRef } from 'vue';
 import { usePills } from '@composables/ui/usePills';
 import { PillIndicator as Indicator } from '@components/ui';
 
-// Props follow v-model convention so the component can be used with v-model:currentTab
 const props = defineProps<{
   tabs: Array<{ value: string; label: string }>;
+  position?: 'bottom' |'left' | 'right' | 'top';
   modelValue?: string | null;
 }>();
 
@@ -14,39 +14,31 @@ const emit = defineEmits<{
   (e: 'tab-change', value: string, element: HTMLElement | null): void;
 }>();
 
-// Refs for DOM elements (array of tab elements)
 const tabElements: Ref<HTMLElement[] | null> = ref(null);
 
-// Default initial tab value
 const defaultTab = (props.tabs && props.tabs[0] && props.tabs[0].value) || '';
 
-// Use pills composable with containerRef pointing to tabElements
 const { indicatorStyle, handleNavigation, initializePills, currentPill } = usePills({
-  position: 'bottom',
+  position: props.position ?? 'bottom',
   updateRoute: false,
   defaultPill: props.modelValue ?? defaultTab,
   containerRef: tabElements as any,
   onNavigate: (tabValue: string) => {
-    // Emit simplified tab-change for parent
     const el = (tabElements?.value as any)?.find?.((el: HTMLElement) => el?.dataset?.path === tabValue) ?? null;
     emit('tab-change', tabValue, el);
     emit('update:modelValue', tabValue);
   }
 });
 
-// Keep local model in sync with incoming modelValue
 const externalValue = toRef(props, 'modelValue');
 watch(externalValue, (v) => {
   if (v && v !== currentPill.value) {
-    // Try to initialize to the provided value
     initializePills(v as string, tabElements as any);
   }
 });
 
-// Public API for parent components
 defineExpose({ initializePills });
 
-// Handle click on a tab item
 const handleTabClick = async (tabValue: string, element: HTMLElement | null) => {
   await handleNavigation(tabValue, element);
   emit('tab-change', tabValue, element);
