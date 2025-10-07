@@ -40,7 +40,7 @@ const handleDrop = (event: DragEvent): void => {
     @dragenter.prevent="handleDragEnter"
     @drop.prevent="handleDrop"
   >
-    <div class="border-2 border-dashed border-border rounded-lg p-6 text-center">
+    <div class="border-2 border-dashed border-border rounded-lg p-8 md:py-16 md:px-36 text-center">
       <input
         ref="fileInput"
         type="file"
@@ -56,7 +56,7 @@ const handleDrop = (event: DragEvent): void => {
           >
             Click to upload
           </button>
-          or drag and drop a file
+          or drag and drop a file into this zone
         </div>
         <div class="text-xs text-muted-foreground">
           Maximum file size: 10MB
