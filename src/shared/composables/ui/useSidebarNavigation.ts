@@ -6,11 +6,12 @@ import {
   MessagesSquareIcon,
   CogIcon,
   SparklesIcon,
+  PaletteIcon,
   FunctionSquareIcon,
   RegexIcon,
   LineChartIcon,
   ArrowRightLeftIcon,
-  BinaryIcon
+  BinaryIcon,
 } from 'lucide-vue-next';
 
 export interface NavigationItem {
@@ -97,6 +98,14 @@ export function useSidebarNavigation() {
           isNew: false,
           comingSoon: false,
           description: "Encode and decode Base64 strings",
+        },
+        {
+          name: "Color",
+          path: "/tools/color",
+          icon: PaletteIcon,
+          isNew: true,
+          comingSoon: false,
+          description: "Convert and preview colors (hex, rgb, cmyk, oklch)",
         },
       ],
     },

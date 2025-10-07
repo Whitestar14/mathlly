@@ -25,6 +25,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { transition: 'fade', group: 'tools' },
   },
   {
+    path: '/tools/color',
+    name: 'color',
+    component: () => import('@color/pages/ColorTool.vue'),
+    meta: { transition: 'fade', group: 'tools' },
+  },
+  {
     path: '/info/update',
     name: 'updates',
     component: () => import('@pages/UpdatePage.vue'),

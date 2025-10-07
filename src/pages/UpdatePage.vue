@@ -101,7 +101,7 @@
             <!-- Timeline dot -->
             <div class="absolute -left-7 top-6 h-4 w-4 bg-primary rounded-full z-5 border-4 border-background" />
 
-            <BaseCard
+            <UpdateCard
               :version="update.version"
               :date="update.date"
               :features="update.features"
@@ -133,7 +133,8 @@ import { HistoryIcon, ChevronDownIcon } from 'lucide-vue-next';
 import { updates } from '@services/storage/changelog.json';
 import { useVersionStore } from '@stores/version';
 import SparkleSvg from '@assets/icons/sparkles.svg';
-import { BaseButton, BasePage, BaseCard, SelectBar, BaseBadge, BaseMedia } from '@components/ui'
+import { BaseButton, BasePage, SelectBar, BaseBadge, BaseMedia } from '@components/ui'
+import { UpdateCard } from '@components/layout';
 
 // TypeScript interfaces
 interface FilterOption {

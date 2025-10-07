@@ -1,5 +1,6 @@
 import Dexie, { type Table } from "dexie";
 import { DEFAULT_SETTINGS } from '@stores/settings';
+import type { RGB } from '@color/lib/color'
 
 export interface HistoryEntry {
   id?: number;
@@ -16,6 +17,13 @@ export interface MemoryItem {
   label?: string;
   mode: string;
   timestamp: number;
+}
+
+export interface Palette {
+  id?: string;
+  name: string;
+  colors: RGB[];
+  createdAt: number;
 }
 
 export interface Settings {
@@ -39,14 +47,16 @@ export class PrismDatabase extends Dexie {
   history!: Table<HistoryEntry>;
   settings!: Table<Settings>;
   memory!: Table<MemoryItem>;
+  palettes!: Table<Palette>;
 
   constructor() {
     super('prism-app');
 
-    this.version(1).stores({
+    this.version(2).stores({
       history: '++id, timestamp',
       settings: 'id',
-      memory: '++id, slot, value, label, mode, timestamp'
+      memory: '++id, slot, value, label, mode, timestamp',
+      palettes: 'id, name, createdAt'
     });
   }
 }

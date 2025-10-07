@@ -78,7 +78,6 @@ const handlePaste = (): void => {
           <ClipboardPaste class="h-3 w-3" />
         </BaseButton>
       </div>
-
     </div>
     
     <div

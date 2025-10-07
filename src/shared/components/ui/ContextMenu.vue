@@ -5,7 +5,7 @@
     </ContextMenuTrigger>
     <ContextMenuPortal>
       <ContextMenuContent
-        class="z-20 min-w-[180px] bg-background rounded-lg overflow-hidden border border-border p-1 shadow-md context-menu-content"
+        class="z-20 min-w-[180px] bg-popover rounded-lg overflow-hidden border border-border p-1 shadow-md context-menu-content"
         :side-offset="sideOffset"
         :align="align"
         :animation-duration="animationDuration"
@@ -46,7 +46,7 @@ defineProps({
   @apply flex items-center text-sm w-full px-2.5 rounded-md py-1.5 cursor-pointer outline-none;
 }
 .context-menu-item {
-  @apply hover:bg-muted text-secondary-foreground;
+  @apply hover:bg-secondary text-secondary-foreground;
 }
 
 .context-menu-item-danger {

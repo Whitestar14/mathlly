@@ -5,7 +5,8 @@
       @update:model-value="$emit('update:model-value', $event)"
     >
       <SelectTrigger
-        class="inline-flex items-center justify-between w-full font-medium px-2.5 py-1.5 text-sm bg-background text-foreground border border-border rounded-md hover:bg-muted focus-colors transition-colors duration-200"
+        class="inline-flex items-center justify-between w-full font-medium px-2.5 py-1.5 text-sm bg-background text-foreground border border-border rounded-md hover:bg-secondary focus-colors transition-colors duration-200"
+        :class="isDropdown ? 'rounded-e-none border-r-0' : ''"
       >
         <SelectValue :placeholder="placeholder" />
         <ChevronDownIcon class="h-4 w-4 flex-shrink-0" />
@@ -31,7 +32,7 @@
                 v-for="option in options"
                 :key="option.value"
                 :value="option.value"
-                class="outline-none flex w-full items-center px-2.5 py-1.5 text-sm text-foreground hover:bg-muted select-none rounded transition-colors duration-200 cursor-pointer"
+                class="outline-none flex w-full items-center px-2.5 py-1.5 text-sm text-foreground hover:bg-secondary select-none rounded transition-colors duration-200 cursor-pointer"
               >
                 <SelectItemText>{{ option.label }}</SelectItemText>
               </SelectItem>
@@ -82,6 +83,10 @@ defineProps({
   align: {
     type: String,
     default: "center",
+  },
+  isDropdown: {
+    type: Boolean,
+    default: false,
   }
 });
 

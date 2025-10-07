@@ -36,6 +36,7 @@
 
       "@calculator/*" : ["features/calculator/*"],
       "@base64/*" : ["features/tools/base64/*"],
+      "@color/*" : ["features/tools/color/*"],
       "@settings/*" : ["features/settings/*"],
     },
     "types": ["vite/client", "node"]

@@ -1,40 +1,36 @@
 <template>
   <span
-    class="inline-flex items-center ml-auto text-xs px-2 py-0.5 font-medium font-mono rounded-full"
-    :class="badgeConfig.classes"
+    class="inline-flex items-center text-xs px-2 py-0.5 font-medium rounded-full"
+    :class="variantClasses"
   >
-    <span 
-      v-if="showNotch"
-      class="h-2 w-2 rounded-full mr-2"
-      :class="[badgeConfig.notch, { 'animate-pulse': pulse || badgeConfig.shouldPulse }]"
-      aria-hidden="true" 
-    />
-    {{ displayText }}
+    <slot>{{ text }}</slot>
   </span>
 </template>
 
 <script setup lang="ts">
-import { computed, type ComputedRef } from 'vue';
-import { useBadge, type BadgeVariant } from '@composables/ui/useBadge';
+import { computed } from 'vue';
+import { BADGE_VARIANTS, type BadgeVariant } from '@composables/ui/useBadge';
 
 interface Props {
   variant?: BadgeVariant;
-  type?: BadgeVariant; // Backward compatibility
   text?: string;
-  showNotch?: boolean;
-  pulse?: boolean;
+  size?: 'sm' | 'md' | 'lg';
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  variant: undefined,
-  type: 'soon',
+  variant: 'default',
   text: '',
-  showNotch: false,
-  pulse: false
+  size: 'md'
 });
 
-// Use variant if provided, otherwise fall back to type
-const effectiveVariant: ComputedRef<BadgeVariant> = computed(() => props.variant || props.type || 'soon');
-const badgeConfig = useBadge(effectiveVariant.value, props.text);
-const displayText: ComputedRef<string> = computed(() => props.text || badgeConfig.value.text);
+const variantClasses = computed(() => {
+  const baseClasses = 'inline-flex items-center font-medium rounded-full';
+  const sizeClasses = {
+    sm: 'px-2 py-0.5 text-xs',
+    md: 'px-2.5 py-0.5 text-xs',
+    lg: 'px-3 py-1 text-sm'
+  };
+
+  return `${baseClasses} ${sizeClasses[props.size]} ${BADGE_VARIANTS[props.variant]}`;
+});
 </script>
