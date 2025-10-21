@@ -48,7 +48,7 @@ function scrollTo(index: number) {
 <template>
   <div class="space-y-4">
     <!-- Carousel viewport -->
-    <div class="overflow-hidden" ref="emblaViewportRef">
+    <div class="overflow-hidden p-1.5" ref="emblaViewportRef">
       <div class="flex">
         <label
           v-for="(config, packKey) in themePackConfigs"
@@ -100,7 +100,7 @@ function scrollTo(index: number) {
             </div>
 
             <!-- Theme Info -->
-            <div class="text-center">
+            <div class="text-center select-none">
               <h4 class="font-medium text-sm text-foreground mb-1">
                 {{ config.name }}
               </h4>

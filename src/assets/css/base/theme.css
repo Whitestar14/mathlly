@@ -165,7 +165,7 @@
 
   /* Ayu Theme Pack - Dark */
   [data-theme-pack="ayu"].dark {
-    --color-background: 0.163 0.014 264;
+    --color-background: 0.173 0.015 267;
     --color-foreground: 0.798 0.010 94;
     --color-card: 0.186 0.016 262;
     --color-card-foreground: 98% 0 0;
@@ -177,23 +177,23 @@
     --color-primary-foreground: 0.163 0.014 264;
 
     /* Accents: use bluish highlights like VSCode Ayu */
-    --color-secondary: 30% 0.019 266;
+    --color-secondary: 25% 0.019 266;
     --color-secondary-foreground: 93% 0 0;
 
-    --color-muted: 30% 0.019 266;
+    --color-muted: 25% 0.019 266;
     --color-muted-foreground: 65% 0.004 285.82;
-    --color-accent: 0.766 0.124 250; /* bluish accent */
+    --color-accent: 0.692 0.167 252;
     --color-accent-foreground: 98% 0 0;
-    --color-destructive: 0.508 0.188 27;
+    --color-destructive: 0.626 0.164 23;
     --color-destructive-foreground: 95% 0 0;
     --color-border: 0.195 0.016 262;
-    --color-input: 0.173 0.015 267;
+    --color-input: 0.186 0.016 262;
     --color-ring: 0.882 0.124 84;
     --backdrop: 0% 0 0;
     --backdrop-light: 10% 0.01 190;
-    --backdrop-surface: 20% 0.01 190;
+    --backdrop-surface: 0.186 0.016 262;
 
-    --color-panel: 0.163 0.014 264;
+    --color-panel: 0.183 0.014 264;
 
     --logo-bg-fill: 11% 0.02 200;
     --logo-stroke-stop-color: 98% 0 0;

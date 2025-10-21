@@ -9,8 +9,8 @@ defineProps({
 <template>
   <component
     :is="as || 'div'"
-    v-bind="$attrs"
     class="rounded-lg border bg-card border-border overflow-hidden border-collapse"
+    v-bind="$attrs"
   >
     <!-- Header -->
     <div

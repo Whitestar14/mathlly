@@ -40,12 +40,7 @@
         ]"
         @click="select(opt.value)"
       >
-        <!-- Active indicator with smooth animation -->
-        <div 
-          v-if="modelValue === opt.value"
-          class="absolute inset-0 bg-accent/5 rounded-md animate-pulse"
-        />
-        
+
         <component 
           :is="opt.icon" 
           v-if="opt.icon" 
@@ -54,13 +49,6 @@
         />
         <span class="truncate transition-colors duration-200">{{ opt.label }}</span>
       </button>
-
-      <!-- Enhanced separator with animation -->
-      <span
-        v-if="i < visibleDeck.length - 1"
-        aria-hidden="true"
-        class="mx-1 h-[10px] w-px bg-border/60 transition-colors duration-200 hover:bg-border/80"
-      />
     </template>
 
     <!-- Enhanced overflow popover -->
