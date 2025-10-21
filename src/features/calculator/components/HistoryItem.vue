@@ -10,10 +10,10 @@
           :class="{ 'animate-highlight': selectedItemId === item.id }"
           @click="$emit('select', item)"
         >
-          <div class="text-sm text-foreground/75 break-all">
+          <div class="text-sm text-secondary-foreground/75 break-all">
             {{ item.expression }}
           </div>
-          <div class="text-lg font-medium text-foreground/80 break-all">
+          <div class="text-lg font-medium text-secondary-foreground/80 break-all">
             {{ item.result }}
           </div>
 
@@ -54,7 +54,7 @@
         <span>Copy as JSON</span>
       </ContextMenuItem>
 
-      <ContextMenuSeparator class="h-px bg-muted my-1" />
+      <ContextMenuSeparator class="h-px w-full bg-border my-1" />
 
       <ContextMenuItem
         class="context-menu-item-danger"

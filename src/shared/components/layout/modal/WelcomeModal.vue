@@ -55,7 +55,7 @@
         </div>
         <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
           <Shield class="h-4 w-4 text-primary flex-shrink-0" />
-          <span class="text-sm font-medium text-foreground">Privacy-    First</span>
+          <span class="text-sm font-medium text-foreground">Privacy-First</span>
         </div>
       </div>
 
@@ -68,7 +68,7 @@
           href="https://github.com/Whitestar14/Prism/issues"
           target="_blank"
           rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          class="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent/80 transition-colors"
         >
           <Github class="h-4 w-4" /> Contribute on GitHub
           <ExternalLink class="h-3 w-3" />

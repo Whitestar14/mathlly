@@ -1,3 +1,5 @@
+/* stylelint-disable at-rule-no-unknown */
+
 @layer base {
       :root {
     @apply font-sans font-normal;
@@ -123,6 +125,77 @@
     --color-panel: 15% 0.004 285.82;
 
     --logo-bg-fill: 15% 0.004 285.82; 
+    --logo-stroke-stop-color: 98% 0 0;
+    --logo-fg-stop-color: 98% 0 0;
+  }
+
+  /* Ayu Theme Pack - Light */
+  [data-theme-pack="ayu"] {
+    --color-background: 0.988 0.002 248;
+    --color-foreground: 0.490 0.010 248;
+    --color-card: 0.991 0.000 0;
+    --color-card-foreground: 15% 0.004 285.82;
+    --color-popover: 0.991 0.000 0;
+    --color-popover-foreground: 15% 0.004 285.82;
+
+    --color-primary: 0.803 0.159 70;
+    --color-primary-foreground: 0.988 0.002 248;
+
+    --color-secondary: 0.967 0.002 248;
+    --color-secondary-foreground: 51% 0.004 285.82;
+
+    --color-muted: 95.9% 0.004 285.82;
+    --color-muted-foreground: 52.1% 0.004 285.82;
+    --color-accent: 0.674 0.141 244;
+    --color-accent-foreground: 15% 0.004 285.82;
+    --color-destructive: 0.636 0.186 24;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 0.977 0.002 248;
+    --color-input: 0.991 0.000 0;
+    --color-ring: 0.772 0.157 69;
+    --backdrop: 0% 0 0;
+    --backdrop-light: 98% 0 0;
+    --backdrop-surface: 0.983 0.002 248;
+
+    --color-panel: 0.983 0.002 248;
+    --logo-bg-fill: 0.991 0.000 0;
+    --logo-stroke-stop-color: 0.748 0.160 53;
+    --logo-fg-stop-color: 0.748 0.160 53;
+  }
+
+  /* Ayu Theme Pack - Dark */
+  [data-theme-pack="ayu"].dark {
+    --color-background: 0.163 0.014 264;
+    --color-foreground: 0.798 0.010 94;
+    --color-card: 0.186 0.016 262;
+    --color-card-foreground: 98% 0 0;
+    --color-popover: 0.186 0.016 262;
+    --color-popover-foreground: 98% 0 0;
+
+    /* Primary: amber for headings/buttons */
+    --color-primary: 0.797 0.130 82;
+    --color-primary-foreground: 0.163 0.014 264;
+
+    /* Accents: use bluish highlights like VSCode Ayu */
+    --color-secondary: 30% 0.019 266;
+    --color-secondary-foreground: 93% 0 0;
+
+    --color-muted: 30% 0.019 266;
+    --color-muted-foreground: 65% 0.004 285.82;
+    --color-accent: 0.766 0.124 250; /* bluish accent */
+    --color-accent-foreground: 98% 0 0;
+    --color-destructive: 0.508 0.188 27;
+    --color-destructive-foreground: 95% 0 0;
+    --color-border: 0.195 0.016 262;
+    --color-input: 0.173 0.015 267;
+    --color-ring: 0.882 0.124 84;
+    --backdrop: 0% 0 0;
+    --backdrop-light: 10% 0.01 190;
+    --backdrop-surface: 20% 0.01 190;
+
+    --color-panel: 0.163 0.014 264;
+
+    --logo-bg-fill: 11% 0.02 200;
     --logo-stroke-stop-color: 98% 0 0;
     --logo-fg-stop-color: 98% 0 0;
   }

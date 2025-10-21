@@ -36,10 +36,10 @@
               class="self-center md:self-start mb-2"
             >
               <BaseBadge
-                type="custom"
+                variant="accent"
                 :text="version.versionInfo.full"
                 :show-notch="true"
-              />
+              ></BaseBadge>
             </div>
 
             <h1
@@ -186,9 +186,10 @@
             />
             <BaseBadge
               v-if="tool.isNew"
-              type="new"
+              variant="new"
+              text="New"
               class="absolute right-5 top-5"
-            />
+            ></BaseBadge>
           </RouterLink>
         </div>
       </div>
@@ -364,7 +365,7 @@
             <!-- Version Badge -->
             <div class="mt-8 flex justify-center">
               <BaseBadge
-                type="custom"
+                variant="custom"
                 :text="version.versionInfo.full"
                 :show-notch="false"
               />

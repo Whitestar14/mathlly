@@ -24,7 +24,7 @@
   /* Mobile active states */
   @media (max-width: 767px) {
     .calc-btn:active {
-      @apply bg-accent text-accent-foreground;
+      @apply bg-muted text-muted-foreground;
     }
   }
 
@@ -63,13 +63,13 @@
 
   @media (max-width: 767px) {
     .calc-number-btn:active {
-      @apply bg-accent text-accent-foreground;
+      @apply bg-muted text-muted-foreground;
     }
   }
 
   @media (hover: hover) and (pointer: fine) {
     .calc-number-btn:hover {
-      @apply bg-accent/50 text-accent-foreground;
+      @apply bg-muted/50 text-muted-foreground;
     }
   }
 
@@ -80,13 +80,13 @@
 
   @media (max-width: 767px) {
     .calc-function-btn:active {
-      @apply bg-accent/70 text-accent-foreground;
+      @apply bg-muted/70 text-muted-foreground;
     }
   }
 
   @media (hover: hover) and (pointer: fine) {
     .calc-function-btn:hover {
-      @apply bg-accent/30 text-foreground;
+      @apply bg-muted/30 text-foreground;
     }
   }
 
@@ -116,13 +116,13 @@
 
   @media (max-width: 767px) {
     .calc-memory-btn:active {
-      @apply bg-accent/20 text-accent-foreground;
+      @apply bg-muted/20 text-muted-foreground;
     }
   }
 
   @media (hover: hover) and (pointer: fine) {
     .calc-memory-btn:hover {
-      @apply bg-accent/20 text-foreground;
+      @apply bg-muted/20 text-foreground;
     }
   }
 
@@ -159,13 +159,13 @@
 
   @media (max-width: 767px) {
     .calc-dropdown-item:active {
-      @apply bg-accent text-accent-foreground;
+      @apply bg-muted text-muted-foreground;
     }
   }
 
   @media (hover: hover) and (pointer: fine) {
     .calc-dropdown-item:hover {
-      @apply bg-accent/50 text-accent-foreground;
+      @apply bg-muted/50 text-muted-foreground;
       transform: scale(1.05);
     }
   }
@@ -184,13 +184,13 @@
 
   @media (max-width: 767px) {
     .calc-dropdown-item-small:active {
-      @apply bg-accent text-accent-foreground;
+      @apply bg-muted text-muted-foreground;
     }
   }
 
   @media (hover: hover) and (pointer: fine) {
     .calc-dropdown-item-small:hover {
-      @apply bg-accent/50 text-accent-foreground;
+      @apply bg-muted/50 text-muted-foreground;
       transform: scale(1.1);
     }
   }

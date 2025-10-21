@@ -32,8 +32,6 @@ export interface Settings {
     textSize: string;
   };
   appearance: {
-    theme: string;
-    themePack: string;
     animationDisabled: boolean;
     checkForUpdates: boolean;
     borderRadius: string;
@@ -85,7 +83,6 @@ const db = new PrismDatabase();
 db.on("ready", async () => {
   try {
     const settingsCount = await db.settings.count();
-     
     if (settingsCount === 0) {
       await db.settings.add(DEFAULT_SETTINGS);
     }

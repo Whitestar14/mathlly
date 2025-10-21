@@ -9,9 +9,9 @@
   .btn-default     { @apply bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground; }
   .btn-primary     { @apply bg-primary text-primary-foreground hover:bg-primary/90; }
   .btn-destructive { @apply bg-destructive text-destructive-foreground hover:bg-destructive/90; }
-  .btn-outline     { @apply border border-border bg-transparent hover:bg-accent/80 text-muted-foreground hover:text-accent-foreground; }
+  .btn-outline     { @apply border border-border bg-transparent hover:bg-secondary/80 text-muted-foreground hover:text-accent-foreground; }
   .btn-secondary   { @apply bg-secondary text-secondary-foreground hover:bg-secondary/80; }
-  .btn-ghost       { @apply bg-transparent text-muted-foreground hover:bg-accent/70 hover:text-accent-foreground; }
+  .btn-ghost       { @apply bg-transparent text-muted-foreground hover:bg-muted/50 hover:text-secondary-foreground/80; }
   .btn-link        { @apply text-primary underline-offset-4 hover:underline bg-transparent; }
 
   /* Sizes */

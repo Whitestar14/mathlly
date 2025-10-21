@@ -9,15 +9,9 @@
     <!-- Content -->
     <div class="flex-1 overflow-hidden flex flex-col h-full">
       <!-- Show tool options or main menu -->
-      <div
-        v-if="showToolOptions"
-        class="flex-1 overflow-auto"
-      >
+      <div v-if="showToolOptions" class="flex-1 overflow-auto">
         <!-- Options loading state -->
-        <div
-          v-if="isLoadingOptions"
-          class="p-3 space-y-4"
-        >
+        <div v-if="isLoadingOptions" class="p-3 space-y-4">
           <div class="flex items-center gap-3 pb-2 border-b border-border">
             <div class="w-8 h-8 bg-muted animate-pulse rounded-md" />
             <div class="h-4 w-16 bg-muted animate-pulse rounded" />
@@ -34,7 +28,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Actual options with sticky header -->
         <ToolOptions
           v-else-if="currentToolOptions"
@@ -43,12 +37,14 @@
         >
           <!-- Sticky header slot -->
           <template #header>
-            <div class="sticky top-0 z-20 -p-3 bg-backdrop-surface/95 backdrop-blur-md border-b border-border">
+            <div
+              class="sticky top-0 z-20 -p-3 bg-backdrop-surface/95 backdrop-blur-md border-b border-border"
+            >
               <div class="flex items-center gap-2 p-2">
                 <BaseButton
                   variant="ghost"
                   size="icon"
-                  class="shrink-0 hover:bg-accent/50 transition-colors duration-200"
+                  class="shrink-0 transition-colors duration-200"
                   @click="showToolOptions = false"
                 >
                   <ArrowLeft class="h-4 w-4" />
@@ -63,12 +59,9 @@
           </template>
         </ToolOptions>
       </div>
-      
+
       <!-- Main menu -->
-      <div
-        v-else
-        class="flex-1 flex flex-col overflow-hidden"
-      >
+      <div v-else class="flex-1 flex flex-col overflow-hidden">
         <!-- Top section with options button -->
         <div
           v-if="hasToolOptions || isCheckingOptions"
@@ -76,7 +69,7 @@
         >
           <BaseButton
             variant="ghost"
-            class="w-full justify-start px-3 py-2 h-auto text-muted-foreground rounded-lg border border-border/50 hover:border-border hover:bg-accent/30"
+            class="w-full justify-start px-3 py-2 h-auto text-muted-foreground rounded-lg border border-border/50 hover:border-border"
             :disabled="isCheckingOptions"
             @click="handleShowOptions"
           >
@@ -84,10 +77,7 @@
               v-if="isCheckingOptions"
               class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent"
             />
-            <Settings
-              v-else
-              class="h-4 w-4"
-            />
+            <Settings v-else class="h-4 w-4" />
             <span class="text-sm font-medium">Tool Options</span>
           </BaseButton>
         </div>
@@ -98,10 +88,12 @@
         <!-- External Links at bottom -->
         <div class="flex-shrink-0 p-3">
           <div class="space-y-3">
-            <h3 class="text-xs font-semibold text-muted-foreground px-1 uppercase tracking-wider">
+            <h3
+              class="text-xs font-semibold text-muted-foreground px-1 uppercase tracking-wider"
+            >
               Quick Links
             </h3>
-            
+
             <!-- Links - Side by side on mobile, stacked on desktop -->
             <div class="flex flex-row md:flex-col gap-2">
               <a
@@ -112,21 +104,29 @@
                 rel="noopener noreferrer"
                 class="group flex flex-col md:flex-row items-center md:items-center gap-2 md:gap-3 p-2.5 md:p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 hover:shadow-sm flex-1 md:flex-none min-w-0"
               >
-                <div class="flex-shrink-0 p-1.5 rounded-md bg-muted/50 group-hover:bg-primary/10 transition-colors duration-200">
+                <div
+                  class="flex-shrink-0 p-1.5 rounded-md bg-muted/50 group-hover:bg-primary/10 transition-colors duration-200"
+                >
                   <component
                     :is="link.icon"
                     class="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors duration-200"
                   />
                 </div>
                 <div class="flex-1 min-w-0 text-center md:text-left">
-                  <span class="text-xs md:text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200 block truncate">
+                  <span
+                    class="text-xs md:text-sm font-medium text-foreground group-hover:text-primary transition-colors duration-200 block truncate"
+                  >
                     {{ link.text }}
                   </span>
-                  <span class="text-xs text-muted-foreground group-hover:text-muted-foreground/80 transition-colors duration-200 hidden md:block">
+                  <span
+                    class="text-xs text-muted-foreground group-hover:text-muted-foreground/80 transition-colors duration-200 hidden md:block"
+                  >
                     {{ link.description }}
                   </span>
                 </div>
-                <ExternalLinkIcon class="h-3 w-3 text-muted-foreground/50 group-hover:text-primary/70 transition-all duration-200 flex-shrink-0 hidden md:block" />
+                <ExternalLinkIcon
+                  class="h-3 w-3 text-muted-foreground/50 group-hover:text-primary/70 transition-all duration-200 flex-shrink-0 hidden md:block"
+                />
               </a>
             </div>
           </div>
@@ -136,61 +136,76 @@
 
     <template #footer>
       <div class="space-y-2">
-        <h3 class="text-xs font-semibold text-muted-foreground px-3 uppercase tracking-wider">
-          Theme
-        </h3>
-        <ToggleGroupRoot
-          v-model="selectedTheme"
-          type="single"
-          class="inline-flex items-center gap-1 p-1 mx-3 bg-secondary rounded-lg border border-border/50"
-        >
-          <ToggleGroupItem
-            v-for="item of themeItems"
-            :key="item.id"
-            :value="item.id"
-            class="text-secondary-foreground flex justify-center items-center w-8 h-8 rounded-md transition-all duration-200 outline-none ring-offset-2 ring-offset-background focus-visible:ring-2 ring-ring data-[state=on]:bg-background data-[state=on]:text-foreground data-[state=on]:shadow-sm data-[state=on]:border-border hover:bg-accent/50 hover:text-accent-foreground"
-            :title="item.title"
+        <div class="flex items-center gap-3 px-3">
+          <BaseButton
+            variant="ghost"
+            class="px-2 pl-3 py-2 w-full text-sm justify-between flex-row font-medium rounded-lg border border-border/50"
+            @click="showThemeModal = true"
           >
-            <component
-              :is="item.icon"
-              class="h-4 w-4"
-            />
-            <span class="sr-only">{{ item.title }}</span>
-          </ToggleGroupItem>
-        </ToggleGroupRoot>
+            <span class="flex flex-row gap-1 justify-center items-center">
+              <span>Themes</span>
+
+              <div class="bg-muted w-px h-5 md:hidden"></div>
+
+              <span class="text-xs text-foreground/40 md:hidden"
+                >{{ selectedThemePack }}-{{ schemeLabel }}</span
+              >
+            </span>
+
+            <span
+              class="size-5 flex justify-center items-center bg-secondary p-1 rounded-md"
+              aria-label="Open theme settings"
+              @click="showThemeModal = true"
+            >
+              <ArrowRight class="size-4" />
+            </span>
+          </BaseButton>
+
+          <BaseModal v-model:open="showThemeModal">
+            <template #title>Theme Settings</template>
+
+            <!-- Modal sections -->
+            <section class="space-y-3">
+              <h4 class="text-sm font-semibold text-foreground">Theme Mode</h4>
+              <SelectBar v-model="selectedTheme" :options="themeOptions" />
+              <p class="text-xs text-muted-foreground">
+                System mode follows your device preference automatically.
+              </p>
+            </section>
+
+            <div class="border-t border-border/60 mt-4 pt-4" />
+
+            <section class="space-y-3">
+              <h4 class="text-sm font-semibold text-foreground">Theme Pack</h4>
+              <ThemePackSelector v-model="selectedThemePack" />
+              <p class="text-xs text-muted-foreground">
+                Theme packs change the personality of the interface.
+              </p>
+            </section>
+          </BaseModal>
+        </div>
       </div>
     </template>
   </BasePanel>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, computed } from 'vue'
+import { ref, watch, nextTick, computed } from 'vue';
 import {
-  Sun,
-  Moon,
-  AppWindowMac,
   AtSign,
   GithubIcon,
   Settings,
   ExternalLinkIcon,
   ArrowLeft,
+  ArrowRight,
   type LucideIcon,
-} from "lucide-vue-next";
-import { useTheme, type ThemeOption } from "@composables/core/useTheme";
-import { useToolSettingsStore } from "@stores/toolSettings";
-import { BasePanel, BaseButton } from '@components/ui'
-import ToolOptions from "./ToolOptions.vue";
-import {
-  ToggleGroupRoot,
-  ToggleGroupItem
-} from "radix-vue";
-
-// Types
-interface ThemeItem {
-  id: ThemeOption;
-  title: string;
-  icon: LucideIcon;
-}
+} from 'lucide-vue-next';
+import { useTheme } from '@composables/core/useTheme';
+import { themeOptions } from '@composables/core/themeConfig';
+import { useToolSettingsStore } from '@stores/toolSettings';
+import { BasePanel, BaseButton, BaseModal, SelectBar } from '@components/ui';
+import ToolOptions from './ToolOptions.vue';
+import { ThemePackSelector } from '@settings/components';
 
 interface ExternalLink {
   url: string;
@@ -199,89 +214,85 @@ interface ExternalLink {
   icon: LucideIcon;
 }
 
-// Composables
-const { selectedTheme } = useTheme();
+const { selectedTheme, selectedThemePack, isDark } = useTheme();
 const toolStore = useToolSettingsStore();
 
-// Local state
 const showToolOptions = ref(false);
 const isCheckingOptions = ref(false);
 const isLoadingOptions = ref(false);
 
-// Store computed properties
+const showThemeModal = ref(false);
+
+const schemeLabel = computed(() => {
+  const s = selectedTheme.value as string;
+  if (s === 'system') {
+    return isDark.value ? 'dark' : 'light';
+  }
+  return s || 'system';
+});
+
 const hasToolOptions = computed(() => toolStore.hasCurrentToolOptions);
 const currentToolOptions = computed(() => toolStore.currentToolConfig);
 const currentTool = computed(() => toolStore.currentToolId);
 
-// Theme items configuration
-const themeItems: ThemeItem[] = [
-  { id: "light", title: "Light", icon: Sun },
-  { id: "dark", title: "Dark", icon: Moon },
-  { id: "system", title: "System", icon: AppWindowMac }
-];
-
-// External links configuration
 const externalLinks: ExternalLink[] = [
   {
-    url: "https://github.com/Whitestar14/mathlly",
-    text: "Star on GitHub",
-    description: "View source code",
-    icon: GithubIcon
+    url: 'https://github.com/Whitestar14/mathlly',
+    text: 'Star on GitHub',
+    description: 'View source code',
+    icon: GithubIcon,
   },
   {
-    url: "https://x.com/@xijibomi",
-    text: "Follow on X",
-    description: "Latest updates",
-    icon: AtSign
-  }
+    url: 'https://x.com/@xijibomi',
+    text: 'Follow on X',
+    description: 'Latest updates',
+    icon: AtSign,
+  },
 ];
 
-// Handle showing options with loading state
 const handleShowOptions = async () => {
   if (!currentToolOptions.value) return;
-  
+
   isLoadingOptions.value = true;
   showToolOptions.value = true;
-  
-  // Small delay to show the loading state
+
   await nextTick();
   setTimeout(() => {
     isLoadingOptions.value = false;
   }, 150);
-}
+};
 
-// Close tool options panel when route changes
-watch(() => currentTool.value, (newTool, oldTool) => {
-  showToolOptions.value = false;
-  isLoadingOptions.value = false;
-  
-  // Show checking state when route changes
-  if (newTool !== oldTool && newTool) {
-    isCheckingOptions.value = true;
-    
-    // Force reactivity update on route change
-    nextTick(() => {
-      // Give some time for tool options to register
-      setTimeout(() => {
-        isCheckingOptions.value = false;
-      }, 300);
-    });
-  } else {
-    isCheckingOptions.value = false;
-  }
-});
-
-// Watch for tool options availability changes
-watch(() => hasToolOptions.value, (hasOptions) => {
-  // If we lost tool options while showing them, close the panel
-  if (!hasOptions && showToolOptions.value) {
+watch(
+  () => currentTool.value,
+  (newTool, oldTool) => {
     showToolOptions.value = false;
     isLoadingOptions.value = false;
+
+    if (newTool !== oldTool && newTool) {
+      isCheckingOptions.value = true;
+
+      nextTick(() => {
+        setTimeout(() => {
+          isCheckingOptions.value = false;
+        }, 300);
+      });
+    } else {
+      isCheckingOptions.value = false;
+    }
   }
-  
-  // Stop checking when options become available
-  if (hasOptions) {
-    isCheckingOptions.value = false;
+);
+
+watch(
+  () => hasToolOptions.value,
+  (hasOptions) => {
+    if (!hasOptions && showToolOptions.value) {
+      showToolOptions.value = false;
+      isLoadingOptions.value = false;
+    }
+
+    if (hasOptions) {
+      isCheckingOptions.value = false;
+    }
   }
-});
+);
 </script>

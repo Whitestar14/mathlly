@@ -28,7 +28,7 @@
       v-show="!historyItems.length || isProgrammerMode"
       class="text-center py-4 flex flex-col items-center justify-center h-full"
     >
-      <div class="p-3 rounded-lg bg-muted/80 mb-3 font-medium min-w-[80%] flex flex-col items-center">
+      <div class="p-3 rounded-lg bg-muted/50 mb-3 font-medium min-w-[80%] flex flex-col items-center">
         <div v-show="isProgrammerMode">
           <p class="text-muted-foreground">
             History feature coming soon

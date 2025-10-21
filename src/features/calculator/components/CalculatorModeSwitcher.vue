@@ -7,8 +7,8 @@
         class="flex-1 px-3 py-1 text-sm font-medium rounded-md transition-colors duration-200"
         :class="[
           currentMode === mode.value
-            ? 'bg-card text-foreground shadow-sm'
-            : 'text-secondary-foreground hover:bg-card/30 hover:text-foreground',
+            ? 'bg-card text-card-foreground shadow-sm'
+            : 'text-foreground hover:bg-card/40 hover:text-card-foreground/90',
         ]"
         @click="updateMode(mode.value)"
       >

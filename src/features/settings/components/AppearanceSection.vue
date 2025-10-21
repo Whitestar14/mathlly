@@ -2,11 +2,8 @@
 import { computed } from 'vue';
 import { CircleHelp } from 'lucide-vue-next';
 import { RadioGroupRoot, RadioGroupItem } from 'radix-vue';
-import { SelectBar, ToggleBar, BaseCollapsible } from '@components/ui';
-import ThemePackSelector from './ThemePackSelector.vue';
+import { ToggleBar, BaseCollapsible } from '@components/ui';
 import type { Settings } from '@services/storage/db';
-import type { ThemePackOption } from '@composables/core/useTheme';
-
 
 interface Props {
   settings: Settings;
@@ -18,13 +15,7 @@ interface Emits {
 }
 
 const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
-
-const themeOptions = [
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-  { value: 'system', label: 'System' },
-];
+const emit = defineEmits<Emits>()
 
 const textSizeOptions = [
   { value: 'small', label: 'Small' },
@@ -53,23 +44,9 @@ const localSettings = computed({
     :default-open="true"
   >
     <div class="space-y-6">
-      <!-- Theme Pack Selection -->
-      <ThemePackSelector v-model="localSettings.appearance.themePack as ThemePackOption" />
-
-      <!-- Theme Mode Selection -->
-      <div>
-        <label
-          for="theme"
-          class="text-sm font-medium text-foreground mb-1.5 block"
-        >
-          Theme Mode
-        </label>
-        <SelectBar
-          v-model="localSettings.appearance.theme"
-          :options="themeOptions"
-        />
-        <p class="mt-1 text-xs text-muted-foreground">
-          Choose your preferred color theme or follow system settings
+      <div class="px-3 py-2 rounded-md bg-muted/40 border border-border/40">
+        <p class="text-xs text-muted-foreground mb-1">
+          <span class="font-bold">Theme settings</span> have been moved to the menu (open the menu and select "Themes") for a more immediate experience and to avoid first-paint flicker.
         </p>
       </div>
 

@@ -46,10 +46,10 @@
         </p>
         <div class="space-y-2">
           <p class="text-xs text-muted-foreground">
-            • Use <kbd class="px-1 py-0.5 bg-muted rounded text-xs">MS</kbd> button to store current value
+            • Use <kbd class="px-1 py-0.5 bg-muted rounded text-xs">MS</kbd> button to store current
           </p>
           <p class="text-xs text-muted-foreground">
-            • Use <kbd class="px-1 py-0.5 bg-muted rounded text-xs">MR</kbd> button to recall stored value
+            • Use <kbd class="px-1 py-0.5 bg-muted rounded text-xs">MR</kbd> button to recall stored
           </p>
           <p class="text-xs text-muted-foreground">
             • Use <kbd class="px-1 py-0.5 bg-muted rounded text-xs">M+</kbd>/<kbd class="px-1 py-0.5 bg-muted rounded text-xs">M-</kbd> to add/subtract

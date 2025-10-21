@@ -3,7 +3,7 @@
     :checked="modelValue"
     class="relative inline-flex h-6 w-10 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-background focus:ring-ring"
     :class="
-      modelValue ? 'bg-primary' : 'bg-muted'
+      modelValue ? 'bg-primary' : 'bg-secondary'
     "
     @update:checked="updateChecked"
   >

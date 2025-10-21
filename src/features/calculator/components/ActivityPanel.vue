@@ -98,7 +98,7 @@
             v-tippy="{
               content: 'Creates a new memory slot',
             }"
-            variant="default"
+            variant="outline"
             size="sm"
             class="w-[80%]"
             @click="handleAddCurrentToMemory"

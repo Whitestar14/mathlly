@@ -15,12 +15,9 @@ export const DEFAULT_SETTINGS: Settings = {
   display: {
     textSize: 'normal',
   },
-  // Remove calculator section since it's now handled by tool settings
   appearance: {
-    theme: 'system',
-    themePack: 'mira',
     animationDisabled: false,
-    checkForUpdates: true, 
+    checkForUpdates: true,
     borderRadius: 'sharp',
   },
   startup: {
@@ -28,12 +25,9 @@ export const DEFAULT_SETTINGS: Settings = {
   },
 }
 
-// Define the flattened state type
 type FlattenedSettings = Record<string, any>
 
-// Define the store state interface with proper typing
 interface SettingsState extends FlattenedSettings {
-  // Add index signature to allow dynamic property access
   [key: string]: any
 }
 
@@ -42,7 +36,6 @@ export const useSettingsStore = defineStore('settings', {
 
   getters: {
     display: (state): any => createSettingsProxy(state, 'display'),
-    // Remove calculator getter since it's now in tool settings
     appearance: (state): any => createSettingsProxy(state, 'appearance'),
     startup: (state): any => createSettingsProxy(state, 'startup'),
   },
@@ -55,12 +48,6 @@ export const useSettingsStore = defineStore('settings', {
           // For existing users, merge with defaults to ensure all properties exist
           const mergedSettings = merge(cloneDeep(DEFAULT_SETTINGS), settings)
           
-          // Validate theme pack value
-          if (!mergedSettings.appearance.themePack || 
-              !['classic', 'mira'].includes(mergedSettings.appearance.themePack)) {
-            mergedSettings.appearance.themePack = 'mira'
-          }
-
           // Validate text size
           if (!mergedSettings.display.textSize || 
               !['small', 'normal', 'medium', 'large'].includes(mergedSettings.display.textSize)) {
@@ -69,7 +56,6 @@ export const useSettingsStore = defineStore('settings', {
           
           Object.assign(this, flattenObject(mergedSettings))
         } else {
-          // New user - use default settings
           await this.saveSettings(DEFAULT_SETTINGS)
         }
       } catch (error) {
@@ -96,13 +82,6 @@ export const useSettingsStore = defineStore('settings', {
             : unflattenObject(flattenedNewSettings)
         ) as Settings
 
-                // Ensure theme pack is valid
-        if (!settingsToSave.appearance.themePack || 
-            !['classic', 'mira'].includes(settingsToSave.appearance.themePack)) {
-          settingsToSave.appearance.themePack = 'mira'
-        }
-
-        // Ensure text size is valid
         if (!settingsToSave.display.textSize || 
             !['small', 'normal', 'medium', 'large'].includes(settingsToSave.display.textSize)) {
           settingsToSave.display.textSize = 'normal'
@@ -130,12 +109,6 @@ export const useSettingsStore = defineStore('settings', {
         const currentSettings =
           (await db.settings.get(1)) || cloneDeep(DEFAULT_SETTINGS)
         
-        // Validate specific setting updates
-        if (path === 'appearance.themePack' && !['classic', 'mira'].includes(value)) {
-          console.warn(`Invalid theme pack: ${value}. Using default.`)
-          value = 'mira'
-        }
-
         if (path === 'display.textSize' && !['small', 'normal', 'medium', 'large'].includes(value)) {
           console.warn(`Invalid text size: ${value}. Using default.`)
           value = 'normal'

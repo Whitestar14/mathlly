@@ -35,7 +35,7 @@
         :class="[
           'hover:scale-[1.02] active:scale-[0.98]',
           modelValue === opt.value
-            ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
+            ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/20'
             : 'bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-foreground'
         ]"
         @click="select(opt.value)"
@@ -43,14 +43,14 @@
         <!-- Active indicator with smooth animation -->
         <div 
           v-if="modelValue === opt.value"
-          class="absolute inset-0 bg-primary/5 rounded-md animate-pulse"
+          class="absolute inset-0 bg-accent/5 rounded-md animate-pulse"
         />
         
         <component 
           :is="opt.icon" 
           v-if="opt.icon" 
           class="h-4 w-4 transition-all duration-200"
-          :class="modelValue === opt.value ? 'text-primary' : 'group-hover:scale-105'"
+          :class="modelValue === opt.value ? 'text-accent' : 'group-hover:scale-105'"
         />
         <span class="truncate transition-colors duration-200">{{ opt.label }}</span>
       </button>
@@ -68,7 +68,7 @@
       <template #trigger>
         <button
           type="button"
-          class="inline-flex items-center gap-1 px-2 py-1.5 text-sm rounded-md transition-all duration-200 bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-foreground hover:scale-[1.02] active:scale-[0.98] group"
+          class="inline-flex items-center gap-1 px-2 py-1.5 text-sm rounded-md transition-all duration-200 bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-accent-foreground hover:scale-[1.02] active:scale-[0.98] group"
           aria-haspopup="menu"
           aria-expanded="false"
           :aria-label="overflowLabel"

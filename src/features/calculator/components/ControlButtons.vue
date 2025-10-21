@@ -8,7 +8,7 @@
       <BaseButton
         variant="ghost"
         size="icon"
-        class="rounded-none hover:bg-accent/50 group-hover:bg-opacity-100 md:hidden"
+        class="rounded-none group-hover:bg-opacity-100 md:hidden"
         @click="openHistory"
       >
         <DraftingCompassIcon size="15" />
@@ -20,7 +20,7 @@
         v-tippy="{content: 'Copy to Clipboard', placement: 'right'}"
         variant="ghost"
         size="icon"
-        class="rounded-none hover:bg-accent/50 group-hover:bg-opacity-100"
+        class="rounded-none group-hover:bg-opacity-100"
         @click="copyToClipboard"
       >
         <Copy size="15" />

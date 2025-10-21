@@ -1,6 +1,6 @@
 <template>
   <span
-    class="inline-flex items-center text-xs px-2 py-0.5 font-medium rounded-full"
+    class="inline-flex items-center font-mono text-xs px-2 py-0.5 font-medium rounded-full"
     :class="variantClasses"
   >
     <slot>{{ text }}</slot>

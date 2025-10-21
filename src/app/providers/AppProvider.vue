@@ -12,7 +12,7 @@ import { watch, onMounted, computed } from 'vue';
 import { createPanelContext } from '@composables/ui/panelContext';
 import { useDeviceStore } from '@stores/device';
 import { useSettingsStore } from '@stores/settings';
-import { usePWATheme } from '@composables/core/usePWATheme';
+import { useTheme } from '@composables/core/useTheme';
 
 type TextSize = 'small' | 'normal' | 'medium' | 'large';
 
@@ -25,7 +25,7 @@ const device = useDeviceStore();
 const settings = useSettingsStore();
 const { actions }: { actions: PanelActions } = createPanelContext();
 
-usePWATheme();
+useTheme();
 
 onMounted(() => {
   actions.setMobile(device.isMobile);

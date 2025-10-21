@@ -50,9 +50,9 @@
         />
         
         <!-- Content overlay -->
-        <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Copy class="h-6 w-6 text-foreground mb-1" />
-          <span class="text-xs text-foreground font-medium">{{ rgbaText }}</span>
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-secondary bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+          <Copy class="h-6 w-6 mb-1" />
+          <span class="text-xs font-medium">{{ rgbaText }}</span>
         </div>
         <span
           v-for="r in ripples"

@@ -5,7 +5,7 @@
         <BaseButton
           variant="ghost"
           size="icon"
-          class="shrink-0 hover:bg-accent/50 transition-colors duration-200"
+          class="shrink-0 transition-colors duration-200"
           @click="$emit('close')"
         >
           <ArrowLeft class="h-4 w-4" />

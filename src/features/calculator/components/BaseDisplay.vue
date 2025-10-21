@@ -8,7 +8,7 @@
       :class="[
         'flex justify-between items-center p-3 h-auto text-xs font-medium',
         activeBase === base 
-          ? 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/15' 
+          ? 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/15 hover:text-primary/80' 
           : ''
       ]"
       @click="$emit('base-change', base)"

@@ -31,7 +31,6 @@ const isRendered = (sectionId: string): boolean => {
   return filteredManifest.value.some((section) => section.id === sectionId);
 };
 
-// Single source of truth - get settings directly from the store
 const localSettings = ref<Settings>(cloneDeep(DEFAULT_SETTINGS));
 
 // Create a snapshot of the current store state
@@ -42,10 +41,6 @@ const storeSnapshot = computed(() => ({
       settingsStore.display?.textSize ?? DEFAULT_SETTINGS.display.textSize,
   },
   appearance: {
-    theme: settingsStore.appearance?.theme ?? DEFAULT_SETTINGS.appearance.theme,
-    themePack:
-      settingsStore.appearance?.themePack ??
-      DEFAULT_SETTINGS.appearance.themePack,
     animationDisabled:
       settingsStore.appearance?.animationDisabled ??
       DEFAULT_SETTINGS.appearance.animationDisabled,
