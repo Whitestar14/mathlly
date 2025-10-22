@@ -324,7 +324,7 @@ onUnmounted(() => {
             </template>
           </BaseTabs>
 
-          <div class="p-3 md:p-6 bg-background dark:bg-background">
+          <div class="p-3 md:p-6 bg-card">
             <input
               ref="fileInput"
               type="file"

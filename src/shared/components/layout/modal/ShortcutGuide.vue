@@ -40,9 +40,6 @@
               >
                 <span class="text-sm text-foreground">
                   {{ item.description }}
-                  <span v-if="!item.enabled" class="ml-2 text-xs text-muted-foreground">
-                    (available when {{ item.context }} is active)
-                  </span>
                 </span>
                 <div class="flex items-center gap-1.5">
                   <template v-if="item.key.includes('+')">
@@ -60,21 +57,21 @@
       </div>
 
       <div v-if="collisions.length" class="p-4 border-t border-border mt-2">
-        <div class="text-xs font-medium text-destructive mb-2">Conflicts detected</div>
-        <div class="space-y-2">
-          <div v-for="c in collisions" :key="c.key + c.context" class="rounded-lg bg-muted p-3">
-            <div class="text-xs text-muted-foreground mb-1">
-              {{ c.context }} — {{ c.key }}
-            </div>
-            <ul class="space-y-1">
-              <li v-for="b in c.bindings" :key="b.id" class="flex items-center justify-between">
-                <span class="text-sm">{{ b.description }}</span>
-                <span class="text-xs text-muted-foreground">priority {{ b.priority ?? 0 }}</span>
-              </li>
-            </ul>
+      <div class="text-xs font-medium text-destructive mb-2">Conflicts detected</div>
+      <div class="space-y-2">
+        <div v-for="c in collisions" :key="c.key + c.contexts.join(',')" class="rounded-lg bg-muted p-3">
+          <div class="text-xs text-muted-foreground mb-1">
+            {{ c.contexts.join(', ') }} — {{ c.key }}
           </div>
+          <ul class="space-y-1">
+            <li v-for="b in c.bindings" :key="b.id" class="flex items-center justify-between">
+              <span class="text-sm">{{ b.description }}</span>
+              <span class="text-xs text-muted-foreground">priority {{ b.priority ?? 0 }}</span>
+            </li>
+          </ul>
         </div>
       </div>
+    </div>
     </div>
   </BaseModal>
 </template>
