@@ -119,6 +119,7 @@ const harmonyTabs = [
 
 <template>
   <BasePage
+    title="Color Tool"
     :breadcrumbs="breadcrumbs"
     :is-tool-layout="true"
     main-class="flex"
