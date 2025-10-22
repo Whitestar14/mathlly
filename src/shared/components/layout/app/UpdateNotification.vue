@@ -293,7 +293,7 @@ const openReleaseNotes = (): void => {
                   <span
                     v-for="(feature, index) in getPreviewFeatures()"
                     :key="index"
-                    class="inline-flex items-center px-2 py-1 text-xs rounded-md bg-accent text-accent-foreground"
+                    class="inline-flex items-center px-2 py-1 text-xs rounded-md bg-secondary text-secondary-foreground"
                   >
                     <SparklesIcon class="h-2.5 w-2.5 mr-1 flex-shrink-0" />
                     <span class="truncate">{{ feature }}</span>

@@ -145,7 +145,7 @@
             <span class="flex flex-row justify-center items-center">
               <span>Themes</span>
 
-              <div class="mx-1 h-[10px] w-px bg-border/60 transition-colors duration-200 hover:bg-border/80"></div>
+              <div class="mx-1 h-[10px] md:hidden w-px bg-border/60 transition-colors duration-200 hover:bg-border/80"></div>
 
               <span class="text-xs text-foreground/40 md:hidden"
                 >{{ selectedThemePack }}-{{ schemeLabel }}</span
@@ -177,7 +177,9 @@
 
             <section class="space-y-3">
               <h4 class="text-sm font-semibold text-foreground">Theme Pack</h4>
+            <KeepAlive>
               <ThemePackSelector v-model="selectedThemePack" />
+            </KeepAlive>
               <p class="text-xs text-muted-foreground">
                 Theme packs change the personality of the interface.
               </p>

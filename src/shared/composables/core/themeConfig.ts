@@ -1,4 +1,3 @@
-// Centralized theme configuration and helpers
 export const THEME_OPTIONS = {
   LIGHT: 'light',
   DARK: 'dark',
@@ -13,10 +12,8 @@ export const themeOptions = [
   { value: 'system', label: 'System' },
 ] as const;
 
-// Compact color presets to reduce repetition when adding packs
 const PRESETS = {
   vibrant: {
-    // A lively, saturated palette suitable for energetic UIs
     primary: 'bg-indigo-500 dark:bg-indigo-400',
     secondary: 'bg-indigo-200 dark:bg-indigo-300',
     accent: 'bg-indigo-50 dark:bg-indigo-950/50',
@@ -27,7 +24,6 @@ const PRESETS = {
     hoverBg: 'hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20',
   },
   neutral: {
-    // A muted, neutral palette for minimal/low-contrast UIs
     primary: 'bg-zinc-700 dark:bg-zinc-400',
     secondary: 'bg-zinc-300 dark:bg-zinc-500',
     accent: 'bg-zinc-50 dark:bg-zinc-900/50',
@@ -38,10 +34,8 @@ const PRESETS = {
     hoverBg: 'hover:bg-zinc-50/30 dark:hover:bg-zinc-900/20',
   },
   ayu: {
-    // Ayu palette: orange-forward UI accent with soft neutrals (matches the VSCode Ayu feel)
     primary: 'bg-amber-500 dark:bg-amber-400',
     secondary: 'bg-amber-200 dark:bg-amber-700',
-    // use a sky/blue accent for selection/highlights to match VSCode Ayu
     accent: 'bg-sky-100 dark:bg-sky-800/40',
     border: 'border-amber-300 dark:border-amber-600',
     selectedBorder: 'border-amber-500 dark:border-amber-400',
@@ -53,23 +47,18 @@ const PRESETS = {
 
 type PresetName = keyof typeof PRESETS;
 
-type PackHex = { light?: Record<string, string>; dark?: Record<string, string> };
-
 function createPack<Id extends string>(id: Id, opts: {
   name: string;
   description?: string;
   preset?: PresetName;
   preview?: { light: string; dark: string };
   pwaColors?: { light: string; dark: string };
-  hex?: PackHex;
   default?: boolean;
   visual?: any;
 }) {
-  // Default to the neutral preset rather than a color-name-based preset
   const visualColors = opts.visual ? opts.visual : PRESETS[opts.preset ?? 'neutral'];
   const preview = opts.preview ?? { light: opts.pwaColors?.light ?? '#ffffff', dark: opts.pwaColors?.dark ?? '#000000' };
   const pwaColors = opts.pwaColors ?? preview;
-  const hex = opts.hex;
 
   return {
     id,
@@ -78,12 +67,10 @@ function createPack<Id extends string>(id: Id, opts: {
     preview,
     visual: { colors: visualColors },
     pwaColors,
-    hex,
     default: !!opts.default,
   } as const;
 }
 
-// Compact, single-place pack definitions. Add a new entry here to register a new pack.
 const THEME_PACK_LIST = [
   createPack('classic', {
     name: 'Classic',
@@ -101,46 +88,12 @@ const THEME_PACK_LIST = [
     pwaColors: { light: '#18181b', dark: '#fafafa' },
     default: true,
   }),
-  // Ayu: named, distinctive pack that mixes multiple tones (orange/amber + neutrals)
   createPack('ayu', {
     name: 'Ayu',
     description: 'Orange-forward accents with balanced neutrals for a comfortable UI.',
     preset: 'ayu',
     preview: { light: '#ffaa33', dark: '#1b1d1f' },
     pwaColors: { light: '#ffaa33', dark: '#f4a028' },
-    // Hex color swatches for manual OKLCH conversion and softer text tones
-    hex: {
-      light: {
-        background: '#fcfcfc',
-        foreground: '#5c6166',
-        card: '#ffffff',
-        popover: '#f3f4f5',
-        primary: '#ffaa33',
-        primaryForeground: '#f8f9fa',
-        secondary: '#f4a028',
-        accent: '#f3f4f5',
-        muted: '#8a9199',
-        border: '#f3f4f5',
-        input: '#fcfcfc',
-        ring: '#f4a028',
-        panel: '#ffffff',
-      },
-      dark: {
-        background: '#0b0e14',
-        foreground: '#bfbdb6',
-        card: '#0f131a',
-        popover: '#0f131a',
-        primary: '#e6b450',
-        primaryForeground: '#0b0e14',
-        secondary: '#ffad66',
-        accent: '#73b8ff',
-        muted: '#565b66',
-        border: '#11151c',
-        input: '#0d1017',
-        ring: '#ffd173',
-        panel: '#0b0e14',
-      },
-    },
     default: false,
   }),
 ] as const;

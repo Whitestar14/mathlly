@@ -1,19 +1,21 @@
 <template>
   <div class="space-y-6">
     <slot name="header">
-      <div class="flex items-center gap-2 pb-3 border-b border-border bg-card">
-        <BaseButton
-          variant="ghost"
-          size="icon"
-          class="shrink-0 transition-colors duration-200"
-          @click="$emit('close')"
-        >
-          <ArrowLeft class="h-4 w-4" />
-        </BaseButton>
-        <div class="flex-1 min-w-0">
-          <h3 class="text-base font-semibold text-foreground">
-            Tool Options
-          </h3>
+      <div class="sticky top-0 z-20 -p-3 bg-backdrop-surface/95 backdrop-blur-md border-b border-border">
+        <div class="flex items-center gap-2 p-2">
+          <BaseButton
+            variant="ghost"
+            size="icon"
+            class="shrink-0 transition-colors duration-200"
+            @click="$emit('close')"
+          >
+            <ArrowLeft class="h-4 w-4" />
+          </BaseButton>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-base font-semibold text-foreground">
+              Tool Options
+            </h3>
+          </div>
         </div>
       </div>
     </slot>
