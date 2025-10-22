@@ -9,19 +9,47 @@
       v-if="showHeader"
       class="sticky -top-px z-10 bg-background backdrop-blur-sm border-b border-border"
     >
-      <div class="container mx-auto flex items-center gap-2 h-14 px-4">
+      <div class="container mx-auto flex font-mono items-center gap-2 h-14 px-4">
         <BaseButton
           v-show="showBackButton"
           variant="ghost"
           size="icon"
           @click="goBack"
         >
-          <ArrowLeftIcon class="h-5 w-5" />
+          <ArrowLeftIcon class="size-4" />
         </BaseButton>
         <div class="flex items-center gap-3">
-          <h1 class="text-xl font-medium">
-            {{ title }}
-          </h1>
+          <template v-if="breadcrumbs && breadcrumbs.length > 0">
+            <nav aria-label="Breadcrumb">
+              <ol class="flex items-center gap-2 text-sm">
+                <li
+                  v-for="(crumb, index) in breadcrumbs"
+                  :key="index"
+                  class="flex items-center gap-2"
+                >
+                  <RouterLink
+                    v-if="crumb.path && index < breadcrumbs.length - 1"
+                    :to="crumb.path"
+                    class="text-primary hover:underline"
+                  >
+                    {{ crumb.label }}
+                  </RouterLink>
+                  <span v-else class="text-foreground font-medium">
+                    {{ crumb.label }}
+                  </span>
+                  <ChevronRightIcon
+                    v-if="index < breadcrumbs.length - 1"
+                    class="h-4 w-4 text-muted-foreground"
+                  />
+                </li>
+              </ol>
+            </nav>
+          </template>
+          <template v-else>
+            <h1 class="text-xl font-medium">
+              {{ title }}
+            </h1>
+          </template>
         </div>
       </div>
     </header>
@@ -43,10 +71,15 @@
 
 <script setup lang="ts">
 import { computed, type ComputedRef } from 'vue'
-import { useRouter, type Router } from 'vue-router'
-import { ArrowLeftIcon } from 'lucide-vue-next'
+import { useRouter, type Router, RouterLink } from 'vue-router'
+import { ArrowLeftIcon, ChevronRightIcon } from 'lucide-vue-next'
 import { useTitle } from '@composables/utils/useTitle'
 import { BaseButton } from '@components/ui'
+
+export interface BreadcrumbItem {
+  label: string
+  path?: string
+}
 
 interface Props {
   title?: string;
@@ -55,6 +88,7 @@ interface Props {
   showBackButton?: boolean;
   mainClass?: string;
   isToolLayout?: boolean;
+  breadcrumbs?: BreadcrumbItem[];
 }
 
 const props = withDefaults(defineProps<Props>(), {

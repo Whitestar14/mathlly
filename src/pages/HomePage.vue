@@ -1,5 +1,6 @@
 <template>
   <BasePage
+    :breadcrumbs="breadcrumbs"
     :show-footer="true"
     title="Home"
     main-class="transition-colors duration-300 mx-auto text-sm overflow-hidden"
@@ -414,7 +415,7 @@
   </BasePage>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, defineComponent, h, onMounted } from 'vue';
 import {
   Sparkles,
@@ -436,6 +437,7 @@ import {
 } from '@components/ui';
 import PrismSvg from '@assets/icons/prism-hero.svg?raw';
 import { FeatureCard, WelcomeModal } from '@components/layout';
+import type { BreadcrumbItem } from '@components/ui/BasePage.vue';
 
 // Simple CountUp component
 const CountUp = defineComponent({
@@ -471,6 +473,10 @@ const CountUp = defineComponent({
     return () => h('span', {}, `${currentValue.value}${props.suffix}`);
   },
 });
+
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: 'Home', path: '/' },
+];
 
 const version = useVersionStore();
 

@@ -16,6 +16,7 @@ import TextPanel from '../components/TextPanel.vue';
 import FileUpload from '../components/FileUpload.vue';
 import FileProcessingOverlay from '../components/FileProcessingOverlay.vue';
 import { BaseButton, BaseTabs, BasePage, BaseCard } from '@components/ui';
+import type { BreadcrumbItem } from '@components/ui/BasePage.vue';
 
 const tabs: Tab[] = [
   { value: 'encode', label: 'Encode' },
@@ -272,10 +273,15 @@ watch(
 nextTick(() => {
   if (tabsRef.value?.initializePills) tabsRef.value.initializePills('encode');
 });
+
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: 'Tools', path: '/' },
+  { label: 'Base64' }
+];
 </script>
 
 <template>
-  <BasePage :title="'Base64'" :is-tool-layout="true">
+  <BasePage :breadcrumbs="breadcrumbs" :is-tool-layout="true">
     <div class="container mx-auto p-2 md:p-3">
       <div class="max-w-6xl mx-auto space-y-3">
         <!-- Main Tool Interface -->

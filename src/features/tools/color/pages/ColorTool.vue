@@ -10,6 +10,7 @@ import { convertColor } from '@color/lib/color';
 import type { RGB, RGBA, ColorFormats as Formats } from '@color/lib/color';
 import { useClipboard } from '@vueuse/core';
 import { usePanel } from '@composables/ui/usePanel';
+import type { BreadcrumbItem } from '@components/ui/BasePage.vue';
 
 import CurrentColorCard from '../components/CurrentColorCard.vue';
 import PaletteManager from '../components/PaletteManager.vue';
@@ -24,6 +25,12 @@ const formats = ref<Formats>(convertColor(current.value));
 const harmoniesTab = ref<
   'complementary' | 'triadic' | 'analogous' | 'monochromatic'
 >('complementary');
+
+// --- Breadcrumbs ---
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: 'Tools', path: '/' },
+  { label: 'Color' }
+];
 
 // --- Methods ---
 const updateColor = (c: RGB & { a?: number }) => {
@@ -112,7 +119,7 @@ const harmonyTabs = [
 
 <template>
   <BasePage
-    title="Color Manipulation Tool"
+    :breadcrumbs="breadcrumbs"
     :is-tool-layout="true"
     main-class="flex"
   >
