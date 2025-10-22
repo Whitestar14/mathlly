@@ -13,6 +13,7 @@ import { createPanelContext } from '@composables/ui/panelContext';
 import { useDeviceStore } from '@stores/device';
 import { useSettingsStore } from '@stores/settings';
 import { useTheme } from '@composables/core/useTheme';
+import { appStorage } from '@services/storage'
 
 type TextSize = 'small' | 'normal' | 'medium' | 'large';
 
@@ -24,6 +25,8 @@ interface PanelActions {
 const device = useDeviceStore();
 const settings = useSettingsStore();
 const { actions }: { actions: PanelActions } = createPanelContext();
+
+appStorage.ensureStorageVersion();
 
 useTheme();
 

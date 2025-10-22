@@ -65,6 +65,7 @@ import PanelLoader from '@components/ui/panel/PanelLoader.vue';
 import { globalManifest } from '@app/lib/shortcuts';
 import { calculatorManifest } from '@calculator/lib/shortcuts'
 import { base64Manifest } from '@base64/lib/shortcuts';
+import { colorManifest } from '@color/lib/shortcuts'; 
 
 const SidebarMenu = defineAsyncComponent(
   () => import('../sidebar/SidebarMenu.vue')
@@ -87,6 +88,7 @@ const keyboard = useKeyboardStore()
   ...globalManifest,
   ...calculatorManifest,
   ...base64Manifest,
+  ...colorManifest,
 ].forEach((cfg) => keyboard.register(cfg));
 
 onMounted(async () => {

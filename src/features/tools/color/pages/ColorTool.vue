@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, unref, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, unref, watch, onMounted, onBeforeUnmount, computed } from 'vue';
 import {
   BasePage,
   BaseButton,
@@ -11,6 +11,10 @@ import type { RGB, RGBA, ColorFormats as Formats } from '@color/lib/color';
 import { useClipboard } from '@vueuse/core';
 import { usePanel } from '@composables/ui/usePanel';
 import type { BreadcrumbItem } from '@components/ui/BasePage.vue';
+import { useKeyboardStore } from '@stores/keyboard';
+import { ensureDefaultPalette, fetchPalettes, addColor as serviceAddColor, sanitizeColor, type PaletteEntity } from '@color/services/palette';
+import { useToast } from '@composables/ui/useToast';
+import { formatRgbaPretty } from '@color/lib/utils';
 
 import CurrentColorCard from '../components/CurrentColorCard.vue';
 import PaletteManager from '../components/PaletteManager.vue';
@@ -25,6 +29,8 @@ const formats = ref<Formats>(convertColor(current.value));
 const harmoniesTab = ref<
   'complementary' | 'triadic' | 'analogous' | 'monochromatic'
 >('complementary');
+const palettes = ref<PaletteEntity[]>([]);
+const selectedPaletteId = ref<string>('default');
 
 // --- Breadcrumbs ---
 const breadcrumbs: BreadcrumbItem[] = [
@@ -96,7 +102,7 @@ onBeforeUnmount(() => {
   observedEl = null;
 });
 
-const rgba = ref(`rgba(${current.value.r}, ${current.value.g}, ${current.value.b}, ${current.value.a})`)
+const rgba = computed(() => formatRgbaPretty(current.value));
 
 // --- Clipboard ---
 const { copy } = useClipboard();
@@ -114,7 +120,61 @@ const harmonyTabs = [
   { value: 'triadic', label: 'Triadic' },
   { value: 'analogous', label: 'Analogous' },
   { value: 'monochromatic', label: 'Mono' },
-]
+];
+
+// --- Palette and Keyboard ---
+const { toast } = useToast();
+const keyboard = useKeyboardStore();
+
+const addColorToPalette = async () => {
+  const activePalette = palettes.value.find(p => p.id === selectedPaletteId.value);
+  if (!activePalette) {
+    toast({message: 'No active palette selected', type: 'error'});
+    return;
+  }
+  const exists = activePalette.colors.some(c => c.r === current.value.r && c.g === current.value.g && c.b === current.value.b);
+  if (exists) {
+    toast({message: 'Color already in palette', type: 'info'});
+    return;
+  }
+  try {
+    const updatedPalette = await serviceAddColor(selectedPaletteId.value, sanitizeColor(current.value));
+    if (updatedPalette) {
+      palettes.value = palettes.value.map(p => p.id === updatedPalette.id ? updatedPalette : p);
+      toast({message: 'Color added to palette', type: 'success'});
+    } else {
+      toast({message: 'Failed to add color to palette', type: 'error'});
+    }
+  } catch (error) {
+    toast({message: 'Error adding color to palette', type: 'error'});
+  }
+};
+
+const navigateHarmonyTab = (direction: 'next' | 'prev') => {
+  const currentIndex = harmonyTabs.findIndex(tab => tab.value === harmoniesTab.value);
+  const length = harmonyTabs.length;
+  const newIndex = direction === 'next' ? (currentIndex + 1) % length : (currentIndex - 1 + length) % length;
+  harmoniesTab.value = harmonyTabs[newIndex].value as typeof harmoniesTab.value;
+};
+
+onMounted(async () => {
+  await ensureDefaultPalette();
+  palettes.value = await fetchPalettes();
+  selectedPaletteId.value = palettes.value.find(p => p.id === 'default')?.id || palettes.value[0]?.id || 'default';
+
+  keyboard.pushContext('tools.color');
+  keyboard.attachAllForContext('tools.color', {
+    'Ctrl+A': () => adjustmentsPanel.toggle(),
+    'Ctrl+Shift+C': copyRgba,
+    'Ctrl+P': addColorToPalette,
+    'Ctrl+ArrowRight': () => navigateHarmonyTab('next'),
+    'Ctrl+ArrowLeft': () => navigateHarmonyTab('prev'),
+  });
+});
+
+onBeforeUnmount(() => {
+  keyboard.popContext('tools.color');
+});
 </script>
 
 <template>
@@ -134,6 +194,9 @@ const harmonyTabs = [
               :current="current"
               :formats="formats"
               :update-color="updateColor"
+              :selected-palette-id="selectedPaletteId"
+              :palettes="palettes"
+              :on-add-to-palette="addColorToPalette"
             />
           </div>
 
@@ -150,6 +213,8 @@ const harmonyTabs = [
             <PaletteManager
               :current-color="current"
               :on-color-select="updateColor"
+              :palettes="palettes"
+              v-model:selected-palette-id="selectedPaletteId"
             />
             
             <AccessibilityToolsCard
@@ -181,6 +246,8 @@ const harmonyTabs = [
                 <PaletteManager
                   :current-color="current"
                   :on-color-select="updateColor"
+                  :palettes="palettes"
+                  v-model:selected-palette-id="selectedPaletteId"
                 />
               </AccordionItem>
 

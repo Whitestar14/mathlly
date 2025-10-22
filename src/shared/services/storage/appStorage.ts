@@ -55,6 +55,9 @@ class AppStorage {
   private readonly BLOB_KEY = 'app:data'
   private _loaded = false
 
+  private STORAGE_VERSION = '0'
+  private VERSION_KEY = 'app:storage-version'
+
   constructor() {
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', (e) => {
@@ -175,15 +178,18 @@ class AppStorage {
     localStorage.setItem(key, value)
   }
 
-  // Optional: versioning to mitigate race conditions across tabs
-  bumpVersion(): void {
-    this.set('meta', 'hasVisitedBefore', true) // Example entry to ensure blob writes; customize as needed
-  }
+  /**
+   * @todo remove this once prism becomes stable. try not to accidentally nuke the users' database
+   */
+  ensureStorageVersion(): void {
+  if (typeof window === 'undefined') return
 
-  // Migration hook for future schema changes
-  migrateFromLegacyKeys(): void {
-    // No-op for now
+  const current = localStorage.getItem(this.VERSION_KEY)
+  if (current !== this.STORAGE_VERSION) {
+    localStorage.clear()
+    localStorage.setItem(this.VERSION_KEY, this.STORAGE_VERSION)
   }
+}
 
   // Dev helper
   debugDump(): void {

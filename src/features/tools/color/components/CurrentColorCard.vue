@@ -18,6 +18,17 @@
         >
           <Settings2 class="h-4 w-4" />
         </BaseButton>
+        <BaseButton
+          variant="outline"
+          size="sm"
+          :disabled="!canAddToPalette || colorExistsInPalette"
+          aria-label="Add to palette"
+          v-tippy="tooltipText"
+          @click="props.onAddToPalette"
+        >
+          <Plus class="h-4 w-4" />
+          <span class="hidden sm:inline">Add to Palette</span>
+        </BaseButton>
       </div>
     </template>
 
@@ -131,7 +142,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
-import { Copy, Shuffle, Settings2 } from 'lucide-vue-next'
+import { Copy, Shuffle, Settings2, Plus } from 'lucide-vue-next'
 import { usePanel } from '@composables/ui/usePanel'
 import { BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider, BaseAccordion, AccordionItem } from '@components/ui'
 import BaseColorPicker from '@components/ui/BaseColorPicker.vue'
@@ -152,8 +163,16 @@ import {
   expandShorthandHex,
   isShorthandHex,
 } from '@color/lib/utils'
+import type { PaletteEntity } from '@color/services/palette'
 
-const props = defineProps<{ current: RGBA; formats: ColorFormats; updateColor: (c: RGBA) => void }>()
+const props = defineProps<{
+  current: RGBA
+  formats: ColorFormats
+  updateColor: (c: RGBA) => void
+  selectedPaletteId: string
+  palettes: PaletteEntity[]
+  onAddToPalette: () => void
+}>()
 
 const previewEl = ref<HTMLElement | null>(null)
 const { ripples, triggerRipple } = useRipple()
@@ -318,6 +337,22 @@ const genRandomColor = () => {
 function openAdjustments() {
   panel.toggle()
 }
+
+// Computed properties for palette integration
+const activePalette = computed(() => props.palettes.find(p => p.id === props.selectedPaletteId) ?? null)
+
+const canAddToPalette = computed(() => !!activePalette.value)
+
+const colorExistsInPalette = computed(() => {
+  if (!activePalette.value) return false
+  return activePalette.value.colors.some(c => c.r === props.current.r && c.g === props.current.g && c.b === props.current.b)
+})
+
+const tooltipText = computed(() => {
+  if (!canAddToPalette.value) return 'No palette selected'
+  if (colorExistsInPalette.value) return 'Color already in palette'
+  return 'Add current color to palette (Ctrl+P)'
+})
 </script>
 
 <style scoped>

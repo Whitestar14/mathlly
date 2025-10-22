@@ -3,7 +3,7 @@
     <BaseCard title="Palettes">
       <template #head>
         <SegmentedControl
-          v-model="selectedPaletteId"
+          v-model="selectedPaletteIdComputed"
           :options="paletteTabs"
           :max-visible="2"
         />
@@ -20,20 +20,22 @@
             @change="importPalette"
           >
           <BaseButton
-            size="sm"
+            size="icon"
             variant="outline"
             aria-label="Import palette"
             @click="openImport"
+            v-tippy="{ content: 'Import palette from JSON' }"
           >
             <Upload class="h-4 w-4" />
           </BaseButton>
 
           <!-- Create -->
           <BaseButton
-            size="sm"
+            size="icon"
             variant="outline"
             aria-label="Create palette"
             @click="setIsCreateDialogOpen(true)"
+            v-tippy="{ content: 'Create new palette' }"
           >
             <Plus class="h-4 w-4" />
           </BaseButton>
@@ -42,8 +44,8 @@
 
       <!-- Active palette content -->
       <div
-        v-for="palette in palettes"
-        v-show="selectedPaletteId === palette.id"
+        v-for="palette in props.palettes"
+        v-show="props.selectedPaletteId === palette.id"
         :key="palette.id"
         class="space-y-3 mt-2"
       >
@@ -84,6 +86,7 @@
               class="h-7 px-2"
               aria-label="Add current color"
               @click="addColorToPalette(palette.id)"
+              v-tippy="{ content: 'Add current color to palette' }"
             >
               <Plus class="h-3 w-3" />
             </BaseButton>
@@ -95,6 +98,7 @@
               :disabled="palette.id === 'default'"
               aria-label="Rename palette"
               @click="startEditingPalette(palette)"
+              v-tippy="{ content: palette.id === 'default' ? 'Default palette cannot be renamed' : 'Rename palette' }"
             >
               <Edit3 class="h-3 w-3" />
             </BaseButton>
@@ -257,7 +261,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { PopoverItem, BaseCard, BasePopover, BaseButton, BaseInput, BaseModal, BaseLabel } from '@components/ui'
 import SegmentedControl from '@components/ui/SegmentedControl.vue'
 import Swatch from './Swatch.vue'
@@ -268,8 +272,6 @@ import { useClipboard } from '@vueuse/core'
 
 // Service
 import {
-  ensureDefaultPalette,
-  fetchPalettes,
   nameExists,
   createPalette,
   updatePaletteName,
@@ -286,17 +288,23 @@ import {
 export interface PaletteManagerProps {
   currentColor: RGB
   onColorSelect: (color: RGB) => void
+  palettes: PaletteEntity[]
+  selectedPaletteId: string
 }
 
 const props = defineProps<PaletteManagerProps>()
+
+const emit = defineEmits<{
+  'update:selectedPaletteId': [value: string]
+  'update:palettes': [value: PaletteEntity[]]
+}>()
+
 const { toast } = useToast()
 const { copy } = useClipboard()
 
 const MAX_NAME_LENGTH = 30
 
 // State
-const palettes = ref<PaletteEntity[]>([])
-const selectedPaletteId = ref<string>('default')
 const newPaletteName = ref('')
 const isCreateDialogOpen = ref(false)
 const creating = ref(false)
@@ -305,8 +313,14 @@ const editingName = ref('')
 
 // Segmented control options
 const paletteTabs = computed(() =>
-  palettes.value.map((p) => ({ value: p.id, label: ellipsize(p.name, MAX_NAME_LENGTH) }))
+  props.palettes.map((p) => ({ value: p.id, label: ellipsize(p.name, MAX_NAME_LENGTH) }))
 )
+
+// Computed for v-model
+const selectedPaletteIdComputed = computed({
+  get: () => props.selectedPaletteId,
+  set: (val: string) => emit('update:selectedPaletteId', val)
+})
 
 // Helpers
 const setIsCreateDialogOpen = (v: boolean) => {
@@ -326,19 +340,6 @@ function ellipsize(s: string, max: number) {
 function swatchKey(pid: string, c: RGB, i: number) {
   return `${pid}-${c.r}-${c.g}-${c.b}-${i}`
 }
-
-// Load palettes
-onMounted(async () => {
-  try {
-    await ensureDefaultPalette()
-    palettes.value = await fetchPalettes()
-    if (!palettes.value.some(p => p.id === selectedPaletteId.value)) {
-      selectedPaletteId.value = palettes.value[0]?.id ?? 'default'
-    }
-  } catch (e: any) {
-    toast({ title: 'Database error', description: e?.message || 'Failed to load palettes' })
-  }
-})
 
 // Create input focus (no blur on first keystroke)
 const createInputRef = ref<HTMLInputElement | null>(null)
@@ -367,8 +368,9 @@ const handleCreateSubmit = async () => {
 
   try {
     const palette = await createPalette(name, sanitizeColor(props.currentColor))
-    palettes.value = [...palettes.value, palette]
-    selectedPaletteId.value = palette.id
+    const newPalettes = [...props.palettes, palette]
+    emit('update:palettes', newPalettes)
+    emit('update:selectedPaletteId', palette.id)
     newPaletteName.value = ''
     isCreateDialogOpen.value = false
     toast({ title: 'Palette created!', description: `"${palette.name}" has been created` })
@@ -391,7 +393,7 @@ const saveEditingPalette = async () => {
   if (!id) return
 
   const name = editingName.value.trim()
-  const current = palettes.value.find(p => p.id === id)
+  const current = props.palettes.find(p => p.id === id)
   if (!current) {
     cancelEditing()
     return
@@ -411,7 +413,8 @@ const saveEditingPalette = async () => {
 
   try {
     await updatePaletteName(id, name)
-    palettes.value = palettes.value.map(p => p.id === id ? { ...p, name } : p)
+    const newPalettes = props.palettes.map(p => p.id === id ? { ...p, name } : p)
+    emit('update:palettes', newPalettes)
     cancelEditing()
     toast({ title: 'Renamed', description: `Palette is now "${name}"` })
   } catch (e: any) {
@@ -427,14 +430,15 @@ const cancelEditing = () => {
 // Delete: jump to nearest neighbor instead of default
 const deletePalette = async (id: string) => {
   try {
-    const idx = palettes.value.findIndex(p => p.id === id)
+    const idx = props.palettes.findIndex(p => p.id === id)
 
     await removePalette(id)
-    palettes.value = palettes.value.filter(p => p.id !== id)
+    const newPalettes = props.palettes.filter(p => p.id !== id)
+    emit('update:palettes', newPalettes)
 
-    if (selectedPaletteId.value === id) {
-      const neighbor = palettes.value[idx - 1] || palettes.value[idx] || palettes.value[0]
-      selectedPaletteId.value = neighbor?.id ?? 'default'
+    if (props.selectedPaletteId === id) {
+      const neighbor = props.palettes[idx - 1] || props.palettes[idx] || props.palettes[0]
+      emit('update:selectedPaletteId', neighbor?.id ?? 'default')
     }
 
     toast({ title: 'Deleted', description: 'Palette removed' })
@@ -448,7 +452,8 @@ const addColorToPalette = async (id: string) => {
   try {
     const next = await serviceAddColor(id, sanitizeColor(props.currentColor))
     if (!next) return
-    palettes.value = palettes.value.map(x => x.id === id ? next : x)
+    const newPalettes = props.palettes.map(x => x.id === id ? next : x)
+    emit('update:palettes', newPalettes)
     toast({ title: 'Added!', description: 'Current color added to palette' })
   } catch (e: any) {
     toast({ title: 'Error', description: e?.message || 'Failed to add color' })
@@ -459,7 +464,8 @@ const removeColorFromPalette = async (id: string, index: number) => {
   try {
     const next = await serviceRemoveColor(id, index)
     if (!next) return
-    palettes.value = palettes.value.map(x => x.id === id ? next : x)
+    const newPalettes = props.palettes.map(x => x.id === id ? next : x)
+    emit('update:palettes', newPalettes)
   } catch (e: any) {
     toast({ title: 'Error', description: e?.message || 'Failed to remove color' })
   }
@@ -482,8 +488,9 @@ const importPalette = async (event: Event) => {
   try {
     const text = await file.text()
     const imported = await importPaletteFromJSON(text, MAX_NAME_LENGTH)
-    palettes.value = [...palettes.value, imported]
-    selectedPaletteId.value = imported.id
+    const newPalettes = [...props.palettes, imported]
+    emit('update:palettes', newPalettes)
+    emit('update:selectedPaletteId', imported.id)
     toast({ title: 'Imported!', description: `"${imported.name}" has been imported` })
   } catch (err: any) {
     toast({
