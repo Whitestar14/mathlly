@@ -1,7 +1,8 @@
 import { ref, computed } from 'vue'
-import { useIntervalFn, useLocalStorage } from '@vueuse/core'
+import { useIntervalFn } from '@vueuse/core'
 import { useVersionStore } from '@stores/version'
 import { useSettingsStore } from '@stores/settings'
+import { appStorage } from '@services/storage'
 
 let useRegisterSW: any
 
@@ -102,7 +103,10 @@ export function usePWA() {
   // Local state
   const latestVersion = ref('')
   const updateFeatures = ref<string[]>([])
-  const dismissedVersion = useLocalStorage('dismissed-version', '')
+  const dismissedVersion = computed({
+    get: () => appStorage.get('pwa', 'dismissedVersion', ''),
+    set: (value: string) => appStorage.set('pwa', 'dismissedVersion', value)
+  })
   const isInitialized = ref(false)
   
   // PWA state - initialize with default values
@@ -322,8 +326,8 @@ const isNewerVersion = (latest: string, current: string): boolean => {
    */
   const shouldShowUpdate = computed(() => {
     // Check if dismissal has expired
-    const dismissedUntil = localStorage.getItem('update-dismissed-until')
-    if (dismissedUntil && Date.now() < parseInt(dismissedUntil)) {
+    const dismissedUntil = appStorage.get('pwa', 'updateDismissedUntil', 0)
+    if (dismissedUntil && Date.now() < dismissedUntil) {
       return false
     }
     
@@ -364,7 +368,7 @@ const isNewerVersion = (latest: string, current: string): boolean => {
       
       // Set a shorter dismissal period (e.g., 1 hour)
       const dismissalExpiry = Date.now() + (60 * 60 * 1000) // 1 hour
-      localStorage.setItem('update-dismissed-until', dismissalExpiry.toString())
+      appStorage.set('pwa', 'updateDismissedUntil', dismissalExpiry)
     }
     needRefresh.value = false
     latestVersion.value = ''

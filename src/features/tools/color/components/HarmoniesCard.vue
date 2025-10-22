@@ -11,6 +11,7 @@
 
     <template #header>
       <BaseButton
+        v-tippy="{ content: 'Export to JSON' }"
         size="icon"
         variant="outline"
         aria-label="Export harmony colors"

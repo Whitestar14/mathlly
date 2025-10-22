@@ -2,6 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import ErrorFallback from '@pages/ErrorFallback.vue'
 import { setupRouteErrorHandling, routeError, routePath } from './errorHandler'
 import db from '@services/storage/db'
+import { appStorage } from '@services/storage'
 
 let isInitialNavigation = true
 
@@ -106,7 +107,7 @@ router.afterEach((to) => {
   const excludedRoutes = ['not-found', 'settings', 'error', 'feedback']
 
   if (!excludedRoutes.includes(to.name as string) && to.path !== '/') {
-    localStorage.setItem('path-lstv', to.fullPath)
+    appStorage.set('router', 'lastVisitedPath', to.fullPath)
   }
 
   isInitialNavigation = false
@@ -121,23 +122,16 @@ router.beforeEach(async (to, _, next) => {
         const startupNav = settings.startup.navigation
 
         if (startupNav === 'last-visited') {
-          const lastVisitedPath = localStorage.getItem('path-lstv')
+          const lastVisitedPath = appStorage.get('router', 'lastVisitedPath', null)
 
           if (lastVisitedPath && lastVisitedPath !== '/') {
             return next(lastVisitedPath)
           }
 
           // Check for calculator settings in localStorage instead of IndexedDB
-          const calculatorOptionsStr = localStorage.getItem('tool-options-calculator')
-          if (calculatorOptionsStr) {
-            try {
-              const calculatorOptions = JSON.parse(calculatorOptionsStr)
-              if (calculatorOptions) {
-                return next('/calculator')
-              }
-            } catch (e) {
-              console.error('Error parsing calculator options:', e)
-            }
+          const calculatorOptions = appStorage.get('router', 'toolOptions', null)
+          if (calculatorOptions.calculator) {
+            return next('/calculator')
           }
         }
 
@@ -156,4 +150,4 @@ router.beforeEach(async (to, _, next) => {
   }
 })
 
-export default router;
+export default router

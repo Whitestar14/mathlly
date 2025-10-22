@@ -1,12 +1,11 @@
 import { onUnmounted } from 'vue';
 import { usePanelContext } from './panelContext';
-import { useLocalStorage } from '@vueuse/core';
+import { appStorage } from '@services/storage';
 import {
   PanelOptions,
   PanelAPI,
   LightweightPanelAPI,
   ToggleOptions,
-  PanelPreferences
 } from './types';
 
 /**
@@ -45,11 +44,11 @@ export function usePanel(id: string, options: PanelOptions = {}): PanelAPI | Lig
     },
     get preloadIsOpen(): boolean {
       const storageKey = options.storageKey || id;
-      const preferences = useLocalStorage<PanelPreferences>(`${storageKey}-preferences`, {
+      const preferences = appStorage.get('panels', storageKey, {
         desktop: { isOpen: false },
         mobile: { isOpen: false }
       });
-      return state.isMobile ? preferences.value.mobile.isOpen : preferences.value.desktop.isOpen;
+      return state.isMobile ? preferences.mobile.isOpen : preferences.desktop.isOpen;
     },
     get isMobile(): boolean {
       return state.isMobile;

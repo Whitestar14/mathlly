@@ -1,5 +1,6 @@
 import { ref, onMounted, onUnmounted, readonly } from "vue"
 import { useToast, type ToastAction } from "@composables/ui/useToast"
+import { appStorage } from "@services/storage"
 
 export function usePWAInstallPrompt() {
   const deferredPrompt = ref<Event | null>(null)
@@ -76,13 +77,13 @@ export function usePWAInstallPrompt() {
   }
 
   onMounted(() => {
-    const visitedFlag = localStorage.getItem("hasVisitedBefore")
-    if (visitedFlag === "true") {
+    const visitedFlag = appStorage.get('meta', 'hasVisitedBefore', false)
+    if (visitedFlag) {
       hasVisitedBefore.value = true
     } else {
       // Set the flag for future visits
       setTimeout(() => {
-        localStorage.setItem("hasVisitedBefore", "true")
+        appStorage.set('meta', 'hasVisitedBefore', true)
         hasVisitedBefore.value = true
       }, 1000)
     }

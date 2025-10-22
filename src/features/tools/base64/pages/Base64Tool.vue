@@ -300,7 +300,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <BasePage title="Base64" :breadcrumbs="breadcrumbs" :is-tool-layout="true">
+  <BasePage title="Base64" :main-class="'flex'" :breadcrumbs="breadcrumbs" :is-tool-layout="true">
     <div class="container mx-auto p-2 md:p-3">
       <div class="max-w-6xl mx-auto space-y-3">
         <!-- Main Tool Interface -->

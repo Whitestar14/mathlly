@@ -438,6 +438,7 @@ import {
 import PrismSvg from '@assets/icons/prism-hero.svg?raw';
 import { FeatureCard, WelcomeModal } from '@components/layout';
 import type { BreadcrumbItem } from '@components/ui/BasePage.vue';
+import { appStorage } from '@services/storage';
 
 // Simple CountUp component
 const CountUp = defineComponent({
@@ -564,8 +565,7 @@ const showWelcomeModal = ref(false);
 
 onMounted(() => {
   // Check if the welcome modal has been shown before
-  const hasShownWelcome =
-    localStorage.getItem('prism-welcome-shown') === 'true';
+  const hasShownWelcome = appStorage.get('onboarding', 'welcomeShown', false);
   if (!hasShownWelcome) {
     // Add a delay before showing the modal
     useTimeoutFn(() => {

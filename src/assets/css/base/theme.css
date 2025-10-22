@@ -1,11 +1,18 @@
-/* stylelint-disable at-rule-no-unknown */
-
 @import '../themes/classic.css';
 @import '../themes/ayu.css';
 @import '../themes/mira.css';
 
 @layer base {
-  /* Theme-pack driven radius toggles */
   .border-style-sharp   { --radius: 0px; }
   .border-style-rounded { --radius: 0.5rem; }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(var(--color-muted)) transparent;
+  }
+
+  * ::-webkit-scrollbar {
+  width: 8px;
+  background-color: transparent; 
+}
 }

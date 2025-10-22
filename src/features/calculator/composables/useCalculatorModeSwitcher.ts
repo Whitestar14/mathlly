@@ -1,5 +1,4 @@
-import { ref, readonly, watch } from 'vue';
-import { useLocalStorage } from '@vueuse/core';
+import { ref, readonly } from 'vue';
 import { useCalculatorOptions } from './useCalculatorOptions';
 import type { CalculatorMode } from './useCalculatorState';
 
@@ -9,7 +8,6 @@ interface ModeOption {
   shortLabel?: string;
 }
 
-// Global reactive state - no provide/inject needed
 const currentMode = ref<CalculatorMode>('Standard');
 const isInitialized = ref(false);
 
@@ -18,12 +16,6 @@ const availableModes: ModeOption[] = [
   { value: 'Scientific', label: 'Scientific', shortLabel: 'Sci' },
   { value: 'Programmer', label: 'Programmer', shortLabel: 'Prog' },
 ];
-
-// Persist mode to localStorage
-const persistedMode = useLocalStorage<CalculatorMode>(
-  'calculator-mode',
-  'Standard'
-);
 
 /**
  * Initialize the calculator mode switcher
@@ -38,24 +30,10 @@ export function initializeCalculatorModeSwitcher(initialMode?: CalculatorMode) {
   const modeToUse =
     calculatorOptions.options.value.defaultMode ||
     initialMode ||
-    persistedMode.value ||
     'Standard';
 
   currentMode.value = modeToUse;
-  persistedMode.value = modeToUse;
   isInitialized.value = true;
-
-  // Watch for changes to the default mode in options
-  watch(
-    () => calculatorOptions.options.value.defaultMode,
-    (newDefaultMode) => {
-      // Only update if we're using the default mode (not a user-selected mode)
-      if (!persistedMode.value || persistedMode.value === 'Standard') {
-        currentMode.value = newDefaultMode;
-        persistedMode.value = newDefaultMode;
-      }
-    }
-  );
 }
 
 /**
@@ -70,7 +48,6 @@ export function useCalculatorModeSwitcher() {
   const updateMode = (newMode: CalculatorMode) => {
     if (availableModes.some((mode) => mode.value === newMode)) {
       currentMode.value = newMode;
-      persistedMode.value = newMode;
     }
   };
 

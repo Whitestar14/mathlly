@@ -1,10 +1,10 @@
-import { shallowRef, computed, nextTick, watch, markRaw, type Ref, type ComputedRef } from 'vue';
-import { useLocalStorage, useDebounceFn, type RemovableRef } from '@vueuse/core';
+import { ref, shallowRef, computed, nextTick, watch, markRaw, type Ref, type ComputedRef } from 'vue';
+import { useDebounceFn } from '@vueuse/core';
 import { useDraggable } from '@utils/misc/draggable';
+import { appStorage } from '@services/storage';
 import {
   PanelOptions,
   PanelAPI,
-  PanelPreferences,
   ToggleOptions,
   DraggableReturn
 } from './types';
@@ -52,10 +52,13 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
   }
 
   // Persisted open state per device type
-  const preferences: RemovableRef<PanelPreferences> = useLocalStorage(`${storageKey}-preferences`, {
+  const preferences = ref(appStorage.get('panels', storageKey, {
     desktop: { isOpen: defaultDesktopState },
     mobile: { isOpen: false },
-  });
+  }));
+
+  // Watch for changes and persist to storage
+  watch(preferences, (newVal) => appStorage.set('panels', storageKey, newVal), { deep: true });
 
   // Compute initial open state from persisted preferences synchronously
   const initialIsOpen: ComputedRef<boolean> = computed(() =>

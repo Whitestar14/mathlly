@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue';
-import { useLocalStorage, useWindowSize, useEventListener } from '@vueuse/core';
+import { useWindowSize, useEventListener } from '@vueuse/core';
 import { CodeIcon } from 'lucide-vue-next';
 import DesktopDevDock from './DesktopDevDock.vue';
 import MobileDevDock from './MobileDevDock.vue';
@@ -72,6 +72,7 @@ import PerformancePanel from './PerformancePanel.vue';
 import ConsolePanel from './ConsolePanel.vue';
 import StatePanel from './StatePanel.vue';
 import KeyboardShortcuts from './KeyboardShortcuts.vue';
+import { appStorage } from '@services/storage';
 
 const isDevEnvironment: boolean = import.meta.env.DEV;
 
@@ -98,8 +99,8 @@ interface Tool {
 }
 
 // Beta opt-in state
-const hasOptedIn = useLocalStorage('dev-dock-beta-opted-in', false);
-const betaDecisionMade = useLocalStorage('dev-dock-beta-decision-made', false);
+const hasOptedIn = computed({ get: () => appStorage.get('devDock', 'betaOptedIn', false), set: (v) => appStorage.set('devDock', 'betaOptedIn', v) });
+const betaDecisionMade = computed({ get: () => appStorage.get('devDock', 'betaDecisionMade', false), set: (v) => appStorage.set('devDock', 'betaDecisionMade', v) });
 const showBetaModal = ref(false);
 
 // Show modal on first visit if no decision has been made
@@ -117,19 +118,12 @@ const { width } = useWindowSize();
 const isMobile = computed(() => width.value < 768);
 
 // Persistent state (only initialize if opted in to avoid unnecessary localStorage writes)
-const isExpanded = useLocalStorage('dev-dock-expanded', false);
-const isDockOpen = useLocalStorage('dev-dock-open', false);
-const activePanels = useLocalStorage<ActivePanels>('dev-dock-panels', {
-  pwa: false,
-  version: false,
-  performance: false,
-  console: false,
-  state: false,
-  shortcuts: false
-});
+const isExpanded = computed({ get: () => appStorage.get('devDock', 'expanded', false), set: (v) => appStorage.set('devDock', 'expanded', v) });
+const isDockOpen = computed({ get: () => appStorage.get('devDock', 'open', false), set: (v) => appStorage.set('devDock', 'open', v) });
+const activePanels = computed<ActivePanels>({ get: () => appStorage.get('devDock', 'panels', { pwa: false, version: false, performance: false, console: false, state: false, shortcuts: false }), set: (v) => appStorage.set('devDock', 'panels', v) });
 
 // Desktop panel management - use string instead of keyof
-const currentDesktopPanel = useLocalStorage<string | null>('dev-dock-current-panel', null);
+const currentDesktopPanel = computed<string | null>({ get: () => appStorage.get('devDock', 'currentPanel', null), set: (v) => appStorage.set('devDock', 'currentPanel', v) });
 
 // Mobile-specific state
 const activeMobilePanelIndex = ref(0);

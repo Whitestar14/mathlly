@@ -97,8 +97,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useLocalStorage } from '@vueuse/core'
+import { ref, computed } from 'vue'
+import { appStorage } from '@services/storage'
 import {
   Sparkles,
   ExternalLink,
@@ -122,7 +122,10 @@ interface Emits {
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-const welcomeShown = useLocalStorage('prism-welcome-shown', false)
+const welcomeShown = computed({
+  get: () => appStorage.get('onboarding', 'welcomeShown', false),
+  set: (value: boolean) => appStorage.set('onboarding', 'welcomeShown', value)
+})
 const dontShowAgain = ref(false)
 
 const handleGetStarted = (): void => {

@@ -144,3 +144,9 @@ nextTick(() => {
   tabsRef.value?.initializePills?.(currentTab.value)
 })
 </script>
+
+<style lang="css" scoped>
+.overflow-hidden.relative {
+  scrollbar-gutter: stable;
+}
+</style>

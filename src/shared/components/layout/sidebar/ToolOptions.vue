@@ -124,12 +124,12 @@
                   <div
                     v-for="radioOption in option.options"
                     :key="radioOption.value"
-                    class="flex items-center space-x-3 p-2 rounded-md hover:bg-accent/30 transition-colors duration-200"
+                    class="flex items-center space-x-3 p-2 rounded-md hover:bg-secondary/50 transition-colors duration-200"
                   >
                     <RadioGroupItem
                       :id="`${option.id}-${radioOption.value}`"
                       :value="radioOption.value"
-                      class="w-4 h-4 rounded-full border-2 border-border text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all duration-200"
+                      class="w-4 h-4 rounded-full border-2 border-border text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-transparent data-[state=checked]:border-primary transition-all duration-200"
                     />
                     <label
                       :for="`${option.id}-${radioOption.value}`"
