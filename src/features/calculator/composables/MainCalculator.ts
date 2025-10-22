@@ -1,5 +1,5 @@
-import { computed, nextTick, watch, shallowRef, type Ref, type ComputedRef } from 'vue'
-import { useKeyboard } from '@composables/ui/useKeyboard'
+import { computed, nextTick, watch, shallowRef, onMounted, onUnmounted, type Ref, type ComputedRef } from 'vue'
+import { useKeyboardStore } from '@stores/keyboard'
 import { useEventListener, useMemoize, useThrottleFn } from '@vueuse/core'
 import { useDisplayFormatter } from '@calculator/services/display/DisplayFormatter'
 import { CalculatorUtils } from '@calculator/utils/constants/CalculatorUtils'
@@ -67,6 +67,8 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
   } = options
 
   const calculatorOptions = useCalculatorOptions()
+
+  const keyboard = useKeyboardStore()
   
   const displayFormatter = useDisplayFormatter()
 
@@ -250,28 +252,31 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
   const mode = shallowRef<CalculatorMode>(state.mode)
   const activeBase = shallowRef<Base>(state.activeBase)
 
-  /**
-   * Set up keyboard handlers
-   */
-  const { setContext, clearContext } = useKeyboard('calculator', {
-    clear: handleClear,
-    calculate: () => handleButtonClick('='),
-    backspace: () => handleButtonClick('backspace'),
-    input: (value: string) => {
-      if (mode.value === 'Programmer') {
-        // Allow operators and valid digits for the current base
-        if (CalculatorUtils.isOperator(value) || 
-            value === '(' || 
-            value === ')' ||
-            CalculatorUtils.isValidForBase(value, activeBase.value)) {
-          handleButtonClick(value)
-        }
-      } else {
-        handleButtonClick(value)
-      }
-    },
-    setBase: handleBaseChange,
-    toggleActivity
+onMounted(() => {
+    // Attach core calculator actions
+    keyboard.attachAllForContext('calculator', {
+      'Enter': () => handleButtonClick('='),
+      'Escape': () => handleClear(),
+      'Backspace': () => handleButtonClick('backspace'),
+      'Ctrl+Shift+A': () => toggleActivity(),
+    })
+
+    // Attach programmer actions
+    keyboard.attachAllForContext('calculator.programmer', {
+      'Ctrl+1': () => handleBaseChange('HEX'),
+      'Ctrl+2': () => handleBaseChange('DEC'),
+      'Ctrl+3': () => handleBaseChange('OCT'),
+      'Ctrl+4': () => handleBaseChange('BIN'),
+    })
+
+    // Always push calculator context
+    keyboard.pushContext('calculator')
+  })
+
+  onUnmounted(() => {
+    // TODO: Refactor the keyboard store to account for clearing all subcontext automatically when the main is cleared
+    keyboard.popContext('calculator')
+    keyboard.popContext('calculator.programmer')
   })
 
   watch(
@@ -279,9 +284,9 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     (newMode: CalculatorMode) => {
       mode.value = newMode
       if (newMode === 'Programmer') {
-        setContext('programmer')
+        keyboard.pushContext('calculator.programmer')
       } else {
-        clearContext('programmer')
+        keyboard.popContext('calculator.programmer')
       }
     },
     { immediate: true }

@@ -1,217 +1,265 @@
-import { defineStore } from "pinia"
-import { ref, computed, markRaw, type Ref, type ComputedRef } from "vue"
+// src/stores/keyboard.ts
+import { defineStore } from 'pinia'
 
-// Define interfaces for keyboard shortcuts
-interface ShortcutAction {
-  action: string
-  payload?: string
+export type Modifier = 'Ctrl' | 'Alt' | 'Shift' | 'Meta'
+export type CanonicalKey = string
+export type ContextPath = string
+
+export interface KeyBinding {
+  id?: string
+  key: CanonicalKey
   description: string
+  context: ContextPath
+  action?: (e: KeyboardEvent) => void
+  preventDefault?: boolean
+  priority?: number
+  enabled?: boolean
 }
 
-interface ShortcutRegistry {
-  global: Record<string, ShortcutAction>
-  calculator: Record<string, ShortcutAction>
-  programmer: Record<string, ShortcutAction>
-  tools: Record<string, ShortcutAction>
+export interface RegisteredBinding extends KeyBinding {
+  id: string
 }
 
-// Define base validator type
-type BaseValidator = RegExp
-
-// Define base validators interface
-interface BaseValidators {
-  BIN: BaseValidator
-  OCT: BaseValidator
-  DEC: BaseValidator
-  HEX: BaseValidator
+export interface Collision {
+  key: CanonicalKey
+  context: ContextPath
+  bindings: RegisteredBinding[]
 }
 
-/**
- * Store for managing keyboard shortcuts and input validation
- */
-export const useKeyboardStore = defineStore("keyboard", () => {
-  /**
-   * Base validation regular expressions for programmer mode
-   */
-  const BASE_VALIDATORS: BaseValidators = markRaw({
-    BIN: /^[0-1]$/,
-    OCT: /^[0-7]$/,
-    DEC: /^[0-9]$/,
-    HEX: /^[0-9a-fA-F]$/,
-  })
+export interface ShortcutSummaryItem {
+  id: string
+  key: CanonicalKey
+  description: string
+  context: ContextPath
+  priority: number
+  enabled: boolean
+}
 
-  /**
-   * Keys that are always allowed regardless of context
-   */
-  const COMMON_KEYS: readonly string[] = markRaw([
-    "backspace", 
-    "enter", 
-    "escape", 
-    "+", 
-    "-", 
-    "×", 
-    "÷", 
-    "(", 
-    ")", 
-    "%"
-  ])
+function uid() {
+  return Math.random().toString(36).slice(2)
+}
 
-  /**
-   * Key normalization mapping
-   */
-  const KEY_MAP: Record<string, string> = markRaw({
-    enter: "enter",
-    backspace: "backspace",
-    escape: "escape",
-    "*": "×",
-    "/": "÷",
-  })
+function canonicalizeKeyName(key: string): string {
+  const k = key.length === 1 ? key.toUpperCase() : key
+  switch (k) {
+    case ' ':
+    case 'Spacebar': return 'Space'
+    case 'Esc': return 'Escape'
+    default: return k
+  }
+}
 
-  /**
-   * Registered keyboard shortcuts by context
-   */
-  const shortcuts: Ref<ShortcutRegistry> = ref({
-    global: {
-      "ctrl+alt+f": {
-        action: "toggleFullscreen",
-        description: "Toggle Fullscreen",
-      },
-      "ctrl+l": { action: "toggleSidebar", description: "Toggle Sidebar" },
-      "ctrl+h": { action: "toggleActivity", description: "Toggle Activity" },
-      "ctrl+,": { action: "toggleMenubar", description: "Toggle Menubar" },
-      "ctrl+ ": { action: "openShortcutModal", description: "Open Shortcuts" },
-      "ctrl+shift+m": { action: "toggleTheme", description: "Toggle Theme" },
+function normalizeKeyEvent(e: KeyboardEvent): CanonicalKey {
+  const mods: Modifier[] = []
+  if (e.ctrlKey) mods.push('Ctrl')
+  if (e.altKey) mods.push('Alt')
+  if (e.shiftKey) mods.push('Shift')
+  if (e.metaKey) mods.push('Meta')
+  const base = canonicalizeKeyName(e.key)
+  return mods.length ? `${mods.join('+')}+${base}` : base
+}
+
+// ancestry("tools.base64.editor") -> ["tools.base64.editor","tools.base64","tools"]
+function ancestry(context: ContextPath): ContextPath[] {
+  const parts = context.split('.')
+  const paths: string[] = []
+  for (let i = parts.length; i >= 1; i--) {
+    paths.push(parts.slice(0, i).join('.'))
+  }
+  return paths
+}
+
+export const useKeyboardStore = defineStore('keyboard', {
+  state: () => ({
+    bindingsByKey: new Map<CanonicalKey, RegisteredBinding[]>(),
+    activeContexts: [] as ContextPath[],
+    collisions: [] as Collision[],
+    listening: false,
+    summary: [] as ShortcutSummaryItem[],
+  }),
+  getters: {
+    guideSummary(state): ShortcutSummaryItem[] {
+      return state.summary
     },
-    calculator: {
-      escape: { action: "clear", description: "Clear Input" },
-      enter: { action: "calculate", description: "Calculate Result" },
-      backspace: { action: "backspace", description: "Delete Last Character" },
-
-      // Number keys
-      0: { action: "input", payload: "0", description: "Input 0" },
-      1: { action: "input", payload: "1", description: "Input 1" },
-      2: { action: "input", payload: "2", description: "Input 2" },
-      3: { action: "input", payload: "3", description: "Input 3" },
-      4: { action: "input", payload: "4", description: "Input 4" },
-      5: { action: "input", payload: "5", description: "Input 5" },
-      6: { action: "input", payload: "6", description: "Input 6" },
-      7: { action: "input", payload: "7", description: "Input 7" },
-      8: { action: "input", payload: "8", description: "Input 8" },
-      9: { action: "input", payload: "9", description: "Input 9" },
-
-      // Operators
-      "+": { action: "input", payload: "+", description: "Add" },
-      "-": { action: "input", payload: "-", description: "Subtract" },
-      "*": { action: "input", payload: "×", description: "Multiply" },
-      "/": { action: "input", payload: "÷", description: "Divide" },
-      ".": { action: "input", payload: ".", description: "Decimal" },
-      "(": { action: "input", payload: "(", description: "Open Parenthesis" },
-      ")": { action: "input", payload: ")", description: "Close Parenthesis" },
+  },
+  actions: {
+    attachListener() {
+      if (this.listening) return
+      window.addEventListener('keydown', this._onKeyDown, { capture: true })
+      this.listening = true
     },
-    programmer: {
-      a: { action: "input", payload: "A", description: "Hex A" },
-      b: { action: "input", payload: "B", description: "Hex B" },
-      c: { action: "input", payload: "C", description: "Hex C" },
-      d: { action: "input", payload: "D", description: "Hex D" },
-      e: { action: "input", payload: "E", description: "Hex E" },
-      f: { action: "input", payload: "F", description: "Hex F" },
+    detachListener() {
+      if (!this.listening) return
+      window.removeEventListener('keydown', this._onKeyDown as EventListener)
+      this.listening = false
     },
-    tools: {
-      "ctrl+enter": { action: "process", description: "Process Input" },
-      "ctrl+s": { action: "swap", description: "Swap Input and Output" },
-      "ctrl+v": { action: "paste", description: "Paste from Clipboard" },
-      "ctrl+c": { action: "copy", description: "Copy Result" },
+
+    setActiveContexts(contexts: ContextPath[]) {
+      this.activeContexts = contexts
+      this.syncEnabledFlags()
     },
-  })
+    pushContext(context: ContextPath) {
+      for (const level of ancestry(context)) {
+        if (!this.activeContexts.includes(level)) this.activeContexts.push(level)
+      }
+      this.syncEnabledFlags()
+    },
+    popContext(context: ContextPath) {
+      const levels = ancestry(context)
+      this.activeContexts = this.activeContexts.filter(c => !levels.includes(c))
+      this.syncEnabledFlags()
+    },
 
-  /**
-   * Whether keyboard shortcuts are enabled
-   */
-  const isEnabled: Ref<boolean> = ref(true)
-  
-  /**
-   * Current context stack (hierarchical)
-   */
-  const contextStack: Ref<string[]> = ref(["global"])
-  
-  /**
-   * Active shortcuts based on current context stack
-   */
-  const activeShortcuts: ComputedRef<Record<string, ShortcutAction>> = computed(() => {
-    return contextStack.value.reduce((acc, context) => {
-      const contextShortcuts = shortcuts.value[context as keyof ShortcutRegistry] || {}
-      return { ...acc, ...contextShortcuts }
-    }, {} as Record<string, ShortcutAction>)
-  })
+    register(binding: KeyBinding): string {
+      const id = binding.id ?? uid()
+      const entry: RegisteredBinding = {
+        id,
+        ...binding,
+        preventDefault: binding.preventDefault ?? true,
+        priority: binding.priority ?? 0,
+        enabled: binding.enabled ?? false,
+      }
 
-  /**
-   * Current active context (excluding global)
-   */
-  const currentContext: ComputedRef<string> = computed(() => {
-    return contextStack.value[contextStack.value.length - 1]
-  })
+      const list = this.bindingsByKey.get(entry.key) ?? []
+      list.push(entry)
+      this.bindingsByKey.set(entry.key, list)
 
-  /**
-   * Sets the current keyboard context
-   */
-  function setContext(ctx: string): void {    
-    // Remove existing instance of context if it exists
-    contextStack.value = contextStack.value.filter((c) => c !== ctx)
-    
-    // Add new context to top of stack
-    contextStack.value.push(ctx)
+      this.summary.push({
+        id: entry.id,
+        key: entry.key,
+        description: entry.description,
+        context: entry.context,
+        priority: entry.priority!,
+        enabled: entry.enabled!,
+      })
+
+      this.computeCollisionsForKey(entry.key)
+      return id
+    },
+
+    unregister(id: string) {
+      for (const [key, list] of this.bindingsByKey.entries()) {
+        const next = list.filter(b => b.id !== id)
+        if (next.length !== list.length) {
+          this.bindingsByKey.set(key, next)
+          this.summary = this.summary.filter(s => s.id !== id)
+          this.computeCollisionsForKey(key)
+        }
+      }
+    },
+
+    attachAction(id: string, action: (e: KeyboardEvent) => void) {
+      for (const [key, list] of this.bindingsByKey.entries()) {
+        const idx = list.findIndex(b => b.id === id)
+        if (idx !== -1) {
+          list[idx] = { ...list[idx], action }
+          this.bindingsByKey.set(key, list)
+          break
+        }
+      }
+    },
+
+  attachAllForContext(context: string, handlers: Record<string, (e: KeyboardEvent) => void>) {
+  for (const [key, fn] of Object.entries(handlers)) {
+    const list = this.bindingsByKey.get(key) ?? []
+    const match = list.find(b => b.context === context)
+    if (match) this.attachAction(match.id, fn)
   }
+},
 
-  /**
-   * Clears a context from the stack
-   */
-  function clearContext(ctx: string): void {    
-    contextStack.value = contextStack.value.filter((c) => c !== ctx)
-    
-    // Ensure global context is always present
-    if (contextStack.value.length === 0) {
-      contextStack.value = ["global"]
-    }
-  }
+    enable(id: string) { this._setEnabled(id, true) },
+    disable(id: string) { this._setEnabled(id, false) },
+    _setEnabled(id: string, enabled: boolean) {
+      for (const [key, list] of this.bindingsByKey.entries()) {
+        const idx = list.findIndex(b => b.id === id)
+        if (idx !== -1) {
+          list[idx] = { ...list[idx], enabled }
+          this.bindingsByKey.set(key, list)
+          break
+        }
+      }
+      const sidx = this.summary.findIndex(s => s.id === id)
+      if (sidx !== -1) {
+        this.summary[sidx] = { ...this.summary[sidx], enabled }
+      }
+    },
 
-  /**
-   * Validates if a key is valid input in the current context
-   */
-  function isValidInput(key: string): boolean {
-    // Normalize the key to handle special cases
-    const normalizedKey = key?.toLowerCase?.()
+    enableByContext(context: ContextPath) {
+      const levels = new Set(ancestry(context))
+      for (const list of this.bindingsByKey.values()) {
+        for (const b of list) if (levels.has(b.context)) this._setEnabled(b.id, true)
+      }
+    },
+    disableByContext(context: ContextPath) {
+      const levels = new Set(ancestry(context))
+      for (const list of this.bindingsByKey.values()) {
+        for (const b of list) if (levels.has(b.context)) this._setEnabled(b.id, false)
+      }
+    },
 
-    // Always allow common keys
-    if (COMMON_KEYS.includes(normalizedKey)) return true
+    syncEnabledFlags() {
+      const active = new Set(this.activeContexts)
+      for (const list of this.bindingsByKey.values()) {
+        for (const b of list) {
+          const shouldEnable = active.has(b.context)
+          if (b.enabled !== shouldEnable) this._setEnabled(b.id, shouldEnable)
+        }
+      }
+    },
 
-    // If not in programmer mode, allow all numeric input
-    if (!contextStack.value.includes("programmer")) {
-      return /^[0-9.]$/.test(normalizedKey)
-    }
+    _onKeyDown(e: KeyboardEvent) {
+      const key = normalizeKeyEvent(e)
+      const candidates = this.bindingsByKey.get(key)
+      if (!candidates || candidates.length === 0) return
 
-    // For programmer mode, validate against current base
-    const validator = BASE_VALIDATORS[currentContext.value as keyof BaseValidators]
-    
-    // Ensure validation happens against the normalized key
-    return validator?.test(normalizedKey) ?? false
-  }
+      const enabled = candidates.filter(b => b.enabled && b.action)
+      const resolved = this.resolveByContextAndPriority(enabled)
+      if (!resolved) return
 
-  /**
-   * Normalizes key names for consistency
-   */
-  function normalizeKey(key: string): string {
-    return KEY_MAP[key] || key
-  }
+      if (resolved.preventDefault) { e.preventDefault(); e.stopPropagation() }
+      resolved.action!(e)
+    },
 
-  return {
-    shortcuts,
-    isEnabled,
-    contextStack,
-    currentContext,
-    activeShortcuts,
-    setContext,
-    clearContext,
-    isValidInput,
-    normalizeKey,
-  }
+    resolveByContextAndPriority(bindings: RegisteredBinding[]): RegisteredBinding | null {
+      if (bindings.length === 0) return null
+
+      if (this.activeContexts.length === 0) {
+        const globals = bindings.filter(b => !b.context.includes('.'))
+        const source = globals.length ? globals : bindings
+        return source.sort((a, b) => b.priority! - a.priority!)[0] ?? null
+      }
+
+      const specificityLevels: ContextPath[] = []
+      for (const ctx of this.activeContexts) {
+        for (const level of ancestry(ctx)) {
+          if (!specificityLevels.includes(level)) specificityLevels.push(level)
+        }
+      }
+
+      for (const level of specificityLevels) {
+        const scoped = bindings.filter(b => b.context === level)
+        if (scoped.length) {
+          return scoped.sort((a, b) => b.priority! - a.priority!)[0]
+        }
+      }
+
+      return bindings.sort((a, b) => b.priority! - a.priority!)[0] ?? null
+    },
+
+    computeCollisionsForKey(key: CanonicalKey) {
+      const list = this.bindingsByKey.get(key) ?? []
+      const byContext = new Map<ContextPath, RegisteredBinding[]>()
+
+      for (const b of list) {
+        const arr = byContext.get(b.context) ?? []
+        arr.push(b)
+        byContext.set(b.context, arr)
+      }
+
+      this.collisions = this.collisions.filter(c => c.key !== key)
+      for (const [ctx, arr] of byContext.entries()) {
+        if (arr.length > 1) this.collisions.push({ key, context: ctx, bindings: arr })
+      }
+    },
+  },
 })

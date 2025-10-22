@@ -55,12 +55,16 @@ import {
 import { useRouter } from 'vue-router';
 import { useFullscreen } from '@vueuse/core';
 import { useDeviceStore } from '@stores/device';
-import { useSettingsStore } from '@stores/settings.ts';
-import { useKeyboard } from '@composables/ui/useKeyboard';
+import { useKeyboardStore } from '@stores/keyboard'
+import { useSettingsStore } from '@stores/settings';
 import { usePanel } from '@composables/ui/usePanel';
 import { useTheme } from '@composables/core/useTheme';
 import { AppHeader } from '@components/layout';
 import PanelLoader from '@components/ui/panel/PanelLoader.vue';
+
+import { globalManifest } from '@app/lib/shortcuts';
+import { calculatorManifest } from '@calculator/lib/shortcuts'
+import { base64Manifest } from '@base64/lib/shortcuts';
 
 const SidebarMenu = defineAsyncComponent(
   () => import('../sidebar/SidebarMenu.vue')
@@ -77,11 +81,29 @@ const ShortcutGuide = defineAsyncComponent(
 const router = useRouter();
 const device = useDeviceStore();
 const settings = useSettingsStore();
+const keyboard = useKeyboardStore()
+
+;[
+  ...globalManifest,
+  ...calculatorManifest,
+  ...base64Manifest,
+].forEach((cfg) => keyboard.register(cfg));
 
 onMounted(async () => {
   const minLoadTime = new Promise((resolve) => setTimeout(resolve, 300));
   await Promise.all([settings.loadSettings(), router.isReady(), minLoadTime]);
   device.initializeDeviceInfo();
+
+  keyboard.attachListener();
+  
+  keyboard.attachAllForContext('global', {
+    'Ctrl+Alt+F': () => useFullscreen(document.documentElement).toggle(),
+    'Ctrl+L': () => sidebarPanel.toggle(),
+    'Ctrl+M': () => menuPanel.toggle(),
+    'Ctrl+Space': () => openShortcutModal(),
+    'Ctrl+Shift+M': () => toggleTheme(),
+  })
+  keyboard.pushContext('global')
 });
 
 const { toggleTheme } = useTheme();
@@ -94,14 +116,6 @@ const menuPanel = usePanel('menu');
 function openShortcutModal() {
   isShortcutModalOpen.value = true;
 }
-
-useKeyboard('global', {
-  toggleSidebar: () => sidebarPanel.toggle(),
-  toggleMenubar: () => menuPanel.toggle(),
-  toggleFullscreen: () => useFullscreen(document.documentElement).toggle(),
-  toggleTheme,
-  openShortcutModal,
-});
 
 const mainContentClasses = computed(() => {
   if (device.isMobile) return [];

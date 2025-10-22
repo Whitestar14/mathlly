@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 import { useClipboard, useDebounceFn } from '@vueuse/core';
 import { Copy, ArrowDownUp, Download, X, Loader2 } from 'lucide-vue-next';
 import { useToast } from '@composables/ui/useToast';
@@ -17,6 +17,10 @@ import FileUpload from '../components/FileUpload.vue';
 import FileProcessingOverlay from '../components/FileProcessingOverlay.vue';
 import { BaseButton, BaseTabs, BasePage, BaseCard } from '@components/ui';
 import type { BreadcrumbItem } from '@components/ui/BasePage.vue';
+
+import { useKeyboardStore } from '@stores/keyboard'
+
+const keyboard = useKeyboardStore()
 
 const tabs: Tab[] = [
   { value: 'encode', label: 'Encode' },
@@ -278,10 +282,25 @@ const breadcrumbs: BreadcrumbItem[] = [
   { label: 'Tools', path: '/' },
   { label: 'Base64' }
 ];
+
+onMounted(() => {
+  keyboard.attachAllForContext('tools.base64', {
+    'Ctrl+Enter': () => handleProcess(),
+    'Ctrl+V': () => pasteFromClipboard(),
+    'Ctrl+C': () => handleCopy(),
+    'Ctrl+S': () => handleSwap(),
+  })
+  keyboard.pushContext('tools.base64')
+})
+
+onUnmounted(() => {
+  keyboard.popContext('tools.base64')
+})
+
 </script>
 
 <template>
-  <BasePage :breadcrumbs="breadcrumbs" :is-tool-layout="true">
+  <BasePage title="Base64" :breadcrumbs="breadcrumbs" :is-tool-layout="true">
     <div class="container mx-auto p-2 md:p-3">
       <div class="max-w-6xl mx-auto space-y-3">
         <!-- Main Tool Interface -->
