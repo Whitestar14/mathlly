@@ -109,6 +109,22 @@ const overflowLabel = computed(() => props.overflowLabel ?? 'More options')
 // Deck state for MCR promotion; kept in sync with options
 const visibleDeck = ref<SegmentedOption[]>(props.options.slice(0, maxVisible.value))
 
+// Helper function for MCR promotion
+function promoteToVisibleDeck(value: string) {
+  const chosen = props.options.find(o => o.value === value)
+  if (chosen) {
+    const deck = visibleDeck.value.slice()
+    deck[deck.length - 1] = chosen
+
+    const seen = new Set<string>()
+    visibleDeck.value = deck.filter(d => {
+      if (seen.has(d.value)) return false
+      seen.add(d.value)
+      return true
+    }).slice(0, maxVisible.value)
+  }
+}
+
 watch(
   () => props.options,
   (opts) => {
@@ -116,8 +132,24 @@ watch(
     const preserved = visibleDeck.value.filter(v => opts.some(o => o.value === v.value))
     const fill = opts.filter(o => !preserved.some(v => v.value === o.value)).slice(0, Math.max(0, maxVisible.value - preserved.length))
     visibleDeck.value = [...preserved, ...fill].slice(0, maxVisible.value)
+
+    // Prioritize newly selected items
+    if (props.modelValue && !visibleDeck.value.some(v => v.value === props.modelValue)) {
+      promoteToVisibleDeck(props.modelValue)
+    }
   },
   { deep: true, immediate: true }
+)
+
+// Watcher on modelValue to ensure selected item is always visible
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (!visibleDeck.value.some(v => v.value === newValue)) {
+      promoteToVisibleDeck(newValue)
+    }
+  },
+  { immediate: false }
 )
 
 const overflowOptions = computed(() =>
@@ -128,19 +160,8 @@ function select(value: string, fromOverflow = false) {
   emit('update:modelValue', value)
   emit('change', value)
 
-  if (fromOverflow) {
-    const chosen = props.options.find(o => o.value === value)
-    if (chosen) {
-      const deck = visibleDeck.value.slice()
-      deck[deck.length - 1] = chosen
-
-      const seen = new Set<string>()
-      visibleDeck.value = deck.filter(d => {
-        if (seen.has(d.value)) return false
-        seen.add(d.value)
-        return true
-      }).slice(0, maxVisible.value)
-    }
+  if (fromOverflow || !visibleDeck.value.some(v => v.value === value)) {
+    promoteToVisibleDeck(value)
   }
 }
 

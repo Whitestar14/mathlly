@@ -1,5 +1,5 @@
 <template>
-  <BasePage title="Feedback">
+  <BasePage title="Feedback" :breadcrumbs="[ { label: 'Feedback' } ]">
     <div class="space-y-8 max-w-4xl mx-auto">
       <section class="space-y-6">
         <h2 class="text-lg font-medium tracking-tight text-foreground">

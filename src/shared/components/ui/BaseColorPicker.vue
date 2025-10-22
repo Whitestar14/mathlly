@@ -54,6 +54,7 @@
           :max="360"
           :step="1"
           class="w-full"
+          :custom-class="'hue-spectrum-slider'"
           @update:model-value="onHueUpdate"
         />
 
@@ -224,5 +225,18 @@ function clamp(n: number, min: number, max: number) {
 /* Improves drag feel on touch devices */
 [ref="svEl"] {
   touch-action: none;
+}
+
+/* TODO */
+.hue-spectrum-slider :deep(.relative.h-1\.5) {
+  background: linear-gradient(to right, 
+    hsl(0, 100%, 50%),
+    hsl(60, 100%, 50%),
+    hsl(120, 100%, 50%),
+    hsl(180, 100%, 50%),
+    hsl(240, 100%, 50%),
+    hsl(300, 100%, 50%),
+    hsl(360, 100%, 50%)
+  ) !important;
 }
 </style>

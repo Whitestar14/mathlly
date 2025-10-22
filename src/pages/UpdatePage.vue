@@ -1,6 +1,7 @@
 <template>
   <BasePage
     title="Updates"
+    :breadcrumbs="[ { label: 'Info', path: '/' }, { label: 'Updates' } ]"
     :show-footer="true"
   >
     <!-- Hero Section -->

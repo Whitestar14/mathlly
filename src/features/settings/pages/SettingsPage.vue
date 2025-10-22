@@ -142,7 +142,7 @@ const updateSettings = (newSettings: Settings): void => {
 
 <template>
   <div>
-    <BasePage title="Settings">
+    <BasePage title="Settings" :breadcrumbs="[ { label: 'Settings' } ]">
       <div class="space-y-8 mx-auto max-w-4xl">
         <SettingsSearch v-model="searchQuery" />
 

@@ -1,6 +1,7 @@
 <template>
   <BasePage
     title="About"
+    :breadcrumbs="[ { label: 'Info', path: '/' }, { label: 'About' } ]"
     :show-footer="true"
   >
     <!-- Team & Vision Section -->

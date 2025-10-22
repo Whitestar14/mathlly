@@ -3,7 +3,6 @@
 /* Base layer */
 @import './base/reset.css';
 @import './base/typography.css';
-@import './base/theme-vars.css';
 @import './base/theme.css';
 
 /* Components */
