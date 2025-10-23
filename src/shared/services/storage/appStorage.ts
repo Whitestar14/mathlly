@@ -21,7 +21,11 @@ export interface AppDataBlob {
     hasVisitedBefore?: boolean
   }
   pwa?: {
-    updateDismissedUntil?: number
+    dismissedInstall?: boolean
+    installPromptSeen?: boolean
+    hasInstalledPreviously?: boolean
+    installPromptVisits?: number
+    pwaInstalled?: boolean
     dismissedVersion?: string
   }
   onboarding?: {
@@ -55,7 +59,7 @@ class AppStorage {
   private readonly BLOB_KEY = 'app:data'
   private _loaded = false
 
-  private STORAGE_VERSION = '0'
+  private STORAGE_VERSION = '0.0.0'
   private VERSION_KEY = 'app:storage-version'
 
   constructor() {

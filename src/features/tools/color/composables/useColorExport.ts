@@ -1,4 +1,4 @@
-import type { RGB } from '@color/lib/color'
+import type { RGB, RGBA } from '@color/lib/color'
 import { rgbToHex } from '@color/lib/color'
 import { exportJSON } from '@shared/utils/object/exportJSON'
 
@@ -36,19 +36,24 @@ function exportHarmonyColors(harmonyType: string, baseColor: RGB, colors: RGB[])
 
 /**
  * Function to export gradient color data as JSON. For future use.
- * @param start - The starting RGB color of the gradient.
- * @param end - The ending RGB color of the gradient.
+ * @param start - The starting RGB color of the gradient, with optional alpha.
+ * @param end - The ending RGB color of the gradient, with optional alpha.
  * @param steps - The number of steps in the gradient.
  * @param angle - The angle of the gradient.
- * @param colors - Array of RGB colors in the gradient.
+ * @param colors - Array of RGB colors in the gradient, each with optional alpha.
  */
-function exportGradientColors(start: RGB, end: RGB, steps: number, angle: number, colors: RGB[]) {
+function exportGradientColors(start: RGB & { a?: number }, end: RGB & { a?: number }, steps: number, angle: number, colors: (RGB & { a?: number })[]) {
   const data = {
     start: rgbToHex(start),
     end: rgbToHex(end),
+    startAlpha: start.a ?? 1,
+    endAlpha: end.a ?? 1,
     steps,
     angle,
-    colors: colors.map(rgbToHex),
+    colors: colors.map(color => {
+      const a = color.a ?? 1
+      return a !== 1 ? `rgba(${color.r}, ${color.g}, ${color.b}, ${a})` : rgbToHex(color)
+    }),
     count: colors.length,
   }
   const filename = `gradient-${Date.now()}.json`

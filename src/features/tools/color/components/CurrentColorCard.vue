@@ -128,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import { Copy, Shuffle, Settings2, Plus, Lock, Unlock } from 'lucide-vue-next'
 import { usePanel } from '@composables/ui/usePanel'
@@ -138,6 +138,7 @@ import FormatsInfoCard from './FormatsInfoCard.vue'
 import { useClipboard } from '@vueuse/core'
 import { useToast } from '@composables/ui/useToast'
 import { useRipple } from '@composables/ui/useRipple'
+import { useKeyboardStore } from '@stores/keyboard'
 import { convertColor, clamp255 } from '@color/lib/color'
 import type { RGBA, RGB, ColorFormats } from '@color/lib/color'
 import { detectFormat, parseWithFormatTolerant, parseAutoSimple, normalizeDisplay, formatRgbaPretty, type InputFormat, type ResolvedFormat, expandShorthandHex, isShorthandHex, } from '@color/lib/utils'
@@ -157,6 +158,21 @@ const { ripples, triggerRipple } = useRipple()
 const { copy } = useClipboard()
 const { toast } = useToast()
 const panel = usePanel('adjustments')
+
+// Keyboard bindings (registered locally)
+const keyboard = useKeyboardStore()
+onMounted(() => {
+  try {
+    keyboard.attachAllForContext('tools.color', {
+      'Ctrl+R': () => genRandomColor(),
+      'Ctrl+Shift+C': async () => {
+        await copy(rgbaText.value)
+        toast({ title: 'Copied!', description: `${rgbaText.value} copied to clipboard` })
+      },
+      'Ctrl+P': () => props.onAddToPalette(),
+    })
+  } catch (e) {}
+})
 
 // Sliders
 const rgbaKeys = ['r', 'g', 'b', 'a'] as const

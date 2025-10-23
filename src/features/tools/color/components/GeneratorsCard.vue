@@ -48,23 +48,25 @@
           <span class="text-xs text-muted-foreground">{{ angle }}° • {{ gradientSteps }} steps</span>
         </div>
 
-        <div
-          v-tippy="{ content: gradientCss, placement: 'top' }"
-          class="w-full h-20 rounded-lg border border-border overflow-hidden relative"
-          :style="{ background: gradientCss }"
-          aria-label="Gradient preview"
-        >
-          <!-- Compact swatch strip overlay -->
-          <div class="absolute bottom-2 left-2 right-2 flex gap-1 justify-center">
-            <button
-              v-for="(color, index) in gradientColors"
-              :key="index"
-              v-tippy="{ content: `${rgbToHex(color)} (Stop ${index + 1})`, placement: 'top' }"
-              class="w-6 h-6 rounded border border-white/50 shadow-sm cursor-pointer transition-all hover:scale-110 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-              :style="{ backgroundColor: rgbToHex(color) }"
-              :aria-label="`Stop ${index + 1}: ${rgbToHex(color)}`"
-              @click="onStopClick(color)"
-            />
+        <div class="bg-checkerboard w-full h-20 rounded-lg border border-border overflow-hidden relative">
+          <div
+            v-tippy="{ content: gradientCss, placement: 'top' }"
+            class="w-full h-full"
+            :style="{ background: gradientCss }"
+            aria-label="Gradient preview"
+          >
+            <!-- Compact swatch strip overlay -->
+            <div class="absolute bottom-2 left-2 right-2 flex gap-1 justify-center">
+              <button
+                v-for="(color, index) in gradientColors"
+                :key="index"
+                v-tippy="{ content: `${rgbaToCss(color, color.a)} (Stop ${index + 1})`, placement: 'top' }"
+                class="bg-checkerboard w-6 h-6 rounded border border-white/50 shadow-sm cursor-pointer transition-all hover:scale-110 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                :style="{ backgroundColor: rgbaToCss(color, color.a) }"
+                :aria-label="`Stop ${index + 1}: ${rgbaToCss(color, color.a)}`"
+                @click="onStopClick(color)"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -212,14 +214,17 @@ import { BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider, BaseAccordion, 
 import BaseColorPicker from '@shared/components/ui/BaseColorPicker.vue'
 import Swatch from './Swatch.vue'
 import { useToast } from '@composables/ui/useToast'
+import { useColorExport } from '@color/composables/useColorExport'
+import { hexToRgb } from '@color/lib/color'
 import type { RGB, RGBA } from '@color/lib/color'
 
 const props = defineProps<{
   currentColor: RGBA
-  onColorSelect: (c: RGB & { a?: number }) => void
+  onColorSelect: (c: RGB & { a: number }) => void
 }>()
 
 const { toast } = useToast()
+const { exportGradientColors } = useColorExport()
 
 // Bounds
 const MIN_STEPS = 3
@@ -240,16 +245,16 @@ const endRgb = computed<RGB>(() => ({ r: endRgba.value.r, g: endRgba.value.g, b:
 
 // Hex bindings with get/set for v-model (keep single source of truth)
 const hexStart = computed<string>({
-  get: () => rgbToHex(startRgb.value),
+  get: () => rgbaToCss(startRgb.value, startRgba.value.a),
   set: (val: string) => {
-    const parsed = hexToRgbSafe(val)
+    const parsed = hexToRgb(val)
     if (parsed) startRgba.value = { ...parsed, a: startRgba.value.a ?? 1 }
   }
 })
 const hexEnd = computed<string>({
-  get: () => rgbToHex(endRgb.value),
+  get: () => rgbaToCss(endRgb.value, endRgba.value.a),
   set: (val: string) => {
-    const parsed = hexToRgbSafe(val)
+    const parsed = hexToRgb(val)
     if (parsed) endRgba.value = { ...parsed, a: endRgba.value.a ?? 1 }
   }
 })
@@ -266,53 +271,42 @@ watch(
 // Steps and angle
 const gradientSteps = ref<number>(5)
 const angle = ref<number>(90)
-const setGradientSteps = (n: number) => { gradientSteps.value = clamp(n, MIN_STEPS, MAX_STEPS) }
-const setAngle = (n: number) => { angle.value = clamp(n, 0, 360) }
+const setGradientSteps = (n: number) => { gradientSteps.value = Math.min(MAX_STEPS, Math.max(MIN_STEPS, Math.round(n))) }
+const setAngle = (n: number) => { angle.value = Math.min(360, Math.max(0, Math.round(n))) }
 
 // Gradient stops
-const gradientColors = computed<RGB[]>(() => {
-  const start = startRgb.value
-  const end = endRgb.value
-  const steps = clamp(gradientSteps.value, MIN_STEPS, MAX_STEPS)
-  const out: RGB[] = []
+const gradientColors = computed<(RGB & { a: number })[]>(() => {
+  const start = startRgba.value
+  const end = endRgba.value
+  const steps = Math.min(MAX_STEPS, Math.max(MIN_STEPS, gradientSteps.value))
+  const out: (RGB & { a: number })[] = []
   for (let i = 0; i < steps; i++) {
     const t = steps === 1 ? 0 : i / (steps - 1)
     out.push({
       r: Math.round(start.r + (end.r - start.r) * t),
       g: Math.round(start.g + (end.g - start.g) * t),
       b: Math.round(start.b + (end.b - start.b) * t),
+      a: Math.round((start.a + (end.a - start.a) * t) * 100) / 100
     })
   }
-  return out.map(clampRgb)
+  return out.map(c => ({
+    r: Math.max(0, Math.min(255, Math.round(c.r))),
+    g: Math.max(0, Math.min(255, Math.round(c.g))),
+    b: Math.max(0, Math.min(255, Math.round(c.b))),
+    a: Math.max(0, Math.min(1, c.a))
+  }))
 })
 
 const gradientCss = computed(() => {
   const stops = gradientColors.value
-    .map((color, index) => `${rgbToHex(color)} ${(index / (gradientColors.value.length - 1)) * 100}%`)
+    .map((color, index) => `${rgbaToCss(color, color.a)} ${(index / (gradientColors.value.length - 1)) * 100}%`)
     .join(', ')
   return `linear-gradient(${angle.value}deg, ${stops})`
 })
 
 // Export swatches to JSON
 const exportSwatches = () => {
-  const swatchData = {
-    gradient: {
-      startColor: rgbToHex(startRgb.value),
-      endColor: rgbToHex(endRgb.value),
-      steps: gradientSteps.value,
-      angle: angle.value,
-      colors: gradientColors.value.map(rgbToHex)
-    },
-    metadata: { exportedAt: new Date().toISOString(), type: 'linear-gradient' }
-  }
-  const blob = new Blob([JSON.stringify(swatchData, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `gradient-${Date.now()}.json`
-  a.click()
-  URL.revokeObjectURL(url)
-  toast({ title: 'Exported!', description: 'Gradient swatches exported to JSON' })
+  exportGradientColors(startRgba.value, endRgba.value, gradientSteps.value, angle.value, gradientColors.value)
 }
 
 // Actions
@@ -325,35 +319,35 @@ const copyGradientCSS = async () => {
   }
 }
 
-const onStopClick = (c: RGB) => {
+const onStopClick = (c: RGB & { a: number }) => {
   // Promote clicked stop into start color and notify page
-  startRgba.value = { ...c, a: startRgba.value.a ?? 1 }
-  props.onColorSelect({ ...c, a: startRgba.value.a })
+  startRgba.value = { r: c.r, g: c.g, b: c.b, a: c.a }
+  props.onColorSelect({ r: c.r, g: c.g, b: c.b, a: c.a })
 }
 const onStartColorSelect = (c: RGB) => {
-  startRgba.value = { ...c, a: startRgba.value.a ?? 1 }
-  props.onColorSelect({ ...c, a: startRgba.value.a })
+  startRgba.value = { r: c.r, g: c.g, b: c.b, a: startRgba.value.a }
+  props.onColorSelect({ r: c.r, g: c.g, b: c.b, a: startRgba.value.a })
 }
 const onEndColorSelect = (c: RGB) => {
-  endRgba.value = { ...c, a: endRgba.value.a ?? 1 }
+  endRgba.value = { r: c.r, g: c.g, b: c.b, a: endRgba.value.a }
 }
 
 // Utils
-function clamp(n: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, Math.round(n)))
-}
-function clampRgb(c: RGB): RGB {
-  return { r: clamp(c.r, 0, 255), g: clamp(c.g, 0, 255), b: clamp(c.b, 0, 255) }
-}
-function toHexByte(n: number) { return clamp(n, 0, 255).toString(16).padStart(2, '0') }
-function rgbToHex(c: RGB) { return `#${toHexByte(c.r)}${toHexByte(c.g)}${toHexByte(c.b)}` }
-function hexToRgbSafe(hex: string): RGB | null {
-  const clean = hex.trim().replace(/^#/, '')
-  const full = clean.length === 3 ? clean.split('').map(x => x + x).join('') : clean
-  if (!/^[0-9a-fA-F]{6}$/.test(full)) return null
-  const r = parseInt(full.slice(0, 2), 16)
-  const g = parseInt(full.slice(2, 4), 16)
-  const b = parseInt(full.slice(4, 6), 16)
-  return { r, g, b }
+function rgbaToCss(c: RGB, alpha?: number) {
+  const toHex = (n: number) => Math.min(255, Math.max(0, Math.round(n))).toString(16).padStart(2, '0')
+  if (alpha !== undefined && alpha !== 1) return `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`
+  return `#${toHex(c.r)}${toHex(c.g)}${toHex(c.b)}`
 }
 </script>
+
+<style scoped>
+.bg-checkerboard {
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%);
+  background-size: 10px 10px;
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+}
+</style>

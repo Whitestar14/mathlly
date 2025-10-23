@@ -58,10 +58,20 @@
   
 <script setup lang="ts">
 import { BasePanel, BaseAccordion, AccordionItem } from '@components/ui'
+import { onMounted } from 'vue'
 import ColorAdjustments from './ColorAdjustments.vue'
 import ColorTemperature from './ColorTemperature.vue'
 import ColorMixing from './ColorMixing.vue'
 import type { RGB } from '@color/lib/color'
+import { useKeyboardStore } from '@stores/keyboard'
+import { usePanel } from '@composables/ui/usePanel'
 
 defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void, autoApply: boolean }>()
+
+// local panel keyboard toggle
+const panel = usePanel('adjustments')
+const keyboard = useKeyboardStore()
+onMounted(() => {
+    keyboard.attachAllForContext('tools.color', { 'Ctrl+A': () => panel.toggle() })
+})
 </script>

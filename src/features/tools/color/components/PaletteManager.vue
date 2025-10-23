@@ -53,27 +53,26 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2 min-w-0">
             <template v-if="editingPaletteId === palette.id">
-              <BaseInput
+              <input
+                :ref="el => setEditingInputRef(el, palette.id)"
                 v-model="editingName"
-                class="h-8"
-                :placeholder="palette.name || 'New name'"
+                class="flex-1 w-1/2 border-0 bg-transparent border-b border-primary text-sm font-medium focus:ring-0 focus:border-primary px-0 py-0"
                 :maxlength="MAX_NAME_LENGTH"
+                v-tippy="{ content: `${editingName.length}/${MAX_NAME_LENGTH}` }"
                 @keydown.enter.prevent="saveEditingPalette"
                 @keydown.esc="cancelEditing"
                 @blur="saveEditingPalette"
               />
-              <span class="text-xs text-muted-foreground">
-                {{ editingName.length }}/{{ MAX_NAME_LENGTH }}
-              </span>
             </template>
             <template v-else>
               <button
-                class="text-sm font-medium truncate hover:underline underline-offset-2"
+                class="group flex flex-row gap-0.5 flex-1 justify-center items-center flex flex-row gap-1 text-sm font-medium truncate hover:border-px hover:border-b hover:border-dotted border-primary rounded-none px-1 -mx-1 transition-all duration-200"
                 :disabled="palette.id === 'default'"
                 :title="palette.name"
                 @click="startEditingPalette(palette)"
               >
-                {{ palette.name }}
+                <span>{{ palette.name }}</span>
+                <Edit3 class="size-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
             </template>
             <span class="text-xs text-muted-foreground">• {{ palette.colors.length }} colors</span>
@@ -88,7 +87,7 @@
               @click="addColorToPalette(palette.id)"
               v-tippy="{ content: 'Add current color to palette' }"
             >
-              <Plus class="h-3 w-3" />
+              <Plus class="size-3" />
             </BaseButton>
 
             <BaseButton
@@ -100,7 +99,7 @@
               @click="startEditingPalette(palette)"
               v-tippy="{ content: palette.id === 'default' ? 'Default palette cannot be renamed' : 'Rename palette' }"
             >
-              <Edit3 class="h-3 w-3" />
+              <Edit3 class="size-3" />
             </BaseButton>
 
             <!-- Overflow actions -->
@@ -112,7 +111,7 @@
                   class="h-7 px-2"
                   aria-label="More"
                 >
-                  <MoreVertical class="h-3 w-3" />
+                  <MoreVertical class="size-3" />
                 </BaseButton>
               </template>
 
@@ -171,7 +170,7 @@
                         aria-label="Swatch actions"
                         @click.stop
                       >
-                        <MoreVertical class="h-3 w-3" />
+                        <MoreVertical class="size-3" />
                       </BaseButton>
                     </template>
 
@@ -310,6 +309,7 @@ const isCreateDialogOpen = ref(false)
 const creating = ref(false)
 const editingPaletteId = ref<string | null>(null)
 const editingName = ref('')
+const editingInputRef = ref<HTMLInputElement | undefined>(undefined)
 
 // Segmented control options
 const paletteTabs = computed(() =>
@@ -386,6 +386,10 @@ const startEditingPalette = (palette: PaletteEntity) => {
   if (palette.id === 'default') return
   editingPaletteId.value = palette.id
   editingName.value = palette.name
+  nextTick(() => {
+    editingInputRef.value?.focus()
+    editingInputRef.value?.select()
+  })
 }
 
 const saveEditingPalette = async () => {
@@ -413,7 +417,7 @@ const saveEditingPalette = async () => {
 
   try {
     await updatePaletteName(id, name)
-    const newPalettes = props.palettes.map(p => p.id === id ? { ...p, name } : p)
+    const newPalettes = props.palettes.map(p => p.id === id ? { ...p, name, id: p.id } : { ...p })
     emit('update:palettes', newPalettes)
     cancelEditing()
     toast({ title: 'Renamed', description: `Palette is now "${name}"` })
@@ -433,7 +437,7 @@ const deletePalette = async (id: string) => {
     const idx = props.palettes.findIndex(p => p.id === id)
 
     await removePalette(id)
-    const newPalettes = props.palettes.filter(p => p.id !== id)
+    const newPalettes = props.palettes.filter(p => p.id !== id).map(p => ({ ...p }))
     emit('update:palettes', newPalettes)
 
     if (props.selectedPaletteId === id) {
@@ -452,7 +456,7 @@ const addColorToPalette = async (id: string) => {
   try {
     const next = await serviceAddColor(id, sanitizeColor(props.currentColor))
     if (!next) return
-    const newPalettes = props.palettes.map(x => x.id === id ? next : x)
+    const newPalettes = props.palettes.map(x => x.id === id ? next : { ...x })
     emit('update:palettes', newPalettes)
     toast({ title: 'Added!', description: 'Current color added to palette' })
   } catch (e: any) {
@@ -464,7 +468,7 @@ const removeColorFromPalette = async (id: string, index: number) => {
   try {
     const next = await serviceRemoveColor(id, index)
     if (!next) return
-    const newPalettes = props.palettes.map(x => x.id === id ? next : x)
+    const newPalettes = props.palettes.map(x => x.id === id ? next : { ...x })
     emit('update:palettes', newPalettes)
   } catch (e: any) {
     toast({ title: 'Error', description: e?.message || 'Failed to remove color' })
@@ -510,4 +514,8 @@ const copyHex = async (color: RGB) => {
 }
 
 const onColorSelect = (color: RGB) => props.onColorSelect(sanitizeColor(color))
+
+const setEditingInputRef = (el: any, paletteId: string) => {
+  if (editingPaletteId.value === paletteId) editingInputRef.value = el as HTMLInputElement
+}
 </script>
