@@ -5,7 +5,7 @@ import type { RGB } from '@color/lib/color'
 
 const HEX6 = /^#[0-9A-Fa-f]{6}$/
 
-export function useColorMixing(onUpdate: (c: RGB) => void) {
+export function useColorMixing(onUpdate: (c: RGB) => void, autoApply = false) {
   const mixColor = ref<RGB>({ r: 255, g: 255, b: 255 })
   const mixRatio = ref(50)
 
@@ -22,5 +22,12 @@ export function useColorMixing(onUpdate: (c: RGB) => void) {
     onUpdate(mixColors(base, mixColor.value, mixRatio.value / 100))
   }
 
-  return { mixColor, mixRatio, setMixHex, setMixRgb, setMixRatio, applyMix }
+  const adjustMixRatio = (value: number, baseColor: RGB) => {
+    setMixRatio(value)
+    if (autoApply) {
+      applyMix(baseColor)
+    }
+  }
+
+  return { mixColor, mixRatio, setMixHex, setMixRgb, setMixRatio, applyMix, adjustMixRatio }
 }

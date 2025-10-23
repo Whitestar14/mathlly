@@ -302,7 +302,7 @@ const emit = defineEmits<{
 const { toast } = useToast()
 const { copy } = useClipboard()
 
-const MAX_NAME_LENGTH = 30
+const MAX_NAME_LENGTH = 15
 
 // State
 const newPaletteName = ref('')

@@ -18,21 +18,21 @@
       <div class="flex items-center gap-2">
         <BaseButton
           v-tippy="{ content: 'Copy linear-gradient CSS to clipboard' }"
-          size="sm"
+          size="icon"
           variant="outline"
           aria-label="Copy CSS"
           @click="copyGradientCSS"
         >
-          Copy CSS
+          <Copy class="size-4" />
         </BaseButton>
         <BaseButton
           v-tippy="{ content: 'Export gradient swatches (JSON)' }"
-          size="sm"
+          size="icon"
           variant="outline"
           aria-label="Export swatches"
           @click="exportSwatches"
         >
-          Export JSON
+          <Download class="size-4" />
         </BaseButton>
       </div>
     </template>
@@ -207,6 +207,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+import { Copy, Download } from 'lucide-vue-next'
 import { BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider, BaseAccordion, AccordionItem } from '@components/ui'
 import BaseColorPicker from '@shared/components/ui/BaseColorPicker.vue'
 import Swatch from './Swatch.vue'

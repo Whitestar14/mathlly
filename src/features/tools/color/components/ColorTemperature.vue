@@ -11,7 +11,7 @@
         class="flex-1 bg-transparent"
         @click="makeWarmer(currentColor)"
       >
-        <Sun class="h-4 w-4 mr-2" /> Warmer
+        <Sun class="size-4" /> Warmer
       </BaseButton>
       <BaseButton
         size="sm"
@@ -19,7 +19,7 @@
         class="flex-1 bg-transparent"
         @click="makeCooler(currentColor)"
       >
-        <Moon class="h-4 w-4 mr-2" /> Cooler
+        <Moon class="size-4" /> Cooler
       </BaseButton>
     </div>
   </div>
@@ -31,6 +31,6 @@ import { useColorTemperature } from '@color/composables/useColorTemperature'
 import type { RGB } from '@color/lib/color'
 import { BaseButton } from '@components/ui'
 
-const props = defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void }>()
+const props = defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void, autoApply: boolean }>()
 const { makeWarmer, makeCooler } = useColorTemperature(props.updateColor)
 </script>

@@ -11,11 +11,12 @@
           :min="-1"
           :max="1"
           :step="0.01"
-          @update:model-value="(v) => setBrightness(v[0])"
+          @update:model-value="(v) => adjustBrightness(v[0], currentColor)"
         />
         <BaseButton
           size="sm"
           variant="outline"
+          v-if="!autoApply"
           @click="applyBrightness(currentColor)"
         >
           Apply
@@ -33,11 +34,12 @@
           :min="0"
           :max="2"
           :step="0.1"
-          @update:model-value="(v) => setSaturation(v[0])"
+          @update:model-value="(v) => adjustSaturation(v[0], currentColor)"
         />
         <BaseButton
           size="sm"
           variant="outline"
+          v-if="!autoApply"
           @click="applySaturation(currentColor)"
         >
           Apply
@@ -55,11 +57,12 @@
           :min="-180"
           :max="180"
           :step="1"
-          @update:model-value="(v) => setHue(v[0])"
+          @update:model-value="(v) => adjustHue(v[0], currentColor)"
         />
         <BaseButton
           size="sm"
           variant="outline"
+          v-if="!autoApply"
           @click="applyHue(currentColor)"
         >
           Apply
@@ -102,6 +105,7 @@ import { useColorAdjustments } from '@color/composables/useColorAdjustments';
 const props = defineProps<{
   currentColor: RGB;
   updateColor: (c: RGB) => void;
+  autoApply: boolean;
 }>();
 const {
   brightness,
@@ -114,5 +118,8 @@ const {
   applySaturation,
   applyHue,
   applyContrast,
-} = useColorAdjustments(props.updateColor);
+  adjustBrightness,
+  adjustSaturation,
+  adjustHue,
+} = useColorAdjustments(props.updateColor, props.autoApply);
 </script>

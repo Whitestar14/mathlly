@@ -15,6 +15,7 @@ import { useKeyboardStore } from '@stores/keyboard';
 import { ensureDefaultPalette, fetchPalettes, addColor as serviceAddColor, sanitizeColor, type PaletteEntity } from '@color/services/palette';
 import { useToast } from '@composables/ui/useToast';
 import { formatRgbaPretty } from '@color/lib/utils';
+import { useColorOptions } from '@color/composables/useColorOptions';
 
 import CurrentColorCard from '../components/CurrentColorCard.vue';
 import PaletteManager from '../components/PaletteManager.vue';
@@ -108,6 +109,8 @@ const rgba = computed(() => formatRgbaPretty(current.value));
 const { copy } = useClipboard();
 const copyRgba = async () => {
   await copy(rgba.value);
+
+  toast({ message: 'RGBA color copied to clipboard', type: 'success' });
 };
 
 // --- Scroll helper ---
@@ -125,6 +128,7 @@ const harmonyTabs = [
 // --- Palette and Keyboard ---
 const { toast } = useToast();
 const keyboard = useKeyboardStore();
+const { autoApplyAdjustments } = useColorOptions();
 
 const addColorToPalette = async () => {
   const activePalette = palettes.value.find(p => p.id === selectedPaletteId.value);
@@ -215,6 +219,7 @@ onBeforeUnmount(() => {
               :on-color-select="updateColor"
               :palettes="palettes"
               v-model:selected-palette-id="selectedPaletteId"
+              @update:palettes="(p) => palettes = p"
             />
             
             <AccessibilityToolsCard
@@ -248,6 +253,7 @@ onBeforeUnmount(() => {
                   :on-color-select="updateColor"
                   :palettes="palettes"
                   v-model:selected-palette-id="selectedPaletteId"
+                  @update:palettes="(p) => palettes = p"
                 />
               </AccordionItem>
 
@@ -310,6 +316,7 @@ onBeforeUnmount(() => {
     <AdjustmentsPanel
       :current-color="current"
       :update-color="updateColor"
+      :auto-apply="autoApplyAdjustments"
     />
 
   </BasePage>

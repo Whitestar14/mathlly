@@ -24,6 +24,7 @@
           <ColorAdjustments
             :current-color="currentColor"
             :update-color="updateColor"
+            :auto-apply="autoApply"
           />
         </AccordionItem>
 
@@ -35,6 +36,7 @@
           <ColorTemperature
             :current-color="currentColor"
             :update-color="updateColor"
+            :auto-apply="autoApply"
           />
         </AccordionItem>
 
@@ -46,6 +48,7 @@
           <ColorMixing
             :current-color="currentColor"
             :update-color="updateColor"
+            :auto-apply="autoApply"
           />
         </AccordionItem>
       </BaseAccordion>
@@ -60,5 +63,5 @@ import ColorTemperature from './ColorTemperature.vue'
 import ColorMixing from './ColorMixing.vue'
 import type { RGB } from '@color/lib/color'
 
-defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void }>()
+defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void, autoApply: boolean }>()
 </script>
