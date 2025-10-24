@@ -6,7 +6,7 @@
   }
 
   /* Variants */
-  .btn-default     { @apply bg-background text-foreground border border-border hover:bg-accent hover:text-accent-foreground; }
+  .btn-default     { @apply bg-background text-foreground border border-border hover:bg-background/30 hover:text-accent-foreground; }
   .btn-primary     { @apply bg-primary text-primary-foreground hover:bg-primary/90; }
   .btn-destructive { @apply bg-destructive text-destructive-foreground hover:bg-destructive/90; }
   .btn-outline     { @apply border border-border bg-transparent hover:bg-secondary/80 text-muted-foreground hover:text-accent-foreground; }

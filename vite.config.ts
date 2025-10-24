@@ -105,7 +105,7 @@ export default defineConfig({
   },
   server: {
     port: 8080,
-    open: true,
+    open: false,
   },
   define: {
     __VUE_PROD_DEVTOOLS__: false,

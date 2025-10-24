@@ -97,12 +97,10 @@
 
         <!-- Unified dropdown + input + picker -->
         <div class="flex gap-2 items-center">
-          <BaseInput
+          <InputGroup
             id="color-input"
-            ref="colorInputEl"
             v-model="colorInput"
             v-model:dropdown-value="selectedFormat"
-            :dropdown="true"
             :options="formatOptions"
             dropdown-label="Input format"
             dropdown-placeholder="Auto"
@@ -128,21 +126,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
+import { ref, computed, onMounted } from 'vue'
 import { Copy, Shuffle, Settings2, Plus, Lock, Unlock } from 'lucide-vue-next'
 import { usePanel } from '@composables/ui/usePanel'
-import { BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider, BaseAccordion, AccordionItem } from '@components/ui'
+import { BaseCard, BaseButton, BaseLabel, BaseSlider, BaseAccordion, AccordionItem, InputGroup } from '@components/ui'
 import BaseColorPicker from '@components/ui/BaseColorPicker.vue'
 import FormatsInfoCard from './FormatsInfoCard.vue'
 import { useClipboard } from '@vueuse/core'
 import { useToast } from '@composables/ui/useToast'
 import { useRipple } from '@composables/ui/useRipple'
 import { useKeyboardStore } from '@stores/keyboard'
-import { convertColor, clamp255 } from '@color/lib/color'
+import { clamp255 } from '@color/lib/color'
 import type { RGBA, RGB, ColorFormats } from '@color/lib/color'
-import { detectFormat, parseWithFormatTolerant, parseAutoSimple, normalizeDisplay, formatRgbaPretty, type InputFormat, type ResolvedFormat, expandShorthandHex, isShorthandHex, } from '@color/lib/utils'
+import { formatRgbaPretty } from '@color/lib/utils'
 import type { PaletteEntity } from '@color/services/palette'
+import { useColorInput } from '@color/composables/useColorInput'
 
 const props = defineProps<{
   current: RGBA
@@ -239,119 +237,8 @@ const onSliderUpdate = (k: RgbaKey, arr: number[]) => {
   }
 }
 
-// Unified input
-const selectedFormat = ref<InputFormat>('auto')
-const lastAutoFormat = ref<ResolvedFormat | null>('hex')
-const isEditing = ref(false)
-const colorInput = ref(props.formats.hex)
-const inputError = ref('')
-
-// SelectBar options (array API expected by component)
-const formatOptions = [
-  { value: 'auto', label: 'Auto' },
-  { value: 'hex', label: 'HEX' },
-  { value: 'rgba', label: 'RGBA' },
-  { value: 'hsla', label: 'HSLA' },
-  { value: 'oklch', label: 'OKLCH' },
-]
-
-// Local computed formats from canonical RGBA
-const localFormats = computed<ColorFormats>(() => convertColor(props.current))
-
-// Placeholders
-const placeholderForFormat = computed(() => {
-  switch (selectedFormat.value) {
-    case 'hex': return '#22C55E or #22C55E80'
-    case 'rgba': return 'rgba(34 197 94 / 1) or rgba(34, 197, 94, 1)'
-    case 'hsla': return 'hsla(150 50% 50% / 1) or hsla(150, 50%, 50%, 1)'
-    case 'oklch': return 'oklch(0.650 0.150 150 / 1)'
-    default: return '#22C55E or rgba(...) or hsla(...) or oklch(...)'
-  }
-})
-
-// Preview text (not tied to input formatting)
-const rgbaText = computed(() => formatRgbaPretty(props.current))
-const colorInputEl = ref<{select: () => void} | null>(null);
-
-// Editing lifecycle
-const onFocus = () => { isEditing.value = true; colorInputEl.value?.select() }
-const onEnter = () => { isEditing.value = false; normalizeInputPresentation() }
-const onBlur = () => {
-  isEditing.value = false
-  // QoL: expand shorthand hex on blur
-  if (selectedFormat.value === 'hex' && isShorthandHex(colorInput.value)) {
-    colorInput.value = expandShorthandHex(colorInput.value)
-  }
-  normalizeInputPresentation()
-}
-
-// Typing handler: auto just detects and delegates to explicit parser
-const processInput = (raw: string) => {
-  const alpha = props.current.a ?? 1
-
-  if (selectedFormat.value === 'auto') {
-    const { state, rgba, format } = parseAutoSimple(raw, alpha)
-    if (state === 'valid' && rgba) {
-      lastAutoFormat.value = format ?? detectFormat(raw) ?? lastAutoFormat.value
-      inputError.value = ''
-      props.updateColor(rgba)
-    } else if (state === 'partial') {
-      inputError.value = ''
-    } else {
-      inputError.value = 'Invalid color format'
-    }
-    return
-  }
-
-  const { state, rgba } = parseWithFormatTolerant(raw, selectedFormat.value as ResolvedFormat, alpha)
-  if (state === 'valid' && rgba) {
-    inputError.value = ''
-    props.updateColor(rgba)
-  } else if (state === 'partial') {
-    inputError.value = ''
-  } else {
-    inputError.value = 'Invalid color format'
-  }
-}
-
-const onTyping = useDebounceFn((e: Event) => {
-  const val = (e.target as HTMLInputElement).value
-  processInput(val)
-}, 90)
-
-// Normalize input display (preserve user’s format; don’t clobber while editing)
-const normalizeInputPresentation = () => {
-  if (isEditing.value) return
-  colorInput.value = normalizeDisplay(
-    props.current,
-    localFormats.value,
-    selectedFormat.value,
-    lastAutoFormat.value
-  )
-}
-
-// Keep input in sync with current color but never clobber while editing
-watch(
-  () => props.current,
-  () => {
-    if (!isEditing.value) normalizeInputPresentation()
-  },
-  { deep: true, immediate: true }
-)
-
-// When the user switches the selected format (e.g., HEX -> RGBA), convert the input to the target presentation.
-watch(
-  () => selectedFormat.value,
-  () => {
-    if (isEditing.value) return
-    colorInput.value = normalizeDisplay(
-      props.current,
-      localFormats.value,
-      selectedFormat.value,
-      lastAutoFormat.value
-    )
-  }
-)
+// Use the composable for input logic
+const { selectedFormat, colorInput, inputError, localFormats, placeholderForFormat, formatOptions, onFocus, onBlur, onEnter, onTyping } = useColorInput(computed(() => props.current), props.updateColor)
 
 // Picker proxy
 const rgbaProxy = computed<RGBA>({
@@ -362,6 +249,9 @@ const rgbaProxy = computed<RGBA>({
     }
   },
 })
+
+// Preview text (not tied to input formatting)
+const rgbaText = computed(() => formatRgbaPretty(props.current))
 
 // Preview copy
 const handlePreviewClick = async (e: MouseEvent) => {

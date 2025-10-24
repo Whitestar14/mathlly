@@ -30,9 +30,6 @@
         :step="1"
         @update:model-value="(v: number[]) => adjustMixRatio(v[0], currentColor)"
       />
-      <p v-if="autoApply" class="text-xs text-muted-foreground">
-        Ratio changes apply automatically
-      </p>
     </div>
 
     <div class="pt-2">
@@ -57,10 +54,10 @@ import { convertColor } from '@color/lib/color'
 import { useToast } from '@composables/ui/useToast'
 import type { RGB } from '@color/lib/color'
 
-const props = defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void, autoApply: boolean }>()
+const props = defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void }>()
 const { toast } = useToast()
 
-const { mixColor, mixRatio, setMixHex, setMixRatio, applyMix, adjustMixRatio } = useColorMixing(props.updateColor, props.autoApply)
+const { mixColor, mixRatio, setMixHex, applyMix, adjustMixRatio } = useColorMixing(props.updateColor)
 const mixHex = computed(() => convertColor(mixColor.value).hex)
 
 const onMixHex = (e: Event) => {

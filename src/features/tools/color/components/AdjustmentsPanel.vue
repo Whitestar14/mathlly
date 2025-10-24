@@ -48,7 +48,6 @@
           <ColorMixing
             :current-color="currentColor"
             :update-color="updateColor"
-            :auto-apply="autoApply"
           />
         </AccordionItem>
       </BaseAccordion>

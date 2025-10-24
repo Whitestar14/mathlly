@@ -15,3 +15,7 @@ export function adjustHue(rgb: RGB, degrees: number): RGB {
 export function adjustContrast(rgb: RGB, factor: number): RGB {
   return fromCuloriRgb(filterContrast(factor)(toCuloriRgb(rgb)))
 }
+export function adjustTemperature(rgb: RGB, kelvinDelta: number): RGB {
+  const hueShift = kelvinDelta > 0 ? 15 : -15
+  return adjustHue(rgb, hueShift)
+}

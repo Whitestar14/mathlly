@@ -260,14 +260,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { PopoverItem, BaseCard, BasePopover, BaseButton, BaseInput, BaseModal, BaseLabel } from '@components/ui'
 import SegmentedControl from '@components/ui/SegmentedControl.vue'
 import Swatch from './Swatch.vue'
 import { Plus, Download, Upload, Trash2, Edit3, Palette, MoreVertical, Copy } from 'lucide-vue-next'
 import { type RGB, rgbToHex } from '@color/lib/color'
 import { useToast } from '@composables/ui/useToast'
-import { useClipboard } from '@vueuse/core'
+import { useClipboard, useVModel } from '@vueuse/core'
 
 // Service
 import {
@@ -310,45 +310,39 @@ const creating = ref(false)
 const editingPaletteId = ref<string | null>(null)
 const editingName = ref('')
 const editingInputRef = ref<HTMLInputElement | undefined>(undefined)
+const createInputRef = ref<any>(null)
+
 
 // Segmented control options
 const paletteTabs = computed(() =>
-  props.palettes.map((p) => ({ value: p.id, label: ellipsize(p.name, MAX_NAME_LENGTH) }))
+  props.palettes.map((p) => ({ value: p.id, label: p.name.length <= MAX_NAME_LENGTH ? p.name : `${p.name.slice(0, MAX_NAME_LENGTH - 1)}…` }))
 )
 
-// Computed for v-model
-const selectedPaletteIdComputed = computed({
-  get: () => props.selectedPaletteId,
-  set: (val: string) => emit('update:selectedPaletteId', val)
-})
+// Computed for v-model: RESTORING useVModel
+const selectedPaletteIdComputed = useVModel(props, 'selectedPaletteId', emit)
 
 // Helpers
 const setIsCreateDialogOpen = (v: boolean) => {
   isCreateDialogOpen.value = v
+  if (v) {
+    focusCreateInput()
+  }
   if (!v) {
     newPaletteName.value = ''
     creating.value = false
   }
 }
 
-const openImport = () => document.getElementById('import-palette')?.click()
-
-function ellipsize(s: string, max: number) {
-  return s.length <= max ? s : `${s.slice(0, max - 1)}…`
+const focusCreateInput = async () => {
+  await nextTick();
+  (createInputRef.value as any)?.focus()
 }
+
+const openImport = () => document.getElementById('import-palette')?.click()
 
 function swatchKey(pid: string, c: RGB, i: number) {
   return `${pid}-${c.r}-${c.g}-${c.b}-${i}`
 }
-
-// Create input focus (no blur on first keystroke)
-const createInputRef = ref<HTMLInputElement | null>(null)
-watch(isCreateDialogOpen, async (open) => {
-  if (open) {
-    await nextTick()
-    createInputRef.value?.focus()
-  }
-})
 
 // Create (single entry point for Enter + button)
 const handleCreateSubmit = async () => {
@@ -368,7 +362,9 @@ const handleCreateSubmit = async () => {
 
   try {
     const palette = await createPalette(name, sanitizeColor(props.currentColor))
-    const newPalettes = [...props.palettes, palette]
+    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    newPalettes.push(palette)
     emit('update:palettes', newPalettes)
     emit('update:selectedPaletteId', palette.id)
     newPaletteName.value = ''
@@ -417,7 +413,12 @@ const saveEditingPalette = async () => {
 
   try {
     await updatePaletteName(id, name)
-    const newPalettes = props.palettes.map(p => p.id === id ? { ...p, name, id: p.id } : { ...p })
+    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    const idx = newPalettes.findIndex(p => p.id === id)
+    if (idx !== -1) {
+      newPalettes[idx].name = name
+    }
     emit('update:palettes', newPalettes)
     cancelEditing()
     toast({ title: 'Renamed', description: `Palette is now "${name}"` })
@@ -437,7 +438,12 @@ const deletePalette = async (id: string) => {
     const idx = props.palettes.findIndex(p => p.id === id)
 
     await removePalette(id)
-    const newPalettes = props.palettes.filter(p => p.id !== id).map(p => ({ ...p }))
+    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    const delIdx = newPalettes.findIndex(p => p.id === id)
+    if (delIdx !== -1) {
+      newPalettes.splice(delIdx, 1)
+    }
     emit('update:palettes', newPalettes)
 
     if (props.selectedPaletteId === id) {
@@ -456,7 +462,12 @@ const addColorToPalette = async (id: string) => {
   try {
     const next = await serviceAddColor(id, sanitizeColor(props.currentColor))
     if (!next) return
-    const newPalettes = props.palettes.map(x => x.id === id ? next : { ...x })
+    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    const idx = newPalettes.findIndex(x => x.id === id)
+    if (idx !== -1) {
+      newPalettes[idx] = next
+    }
     emit('update:palettes', newPalettes)
     toast({ title: 'Added!', description: 'Current color added to palette' })
   } catch (e: any) {
@@ -468,7 +479,12 @@ const removeColorFromPalette = async (id: string, index: number) => {
   try {
     const next = await serviceRemoveColor(id, index)
     if (!next) return
-    const newPalettes = props.palettes.map(x => x.id === id ? next : { ...x })
+    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    const idx = newPalettes.findIndex(x => x.id === id)
+    if (idx !== -1) {
+      newPalettes[idx] = next
+    }
     emit('update:palettes', newPalettes)
   } catch (e: any) {
     toast({ title: 'Error', description: e?.message || 'Failed to remove color' })
@@ -492,7 +508,9 @@ const importPalette = async (event: Event) => {
   try {
     const text = await file.text()
     const imported = await importPaletteFromJSON(text, MAX_NAME_LENGTH)
-    const newPalettes = [...props.palettes, imported]
+    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    newPalettes.push(imported)
     emit('update:palettes', newPalettes)
     emit('update:selectedPaletteId', imported.id)
     toast({ title: 'Imported!', description: `"${imported.name}" has been imported` })

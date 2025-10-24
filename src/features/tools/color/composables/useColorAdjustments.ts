@@ -1,6 +1,6 @@
 // src/features/tools/color/composables/useColorAdjustments.ts
 import { ref } from 'vue'
-import { adjustBrightness, adjustSaturation, adjustHue, adjustContrast } from '@color/lib/color'
+import { adjustBrightness as aB, adjustSaturation as aS, adjustHue as aH, adjustContrast as aC } from '@color/lib/color'
 import type { RGB } from '@color/lib/color'
 
 export function useColorAdjustments(onUpdate: (c: RGB) => void, autoApply = false) {
@@ -14,19 +14,19 @@ export function useColorAdjustments(onUpdate: (c: RGB) => void, autoApply = fals
 
   const applyBrightness = (color: RGB) => {
     const factor = 1 + brightness.value
-    onUpdate(adjustBrightness(color, factor))
+    onUpdate(aB(color, factor))
   }
 
   const applySaturation = (color: RGB) => {
-    onUpdate(adjustSaturation(color, saturation.value))
+    onUpdate(aS(color, saturation.value))
   }
 
   const applyHue = (color: RGB) => {
-    onUpdate(adjustHue(color, hue.value))
+    onUpdate(aH(color, hue.value))
   }
 
   const applyContrast = (color: RGB, factor = 1.2) => {
-    onUpdate(adjustContrast(color, factor))
+    onUpdate(aC(color, factor))
   }
 
   const adjustBrightness = (v: number, color: RGB) => {

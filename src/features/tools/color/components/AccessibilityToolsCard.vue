@@ -27,11 +27,17 @@
             class="w-8 h-8 rounded border"
             :style="{ backgroundColor: convertColor(contrastBg).hex }"
           />
-          <BaseInput
-            :value="convertColor(contrastBg).hex"
-            placeholder="#ffffff"
+          <InputGroup
+            v-model="colorInput"
+            v-model:dropdown-value="selectedFormat"
+            :options="formatOptions"
+            :error="inputError"
+            :placeholder="placeholderForFormat"
             class="flex-1"
-            @input="(e: Event) => setContrastBg(convertColor((e.target as HTMLInputElement).value).rgb)"
+            @focus="onFocus"
+            @blur="onBlur"
+            @input="onTyping"
+            @keydown.enter="onEnter"
           />
         </div>
         <div class="flex items-center justify-between">
@@ -86,11 +92,12 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import SegmentedControl from '@components/ui/SegmentedControl.vue'
-import { BaseCard, BaseInput, BaseLabel, BaseBadge } from '@components/ui'
+import { BaseCard, BaseInput, BaseLabel, BaseBadge, InputGroup } from '@components/ui'
 import { Eye, EyeOff } from 'lucide-vue-next'
 import { convertColor, simulateColorBlindness, getContrastRatio } from '@color/lib/color'
-import type { RGB } from '@color/lib/color'
+import type { RGB, RGBA } from '@color/lib/color'
 import type { BadgeVariant } from '@composables/ui/useBadge'
+import { useColorInput } from '@color/composables/useColorInput'
 
 const props = defineProps<{ currentColor: RGB, onColorSelect: (c: RGB) => void }>()
 const activeTab = ref<'contrast' | 'vision'>('contrast')
@@ -108,6 +115,8 @@ const contrastLevel = computed((): { variant: BadgeVariant; text: string } => {
   return { variant: 'alpha', text: 'Fail' }
 })
 const setContrastBg = (rgb: RGB) => { contrastBg.value = rgb }
+const contrastBgRgba = computed(() => ({ ...contrastBg.value, a: 1 }))
+const { selectedFormat, colorInput, inputError, placeholderForFormat, formatOptions, onFocus, onBlur, onEnter, onTyping } = useColorInput(contrastBgRgba, (c: RGBA) => { contrastBg.value = { r: c.r, g: c.g, b: c.b } })
 
 // Vision
 const simulations = computed(() => [

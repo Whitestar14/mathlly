@@ -9,7 +9,7 @@
     <template #trigger>
       <BaseButton
         variant="outline"
-        size="sm"
+        size="sm px-2 py-1 h-8"
         class="flex items-center gap-2"
       >
         <div

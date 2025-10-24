@@ -2,24 +2,26 @@
 import {
   ref,
   unref,
-  watch,
   onMounted,
   onBeforeUnmount,
   computed,
   defineAsyncComponent,
   Suspense,
+  h,
+  Transition,
 } from 'vue';
 import {
   BasePage,
   BaseButton,
   BaseAccordion,
   AccordionItem,
-  BaseLoader,
   BaseCard,
-} from '@components/ui';
-import { convertColor } from '@color/lib/color';
+}
+// Assuming these are from your component library
+from '@components/ui';
+import { convertColor, isValidRGBA } from '@color/lib/color';
 import type { RGB, RGBA, ColorFormats as Formats } from '@color/lib/color';
-import { useClipboard } from '@vueuse/core';
+import { useClipboard, useThrottleFn } from '@vueuse/core';
 import { usePanel } from '@composables/ui/usePanel';
 import type { BreadcrumbItem } from '@components/ui/BasePage.vue';
 import { useKeyboardStore } from '@stores/keyboard';
@@ -33,10 +35,15 @@ import {
 import { useToast } from '@composables/ui/useToast';
 import { formatRgbaPretty } from '@color/lib/utils';
 import { useColorOptions } from '@color/composables/useColorOptions';
+import { appStorage } from '@services/storage';
 
+// Local components (kept for context, though they are likely separate files in your project)
 import CurrentColorCard from '../components/CurrentColorCard.vue';
 import AdjustmentsPanel from '../components/AdjustmentsPanel.vue';
+import PanelLoader from '@components/ui/panel/PanelLoader.vue'
+import PaletteManagerSkeleton from '../components/PaletteManagerSkeleton.vue';
 
+// Async Components
 const PaletteManager = defineAsyncComponent(
   () => import('../components/PaletteManager.vue')
 );
@@ -59,13 +66,96 @@ const harmoniesTab = ref<
 const palettes = ref<PaletteEntity[]>([]);
 const selectedPaletteId = ref<string>('default');
 const palettesLoading = ref(true);
-const showGenerators = ref(true);
+
+// --- Storage ---
+const COLOR_STORAGE_KEY = 'lastUsedColor';
 
 // --- Breadcrumbs ---
 const breadcrumbs: BreadcrumbItem[] = [
   { label: 'Tools', path: '/' },
   { label: 'Color' },
 ];
+
+// --- Functional Component for Reusing Suspense/Transition Logic ---
+// This centralizes the wrapper logic for all sidebar cards (Palette, Accessibility, Harmonies)
+interface SuspenseWrapperProps {
+  component: any; // The async component to render
+  fallback: any;  // The skeleton component/template for the fallback
+  props?: Record<string, any>; // Props to pass to the component
+}
+
+const SuspenseCardWrapper = (props: SuspenseWrapperProps) => {
+  return h(Suspense, null, {
+    default: () => h(Transition, { name: 'fade', mode: 'out-in', appear: true }, () => h('div', [h(props.component, props.props)])),
+    fallback: () => h(props.fallback),
+  });
+};
+
+
+// --- Template Content Definitions (Centralized Logic using Functional Components) ---
+// These functions return the centralized VNodes for the sidebar content.
+
+// 1. Palette Manager Content
+const PaletteManagerContent = () => h(SuspenseCardWrapper, {
+  component: PaletteManager,
+  fallback: PaletteManagerSkeleton,
+  props: {
+    'current-color': current.value,
+    'on-color-select': updateColor,
+    'palettes': palettes.value,
+    'selected-palette-id': selectedPaletteId.value,
+    // Note: Event handling is passed through to the wrapper props
+    'onUpdate:selectedPaletteId': (id: string) => selectedPaletteId.value = id,
+    'onUpdate:palettes': (p: PaletteEntity[]) => palettes.value = p,
+  }
+});
+
+// 2. Accessibility Tools Content
+// Fallback is defined as VNodes using h() to render the BaseCard skeleton
+const AccessibilityContent = () => h(SuspenseCardWrapper, {
+  component: AccessibilityToolsCard,
+  fallback: () => h(BaseCard, { title: 'Accessibility Tools', class: 'h-[250px]' }, [
+      h('div', { class: 'flex gap-2 mb-4' }, [
+        h('div', { class: 'h-8 w-16 bg-muted rounded animate-pulse' }),
+        h('div', { class: 'h-8 w-16 bg-muted rounded animate-pulse' }),
+      ]),
+      h('div', { class: 'flex gap-2 mb-4' }, [
+        h('div', { class: 'w-8 h-8 bg-muted rounded animate-pulse' }),
+        h('div', { class: 'w-8 h-8 bg-muted rounded animate-pulse' }),
+      ]),
+      h('div', { class: 'h-4 bg-muted rounded animate-pulse' }),
+    ]),
+  props: {
+    'current-color': current.value,
+    'on-color-select': updateColor,
+  }
+});
+
+// 3. Harmonies Card Content
+const HarmoniesContent = () => h(SuspenseCardWrapper, {
+  component: HarmoniesCard,
+  fallback: () => h(BaseCard, { class: 'h-[200px]' }, [
+      h('div', { class: 'flex gap-2 mb-4' }, [
+        h('div', { class: 'h-8 w-16 bg-muted rounded animate-pulse' }),
+        h('div', { class: 'h-8 w-16 bg-muted rounded animate-pulse' }),
+      ]),
+      h('div', { class: 'grid grid-cols-4 gap-2' }, [
+        h('div', { class: 'w-8 h-8 bg-muted rounded animate-pulse' }),
+        h('div', { class: 'w-8 h-8 bg-muted rounded animate-pulse' }),
+        h('div', { class: 'w-8 h-8 bg-muted rounded animate-pulse' }),
+        h('div', { class: 'w-8 h-8 bg-muted rounded animate-pulse' }),
+      ]),
+    ]),
+  props: {
+    // v-model is converted to modelValue and onUpdate:modelValue props
+    'modelValue': harmoniesTab.value,
+    'onUpdate:modelValue': (v: 'complementary' | 'triadic' | 'analogous' | 'monochromatic') => harmoniesTab.value = v,
+    'current': current.value,
+    'tabs': harmonyTabs,
+    'on-select': updateColor,
+  }
+});
+
 
 // --- Methods ---
 const updateColor = (c: RGB & { a?: number }) => {
@@ -79,7 +169,12 @@ const updateColor = (c: RGB & { a?: number }) => {
     return;
   current.value = next;
   formats.value = convertColor(next);
+  saveColor(next);
 };
+
+const saveColor = useThrottleFn((color: RGBA) => {
+  appStorage.set('router', COLOR_STORAGE_KEY, String(color));
+}, 500);
 
 // --- Sticky mini-preview logic (mobile only) ---
 const currentCardRoot = ref<HTMLElement | null>(null);
@@ -89,11 +184,18 @@ const adjustmentsPanel = usePanel('adjustments');
 let observer: IntersectionObserver | null = null;
 let observedEl: Element | null = null;
 
+const shouldShowMiniPreview = computed(() => {
+  if (adjustmentsPanel.isOpen) return true;
+  if (!observedEl) return false;
+  const rect = observedEl.getBoundingClientRect();
+  const ratio = rect.height ? Math.min(1, Math.max(0, (window.innerHeight - rect.top) / rect.height)) : 0;
+  return ratio < 0.5;
+});
+
 onMounted(() => {
   observer = new IntersectionObserver(
-    ([entry]) => {
-      showMiniPreview.value =
-        entry.intersectionRatio < 0.5 || unref(adjustmentsPanel.isOpen);
+    () => {
+      showMiniPreview.value = shouldShowMiniPreview.value;
     },
     { threshold: Array.from({ length: 101 }, (_, i) => i / 100) }
   );
@@ -102,27 +204,6 @@ onMounted(() => {
     observedEl = currentCardRoot.value;
     observer.observe(observedEl);
   }
-
-  watch(
-    () => adjustmentsPanel.isOpen,
-    (open) => {
-      if (open) {
-        showMiniPreview.value = true;
-      } else if (observedEl) {
-        const rect = observedEl.getBoundingClientRect();
-        const ratio = rect.height
-          ? Math.min(
-              1,
-              Math.max(0, (window.innerHeight - rect.top) / rect.height)
-            )
-          : 0;
-        showMiniPreview.value = ratio < 0.5;
-      } else {
-        showMiniPreview.value = false;
-      }
-    },
-    { immediate: true }
-  );
 });
 
 onBeforeUnmount(() => {
@@ -195,10 +276,22 @@ const addColorToPalette = async () => {
 };
 
 onMounted(async () => {
+  // Color persistence: Restore saved color
+  try {
+    const savedColor = appStorage.get('router', COLOR_STORAGE_KEY, null);
+    if (savedColor && isValidRGBA(savedColor)) {
+      current.value = savedColor;
+      formats.value = convertColor(current.value);
+    }
+  } catch (error) {
+    console.warn('Failed to load saved color:', error);
+  }
+
   palettesLoading.value = true;
   try {
     await ensureDefaultPalette();
     palettes.value = await fetchPalettes();
+    // This logic ensures 'selectedPaletteId' is always a valid ID from the loaded palettes
     selectedPaletteId.value =
       palettes.value.find((p) => p.id === 'default')?.id ||
       palettes.value[0]?.id ||
@@ -226,9 +319,9 @@ onBeforeUnmount(() => {
   >
     <div class="container mx-auto px-4 py-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Main -->
+        <!-- Main Content (Generators Card) -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- Current Color -->
+          <!-- Current Color Card (Kept outside template block as it is always visible) -->
           <div ref="currentCardRoot">
             <CurrentColorCard
               :current="current"
@@ -240,11 +333,11 @@ onBeforeUnmount(() => {
             />
           </div>
 
+          <!-- Generators Card (Always in main column) -->
           <Suspense>
-            <!-- ADDED: Transition for GeneratorsCard -->
             <template #default>
               <Transition name="fade" mode="out-in" appear>
-                <div v-if="showGenerators">
+                <div>
                   <GeneratorsCard
                     :current-color="current"
                     :on-color-select="updateColor"
@@ -265,106 +358,19 @@ onBeforeUnmount(() => {
           </Suspense>
         </div>
 
-        <!-- Sidebar -->
+        <!-- Sidebar / Accordion Wrapper -->
         <div class="space-y-2">
-          <!-- Desktop: Show individual components -->
+
+          <!-- --- USAGE: Render the functional components --- -->
+
+          <!-- Desktop: Show individual components (lg:block) -->
           <div class="hidden lg:block space-y-6">
-            <Suspense>
-              <!-- ADDED: Transition for PaletteManager -->
-              <template #default>
-                <Transition name="fade" mode="out-in" appear>
-                  <div v-if="!palettesLoading">
-                    <PaletteManager
-                      :current-color="current"
-                      :on-color-select="updateColor"
-                      :palettes="palettes"
-                      v-model:selected-palette-id="selectedPaletteId"
-                      @update:palettes="(p) => (palettes = p)"
-                    />
-                  </div>
-                  <BaseLoader
-                    v-else
-                    variant="expanded"
-                    message="Loading palettes..."
-                  />
-                </Transition>
-              </template>
-              <template #fallback>
-                <BaseCard title="Palettes" class="h-[300px]">
-                  <div class="flex gap-2 mb-4">
-                    <div class="h-8 w-16 bg-muted rounded animate-pulse"></div>
-                    <div class="h-8 w-16 bg-muted rounded animate-pulse"></div>
-                  </div>
-                  <div class="grid grid-cols-5 gap-2">
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                  </div>
-                </BaseCard>
-              </template>
-            </Suspense>
-
-            <Suspense>
-              <!-- ADDED: Transition for AccessibilityToolsCard -->
-              <template #default>
-                <Transition name="fade" mode="out-in" appear>
-                  <div>
-                    <AccessibilityToolsCard
-                      :current-color="current"
-                      :on-color-select="updateColor"
-                    />
-                  </div>
-                </Transition>
-              </template>
-              <template #fallback>
-                <BaseCard title="Accessibility Tools" class="h-[250px]">
-                  <div class="flex gap-2 mb-4">
-                    <div class="h-8 w-16 bg-muted rounded animate-pulse"></div>
-                    <div class="h-8 w-16 bg-muted rounded animate-pulse"></div>
-                  </div>
-                  <div class="flex gap-2 mb-4">
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                  </div>
-                  <div class="h-4 bg-muted rounded animate-pulse"></div>
-                </BaseCard>
-              </template>
-            </Suspense>
-
-            <Suspense>
-              <!-- ADDED: Transition for HarmoniesCard (Desktop) -->
-              <template #default>
-                <Transition name="fade" mode="out-in" appear>
-                  <div>
-                    <HarmoniesCard
-                      v-model="harmoniesTab"
-                      :current="current"
-                      :tabs="harmonyTabs"
-                      :on-select="updateColor"
-                    />
-                  </div>
-                </Transition>
-              </template>
-              <template #fallback>
-                <BaseCard class="h-[200px]">
-                  <div class="flex gap-2 mb-4">
-                    <div class="h-8 w-16 bg-muted rounded animate-pulse"></div>
-                    <div class="h-8 w-16 bg-muted rounded animate-pulse"></div>
-                  </div>
-                  <div class="grid grid-cols-4 gap-2">
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                    <div class="w-8 h-8 bg-muted rounded animate-pulse"></div>
-                  </div>
-                </BaseCard>
-              </template>
-            </Suspense>
+            <PaletteManagerContent />
+            <AccessibilityContent />
+            <HarmoniesContent />
           </div>
 
-          <!-- Mobile: Show accordion -->
+          <!-- Mobile: Show accordion (lg:hidden) -->
           <div class="lg:hidden pb-10">
             <BaseAccordion
               default-value="palette"
@@ -372,141 +378,19 @@ onBeforeUnmount(() => {
               :collapsible="true"
               class="w-full"
             >
-              <!-- Palette Manager -->
+              <!-- Palette Manager in Accordion -->
               <AccordionItem id="palette" title="Color Palettes">
-                <Suspense>
-                  <!-- ADDED: Transition for PaletteManager (Mobile) -->
-                  <template #default>
-                    <Transition name="fade" mode="out-in" appear>
-                      <div v-if="!palettesLoading">
-                        <PaletteManager
-                          :current-color="current"
-                          :on-color-select="updateColor"
-                          :palettes="palettes"
-                          v-model:selected-palette-id="selectedPaletteId"
-                          @update:palettes="(p) => (palettes = p)"
-                        />
-                      </div>
-                      <BaseLoader
-                        v-else
-                        variant="expanded"
-                        message="Loading palettes..."
-                      />
-                    </Transition>
-                  </template>
-                  <template #fallback>
-                    <BaseCard title="Palettes" class="h-[300px]">
-                      <div class="flex gap-2 mb-4">
-                        <div
-                          class="h-8 w-16 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="h-8 w-16 bg-muted rounded animate-pulse"
-                        ></div>
-                      </div>
-                      <div class="grid grid-cols-5 gap-2">
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                      </div>
-                    </BaseCard>
-                  </template>
-                </Suspense>
+                <PaletteManagerContent />
               </AccordionItem>
 
-              <!-- Accessibility -->
+              <!-- Accessibility in Accordion -->
               <AccordionItem id="accessibility" title="Accessibility">
-                <Suspense>
-                  <!-- ADDED: Transition for AccessibilityToolsCard (Mobile) -->
-                  <template #default>
-                    <Transition name="fade" mode="out-in" appear>
-                      <div>
-                        <AccessibilityToolsCard
-                          :current-color="current"
-                          :on-color-select="updateColor"
-                        />
-                      </div>
-                    </Transition>
-                  </template>
-                  <template #fallback>
-                    <BaseCard title="Accessibility Tools" class="h-[250px]">
-                      <div class="flex gap-2 mb-4">
-                        <div
-                          class="h-8 w-16 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="h-8 w-16 bg-muted rounded animate-pulse"
-                        ></div>
-                      </div>
-                      <div class="flex gap-2 mb-4">
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                      </div>
-                      <div class="h-4 bg-muted rounded animate-pulse"></div>
-                    </BaseCard>
-                  </template>
-                </Suspense>
+                <AccessibilityContent />
               </AccordionItem>
 
-              <!-- Color Harmonies -->
+              <!-- Color Harmonies in Accordion -->
               <AccordionItem id="harmonies" title="Color Harmonies">
-                <Suspense>
-                  <!-- ADDED: Transition for HarmoniesCard (Mobile) -->
-                  <template #default>
-                    <Transition name="fade" mode="out-in" appear>
-                      <div>
-                        <HarmoniesCard
-                          v-model="harmoniesTab"
-                          :current="current"
-                          :tabs="harmonyTabs"
-                          :on-select="updateColor"
-                        />
-                      </div>
-                    </Transition>
-                  </template>
-                  <template #fallback>
-                    <BaseCard class="h-[200px]">
-                      <div class="flex gap-2 mb-4">
-                        <div
-                          class="h-8 w-16 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="h-8 w-16 bg-muted rounded animate-pulse"
-                        ></div>
-                      </div>
-                      <div class="grid grid-cols-4 gap-2">
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                        <div
-                          class="w-8 h-8 bg-muted rounded animate-pulse"
-                        ></div>
-                      </div>
-                    </BaseCard>
-                  </template>
-                </Suspense>
+                <HarmoniesContent />
               </AccordionItem>
             </BaseAccordion>
           </div>
@@ -537,10 +421,12 @@ onBeforeUnmount(() => {
       </div>
     </transition>
 
-    <AdjustmentsPanel
-      :current-color="current"
-      :update-color="updateColor"
-      :auto-apply="autoApplyAdjustments"
+    <PanelLoader
+      :component="AdjustmentsPanel"
+      :isOpen="unref(adjustmentsPanel.isOpen)"
+      side="left"
+      panelType="drawer"
+      :componentProps="{ currentColor: current, updateColor: updateColor, autoApply: autoApplyAdjustments }"
     />
   </BasePage>
 </template>

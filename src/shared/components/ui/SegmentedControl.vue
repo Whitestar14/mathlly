@@ -73,7 +73,7 @@
           :label="opt.label"
           :icon="opt.icon"
           class-name="px-3 py-2 text-left text-sm rounded-md hover:bg-muted/30"
-          @click="select(opt.value, true)"
+          @click="select(opt.value)"
         />
       </div>
     </BasePopover>
@@ -109,7 +109,14 @@ const overflowLabel = computed(() => props.overflowLabel ?? 'More options')
 // Deck state for MCR promotion; kept in sync with options
 const visibleDeck = ref<SegmentedOption[]>(props.options.slice(0, maxVisible.value))
 
-// Helper function for MCR promotion
+const visibleValueMap = computed(() => {
+    return new Set(visibleDeck.value.map(o => o.value));
+});
+
+const overflowOptions = computed(() =>
+    props.options.filter(o => !visibleValueMap.value.has(o.value))
+);
+
 function promoteToVisibleDeck(value: string) {
   const chosen = props.options.find(o => o.value === value)
   if (chosen) {
@@ -117,52 +124,33 @@ function promoteToVisibleDeck(value: string) {
     deck[deck.length - 1] = chosen
 
     const seen = new Set<string>()
-    visibleDeck.value = deck.filter(d => {
+    const newDeck = deck.reverse().filter(d => {
       if (seen.has(d.value)) return false
       seen.add(d.value)
       return true
-    }).slice(0, maxVisible.value)
+    }).reverse()
+
+    visibleDeck.value = newDeck.slice(0, maxVisible.value)
   }
 }
 
 watch(
   () => props.options,
   (opts) => {
-
-    const preserved = visibleDeck.value.filter(v => opts.some(o => o.value === v.value))
+    const preserved = visibleDeck.value.map(v => opts.find(o => o.value === v.value)).filter((o): o is SegmentedOption => o !== undefined)
+    
     const fill = opts.filter(o => !preserved.some(v => v.value === o.value)).slice(0, Math.max(0, maxVisible.value - preserved.length))
+    
     visibleDeck.value = [...preserved, ...fill].slice(0, maxVisible.value)
-
-    // Prioritize newly selected items
-    if (props.modelValue && !visibleDeck.value.some(v => v.value === props.modelValue)) {
-      promoteToVisibleDeck(props.modelValue)
-    }
   },
   { deep: true, immediate: true }
 )
 
-// Watcher on modelValue to ensure selected item is always visible
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    if (!visibleDeck.value.some(v => v.value === newValue)) {
-      promoteToVisibleDeck(newValue)
-    }
-  },
-  { immediate: false }
-)
 
-const overflowOptions = computed(() =>
-  props.options.filter(o => !visibleDeck.value.some(v => v.value === o.value))
-)
-
-function select(value: string, fromOverflow = false) {
+function select(value: string) {
   emit('update:modelValue', value)
   emit('change', value)
-
-  if (fromOverflow || !visibleDeck.value.some(v => v.value === value)) {
-    promoteToVisibleDeck(value)
-  }
+  promoteToVisibleDeck(value)
 }
 
 function onKeydown(e: KeyboardEvent) {

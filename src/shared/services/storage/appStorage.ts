@@ -42,6 +42,8 @@ export interface AppDataBlob {
   router?: {
     lastVisitedPath?: string
     toolOptions?: Record<string, unknown>
+
+    lastUsedColor?: Record<string, number>
   }
   panels?: Record<
     string,
