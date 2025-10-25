@@ -56,7 +56,10 @@
     </div>
 
     <!-- Mobile Panel -->
-    <div v-else>
+    <div
+      v-else
+      ref="mobilePanelContainer"
+    >
       <!-- Backdrop (mobile only) -->
       <Transition :name="animationEnabled ? 'fade' : ''">
         <div
@@ -95,7 +98,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent, ref, watch, onBeforeUnmount } from 'vue';
+import { useThrottleFn, useScrollLock } from '@vueuse/core';
+import { useFocusTrap } from '@composables/utils/useFocusTrap';
 import { usePanel } from '@composables/ui/usePanel';
 import type { PanelAPI } from '@composables/ui/types';
 import { useSettingsStore } from '@stores/settings';
@@ -198,6 +203,42 @@ const backdropClasses = computed(() => [
     ? 'backdrop-blur-sm transition-colors duration-300'
     : 'bg-backdrop/50',
 ]);
+
+const mobilePanelContainer = ref<HTMLElement | null>(null);
+
+const { activate, deactivate } = useFocusTrap(mobilePanelContainer);
+
+const isTrapActive = ref(false);
+const isLocked = useScrollLock(document.body);
+
+const throttledActivate = useThrottleFn(() => {
+  if (!isTrapActive.value) {
+    activate();
+    isTrapActive.value = true;
+  }
+}, 100);
+
+const throttledDeactivate = useThrottleFn(() => {
+  if (isTrapActive.value) {
+    deactivate();
+    isTrapActive.value = false;
+  }
+}, 100);
+
+watch([() => isOpen.value, () => isMobile.value], ([open, mobile]) => {
+  if (open && mobile) {
+    throttledActivate();
+  } else {
+    throttledDeactivate();
+  }
+  isLocked.value = open && mobile;
+}, { immediate: true });
+
+onBeforeUnmount(() => {
+  if (isTrapActive.value) {
+    deactivate();
+  }
+});
 </script>
 
 <style scoped>

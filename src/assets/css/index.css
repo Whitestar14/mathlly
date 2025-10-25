@@ -21,9 +21,20 @@
 /* Animations */
 @import './animations/fade.css';
 @import './animations/scale.css';
+@import './animations/slide.css';
 
-/* Tailwind directives should remain in the entry file */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+html, body, #app {
+	overscroll-behavior-y: contain;
+	overscroll-behavior-x: contain;
+	-webkit-overflow-scrolling: touch;
+}
+
+.overflow-y-auto,
+.overflow-auto,
+.scrollable {
+	-webkit-overflow-scrolling: touch;
+}

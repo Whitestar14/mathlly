@@ -41,23 +41,20 @@
       </div>
     </div>
     
-    <ActivityPanel
-      :mode="state.mode"
-      :is-mobile="isMobile"
-      :is-open="activityPanel.isOpen"
-      @history-close="activityPanel.close"
-      @memory-close="activityPanel.close"
-      @select-item="selectHistoryItem"
+    <DesktopPanelLoader
+      :component="ActivityPanelComponent"
+      :is-open="unref(activityPanel.isOpen)"
+      position="left"
+      :component-props="{ mode: state.mode, isMobile: isMobile, isOpen: activityPanel.isOpen, onSelectItem: selectHistoryItem, onHistoryClose: activityPanel.close, onMemoryClose: activityPanel.close }"
     />
   </BasePage>
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref, provide, defineAsyncComponent, type Ref, type ComputedRef } from 'vue'
+import { computed, watch, ref, unref, provide, defineAsyncComponent, type Ref, type ComputedRef } from 'vue' 
 import { useHistory, type HistoryItem } from '@calculator/composables/useHistory'
 import { useMemory } from '@calculator/composables/useMemory'
 import { usePanel } from '@composables/ui/usePanel'
-import type { LightweightPanelAPI } from '@composables/ui/types'
 import { useCalculatorState, type CalculatorMode, type Base } from '@calculator/composables/useCalculatorState'
 import { useCalculatorModeSwitcher } from '@calculator/composables/useCalculatorModeSwitcher'
 import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptions'
@@ -65,14 +62,16 @@ import { CalculatorController, type ControllerReturn } from '../composables/Main
 import { CalculatorFactory, type Calculator } from '@calculator/services/factory/CalculatorFactory'
 import { useCalculatorSession } from '@calculator/composables/useCalculatorSession'
 
-import {CalculatorButtons, CalculatorDisplay} from '@calculator/components'
+import { CalculatorButtons } from '@calculator/components' 
 import { BasePage } from '@components/ui'
+import DesktopPanelLoader from '@components/ui/panel/DesktopPanelLoader.vue'
+
+const ActivityPanelComponent = defineAsyncComponent(() => import('@calculator/components/ActivityPanel.vue'))
+const CalculatorDisplay = defineAsyncComponent(() => import('@calculator/components/CalculatorDisplay.vue'))
 
 const props = defineProps<{
   isMobile: boolean
 }>()
-
-const ActivityPanel = defineAsyncComponent(() => import('@calculator/components/ActivityPanel.vue'))
 
 interface HistoryService {
   addToHistory: (expression: string, result: string) => void
@@ -81,8 +80,7 @@ interface HistoryService {
 const historyService: HistoryService = useHistory()
 const memoryService = useMemory()
 
-const activityPanelResult = usePanel('activity')
-const activityPanel = activityPanelResult as LightweightPanelAPI
+const activityPanel = usePanel('activity')
 
 const { currentMode } = useCalculatorModeSwitcher()
 
@@ -139,7 +137,7 @@ const {
 const maxInputLength: ComputedRef<number> = computed(() => calculator.value.MAX_INPUT_LENGTH)
 const hasMemoryValue: ComputedRef<boolean> = computed(() => memoryService.hasMemory(currentMode.value).value)
 
-const openActivity = (): void => activityPanel.open()
+const openActivity = (): void | Promise<void> => activityPanel.open()
 
 watch(() => state.input, (newRawInput: string) => {
   saveInput(currentMode.value, newRawInput)

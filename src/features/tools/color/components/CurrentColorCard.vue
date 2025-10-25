@@ -154,7 +154,7 @@ const props = defineProps<{
 const previewEl = ref<HTMLElement | null>(null)
 const { ripples, triggerRipple } = useRipple()
 const { copy } = useClipboard()
-const { toast } = useToast()
+const { info } = useToast()
 const panel = usePanel('adjustments')
 
 // Keyboard bindings (registered locally)
@@ -165,7 +165,7 @@ onMounted(() => {
       'Ctrl+R': () => genRandomColor(),
       'Ctrl+Shift+C': async () => {
         await copy(rgbaText.value)
-        toast({ title: 'Copied!', description: `${rgbaText.value} copied to clipboard` })
+        info(`${rgbaText.value} copied to clipboard`, { title: 'Copied!' })
       },
       'Ctrl+P': () => props.onAddToPalette(),
     })
@@ -258,7 +258,7 @@ const handlePreviewClick = async (e: MouseEvent) => {
   if (!previewEl.value) return
   triggerRipple(e, previewEl.value)
   await copy(rgbaText.value)
-  toast({ title: 'Copied!', description: `${rgbaText.value} copied to clipboard` })
+  info(`${rgbaText.value} copied to clipboard`, { title: 'Copied!' })
 }
 
 // Random color (preserve alpha)

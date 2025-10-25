@@ -127,11 +127,11 @@ import { getColorName, getLuminance, getReadableTextColor, rgbToHex } from '@col
 import { computed } from 'vue'
 
 const props = defineProps<{ formats: ColorFormats }>()
-const { toast } = useToast()
+const { info } = useToast()
 
 const copy = async (text: string, label: string) => {
   await navigator.clipboard.writeText(text)
-  toast({ title: 'Copied!', description: `${label} value copied to clipboard` })
+  info(`${label} value copied to clipboard`, { title: 'Copied!' })
 }
 
 // Use RGBA as standard (clamp alpha to 3 decimals to avoid ballooning)

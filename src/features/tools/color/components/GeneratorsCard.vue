@@ -221,6 +221,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useClipboard } from '@vueuse/core'
 import { Copy, Download } from 'lucide-vue-next'
 import { BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider, BaseAccordion, AccordionItem } from '@components/ui'
 import BaseColorPicker from '@shared/components/ui/BaseColorPicker.vue'
@@ -235,7 +236,7 @@ const props = defineProps<{
   onColorSelect: (c: RGB & { a: number }) => void
 }>()
 
-const { toast } = useToast()
+const { info, error } = useToast()
 const { exportGradientColors } = useColorExport()
 
 // Bounds
@@ -299,13 +300,15 @@ const exportSwatches = () => {
   exportGradientColors(startRgba.value, endRgba.value, gradientSteps.value, angle.value, gradientColors.value)
 }
 
+const { copy } = useClipboard()
+
 // Actions
 const copyGradientCSS = async () => {
   try {
-  await navigator.clipboard.writeText(gradientCss.value)
-    toast({ title: 'Copied!', description: 'Gradient CSS copied to clipboard' })
+    await copy(gradientCss.value)
+    info('Gradient CSS copied to clipboard', { title: 'Copied!' })
   } catch {
-    toast({ title: 'Error', description: 'Failed to copy CSS to clipboard', type: 'error' })
+    error('Failed to copy CSS to clipboard', { title: 'Error' })
   }
 }
 

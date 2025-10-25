@@ -26,11 +26,8 @@ export function exportJSON(data: any, filename: string, metadata?: Record<string
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    const { toast } = useToast();
-    toast({
-      title: 'Exported!',
-      description: `Successfully exported to ${filename}`,
-    });
+    const { success } = useToast();
+    success(`Successfully exported to ${filename}`, { title: 'Exported!' });
     return { success: true };
   } catch (error) {
     console.error('Export failed:', error);

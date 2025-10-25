@@ -11,7 +11,7 @@
           :min="-1"
           :max="1"
           :step="0.01"
-          @update:model-value="(v) => adjustBrightness(v[0], currentColor)"
+          @update:model-value="(v: Record<string, number>) => adjustBrightness(v[0], currentColor)"
         />
         <BaseButton
           size="sm"
@@ -34,7 +34,7 @@
           :min="0"
           :max="2"
           :step="0.1"
-          @update:model-value="(v) => adjustSaturation(v[0], currentColor)"
+          @update:model-value="(v: Record<string, number>) => adjustSaturation(v[0], currentColor)"
         />
         <BaseButton
           size="sm"
@@ -57,7 +57,7 @@
           :min="-180"
           :max="180"
           :step="1"
-          @update:model-value="(v) => adjustHue(v[0], currentColor)"
+          @update:model-value="(v: Record<string, number>) => adjustHue(v[0], currentColor)"
         />
         <BaseButton
           size="sm"
@@ -111,9 +111,6 @@ const {
   brightness,
   saturation,
   hue,
-  setBrightness,
-  setSaturation,
-  setHue,
   applyBrightness,
   applySaturation,
   applyHue,

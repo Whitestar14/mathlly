@@ -30,7 +30,6 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
   } = options;
 
   if (!storageKey) {
-    // If there's no storage key we return a no-op API to avoid runtime errors.
     console.error('usePanel requires a storageKey option.');
     return markRaw({
       isOpen: shallowRef(false),
@@ -51,16 +50,13 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     }) as PanelAPI;
   }
 
-  // Persisted open state per device type
   const preferences = ref(appStorage.get('panels', storageKey, {
     desktop: { isOpen: defaultDesktopState },
     mobile: { isOpen: false },
   }));
 
-  // Watch for changes and persist to storage
   watch(preferences, (newVal) => appStorage.set('panels', storageKey, newVal), { deep: true });
 
-  // Compute initial open state from persisted preferences synchronously
   const initialIsOpen: ComputedRef<boolean> = computed(() =>
     initialIsMobile ? preferences.value.mobile.isOpen : preferences.value.desktop.isOpen
   );
@@ -76,7 +72,6 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
   const handle: Ref<HTMLElement | null> = shallowRef(null);
   const panel: Ref<HTMLElement | null> = shallowRef(null);
 
-  // Debounced update to persisted preferences to limit storage writes
   const updatePreferences = useDebounceFn(() => {
     preferences.value[deviceContext.value].isOpen = isOpen.value;
   }, 300);
@@ -104,7 +99,6 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
       isOpen.value = false;
     }
 
-    // Reset expanded state shortly after closing to allow any animation to finish
     setTimeout(() => (isExpanded.value = false), 300);
     updatePreferences();
   };
@@ -138,7 +132,6 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     const { expanded = false, isMobile = currentIsMobile.value } = options;
 
     if (expanded) {
-      // Only allow expansion on mobile while the panel is open
       if (!currentIsMobile.value || !isOpen.value) return;
       isExpanded.value = !isExpanded.value;
       if (draggable) nextTick(updatePanelDimensions);
@@ -158,7 +151,6 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     if (currentIsMobile.value === newIsMobile) return;
     currentIsMobile.value = newIsMobile;
 
-    // On switch to mobile collapse the panel; on switch to desktop restore desktop preference
     isOpen.value = newIsMobile ? false : preferences.value.desktop.isOpen;
     updatePreferences();
 
@@ -169,12 +161,10 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     draggable?.updatePanelDimensions?.();
   }, 100);
 
-  // Persist changes to open/expanded state
   watch([isOpen, isExpanded], updatePreferences, { flush: 'post' });
 
   const api: PanelAPI = {
     isOpen,
-    preloadIsOpen: initialIsOpen,
     isMobile: currentIsMobile,
     isExpanded,
     panel,

@@ -1,0 +1,50 @@
+/* styles/animations/slide.css */
+/* Transition classes (not in a Tailwind layer on purpose) */
+
+.slide-up-fade-enter-active, .slide-up-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-up-fade-enter-from, .slide-up-fade-leave-to {
+  opacity: 0;
+  transform: translateY(100%);
+}
+.slide-up-fade-enter-to, .slide-up-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slide-down-fade-enter-active, .slide-down-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-down-fade-enter-from, .slide-down-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+.slide-down-fade-enter-to, .slide-down-fade-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.slide-left-fade-enter-active, .slide-left-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-left-fade-enter-from, .slide-left-fade-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+.slide-left-fade-enter-to, .slide-left-fade-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.slide-right-fade-enter-active, .slide-right-fade-leave-active {
+  transition: all 0.3s ease;
+}
+.slide-right-fade-enter-from, .slide-right-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-100%);
+}
+.slide-right-fade-enter-to, .slide-right-fade-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}

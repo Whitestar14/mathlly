@@ -5,7 +5,7 @@
     :class="customClass"
   >
     <CollapsibleTrigger
-      class="group flex w-full data-[state='open']:border-b border-border items-center justify-between p-4 text-left font-medium text-foreground hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
+      class="group flex w-full data-[state='open']:border-b border-border items-center justify-between px-4 py-3 text-left font-medium text-foreground hover:bg-secondary/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-colors"
       :class="headerClass"
     >
       <div class="flex items-center space-x-3">

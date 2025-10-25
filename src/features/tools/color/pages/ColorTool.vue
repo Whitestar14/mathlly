@@ -17,11 +17,10 @@ import {
   AccordionItem,
   BaseCard,
 }
-// Assuming these are from your component library
 from '@components/ui';
 import { convertColor, isValidRGBA } from '@color/lib/color';
 import type { RGB, RGBA, ColorFormats as Formats } from '@color/lib/color';
-import { useClipboard, useThrottleFn } from '@vueuse/core';
+import { useClipboard, useThrottleFn, useElementVisibility } from '@vueuse/core';
 import { usePanel } from '@composables/ui/usePanel';
 import type { BreadcrumbItem } from '@components/ui/BasePage.vue';
 import { useKeyboardStore } from '@stores/keyboard';
@@ -37,13 +36,11 @@ import { formatRgbaPretty } from '@color/lib/utils';
 import { useColorOptions } from '@color/composables/useColorOptions';
 import { appStorage } from '@services/storage';
 
-// Local components (kept for context, though they are likely separate files in your project)
 import CurrentColorCard from '../components/CurrentColorCard.vue';
 import AdjustmentsPanel from '../components/AdjustmentsPanel.vue';
-import PanelLoader from '@components/ui/panel/PanelLoader.vue'
+import DesktopPanelLoader from '@components/ui/panel/DesktopPanelLoader.vue'
 import PaletteManagerSkeleton from '../components/PaletteManagerSkeleton.vue';
 
-// Async Components
 const PaletteManager = defineAsyncComponent(
   () => import('../components/PaletteManager.vue')
 );
@@ -57,7 +54,6 @@ const AccessibilityToolsCard = defineAsyncComponent(
   () => import('../components/AccessibilityToolsCard.vue')
 );
 
-// --- State ---
 const current = ref<RGBA>({ r: 34, g: 197, b: 94, a: 1 });
 const formats = ref<Formats>(convertColor(current.value));
 const harmoniesTab = ref<
@@ -67,21 +63,17 @@ const palettes = ref<PaletteEntity[]>([]);
 const selectedPaletteId = ref<string>('default');
 const palettesLoading = ref(true);
 
-// --- Storage ---
 const COLOR_STORAGE_KEY = 'lastUsedColor';
 
-// --- Breadcrumbs ---
 const breadcrumbs: BreadcrumbItem[] = [
   { label: 'Tools', path: '/' },
   { label: 'Color' },
 ];
 
-// --- Functional Component for Reusing Suspense/Transition Logic ---
-// This centralizes the wrapper logic for all sidebar cards (Palette, Accessibility, Harmonies)
 interface SuspenseWrapperProps {
-  component: any; // The async component to render
-  fallback: any;  // The skeleton component/template for the fallback
-  props?: Record<string, any>; // Props to pass to the component
+  component: any;
+  fallback: any;
+  props?: Record<string, any>;
 }
 
 const SuspenseCardWrapper = (props: SuspenseWrapperProps) => {
@@ -92,29 +84,23 @@ const SuspenseCardWrapper = (props: SuspenseWrapperProps) => {
 };
 
 
-// --- Template Content Definitions (Centralized Logic using Functional Components) ---
-// These functions return the centralized VNodes for the sidebar content.
-
-// 1. Palette Manager Content
 const PaletteManagerContent = () => h(SuspenseCardWrapper, {
   component: PaletteManager,
-  fallback: PaletteManagerSkeleton,
+  fallback: () => h(PaletteManagerSkeleton),
   props: {
     'current-color': current.value,
     'on-color-select': updateColor,
     'palettes': palettes.value,
     'selected-palette-id': selectedPaletteId.value,
-    // Note: Event handling is passed through to the wrapper props
     'onUpdate:selectedPaletteId': (id: string) => selectedPaletteId.value = id,
     'onUpdate:palettes': (p: PaletteEntity[]) => palettes.value = p,
   }
 });
 
-// 2. Accessibility Tools Content
-// Fallback is defined as VNodes using h() to render the BaseCard skeleton
 const AccessibilityContent = () => h(SuspenseCardWrapper, {
   component: AccessibilityToolsCard,
-  fallback: () => h(BaseCard, { title: 'Accessibility Tools', class: 'h-[250px]' }, [
+  fallback: () => h(BaseCard, { title: 'Accessibility Tools', class: 'h-[250px]' }, {
+    default: () => [
       h('div', { class: 'flex gap-2 mb-4' }, [
         h('div', { class: 'h-8 w-16 bg-muted rounded animate-pulse' }),
         h('div', { class: 'h-8 w-16 bg-muted rounded animate-pulse' }),
@@ -124,17 +110,18 @@ const AccessibilityContent = () => h(SuspenseCardWrapper, {
         h('div', { class: 'w-8 h-8 bg-muted rounded animate-pulse' }),
       ]),
       h('div', { class: 'h-4 bg-muted rounded animate-pulse' }),
-    ]),
+    ]
+  }),
   props: {
     'current-color': current.value,
     'on-color-select': updateColor,
   }
 });
 
-// 3. Harmonies Card Content
 const HarmoniesContent = () => h(SuspenseCardWrapper, {
   component: HarmoniesCard,
-  fallback: () => h(BaseCard, { class: 'h-[200px]' }, [
+  fallback: () => h(BaseCard, { class: 'h-[200px]' }, {
+    default: () => [
       h('div', { class: 'flex gap-2 mb-4' }, [
         h('div', { class: 'h-8 w-16 bg-muted rounded animate-pulse' }),
         h('div', { class: 'h-8 w-16 bg-muted rounded animate-pulse' }),
@@ -145,9 +132,9 @@ const HarmoniesContent = () => h(SuspenseCardWrapper, {
         h('div', { class: 'w-8 h-8 bg-muted rounded animate-pulse' }),
         h('div', { class: 'w-8 h-8 bg-muted rounded animate-pulse' }),
       ]),
-    ]),
+    ]
+  }),
   props: {
-    // v-model is converted to modelValue and onUpdate:modelValue props
     'modelValue': harmoniesTab.value,
     'onUpdate:modelValue': (v: 'complementary' | 'triadic' | 'analogous' | 'monochromatic') => harmoniesTab.value = v,
     'current': current.value,
@@ -157,7 +144,6 @@ const HarmoniesContent = () => h(SuspenseCardWrapper, {
 });
 
 
-// --- Methods ---
 const updateColor = (c: RGB & { a?: number }) => {
   const next: RGBA = { r: c.r, g: c.g, b: c.b, a: c.a ?? current.value.a ?? 1 };
   if (
@@ -173,56 +159,32 @@ const updateColor = (c: RGB & { a?: number }) => {
 };
 
 const saveColor = useThrottleFn((color: RGBA) => {
-  appStorage.set('router', COLOR_STORAGE_KEY, String(color));
+  appStorage.set('router', COLOR_STORAGE_KEY, color);
 }, 500);
 
-// --- Sticky mini-preview logic (mobile only) ---
 const currentCardRoot = ref<HTMLElement | null>(null);
-const showMiniPreview = ref(false);
 const adjustmentsPanel = usePanel('adjustments');
+const sidebarPanel = usePanel('sidebar');
+const menuPanel = usePanel('menu');
 
-let observer: IntersectionObserver | null = null;
-let observedEl: Element | null = null;
+const isCardVisible = useElementVisibility(currentCardRoot, { threshold: 0.5 });
 
 const shouldShowMiniPreview = computed(() => {
+  if (sidebarPanel.isOpen) return false;
+  if (menuPanel.isOpen) return false;
   if (adjustmentsPanel.isOpen) return true;
-  if (!observedEl) return false;
-  const rect = observedEl.getBoundingClientRect();
-  const ratio = rect.height ? Math.min(1, Math.max(0, (window.innerHeight - rect.top) / rect.height)) : 0;
-  return ratio < 0.5;
-});
-
-onMounted(() => {
-  observer = new IntersectionObserver(
-    () => {
-      showMiniPreview.value = shouldShowMiniPreview.value;
-    },
-    { threshold: Array.from({ length: 101 }, (_, i) => i / 100) }
-  );
-
-  if (currentCardRoot.value) {
-    observedEl = currentCardRoot.value;
-    observer.observe(observedEl);
-  }
-});
-
-onBeforeUnmount(() => {
-  observer?.disconnect();
-  observer = null;
-  observedEl = null;
+  return !isCardVisible.value;
 });
 
 const rgba = computed(() => formatRgbaPretty(current.value));
 
-// --- Clipboard ---
 const { copy } = useClipboard();
+const { error: errorToast, info } = useToast();
 const copyRgba = async () => {
   await copy(rgba.value);
-
-  toast({ message: 'RGBA color copied to clipboard', type: 'success' });
+  info('RGBA color copied to clipboard', { title: 'Copied!' });
 };
 
-// --- Scroll helper ---
 const scrollToCard = () => {
   currentCardRoot.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
@@ -234,8 +196,6 @@ const harmonyTabs = [
   { value: 'monochromatic', label: 'Mono' },
 ];
 
-// --- Palette and Keyboard ---
-const { toast } = useToast();
 const keyboard = useKeyboardStore();
 const { autoApplyAdjustments } = useColorOptions();
 
@@ -244,7 +204,7 @@ const addColorToPalette = async () => {
     (p) => p.id === selectedPaletteId.value
   );
   if (!activePalette) {
-    toast({ message: 'No active palette selected', type: 'error' });
+    info('No active palette selected');
     return;
   }
   const exists = activePalette.colors.some(
@@ -254,7 +214,7 @@ const addColorToPalette = async () => {
       c.b === current.value.b
   );
   if (exists) {
-    toast({ message: 'Color already in palette', type: 'info' });
+    info('Color already in palette');
     return;
   }
   try {
@@ -262,21 +222,20 @@ const addColorToPalette = async () => {
       selectedPaletteId.value,
       sanitizeColor(current.value)
     );
-    if (updatedPalette) {
+      if (updatedPalette) {
       palettes.value = palettes.value.map((p) =>
         p.id === updatedPalette.id ? updatedPalette : p
       );
-      toast({ message: 'Color added to palette', type: 'success' });
+      info('Color added to palette', { title: 'Added' });
     } else {
-      toast({ message: 'Failed to add color to palette', type: 'error' });
+      errorToast('Failed to add color to palette');
     }
   } catch (error) {
-    toast({ message: 'Error adding color to palette', type: 'error' });
+    errorToast('Error adding color to palette');
   }
 };
 
 onMounted(async () => {
-  // Color persistence: Restore saved color
   try {
     const savedColor = appStorage.get('router', COLOR_STORAGE_KEY, null);
     if (savedColor && isValidRGBA(savedColor)) {
@@ -291,13 +250,12 @@ onMounted(async () => {
   try {
     await ensureDefaultPalette();
     palettes.value = await fetchPalettes();
-    // This logic ensures 'selectedPaletteId' is always a valid ID from the loaded palettes
     selectedPaletteId.value =
       palettes.value.find((p) => p.id === 'default')?.id ||
       palettes.value[0]?.id ||
       'default';
   } catch (error) {
-    toast({ message: 'Failed to load palettes', type: 'error' });
+    errorToast('Failed to load palettes');
   } finally {
     palettesLoading.value = false;
   }
@@ -319,9 +277,7 @@ onBeforeUnmount(() => {
   >
     <div class="container mx-auto px-4 py-8">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Main Content (Generators Card) -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- Current Color Card (Kept outside template block as it is always visible) -->
           <div ref="currentCardRoot">
             <CurrentColorCard
               :current="current"
@@ -333,7 +289,6 @@ onBeforeUnmount(() => {
             />
           </div>
 
-          <!-- Generators Card (Always in main column) -->
           <Suspense>
             <template #default>
               <Transition name="fade" mode="out-in" appear>
@@ -358,19 +313,14 @@ onBeforeUnmount(() => {
           </Suspense>
         </div>
 
-        <!-- Sidebar / Accordion Wrapper -->
         <div class="space-y-2">
 
-          <!-- --- USAGE: Render the functional components --- -->
-
-          <!-- Desktop: Show individual components (lg:block) -->
           <div class="hidden lg:block space-y-6">
             <PaletteManagerContent />
             <AccessibilityContent />
             <HarmoniesContent />
           </div>
 
-          <!-- Mobile: Show accordion (lg:hidden) -->
           <div class="lg:hidden pb-10">
             <BaseAccordion
               default-value="palette"
@@ -378,17 +328,14 @@ onBeforeUnmount(() => {
               :collapsible="true"
               class="w-full"
             >
-              <!-- Palette Manager in Accordion -->
               <AccordionItem id="palette" title="Color Palettes">
                 <PaletteManagerContent />
               </AccordionItem>
 
-              <!-- Accessibility in Accordion -->
               <AccordionItem id="accessibility" title="Accessibility">
                 <AccessibilityContent />
               </AccordionItem>
 
-              <!-- Color Harmonies in Accordion -->
               <AccordionItem id="harmonies" title="Color Harmonies">
                 <HarmoniesContent />
               </AccordionItem>
@@ -398,10 +345,9 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <!-- Mini sticky preview (mobile only) -->
     <transition name="slide-up-fade">
       <div
-        v-if="showMiniPreview"
+        v-if="shouldShowMiniPreview"
         class="md:hidden bg-card shadow-xl fixed bottom-0 left-0 right-0 z-30 px-4 py-3 flex items-center justify-between fixed-mini-preview touch-pan-y"
         @click="scrollToCard"
       >
@@ -421,11 +367,10 @@ onBeforeUnmount(() => {
       </div>
     </transition>
 
-    <PanelLoader
+    <DesktopPanelLoader
       :component="AdjustmentsPanel"
       :isOpen="unref(adjustmentsPanel.isOpen)"
-      side="left"
-      panelType="drawer"
+      position="left"
       :componentProps="{ currentColor: current, updateColor: updateColor, autoApply: autoApplyAdjustments }"
     />
   </BasePage>

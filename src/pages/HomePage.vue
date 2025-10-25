@@ -33,20 +33,22 @@
             <div
               v-motion
               :initial="{ opacity: 0, y: 20 }"
-              :enter="{ opacity: 1, y: 0, transition: { delay: 0.2 } }"
+              :enter="{ opacity: 1, y: 0, transition: {  delay: 0.2 } }"
               class="self-center md:self-start mb-2"
             >
-              <BaseBadge
-                variant="accent"
-                :text="version.versionInfo.full"
-                :show-notch="true"
-              ></BaseBadge>
+              <RouterLink to="/info/update" class="inline-block">
+                <BaseBadge
+                  variant="accent"
+                  :text="`${version.versionInfo.full} › see changelog`"
+                  :show-notch="true"
+                ></BaseBadge>
+              </RouterLink>
             </div>
 
             <h1
               v-motion
               :initial="{ opacity: 0, y: 20 }"
-              :enter="{ opacity: 1, y: 0, transition: { delay: 0.3 } }"
+              :enter="{ opacity: 1, y: 0, transition: {  delay: 0.3 } }"
               class="text-5xl md:text-6xl lg:text-7xl font-mono font-bold tracking-tight text-foreground"
             >
               Mathematical precision
@@ -56,7 +58,7 @@
             <p
               v-motion
               :initial="{ opacity: 0, y: 20 }"
-              :enter="{ opacity: 1, y: 0, transition: { delay: 0.4 } }"
+              :enter="{ opacity: 1, y: 0, transition: {  delay: 0.4 } }"
               class="text-base md:text-lg text-muted-foreground max-w-lg self-center md:self-start"
             >
               A comprehensive suite of mathematical tools designed to streamline
@@ -66,7 +68,7 @@
             <div
               v-motion
               :initial="{ opacity: 0, y: 20 }"
-              :enter="{ opacity: 1, y: 0, transition: { delay: 0.5 } }"
+              :enter="{ opacity: 1, y: 0, transition: {  delay: 0.5 } }"
               class="flex justify-center md:justify-start flex-wrap gap-4 mt-8"
             >
               <RouterLink to="/calculator">
@@ -122,7 +124,7 @@
         <div
           v-motion
           :initial="{ opacity: 0, y: 20 }"
-          :enter="{ opacity: 1, y: 0, stagger: 0.1 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 0.2 } }"
           class="grid grid-cols-1 sm:grid-cols-3 gap-6"
         >
           <div
@@ -170,7 +172,7 @@
         <div
           v-motion
           :initial="{ opacity: 0, y: 20 }"
-          :enter="{ opacity: 1, y: 0, stagger: 0.1 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 0.2} }"
           class="grid grid-cols-1 md:grid-cols-3 gap-6"
         >
           <RouterLink
@@ -205,7 +207,7 @@
         <div
           v-motion
           :initial="{ opacity: 0, y: 20 }"
-          :enter="{ opacity: 1, y: 0, stagger: 0.1 }"
+          :enter="{ opacity: 1, y: 0, transition: { delay: 0.2 } }"
           class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           <FeatureCard
@@ -332,7 +334,7 @@
               class="text-background/90 dark:text-background/90 max-w-2xl mx-auto mb-8 text-lg"
             >
               Join hundreds of developers who are already using Prism to
-              streamline their mathematical workflows.
+              streamline their development workflows.
             </p>
 
             <!-- Action buttons -->
@@ -423,7 +425,7 @@ import {
   CheckCircleIcon,
   CalculatorIcon,
   GithubIcon,
-  AsteriskIcon,
+  AsteriskIcon
 } from 'lucide-vue-next';
 import { useTimeoutFn } from '@vueuse/core';
 import { useVersionStore } from '@stores/version';
@@ -496,22 +498,22 @@ const quickTools = [
     icon: 'Binary',
     description:
       'Efficiently encode and decode Base64 strings with instant preview and validation.',
-    isNew: true,
+    isNew: false,
   },
   {
-    name: 'Functions',
-    path: '/functions',
-    icon: 'FunctionSquare',
+    name: 'Color Tools',
+    path: '/tools/color',
+    icon: 'Palette',
     description:
-      'Comprehensive mathematical functions with visualization capabilities.',
-    isNew: false,
+      'Comprehensive color manipulation with palettes, gradients, harmonies, and accessibility tools.',
+    isNew: true,
   },
 ];
 
 const statistics = [
-  { label: 'Calculations Performed', value: 50000, suffix: '+' },
-  { label: 'Active Users', value: 300, suffix: '+' },
-  { label: 'Tools Available', value: 15, suffix: '+' },
+  { label: 'Tools Available', value: 20, suffix: '+' },
+  { label: 'Active Users', value: 8, suffix: '' },
+  { label: 'Github Stars', value: 4, suffix: '' },
 ];
 
 const features = [
@@ -528,12 +530,6 @@ const features = [
       'See your results instantly as you type, enhancing your productivity.',
   },
   {
-    icon: 'History',
-    title: 'Calculation History',
-    description:
-      'Never lose track of your work with our comprehensive history feature.',
-  },
-  {
     icon: 'Palette',
     title: 'Customizable UI',
     description:
@@ -546,10 +542,14 @@ const features = [
       'Built with the needs of developers in mind, including programmer-specific functions.',
   },
   {
-    icon: 'Cloud',
-    title: 'Cloud Sync',
-    description:
-      'Access your calculations and settings across all your devices.',
+    icon: 'Palette',
+    title: 'Color Accessibility',
+    description: 'Check WCAG contrast ratios and ensure your colors meet accessibility standards.',
+  },
+  {
+    icon: 'Sparkles',
+    title: 'Format Conversion',
+    description: 'Seamlessly convert between HEX, RGB, HSL, OKLCH, and more color formats with auto-detection.',
   },
 ];
 
@@ -564,10 +564,8 @@ const reasons = [
 const showWelcomeModal = ref(false);
 
 onMounted(() => {
-  // Check if the welcome modal has been shown before
   const hasShownWelcome = appStorage.get('onboarding', 'welcomeShown', false);
   if (!hasShownWelcome) {
-    // Add a delay before showing the modal
     useTimeoutFn(() => {
       showWelcomeModal.value = true;
     }, 1000);

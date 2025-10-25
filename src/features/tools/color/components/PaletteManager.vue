@@ -66,7 +66,7 @@
             </template>
             <template v-else>
               <button
-                class="group flex flex-row gap-0.5 flex-1 justify-center items-center flex flex-row gap-1 text-sm font-medium truncate hover:border-px hover:border-b hover:border-dotted border-primary rounded-none px-1 -mx-1 transition-all duration-200"
+                class="group flex-1 justify-center items-center flex flex-row gap-1 text-sm font-medium truncate hover:border-px hover:border-b hover:border-dotted border-primary rounded-none px-1 -mx-1 transition-all duration-200"
                 :disabled="palette.id === 'default'"
                 :title="palette.name"
                 @click="startEditingPalette(palette)"
@@ -298,7 +298,7 @@ const emit = defineEmits<{
   'update:palettes': [value: PaletteEntity[]]
 }>()
 
-const { toast } = useToast()
+const { success, error } = useToast()
 const { copy } = useClipboard()
 
 const MAX_NAME_LENGTH = 15
@@ -318,7 +318,6 @@ const paletteTabs = computed(() =>
   props.palettes.map((p) => ({ value: p.id, label: p.name.length <= MAX_NAME_LENGTH ? p.name : `${p.name.slice(0, MAX_NAME_LENGTH - 1)}…` }))
 )
 
-// Computed for v-model: RESTORING useVModel
 const selectedPaletteIdComputed = useVModel(props, 'selectedPaletteId', emit)
 
 // Helpers
@@ -352,26 +351,25 @@ const handleCreateSubmit = async () => {
   const name = newPaletteName.value.trim()
   if (!name) return
   if (name.length > MAX_NAME_LENGTH) {
-    toast({ title: 'Name too long', description: `Max ${MAX_NAME_LENGTH} characters` })
+    error(`Max ${MAX_NAME_LENGTH} characters`, { title: 'Name too long' })
     return
   }
   if (await nameExists(name)) {
-    toast({ title: 'Name in use', description: 'Try a different palette name' })
+    error('Try a different palette name', { title: 'Name in use' })
     return
   }
 
   try {
     const palette = await createPalette(name, sanitizeColor(props.currentColor))
-    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
-    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    const newPalettes = [...props.palettes]
     newPalettes.push(palette)
     emit('update:palettes', newPalettes)
     emit('update:selectedPaletteId', palette.id)
     newPaletteName.value = ''
     isCreateDialogOpen.value = false
-    toast({ title: 'Palette created!', description: `"${palette.name}" has been created` })
+    success(`"${palette.name}" has been created`, { title: 'Palette created!' })
   } catch (e: any) {
-    toast({ title: 'Error', description: e?.message || 'Failed to create palette' })
+    error(e?.message || 'Failed to create palette', { title: 'Error' })
   } finally {
     setTimeout(() => { creating.value = false }, 150)
   }
@@ -403,27 +401,26 @@ const saveEditingPalette = async () => {
     return
   }
   if (name.length > MAX_NAME_LENGTH) {
-    toast({ title: 'Name too long', description: `Max ${MAX_NAME_LENGTH} characters` })
+    error(`Max ${MAX_NAME_LENGTH} characters`, { title: 'Name too long' })
     return
   }
   if (await nameExists(name, id)) {
-    toast({ title: 'Name in use', description: 'Try a different palette name' })
+    error('Try a different palette name', { title: 'Name in use' })
     return
   }
 
   try {
     await updatePaletteName(id, name)
-    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
     const newPalettes = JSON.parse(JSON.stringify(props.palettes))
-    const idx = newPalettes.findIndex(p => p.id === id)
+    const idx = newPalettes.findIndex((p: PaletteEntity) => p.id === id)
     if (idx !== -1) {
       newPalettes[idx].name = name
     }
     emit('update:palettes', newPalettes)
     cancelEditing()
-    toast({ title: 'Renamed', description: `Palette is now "${name}"` })
+    success(`Palette is now "${name}"`, { title: 'Renamed' })
   } catch (e: any) {
-    toast({ title: 'Error', description: e?.message || 'Failed to rename palette' })
+    error(e?.message || 'Failed to rename palette', { title: 'Error' })
   }
 }
 
@@ -440,7 +437,7 @@ const deletePalette = async (id: string) => {
     await removePalette(id)
     // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
     const newPalettes = JSON.parse(JSON.stringify(props.palettes))
-    const delIdx = newPalettes.findIndex(p => p.id === id)
+    const delIdx = newPalettes.findIndex((p: PaletteEntity) => p.id === id)
     if (delIdx !== -1) {
       newPalettes.splice(delIdx, 1)
     }
@@ -451,9 +448,9 @@ const deletePalette = async (id: string) => {
       emit('update:selectedPaletteId', neighbor?.id ?? 'default')
     }
 
-    toast({ title: 'Deleted', description: 'Palette removed' })
+    success('Palette removed', { title: 'Deleted' })
   } catch (e: any) {
-    toast({ title: 'Error', description: e?.message || 'Failed to delete palette' })
+    error(e?.message || 'Failed to delete palette', { title: 'Error' })
   }
 }
 
@@ -464,14 +461,14 @@ const addColorToPalette = async (id: string) => {
     if (!next) return
     // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
     const newPalettes = JSON.parse(JSON.stringify(props.palettes))
-    const idx = newPalettes.findIndex(x => x.id === id)
+    const idx = newPalettes.findIndex((x: PaletteEntity) => x.id === id)
     if (idx !== -1) {
       newPalettes[idx] = next
     }
     emit('update:palettes', newPalettes)
-    toast({ title: 'Added!', description: 'Current color added to palette' })
+    success('Current color added to palette', { title: 'Added!' })
   } catch (e: any) {
-    toast({ title: 'Error', description: e?.message || 'Failed to add color' })
+    error(e?.message || 'Failed to add color', { title: 'Error' })
   }
 }
 
@@ -481,13 +478,13 @@ const removeColorFromPalette = async (id: string, index: number) => {
     if (!next) return
     // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
     const newPalettes = JSON.parse(JSON.stringify(props.palettes))
-    const idx = newPalettes.findIndex(x => x.id === id)
+    const idx = newPalettes.findIndex((x: PaletteEntity) => x.id === id)
     if (idx !== -1) {
       newPalettes[idx] = next
     }
     emit('update:palettes', newPalettes)
   } catch (e: any) {
-    toast({ title: 'Error', description: e?.message || 'Failed to remove color' })
+    error(e?.message || 'Failed to remove color', { title: 'Error' })
   }
 }
 
@@ -513,12 +510,9 @@ const importPalette = async (event: Event) => {
     newPalettes.push(imported)
     emit('update:palettes', newPalettes)
     emit('update:selectedPaletteId', imported.id)
-    toast({ title: 'Imported!', description: `"${imported.name}" has been imported` })
+    success(`"${imported.name}" has been imported`, { title: 'Imported!' })
   } catch (err: any) {
-    toast({
-      title: 'Import failed',
-      description: err?.message || 'Please select a valid palette JSON',
-    })
+    error(err?.message || 'Please select a valid palette JSON', { title: 'Import failed' })
   } finally {
     (event.target as HTMLInputElement).value = ''
   }
@@ -528,7 +522,7 @@ const importPalette = async (event: Event) => {
 const copyHex = async (color: RGB) => {
   const hex = rgbToHex(sanitizeColor(color))
   await copy(hex)
-  toast({ title: 'Copied!', description: `${hex} copied to clipboard` })
+  success(`${hex} copied to clipboard`, { title: 'Copied!' })
 }
 
 const onColorSelect = (color: RGB) => props.onColorSelect(sanitizeColor(color))

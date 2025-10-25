@@ -44,4 +44,5 @@ const tippyProps = {
 }
 
 app.use(VueTippy, { defaultProps: tippyProps })
+
 app.mount('#app')
