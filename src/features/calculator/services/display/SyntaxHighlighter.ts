@@ -68,6 +68,31 @@ export class SyntaxHighlighter {
   }
   
   /**
+   * Helper function to detect if an operator is unary (negative sign) rather than binary.
+   * Unary operators (negative signs) should not have spaces to improve readability and match mathematical notation conventions.
+   */
+  static isUnaryOperator(expr: string, i: number): boolean {
+    const char = expr[i]
+    if (char !== '-') return false
+    
+    let prevChar: string | undefined
+    if (i > 0) {
+      prevChar = expr[i - 1]
+      // If previous character is space, find the actual previous non-space character
+      if (prevChar === ' ') {
+        let j = i - 2
+        while (j >= 0 && expr[j] === ' ') j--
+        prevChar = j >= 0 ? expr[j] : undefined
+      }
+    }
+    
+    if (prevChar === undefined) return true
+    if (TokenUtils.isStandardOperator(prevChar)) return true
+    if (prevChar === '(' || prevChar === '|') return true
+    return false
+  }
+  
+  /**
    * Format an expression with parentheses (including ghost parentheses)
    */
   static formatParentheses(expr: string, options: FormatOptions = {}): FormattedPart[] {
@@ -114,12 +139,17 @@ export class SyntaxHighlighter {
           if (beforeOp) parts.push({ type: 'text', content: beforeOp, level: nestLevel })
         }
         
-        // Add operator with spaces
+        // Add operator with spaces (unless unary)
+        const isUnary = this.isUnaryOperator(expr, i)
         if ((char === '<' && nextChar === '<') || (char === '>' && nextChar === '>')) {
           parts.push({ type: 'text', content: ` ${expr.slice(i, i + 2)} `, level: nestLevel })
           i++
         } else {
-          parts.push({ type: 'text', content: ` ${char} `, level: nestLevel })
+          if (isUnary) {
+            parts.push({ type: 'text', content: char, level: nestLevel })
+          } else {
+            parts.push({ type: 'text', content: ` ${char} `, level: nestLevel })
+          }
         }
         currentIndex = i + 1
       }

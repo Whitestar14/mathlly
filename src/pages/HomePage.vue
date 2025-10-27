@@ -368,7 +368,7 @@
             <!-- Version Badge -->
             <div class="mt-8 flex justify-center">
               <BaseBadge
-                variant="custom"
+                variant="accent"
                 :text="version.versionInfo.full"
                 :show-notch="false"
               />
@@ -440,7 +440,7 @@ import {
 import PrismSvg from '@assets/icons/prism-hero.svg?raw';
 import { FeatureCard, WelcomeModal } from '@components/layout';
 import type { BreadcrumbItem } from '@components/ui/BasePage.vue';
-import { appStorage } from '@services/storage';
+import { useAppStorageStore } from '@stores/appStorage';
 
 // Simple CountUp component
 const CountUp = defineComponent({
@@ -564,7 +564,8 @@ const reasons = [
 const showWelcomeModal = ref(false);
 
 onMounted(() => {
-  const hasShownWelcome = appStorage.get('onboarding', 'welcomeShown', false);
+  const storageStore = useAppStorageStore()
+  const hasShownWelcome = storageStore.get('onboarding', 'welcomeShown', false);
   if (!hasShownWelcome) {
     useTimeoutFn(() => {
       showWelcomeModal.value = true;

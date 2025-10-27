@@ -1,5 +1,6 @@
 // src/stores/keyboard.ts
 import { defineStore } from 'pinia'
+import { useSettingsStore } from './settings'
 
 /**
  * Modifier keys supported in canonicalization.
@@ -167,6 +168,11 @@ export const useKeyboardStore = defineStore('keyboard', {
       ContextPath,
       (e: KeyboardEvent, payload: { canonical: string; key: string; code: string }) => void
     >(),
+
+    /**
+     * Global enabled state for keyboard shortcuts.
+     */
+    globalEnabled: true,
   }),
 
   getters: {
@@ -175,6 +181,13 @@ export const useKeyboardStore = defineStore('keyboard', {
      */
     guideSummary(state): ShortcutSummaryItem[] {
       return state.summary
+    },
+
+    /**
+     * Getter for global enabled state.
+     */
+    isGloballyEnabled(state): boolean {
+      return state.globalEnabled
     },
   },
 
@@ -186,6 +199,7 @@ export const useKeyboardStore = defineStore('keyboard', {
       if (this.listening) return
       window.addEventListener('keydown', this._onKeyDown, { capture: true })
       this.listening = true
+      this.syncWithSettings()
     },
 
     /**
@@ -386,6 +400,7 @@ export const useKeyboardStore = defineStore('keyboard', {
      * 3) Otherwise, let the event fall through.
      */
     _onKeyDown(e: KeyboardEvent) {
+      if (!this.globalEnabled) return
       const canonical = normalizeKeyEvent(e)
       const rawKey = e.key
       const code = e.code
@@ -493,6 +508,23 @@ export const useKeyboardStore = defineStore('keyboard', {
           this._setEnabled(b.id, shouldEnable)
         }
       }
+    },
+
+    /**
+     * Sync global enabled state with settings store.
+     */
+    syncWithSettings() {
+      const settings = useSettingsStore()
+      this.globalEnabled = settings.keyboard?.shortcutsEnabled ?? true
+    },
+
+    /**
+     * Set global enabled state and optionally update settings store.
+     */
+    setGlobalEnabled(enabled: boolean) {
+      this.globalEnabled = enabled
+      const settings = useSettingsStore()
+      settings.updateSetting('keyboard.shortcutsEnabled', enabled)
     },
   },
 })

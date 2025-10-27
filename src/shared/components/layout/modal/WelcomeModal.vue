@@ -110,7 +110,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { appStorage } from '@services/storage'
+import { useAppStorageStore } from '@stores/appStorage'
 import {
   Sparkles,
   ExternalLink,
@@ -135,9 +135,11 @@ interface Emits {
 defineProps<Props>()
 const emit = defineEmits<Emits>()
 
+const storageStore = useAppStorageStore()
+
 const welcomeShown = computed({
-  get: () => appStorage.get('onboarding', 'welcomeShown', false),
-  set: (value: boolean) => appStorage.set('onboarding', 'welcomeShown', value)
+  get: () => storageStore.get('onboarding', 'welcomeShown', false),
+  set: (value: boolean) => storageStore.set('onboarding', 'welcomeShown', value)
 })
 const dontShowAgain = ref(false)
 

@@ -34,7 +34,7 @@ import {
 import { useToast } from '@composables/ui/useToast';
 import { formatRgbaPretty } from '@color/lib/utils';
 import { useColorOptions } from '@color/composables/useColorOptions';
-import { appStorage } from '@services/storage';
+import { useAppStorageStore } from '@stores/appStorage';
 
 import CurrentColorCard from '../components/CurrentColorCard.vue';
 import AdjustmentsPanel from '../components/AdjustmentsPanel.vue';
@@ -64,6 +64,7 @@ const selectedPaletteId = ref<string>('default');
 const palettesLoading = ref(true);
 
 const COLOR_STORAGE_KEY = 'lastUsedColor';
+const storageStore = useAppStorageStore();
 
 const breadcrumbs: BreadcrumbItem[] = [
   { label: 'Tools', path: '/' },
@@ -159,7 +160,7 @@ const updateColor = (c: RGB & { a?: number }) => {
 };
 
 const saveColor = useThrottleFn((color: RGBA) => {
-  appStorage.set('router', COLOR_STORAGE_KEY, color);
+  storageStore.set('router', COLOR_STORAGE_KEY, color);
 }, 500);
 
 const currentCardRoot = ref<HTMLElement | null>(null);
@@ -237,7 +238,7 @@ const addColorToPalette = async () => {
 
 onMounted(async () => {
   try {
-    const savedColor = appStorage.get('router', COLOR_STORAGE_KEY, null);
+    const savedColor = storageStore.get('router', COLOR_STORAGE_KEY, {r: 22, g: 64, b: 196, a: 1});
     if (savedColor && isValidRGBA(savedColor)) {
       current.value = savedColor;
       formats.value = convertColor(current.value);

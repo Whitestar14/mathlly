@@ -65,4 +65,17 @@ export const settingsManifest: SettingsManifestItem[] = [
       'storage',
     ],
   },
+  {
+    id: 'keyboard',
+    title: 'Keyboard Shortcuts',
+    icon: 'KeyboardIcon',
+    keywords: [
+      'shortcuts',
+      'keyboard',
+      'hotkeys',
+      'keybindings',
+      'keys',
+      'bindings',
+    ],
+  },
 ];

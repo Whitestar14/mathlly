@@ -10,7 +10,6 @@ import {
   DEFAULT_THEME_PACK,
 } from './themeConfig';
 import type { ThemeOption, ThemePackOption } from './themeConfig';
-import { appStorage } from '@services/storage';
 
 /**
  * Theme visual configuration for UI components
@@ -106,27 +105,24 @@ export function useTheme(): UseThemeReturn {
   }
 
   function syncThemeState(): void {
-    console.debug("useTheme.ts: SyncThemeState() function triggered")
-    const storedTheme = appStorage.getTopLevel('app:theme') as ThemeOption || THEME_OPTIONS.SYSTEM;
-    const storedPack = appStorage.getTopLevel('app:theme-pack') as ThemePackOption || DEFAULT_THEME_PACK;
-    console.debug("useTheme.ts: storedTheme:", storedTheme, "storedPack:", storedPack);
+    const storedTheme = localStorage.getItem('app:theme') as ThemeOption || THEME_OPTIONS.SYSTEM;
+    const storedPack = localStorage.getItem('app:theme-pack') as ThemePackOption || DEFAULT_THEME_PACK;
     selectedTheme.value = storedTheme;
     selectedThemePack.value = storedPack;
-    console.debug("useTheme.ts: synced state", selectedTheme.value, selectedThemePack.value);
   }
 
   try {
-    const cachedTheme = (appStorage.getTopLevel('app:theme') as ThemeOption) || THEME_OPTIONS.SYSTEM;
-    const cachedPack = (appStorage.getTopLevel('app:theme-pack') as ThemePackOption) || DEFAULT_THEME_PACK;
+    const cachedTheme = (localStorage.getItem('app:theme') as ThemeOption) || THEME_OPTIONS.SYSTEM;
+    const cachedPack = (localStorage.getItem('app:theme-pack') as ThemePackOption) || DEFAULT_THEME_PACK;
     selectedTheme.value = cachedTheme;
     selectedThemePack.value = cachedPack;
     applyTheme(cachedTheme, cachedPack);
   } catch {}
 
   watch(selectedTheme, (newTheme) => {
-    try { appStorage.setTopLevel('app:theme', newTheme); } catch {}
+    try { localStorage.setItem('app:theme', newTheme); } catch {}
     // Critical fix: Ensure selectedThemePack is synced before applying
-    const currentPack = appStorage.getTopLevel('app:theme-pack') as ThemePackOption || DEFAULT_THEME_PACK;
+    const currentPack = localStorage.getItem('app:theme-pack') as ThemePackOption || DEFAULT_THEME_PACK;
     if (selectedThemePack.value !== currentPack) {
       selectedThemePack.value = currentPack;
     }
@@ -134,9 +130,9 @@ export function useTheme(): UseThemeReturn {
   });
 
   watch(selectedThemePack, (newPack) => {
-    try { appStorage.setTopLevel('app:theme-pack', newPack); } catch {}
+    try { localStorage.setItem('app:theme-pack', newPack); } catch {}
     // Ensure selectedTheme is synced before applying
-    const currentTheme = appStorage.getTopLevel('app:theme') as ThemeOption || THEME_OPTIONS.SYSTEM;
+    const currentTheme = localStorage.getItem('app:theme') as ThemeOption || THEME_OPTIONS.SYSTEM;
     if (selectedTheme.value !== currentTheme) {
       selectedTheme.value = currentTheme;
     }
@@ -152,31 +148,19 @@ export function useTheme(): UseThemeReturn {
   const isSystemTheme: ComputedRef<boolean> = computed(() => selectedTheme.value === THEME_OPTIONS.SYSTEM);
 
   const toggleTheme = (): void => {
-    // Re-read both theme and theme pack from storage to ensure synchronization
-    console.debug('useTheme.ts: Toggling theme, syncing state from storage.');
-    console.debug('useTheme.ts: Before sync state', selectedTheme.value, selectedThemePack.value);
-    console.debug('useTheme.ts: Dark mode enabled?', isDark.value);
     syncThemeState();
 
-    // Determine new theme value synchronously
     let newTheme: ThemeOption;
     if (selectedTheme.value === THEME_OPTIONS.SYSTEM) {
-      console.debug('useTheme.ts: System theme option chosen', selectedTheme.value, selectedThemePack.value);
       newTheme = isDark.value ? THEME_OPTIONS.LIGHT : THEME_OPTIONS.DARK;
-      console.debug('useTheme.ts: theme inferred from system option:', newTheme, 'dark mode enabled:', isDark.value);
     } else {
-      console.debug('useTheme.ts: useTheme theme is binary (light/dark):', selectedTheme.value, selectedThemePack.value);
       newTheme = selectedTheme.value === THEME_OPTIONS.DARK ? THEME_OPTIONS.LIGHT : THEME_OPTIONS.DARK;
     }
 
-    // Persist and apply immediately so DOM and isDark update synchronously
-    try { appStorage.setTopLevel('app:theme', newTheme); } catch (e) {}
+    try { localStorage.setItem('app:theme', newTheme); } catch (e) {}
     applyTheme(newTheme, selectedThemePack.value);
 
-    // Keep reactive state in sync (watch will also run but we've already applied to avoid race)
-    selectedTheme.value = newTheme;
-    console.debug('useTheme.ts: selectedTheme value:', selectedTheme.value, 'selected theme pack value:', selectedThemePack.value, 'Dark mode enabled', isDark.value);
-  };
+    selectedTheme.value = newTheme;  };
 
   const setTheme = (newTheme: ThemeOption): void => {
     if (Object.values(THEME_OPTIONS).includes(newTheme)) {

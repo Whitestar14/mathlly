@@ -22,6 +22,7 @@
 <script setup lang="ts">
 import { shallowRef, onErrorCaptured, type ComponentPublicInstance, defineAsyncComponent } from 'vue'
 import { BaseLoader } from '@components/ui'
+import { useSettingsStore } from '@stores/settings'
 import ModalProvider from '@components/ui/modal/ModalProvider.vue'
 import { UpdateNotification } from '@components/layout'
 import { DevDock } from '@components/ui/dev'
@@ -30,13 +31,18 @@ import { hasError } from '@router/errorHandler'
 import { useTheme } from '@composables/core/useTheme'
 import router from '@router/router'
 
+const settings = useSettingsStore()
 useTheme()
+
 const AppProvider = defineAsyncComponent(() => (async () => {
   const start = Date.now()
   const mod = await import('@app/providers/AppProvider.vue')
 
   try {
-    await router.isReady()
+    await Promise.all([
+      router.isReady(),
+      settings.loadSettings()
+    ])
   } catch (e) {
     console.warn('router.isReady() failed or timed out', e)
   }

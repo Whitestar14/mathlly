@@ -1,30 +1,23 @@
-import { computed, type Ref, type UnwrapRef, ref, watch, toRaw } from 'vue'
-import { appStorage } from '@services/storage'
+import { computed, type Ref } from 'vue'
+import { useStorage } from '@vueuse/core'
 import { useToolSettingsStore } from '@stores/toolSettings'
 import type { ToolConfig, ToolOption } from '@stores/toolSettings'
 
-export function createToolOptions<T extends Record<string, any>>(
+export function useToolOptions<T extends Record<string, any>>(
   toolId: string,
   toolName: string,
   defaultOptions: T,
-  optionsConfig: (options: Ref<T> | Ref<UnwrapRef<T>>) => ToolOption[]
+  optionsConfig: (options: Ref<T>) => ToolOption[]
 ) {
-  const storedAll = appStorage.get('router', 'toolOptions', null) as Record<string, any> | null
-  const storedForTool = storedAll ? (storedAll[toolId] as Partial<T> | undefined) : undefined
-  const initialOptions = { ...defaultOptions, ...(storedForTool || {}) } as T
-
-  const options = ref<T>(initialOptions)
-
-  watch(
-    options,
-    (newVal) => {
-      const current = appStorage.get('router', 'toolOptions', {}) as Record<string, any>
-      current[toolId] = toRaw(newVal) as any
-      appStorage.set('router', 'toolOptions', current)
-    },
-    { deep: true }
+  // Create reactive storage with persistence
+  const options = useStorage<T>(
+    `tool-options-${toolId}`,
+    defaultOptions,
+    localStorage,
+    { mergeDefaults: true }
   )
-
+  
+  // Get the tool store
   const toolStore = useToolSettingsStore()
   
   const config: ToolConfig = {

@@ -33,7 +33,8 @@
 </template>
 
 <script setup>
-import { computed, defineAsyncComponent } from 'vue';
+import { computed, inject, watch, defineAsyncComponent } from 'vue';
+import { useVibrate } from '@vueuse/core';
 
 const props = defineProps({
   mode: {
@@ -61,6 +62,11 @@ const props = defineProps({
 
 const emit = defineEmits(['button-click', 'clear', 'base-change']);
 
+const options = inject('calculatorOptions');
+
+const { vibrate, isSupported } = useVibrate({ pattern: 50 });
+const hapticEnabled = computed(() => options?.hapticFeedback?.value);
+
 const StandardMode = defineAsyncComponent(() => import('./modes/StandardMode.vue'));
 const ScientificMode = defineAsyncComponent(() => import('./modes/ScientificMode.vue'));
 const ProgrammerMode = defineAsyncComponent(() => import('./modes/ProgrammerMode.vue'));
@@ -78,7 +84,7 @@ const modeComponent = computed(() => {
   }
 });
 
-const handleButtonClick = (value) => emit('button-click', value);
+const handleButtonClick = (value) => { if (hapticEnabled.value) vibrate(); emit('button-click', value); }
 const handleClear = () => emit('clear');
 const handleBaseChange = (base) => emit('base-change', base);
 </script>

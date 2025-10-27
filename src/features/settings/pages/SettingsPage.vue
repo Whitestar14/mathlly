@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 // Assuming these paths are correct
 import { useSettingsStore, DEFAULT_SETTINGS } from '@stores/settings';
+import { useKeyboardStore } from '@stores/keyboard';
 import { BasePage, BaseButton } from '@components/ui'
 import { useToast } from '@composables/ui/useToast';
 import { usePWAInstallPrompt } from '@composables/core/usePWAInstallPrompt'
@@ -10,14 +11,21 @@ import type { Settings } from '@services/storage/db';
 import { filterByQuery } from '@utils/string/queryFilter';
 import { cloneDeep } from '@utils/object/objectUtils';
 import { settingsManifest } from '@settings/composables/settingsManifest';
-import { SettingsSearch, StartupSection, AppearanceSection, AdvancedSection, SettingsActions, UnsavedChangesModal } from '@settings/components';
+import { SettingsSearch, StartupSection, AppearanceSection, AdvancedSection, KeyboardSection, SettingsActions, UnsavedChangesModal } from '@settings/components';
 
 defineOptions({
  name: 'SettingsPage',
 });
 
+interface Props {
+  isMobile?: boolean
+}
+
+defineProps<Props>()
+
 const router = useRouter();
 const settingsStore = useSettingsStore();
+const keyboardStore = useKeyboardStore();
 const { toast } = useToast();
 const { dismissedInstall, promptInstall, installPromptSeen, isInstalled, resetDismissal, canInstall } = usePWAInstallPrompt()
 
@@ -55,6 +63,9 @@ const storeSnapshot = computed((): Settings => ({
  startup: {
   navigation: settingsStore.startup?.navigation ?? DEFAULT_SETTINGS.startup.navigation,
  },
+ keyboard: {
+  shortcutsEnabled: settingsStore.keyboard?.shortcutsEnabled ?? DEFAULT_SETTINGS.keyboard.shortcutsEnabled,
+ },
 }));
 
 const hasChanges = computed((): boolean => {
@@ -86,14 +97,11 @@ onMounted(async (): Promise<void> => {
 const goBack = (): void => {
  if (hasChanges.value) {
   showUnsavedChangesModal.value = true;
- } else {
-  router.go(-1);
  }
 };
 
 const confirmNavigation = (): void => {
  showUnsavedChangesModal.value = false;
- router.go(-1);
 };
 
 const cancelNavigation = (): void => {
@@ -120,6 +128,8 @@ const saveSettings = async (): Promise<void> => {
    title: 'Settings saved',
    description: 'Your preferences have been updated successfully.',
   });
+
+  keyboardStore.syncWithSettings();
 
   localSettings.value = cloneDeep(storeSnapshot.value);
   router.go(-1);
@@ -177,7 +187,15 @@ const handleManualPWAInstall = async () => {
      @update:settings="updateSettings"
     />
 
+    <KeyboardSection
+     v-show="!isMobile"
+     :settings="localSettings"
+     :is-visible="isRendered('keyboard')"
+     @update:settings="updateSettings"
+    />
+
     <AdvancedSection :is-visible="isRendered('advanced')" />
+
 
     <div
      v-if="filteredManifest.length === 0 && searchQuery"

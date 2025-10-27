@@ -12,21 +12,17 @@ import { computed, watch, onMounted } from 'vue'
 import { createPanelContext } from '@composables/ui/panelContext'
 import { useDeviceStore } from '@stores/device'
 import { useSettingsStore } from '@stores/settings'
-import { appStorage } from '@services/storage'
+import { useAppStorageStore } from '@stores/appStorage'
 import AppSetup from '@components/layout/app/AppSetup.vue'
 const device = useDeviceStore()
 const settings = useSettingsStore()
 const { actions } = createPanelContext()
 
-appStorage.ensureStorageVersion()
+const storageStore = useAppStorageStore()
+storageStore.ensureStorageVersion()
+storageStore.initialize()
 
 onMounted(async () => {
-  try {
-    await settings.loadSettings()
-  } catch (e) {
-    console.warn('Failed to load settings on startup', e)
-  }
-
   device.initializeDeviceInfo()
 
   actions.setMobile(device.isMobile)

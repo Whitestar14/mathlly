@@ -16,6 +16,12 @@
             ? 'grid-rows-[1fr_3fr]' 
             : 'grid-rows-[1fr_4fr]')"
       >
+      <Suspense>
+        <template #fallback>
+          <div class="w-full h-40 flex items-center justify-center">
+            <div class="w-11/12 h-40 rounded-md bg-muted/40 dark:bg-background/30 animate-pulse" />
+          </div>
+        </template>
         <calculator-display
           :input="input"
           :preview="preview"
@@ -28,6 +34,7 @@
           @open-activity="openActivity"
           @base-change="handleBaseChange"
         />
+      </Suspense>
 
         <calculator-buttons
           :mode="state.mode"

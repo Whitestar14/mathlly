@@ -39,6 +39,9 @@ export interface Settings {
   startup: {
     navigation: string;
   };
+  keyboard: {
+    shortcutsEnabled: boolean;
+  };
 }
 
 export class PrismDatabase extends Dexie {

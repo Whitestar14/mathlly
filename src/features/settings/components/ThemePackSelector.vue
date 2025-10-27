@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, watch, computed, onMounted, nextTick, onBeforeUnmount } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useEventListener } from '@vueuse/core'
+import useEmblaCarousel from 'embla-carousel-vue'
 import { themePackConfigs, getThemeVisualConfig, type ThemePackOption } from '@composables/core/themeConfig'
-import useEmblaCarousel from "embla-carousel-vue";
 import { useTheme } from '@composables/core/useTheme'
 
 interface Props {
@@ -19,13 +19,19 @@ const selectedPack = computed<ThemePackOption>({
   set: (value) => emit("update:modelValue", value),
 });
 
-// Embla setup: compute start index so selected pack is centered immediately
-const keys = Object.keys(themePackConfigs)
-const computedStartIndex = Math.max(0, keys.indexOf(String(props.modelValue as unknown as string)))
-// Embla setup
+const keys = Object.keys(themePackConfigs) as ThemePackOption[]
+
+const computedStartIndex = Math.max(0, keys.indexOf(props.modelValue))
+
 const [emblaViewportRef, emblaApiRef] = useEmblaCarousel({ loop: true, align: "center", startIndex: computedStartIndex });
-const selectedIndex = ref(0);
+const selectedIndex = ref<number>(computedStartIndex);
 const scrollSnaps = ref<number[]>([]);
+
+const visualMap = computed(() => {
+  const map: Record<ThemePackOption, ReturnType<typeof getThemeVisualConfig>> = {} as any
+  for (const key of keys) map[key] = getThemeVisualConfig(key)
+  return map
+})
 
 let wheelHandler: ((e: WheelEvent) => void) | undefined
 let stopWheel: (() => void) | undefined
@@ -33,65 +39,64 @@ let stopWheel: (() => void) | undefined
 const { setThemePack } = useTheme()
 
 onMounted(() => {
-  const init = async () => {
-    await nextTick()
-    if (!emblaApiRef.value) return
+  const api = emblaApiRef.value
+  if (!api) return
 
-    scrollSnaps.value = emblaApiRef.value.scrollSnapList();
-    emblaApiRef.value.on("select", () => {
-      selectedIndex.value = emblaApiRef.value?.selectedScrollSnap() ?? 0;
-    });
+  scrollSnaps.value = api.scrollSnapList()
+
+  api.on('select', () => {
+    const idx = api.selectedScrollSnap()
+    selectedIndex.value = idx
+  })
+
+  const initialIdx = keys.indexOf(selectedPack.value)
+  if (initialIdx >= 0 && initialIdx !== api.selectedScrollSnap()) {
+    api.scrollTo(initialIdx, true)
   }
-
-  init()
-});
-
-
+})
 onBeforeUnmount(() => {
-  // cleanup wheel listener
   if (stopWheel) stopWheel()
+  stopWheel = undefined
+  wheelHandler = undefined
 })
 
 function attachWheel() {
   const viewport = emblaViewportRef.value as HTMLElement | null
-  if (!viewport) return
-  if (wheelHandler) return
+  if (!viewport || wheelHandler) return
   wheelHandler = (e: WheelEvent) => {
+    // Non-passive to allow preventDefault
     e.preventDefault()
-    if (!emblaApiRef.value) return
-    if (e.deltaY > 0) emblaApiRef.value.scrollNext()
-    else if (e.deltaY < 0) emblaApiRef.value.scrollPrev()
+    const api = emblaApiRef.value
+    if (!api) return
+    const y = e.deltaY || 0
+    if (y > 0) api.scrollNext()
+    else if (y < 0) api.scrollPrev()
   }
-  // use vueuse composable to manage listener lifecycle
-  stopWheel = useEventListener(viewport, 'wheel', wheelHandler, { passive: false }) as unknown as () => void
+  stopWheel = useEventListener(viewport, 'wheel', wheelHandler, { passive: false }) as () => void
 }
 
 function detachWheel() {
-  const viewport = emblaViewportRef.value as HTMLElement | null
-  if (!viewport || !wheelHandler) return
   if (stopWheel) stopWheel()
-  wheelHandler = undefined
   stopWheel = undefined
+  wheelHandler = undefined
 }
 
 function onPackClick(packKey: ThemePackOption) {
-  // Select immediately so the reactive theme pack updates synchronously
-  selectedPack.value = packKey
-
-  // Apply theme centrally via composable to ensure consistent side-effects
+  if (packKey !== selectedPack.value) {
+    selectedPack.value = packKey
+  }
   try {
     setThemePack(packKey)
-  } catch (e) {}
+  } catch {}
 
-  // Compute index and scroll Embla to center the clicked pack
-  const idx = keys.indexOf(String(packKey))
+  const idx = keys.indexOf(packKey)
   if (idx >= 0) {
-    try { emblaApiRef.value?.scrollTo(idx) } catch (e) {}
+    emblaApiRef.value?.scrollTo(idx)
   }
 }
 
 function scrollTo(index: number) {
-  emblaApiRef.value?.scrollTo(index);
+  emblaApiRef.value?.scrollTo(index)
 }
 </script>
 
@@ -105,14 +110,14 @@ function scrollTo(index: number) {
           :key="packKey"
           :for="`theme-${packKey}`"
           class="flex-[0_0_80%] sm:flex-[0_0_50%] px-2 cursor-pointer group"
-          @click.prevent="onPackClick(packKey)"
+          @click.prevent="onPackClick(packKey as ThemePackOption)"
         >
           <div
             class="relative p-4 rounded-xl border-2 transition-all duration-300 bg-background hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20"
             :class="[
-              selectedPack === packKey
-                ? `${getThemeVisualConfig(packKey).colors.selectedBorder} ${getThemeVisualConfig(packKey).colors.selectedBg} shadow-sm dark:shadow-black/10`
-                : `border-border ${getThemeVisualConfig(packKey).colors.hoverBg}`,
+              selectedPack === (packKey as ThemePackOption)
+                ? `${visualMap[packKey as ThemePackOption].colors.selectedBorder} ${visualMap[packKey as ThemePackOption].colors.selectedBg} shadow-sm dark:shadow-black/10`
+                : `border-border ${visualMap[packKey as ThemePackOption].colors.hoverBg}`,
             ]"
           >
             <input
@@ -128,7 +133,7 @@ function scrollTo(index: number) {
             <div class="flex items-center justify-center mb-3 relative h-12">
               <div
                 class="absolute inset-0 rounded-lg overflow-hidden"
-                :class="getThemeVisualConfig(packKey).colors.accent"
+                :class="visualMap[packKey as ThemePackOption].colors.accent"
               >
                 <div
                   class="absolute inset-0 opacity-20 bg-gradient-to-br from-transparent via-white dark:via-white/10 to-transparent"
@@ -137,15 +142,15 @@ function scrollTo(index: number) {
               <div class="relative flex items-center gap-2">
                 <div
                   class="h-4 w-4 rounded-full shadow-sm border border-white/20 dark:border-black/20"
-                  :class="getThemeVisualConfig(packKey).colors.secondary"
+                  :class="visualMap[packKey as ThemePackOption].colors.secondary"
                 />
                 <div
                   class="h-5 w-5 rounded-full shadow-md border-2 border-white dark:border-white/80"
-                  :class="getThemeVisualConfig(packKey).colors.primary"
+                  :class="visualMap[packKey as ThemePackOption].colors.primary"
                 />
                 <div
                   class="h-3 w-3 rounded-full shadow-sm"
-                  :class="getThemeVisualConfig(packKey).colors.secondary"
+                  :class="visualMap[packKey as ThemePackOption].colors.secondary"
                 />
               </div>
             </div>
@@ -162,7 +167,7 @@ function scrollTo(index: number) {
 
             <!-- Selected Indicator -->
             <div
-              v-if="selectedPack === packKey"
+              v-if="selectedPack === (packKey as ThemePackOption)"
               class="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-primary shadow-lg dark:shadow-black/30 flex items-center justify-center"
             >
               <svg class="h-3 w-3 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
@@ -186,6 +191,7 @@ function scrollTo(index: number) {
         @click="scrollTo(i)"
         class="h-2 w-2 rounded-full transition-colors"
         :class="i === selectedIndex ? 'bg-primary' : 'bg-muted'"
+        aria-label="Go to theme"
       />
     </div>
   </div>

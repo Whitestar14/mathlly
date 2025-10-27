@@ -24,7 +24,7 @@
             <div class="h-8 w-24 bg-muted rounded animate-pulse"></div>
           </div>
         </div>
-        <div v-else class="absolute bottom-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 bg-muted rounded-full animate-pulse"></div>
+        <div v-else class="absolute bottom-0 left-1/2 -translate-x-1/2 -translate-y-1/2 h-8 w-8 bg-muted rounded-md animate-pulse"></div>
       </div>
     </template>
   </Suspense>

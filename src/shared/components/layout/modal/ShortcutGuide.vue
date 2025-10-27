@@ -9,6 +9,14 @@
       </div>
     </template>
 
+    <div v-if="!isGloballyEnabled" class="bg-muted/50 border-l-4 border-destructive p-3 mb-4">
+      <div class="flex items-center gap-2">
+        <AlertTriangle class="size-4 text-destructive" />
+        <span class="text-sm text-muted-foreground">Keyboard shortcuts are currently disabled. Enable them in Settings to use these shortcuts.</span>
+        <RouterLink to="/settings" class="text-sm underline text-primary">Go to Settings</RouterLink>
+      </div>
+    </div>
+
     <div class="mt-2">
       <BaseTabs ref="tabsRef" v-model:model-value="currentTab" :tabs="tabs" />
       <div class="relative overflow-hidden h-[260px] overflow-y-auto">
@@ -43,7 +51,7 @@
                 </span>
                 <div class="flex items-center gap-1.5">
                   <template v-if="item.key.includes('+')">
-                    <div v-for="(part, idx) in item.key.split('+')" :key="idx" class="inline-flex items-center">
+                    <div v-for="(part, idx) in item.key.split('+')" :key="idx" class="inline-flex items-center gap-1.5">
                       <kbd class="px-2 py-1 text-xs font-medium bg-background text-primary rounded-md border border-border shadow-sm">{{ part }}</kbd>
                       <span v-if="idx < item.key.split('+').length - 1" class="text-muted-foreground">+</span>
                     </div>
@@ -78,8 +86,10 @@
 
 <script setup lang="ts">
 import { ref, nextTick, computed } from 'vue'
+import { RouterLink } from 'vue-router'
 import { BaseModal, BaseTabs } from '@components/ui'
 import { useKeyboardStore } from '@stores/keyboard'
+import { AlertTriangle } from 'lucide-vue-next'
 
 interface Props { show: boolean }
 interface Emits {
@@ -93,6 +103,7 @@ const tabsRef = ref<InstanceType<typeof BaseTabs> | null>(null)
 const keyboard = useKeyboardStore()
 const summary = computed(() => keyboard.guideSummary)
 const collisions = computed(() => keyboard.collisions)
+const isGloballyEnabled = computed(() => keyboard.isGloballyEnabled)
 
 const grouped = computed(() => {
   const tree = new Map<string, Map<string, typeof summary.value>>()

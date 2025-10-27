@@ -2,7 +2,7 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import ErrorFallback from '@pages/ErrorFallback.vue'
 import { setupRouteErrorHandling, routeError, routePath } from './errorHandler'
 import db from '@services/storage/db'
-import { appStorage } from '@services/storage'
+import { useAppStorageStore } from '@stores/appStorage'
 
 let isInitialNavigation = true
 
@@ -104,16 +104,20 @@ const router = createRouter({
 setupRouteErrorHandling(router)
 
 router.afterEach((to) => {
+  const storageStore = useAppStorageStore()
+
   const excludedRoutes = ['not-found', 'settings', 'error', 'feedback']
 
   if (!excludedRoutes.includes(to.name as string) && to.path !== '/') {
-    appStorage.set('router', 'lastVisitedPath', to.fullPath)
+    storageStore.set('router', 'lastVisitedPath', to.fullPath)
   }
 
   isInitialNavigation = false
 })
 
 router.beforeEach(async (to, _, next) => {
+  const storageStore = useAppStorageStore()
+
   if (to.path === '/' && isInitialNavigation) {
     try {
       const settings = await db.settings.get(1)
@@ -122,16 +126,10 @@ router.beforeEach(async (to, _, next) => {
         const startupNav = settings.startup.navigation
 
         if (startupNav === 'last-visited') {
-          const lastVisitedPath = appStorage.get('router', 'lastVisitedPath', null)
+          const lastVisitedPath = storageStore.get('router', 'lastVisitedPath', '/home')
 
           if (lastVisitedPath && lastVisitedPath !== '/') {
             return next(lastVisitedPath)
-          }
-
-          // Check for calculator settings in localStorage instead of IndexedDB
-          const calculatorOptions = appStorage.get('router', 'toolOptions', null)
-          if (calculatorOptions.calculator) {
-            return next('/calculator')
           }
         }
 

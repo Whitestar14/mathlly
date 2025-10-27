@@ -14,7 +14,8 @@ const DEFAULT_CALCULATOR_OPTIONS: CalculatorOptions = {
   formatOctal: true,
   angleUnit: 'degrees',
   notationMode: 'standard',
-  hyperbolicMode: false
+  hyperbolicMode: false,
+  hapticFeedback: false,
 }
 
 export function useCalculatorOptions() {
@@ -34,6 +35,14 @@ export function useCalculatorOptions() {
           { value: 'Scientific', label: 'Scientific' },
           { value: 'Programmer', label: 'Programmer' }
         ],
+        section: 'General'
+      },
+      {
+        id: 'hapticFeedback',
+        label: 'Haptic Feedback',
+        description: 'Vibrate on button press (mobile devices only)',
+        type: 'toggle',
+        value: options,
         section: 'General'
       },
       {
@@ -129,7 +138,7 @@ export function useCalculatorOptions() {
         type: 'toggle',
         value: options,
         section: 'Scientific'
-      }
+      },
     ]
   )
 
@@ -187,6 +196,7 @@ const cycleAngleMode = () =>
     angleUnit: computed(() => options.value.angleUnit),
     notationMode: computed(() => options.value.notationMode),
     hyperbolicMode: computed(() => options.value.hyperbolicMode),
+    hapticFeedback: computed(() => options.value.hapticFeedback),
     
     // Display modes for UI
     angleDisplayMode,

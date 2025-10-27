@@ -151,26 +151,11 @@ const syntaxHighlightingEnabled: ComputedRef<boolean> = computed(() =>
   calculatorOptions.syntaxHighlighting.value
 )
 
-// Enhanced parentheses level styling to handle ghost parentheses
 const getParenthesesLevelClass = (token: Token): string => {
   if (!['open', 'close', 'ghost', 'parenthesis'].includes(token.type)) return ''
   
-  const colors = [
-    'text-blue-600',
-    'text-green-600', 
-    'text-purple-600',
-    'text-orange-600',
-    'text-pink-600'
-  ]
-  
-  let baseColor = colors[(token.parentLevel || 0) % colors.length]
-  
-  // Make ghost parentheses semi-transparent
-  if (token.type === 'ghost') {
-    baseColor += ' opacity-50'
-  }
-  
-  return baseColor
+  if (token.type === 'ghost') return 'paren-ghost'
+  return `paren-level-${Math.min(token.parentLevel || 0, 5)}`
 }
 
 // Enhanced token class to handle spaces and ghost parentheses
@@ -183,7 +168,7 @@ const getTokenClass = (token: Token): string => {
     'open': 'syntax-parenthesis font-bold',
     'close': 'syntax-parenthesis font-bold',
     'ghost': 'syntax-parenthesis font-bold opacity-50', // Ghost parentheses styling
-    'constant': 'syntax-constant text-green-600 font-bold',
+    'constant': 'syntax-constant',
     'decimal': 'syntax-decimal',
     'space': '',
     'text': 'syntax-text'
@@ -193,14 +178,7 @@ const getTokenClass = (token: Token): string => {
   
   // Add mode-specific enhancements
   if (props.mode === 'Programmer' && token.type === 'number') {
-    switch (props.activeBase) {
-      case 'BIN': baseClass += ' text-green-700'
-        break
-      case 'OCT': baseClass += ' text-yellow-700'
-        break
-      case 'HEX': baseClass += ' text-purple-700'
-        break
-    }
+    baseClass += ` syntax-number-${props.activeBase.toLowerCase()}`
   }
   
   return baseClass

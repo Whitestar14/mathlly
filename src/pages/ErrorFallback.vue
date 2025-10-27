@@ -125,7 +125,7 @@ import { useIntervalFn, useTimeoutFn, useNetwork } from '@vueuse/core'
 import { HomeIcon, RefreshCwIcon, Copy, ArrowLeft, Check } from 'lucide-vue-next'
 import { clearRouteError, routeError, routePath, hasError } from '@router/errorHandler'
 import { useToast } from '@composables/ui/useToast'
-import { appStorage } from '@services/storage'
+import { useAppStorageStore } from '@stores/appStorage'
 import { BasePage, BaseButton, BaseCollapsible } from '@components/ui'
 
 const props = defineProps({
@@ -152,6 +152,7 @@ const props = defineProps({
 })
 
 const { toast, success, error: toastError, warning } = useToast()
+const storageStore = useAppStorageStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -355,7 +356,7 @@ const navigateToHome = () => {
   // Clear stored route error state and global error flag, then navigate to last visited path
   clearRouteError()
   hasError.value = false
-  const last = appStorage.get('router', 'lastVisitedPath', routePath.value || '/') || '/'
+  const last = storageStore.get('router', 'lastVisitedPath', routePath.value || '/') || '/'
   router.replace(last).catch((err) => {
     console.error('ErrorFallback: Failed to navigate to last visited path:', err)
     toastError('Could not navigate to previous page. Please try again.')

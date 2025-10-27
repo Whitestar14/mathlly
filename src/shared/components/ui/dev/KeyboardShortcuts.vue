@@ -8,7 +8,6 @@
           <BaseBadge
             variant="success"
             :text="`${getTotalShortcuts()} shortcuts`"
-            size="xs"
           />
           <BaseButton
             variant="ghost"
@@ -92,9 +91,8 @@
                 {{ categoryName }}
               </h4>
               <BaseBadge
-                variant="info"
+                variant="new"
                 :text="`${Object.keys(shortcuts).length} shortcuts`"
-                size="xs"
               />
             </div>
             

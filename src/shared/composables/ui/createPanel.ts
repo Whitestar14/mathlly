@@ -1,7 +1,7 @@
-import { ref, shallowRef, computed, nextTick, watch, markRaw, type Ref, type ComputedRef } from 'vue';
-import { useDebounceFn } from '@vueuse/core';
+import { shallowRef, computed, nextTick, watch, markRaw, onUnmounted, type Ref, type ComputedRef } from 'vue';
+import { useDebounceFn, useEventListener } from '@vueuse/core';
 import { useDraggable } from '@utils/misc/draggable';
-import { appStorage } from '@services/storage';
+import { useAppStorageStore } from '@stores/appStorage';
 import {
   PanelOptions,
   PanelAPI,
@@ -50,12 +50,15 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     }) as PanelAPI;
   }
 
-  const preferences = ref(appStorage.get('panels', storageKey, {
-    desktop: { isOpen: defaultDesktopState },
-    mobile: { isOpen: false },
-  }));
+  const storageStore = useAppStorageStore();
 
-  watch(preferences, (newVal) => appStorage.set('panels', storageKey, newVal), { deep: true });
+  const preferences = computed({
+    get: () => storageStore.get('panels', storageKey, {
+      desktop: { isOpen: defaultDesktopState },
+      mobile: { isOpen: false },
+    }),
+    set: (value) => storageStore.set('panels', storageKey, value),
+  });
 
   const initialIsOpen: ComputedRef<boolean> = computed(() =>
     initialIsMobile ? preferences.value.mobile.isOpen : preferences.value.desktop.isOpen
@@ -72,8 +75,14 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
   const handle: Ref<HTMLElement | null> = shallowRef(null);
   const panel: Ref<HTMLElement | null> = shallowRef(null);
 
+  const historyStateKey: Ref<string | null> = shallowRef(null);
+  let popstateCleanup: (() => void) | null = null;
+
   const updatePreferences = useDebounceFn(() => {
-    preferences.value[deviceContext.value].isOpen = isOpen.value;
+    preferences.value = {
+      ...preferences.value,
+      [deviceContext.value]: { isOpen: isOpen.value },
+    };
   }, 300);
 
   const draggable: DraggableReturn = useDraggable({
@@ -86,11 +95,49 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     maxHeight,
   });
 
+  const setupMobileBackButton = (): void => {
+    if (!currentIsMobile.value || !isOpen.value) return;
+    
+    // Push a state to history so back button has something to pop
+    const stateKey = `panel-${storageKey}-${Date.now()}`;
+    history.pushState({ panelKey: stateKey }, '');
+    historyStateKey.value = stateKey;
+    
+    // Listen for popstate (back button)
+    popstateCleanup = useEventListener(window, 'popstate', (event: PopStateEvent) => {
+      const state = event.state;
+      // Check if this popstate is for our panel
+      if (state?.panelKey === historyStateKey.value || historyStateKey.value) {
+        // Close the panel instead of going back
+        close(true);
+        historyStateKey.value = null;
+      }
+    });
+  };
+
+  const cleanupMobileBackButton = (): void => {
+    if (popstateCleanup) {
+      popstateCleanup();
+      popstateCleanup = null;
+    }
+    
+    // If we still have a history state, remove it
+    if (historyStateKey.value) {
+      // Go back to remove our pushed state if panel is closing normally
+      // Only if the current state matches our key
+      if (history.state?.panelKey === historyStateKey.value) {
+        history.back();
+      }
+      historyStateKey.value = null;
+    }
+  };
+
   /**
    * Close the panel.
    * @param isMobile - whether the close is occurring on mobile context (defaults to current context)
    */
   const close = async (isMobile: boolean = currentIsMobile.value): Promise<void> => {
+    cleanupMobileBackButton();
     currentIsMobile.value = isMobile;
 
     if (isMobile && animation() && draggable?.animateClose) {
@@ -111,6 +158,11 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     currentIsMobile.value = isMobile;
     isOpen.value = true;
     updatePreferences();
+
+    if (isMobile) {
+      await nextTick();
+      setupMobileBackButton();
+    }
 
     if (isMobile && animation() && draggable) {
       await nextTick();
@@ -162,6 +214,10 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
   }, 100);
 
   watch([isOpen, isExpanded], updatePreferences, { flush: 'post' });
+
+  onUnmounted(() => {
+    cleanupMobileBackButton();
+  });
 
   const api: PanelAPI = {
     isOpen,

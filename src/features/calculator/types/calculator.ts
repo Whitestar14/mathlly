@@ -4,6 +4,7 @@ export interface CalculatorOptions {
   precision: number;
   useFractions: boolean;
   syntaxHighlighting: boolean;
+  hapticFeedback: boolean;
   useThousandsSeparator: boolean;
   formatBinary: boolean;
   formatHexadecimal: boolean;
