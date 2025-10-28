@@ -117,7 +117,7 @@ export class ExpressionConverter {
     }
 
     // Handle standalone symbols like '×' and '÷'
-    preprocessedExpr = preprocessedExpr.replace(/×/g, '*').replace(/÷/g, '/');
+    preprocessedExpr = preprocessedExpr.replace(/×/g, '*').replace(/÷/g, '/').replace(/√/g, 'sqrt').replace(/∛/g, 'cbrt');
 
     return preprocessedExpr;
   }

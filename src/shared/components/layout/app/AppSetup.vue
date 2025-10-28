@@ -19,14 +19,15 @@
       :widthRem="16"
     />
 
-    <Suspense>
-      <AppView :settings="settings" :is-mobile="device.isMobile" />
-      <template #fallback>
-        <div class="flex-grow flex items-center justify-center">
-          <div class="w-20 h-20 rounded-full bg-muted animate-pulse" />
-        </div>
-      </template>
-    </Suspense>
+    <RouterView v-slot="{ Component }">
+        <Transition name="fade" mode="out-in">
+            <component 
+              :is="Component"
+              :settings="settings"
+              :is-mobile="device.isMobile"
+              />
+            </Transition>
+      </RouterView>
 
     <PanelLoader :component="MainMenu" side="right" :isOpen="unref(menuPanel.isOpen)" :widthRem="16" />
 
@@ -36,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, shallowRef, defineAsyncComponent, unref } from 'vue'
+import { onMounted, onUnmounted, computed, shallowRef, defineAsyncComponent, unref, ref } from 'vue'
 import { useDeviceStore } from '@stores/device'
 import { useKeyboardStore } from '@stores/keyboard'
 import { useSettingsStore } from '@stores/settings'
@@ -51,8 +52,9 @@ import { calculatorManifest } from '@calculator/lib/shortcuts'
 import { base64Manifest } from '@base64/lib/shortcuts'
 import { colorManifest } from '@color/lib/shortcuts'
 
+import { RouterView } from 'vue-router'
+
 const SidebarMenu = defineAsyncComponent(() => import('../sidebar/SidebarMenu.vue'))
-const AppView = defineAsyncComponent(() => import('./AppView.vue'))
 const MainMenu = defineAsyncComponent(() => import('../sidebar/MainMenu.vue'))
 const Toast = defineAsyncComponent(() => import('@components/ui/BaseToast.vue'))
 const ShortcutGuide = defineAsyncComponent(() => import('../modal/ShortcutGuide.vue'))

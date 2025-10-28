@@ -1,6 +1,7 @@
 import { ref, onMounted, type Ref } from 'vue';
 import { useDebounceFn } from '@vueuse/core';
 import db from '@services/storage/db';
+import type { CalculatorMode } from './useCalculatorState';
 
 /**
  * History item interface
@@ -10,6 +11,9 @@ export interface HistoryItem {
   expression: string
   result: string
   timestamp: number
+  mode?: CalculatorMode
+  base?: string
+  baseValues?: Record<string, string>
 }
 
 /**
@@ -33,10 +37,11 @@ const isLoading: Ref<boolean> = ref(false);
 export interface UseHistoryReturn {
   historyItems: Ref<HistoryItem[]>
   isLoading: Ref<boolean>
-  addToHistory: (expression: string, result: string) => Promise<void>
+  addToHistory: (expression: string, result: string, mode?: CalculatorMode, base?: string, baseValues?: Record<string, string>) => Promise<void>
   deleteItem: (id: number) => Promise<boolean>
-  clearAll: () => Promise<boolean>
+  clearAll: (mode?: CalculatorMode) => Promise<boolean>
   loadHistory: () => Promise<boolean>
+  getHistoryForMode: (mode: CalculatorMode) => HistoryItem[]
 }
 
 /**
@@ -63,7 +68,10 @@ export function useHistory(): UseHistoryReturn {
         id: item.id,
         expression: item.expression ?? '',
         result: item.result ?? '',
-        timestamp: item.timestamp
+        timestamp: item.timestamp,
+        mode: item.mode,
+        base: item.base,
+        baseValues: item.baseValues
       }));
       return true;
     } catch (error) {
@@ -79,20 +87,20 @@ export function useHistory(): UseHistoryReturn {
   /**
    * Adds a new calculation to history with debouncing to prevent duplicates
    */
-  const addToHistory = useDebounceFn(async (expression: string, result: string): Promise<void> => {
+  const addToHistory = useDebounceFn(async (expression: string, result: string, mode?: CalculatorMode, base?: string, baseValues?: Record<string, string>): Promise<void> => {
     try {
       // Prevent duplicate entries
       const lastItem = historyItems.value[0];
-      if (lastItem?.expression === expression && lastItem?.result === result) {
+      if (lastItem?.expression === expression && lastItem?.result === result && lastItem?.mode === mode && lastItem?.base === base) {
         return;
       }
 
       const timestamp = Date.now();
-      const id = await db.history.add({ expression, result, timestamp });
+      const id = await db.history.add({ expression, result, timestamp, mode, base, baseValues });
 
       // Optimistic update for immediate UI feedback
       historyItems.value = [
-        { id, expression, result, timestamp },
+        { id, expression, result, timestamp, mode, base, baseValues },
         ...historyItems.value,
       ];
 
@@ -131,17 +139,34 @@ export function useHistory(): UseHistoryReturn {
   };
 
   /**
-   * Clears all history items
+   * Clears all history items or items for a specific mode
    */
-  const clearAll = async (): Promise<boolean> => {
+  const clearAll = async (mode?: CalculatorMode): Promise<boolean> => {
     try {
-      await db.history.clear();
-      historyItems.value = [];
+      if (mode) {
+        // Filter and delete items where mode matches
+        const itemsToDelete = await db.history.where('mode').equals(mode).toArray();
+        await db.history.bulkDelete(itemsToDelete.map(item => item.id!));
+        historyItems.value = historyItems.value.filter(item => item.mode !== mode);
+      } else {
+        await db.history.clear();
+        historyItems.value = [];
+      }
       return true;
     } catch (error) {
       console.error('Error clearing history:', error);
       return false;
     }
+  };
+
+  /**
+   * Gets history items filtered by mode
+   */
+  const getHistoryForMode = (mode: CalculatorMode): HistoryItem[] => {
+    if (mode === 'Programmer') {
+      return historyItems.value.filter(item => item.mode === 'Programmer');
+    }
+    return historyItems.value.filter(item => !item.mode || item.mode !== 'Programmer');
   };
 
   // Load history when the composable is first used
@@ -157,6 +182,7 @@ export function useHistory(): UseHistoryReturn {
     addToHistory,
     deleteItem,
     clearAll,
-    loadHistory
+    loadHistory,
+    getHistoryForMode
   };
 }

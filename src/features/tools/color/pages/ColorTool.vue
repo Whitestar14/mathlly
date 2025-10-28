@@ -35,11 +35,12 @@ import { useToast } from '@composables/ui/useToast';
 import { formatRgbaPretty } from '@color/lib/utils';
 import { useColorOptions } from '@color/composables/useColorOptions';
 import { useAppStorageStore } from '@stores/appStorage';
+import { useColorHistory } from '@color/composables/useColorHistory';
 
-import CurrentColorCard from '../components/CurrentColorCard.vue';
-import AdjustmentsPanel from '../components/AdjustmentsPanel.vue';
+import CurrentColorCard from '@color/components/CurrentColorCard.vue';
+import AdjustmentsPanel from '@color/components/AdjustmentsPanel.vue';
 import DesktopPanelLoader from '@components/ui/panel/DesktopPanelLoader.vue'
-import PaletteManagerSkeleton from '../components/PaletteManagerSkeleton.vue';
+import PaletteManagerSkeleton from '@color/components/PaletteManagerSkeleton.vue';
 
 const PaletteManager = defineAsyncComponent(
   () => import('../components/PaletteManager.vue')
@@ -155,6 +156,7 @@ const updateColor = (c: RGB & { a?: number }) => {
   )
     return;
   current.value = next;
+  addToHistory(next);
   formats.value = convertColor(next);
   saveColor(next);
 };
@@ -198,7 +200,9 @@ const harmonyTabs = [
 ];
 
 const keyboard = useKeyboardStore();
-const { autoApplyAdjustments } = useColorOptions();
+const { autoApplyAdjustments, showImageExtractor } = useColorOptions();
+
+const { canUndo, addToHistory, undo: undoColor } = useColorHistory();
 
 const addColorToPalette = async () => {
   const activePalette = palettes.value.find(
@@ -236,33 +240,45 @@ const addColorToPalette = async () => {
   }
 };
 
+const handleUndo = () => {
+  const previousColor = undoColor()
+  if (previousColor) {
+    current.value = previousColor
+    formats.value = convertColor(previousColor)
+    saveColor(previousColor)
+  }
+}
+
 onMounted(async () => {
   try {
-    const savedColor = storageStore.get('router', COLOR_STORAGE_KEY, {r: 22, g: 64, b: 196, a: 1});
+    const savedColor = storageStore.get('router', COLOR_STORAGE_KEY, { r: 22, g: 64, b: 196, a: 1 })
     if (savedColor && isValidRGBA(savedColor)) {
-      current.value = savedColor;
-      formats.value = convertColor(current.value);
+      current.value = savedColor
+      formats.value = convertColor(current.value)
     }
   } catch (error) {
-    console.warn('Failed to load saved color:', error);
+    console.warn('Failed to load saved color:', error)
   }
 
-  palettesLoading.value = true;
+  addToHistory(current.value)
+
+  palettesLoading.value = true
   try {
-    await ensureDefaultPalette();
-    palettes.value = await fetchPalettes();
+    await ensureDefaultPalette()
+    palettes.value = await fetchPalettes()
     selectedPaletteId.value =
       palettes.value.find((p) => p.id === 'default')?.id ||
       palettes.value[0]?.id ||
-      'default';
+      'default'
   } catch (error) {
-    errorToast('Failed to load palettes');
+    errorToast('Failed to load palettes')
   } finally {
-    palettesLoading.value = false;
+    palettesLoading.value = false
   }
 
-  keyboard.pushContext('tools.color');
-});
+  keyboard.pushContext('tools.color')
+})
+
 
 onBeforeUnmount(() => {
   keyboard.popContext('tools.color');
@@ -287,6 +303,8 @@ onBeforeUnmount(() => {
               :selected-palette-id="selectedPaletteId"
               :palettes="palettes"
               :on-add-to-palette="addColorToPalette"
+              :on-undo="handleUndo"
+              :can-undo="canUndo"
             />
           </div>
 
@@ -372,7 +390,12 @@ onBeforeUnmount(() => {
       :component="AdjustmentsPanel"
       :isOpen="unref(adjustmentsPanel.isOpen)"
       position="left"
-      :componentProps="{ currentColor: current, updateColor: updateColor, autoApply: autoApplyAdjustments }"
+      :componentProps="{ 
+        currentColor: current, 
+        updateColor: updateColor, 
+        autoApply: autoApplyAdjustments,
+        showImageExtractor: showImageExtractor 
+      }"
     />
   </BasePage>
 </template>

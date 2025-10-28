@@ -11,6 +11,5 @@ export { default as WelcomeModal } from './modal/WelcomeModal.vue'
 
 export { default as AppHeader } from './app/AppHeader.vue'
 export { default as AppSetup } from './app/AppSetup.vue'
-export { default as AppView } from './app/AppView.vue'
 export { default as OfflineIndicator } from './app/OfflineIndicator.vue'
 export { default as UpdateNotification } from './app/UpdateNotification.vue'

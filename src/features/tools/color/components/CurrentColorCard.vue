@@ -3,24 +3,36 @@
   <BaseCard title="Current color">
     <template #header>
       <div class="flex items-center gap-2">
-        <BaseButton variant="ghost" size="sm" @click="genRandomColor">
-          <Shuffle class="h-4 w-4" /> Random
-        </BaseButton>
-
-        <BaseButton
-          variant="outline"
-          size="icon"
-          :disabled="!canAddToPalette || colorExistsInPalette"
-          aria-label="Add to palette"
-          v-tippy="tooltipText"
-          @click="props.onAddToPalette"
+        
+        <BaseButton 
+          variant="outline" 
+          size="icon" 
+          :disabled="!canUndo"
+          aria-label="Undo last color change"
+          v-tippy="{ content: 'Undo (Ctrl+Z)' }"
+          @click="props.onUndo"
         >
-          <Plus class="h-4 w-4" />
+          <Undo class="h-4 w-4" />
         </BaseButton>
+     
+        <BaseButton
+        variant="outline"
+        size="icon"
+        :disabled="!canAddToPalette || colorExistsInPalette"
+        aria-label="Add to palette"
+        v-tippy="tooltipText"
+        @click="props.onAddToPalette"
+        >
+        <Plus class="h-4 w-4" />
+      </BaseButton>
 
-        <BaseButton variant="outline" size="icon" aria-label="Open adjustments" @click="openAdjustments" v-tippy="{ content: 'Open Adjustment Panel' }">
-          <Settings2 class="h-4 w-4" />
-        </BaseButton>
+      <BaseButton variant="outline" size="icon" aria-label="Open adjustments" @click="openAdjustments" v-tippy="{ content: 'Open Adjustment Panel' }">
+        <Settings2 class="h-4 w-4" />
+      </BaseButton>
+
+      <BaseButton variant="ghost" size="sm" @click="genRandomColor">
+        <Shuffle class="h-4 w-4" /> <span class="hidden md:inline">Random</span>
+      </BaseButton>
       </div>
     </template>
 
@@ -127,7 +139,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import { Copy, Shuffle, Settings2, Plus, Lock, Unlock } from 'lucide-vue-next'
+import { Copy, Shuffle, Settings2, Plus, Lock, Unlock, Undo } from 'lucide-vue-next'
 import { usePanel } from '@composables/ui/usePanel'
 import { BaseCard, BaseButton, BaseLabel, BaseSlider, BaseAccordion, AccordionItem, InputGroup } from '@components/ui'
 import BaseColorPicker from '@components/ui/BaseColorPicker.vue'
@@ -149,6 +161,8 @@ const props = defineProps<{
   selectedPaletteId: string
   palettes: PaletteEntity[]
   onAddToPalette: () => void
+  onUndo: () => void
+  canUndo: boolean
 }>()
 
 const previewEl = ref<HTMLElement | null>(null)
@@ -168,6 +182,7 @@ onMounted(() => {
         info(`${rgbaText.value} copied to clipboard`, { title: 'Copied!' })
       },
       'Ctrl+P': () => props.onAddToPalette(),
+      'Ctrl+Z': () => props.onUndo()
     })
   } catch (e) {}
 })

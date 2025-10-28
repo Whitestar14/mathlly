@@ -151,11 +151,11 @@ export function usePills(options: PillsOptions = {}): PillsComposable {
       await router.push(path);
     }
 
-    nextTick(() => updateIndicator(element));
-
+    
     if (onNavigate) {
       onNavigate(path);
     }
+    nextTick(() => updateIndicator(element));
   };
 
   /**
