@@ -175,103 +175,96 @@ export class SyntaxHighlighter {
  */
 private static tokenizeWithSyntax(text: string, options: FormatOptions): Token[] {
   if (!text) return []
-  
+
   const tokens: Token[] = []
   const isScientificMode = options.mode === 'Scientific'
   const isProgrammerMode = options.mode === 'Programmer'
-  
+
+  const isDigit = (c: string) => c >= '0' && c <= '9'
+  const isDot = (c: string) => c === '.'
+
   let i = 0
   while (i < text.length) {
     const char = text[i]
-    const nextChar = text[i + 1]
-    
-    // Preserve whitespace
+    const next = text[i + 1]
+
     if (TokenUtils.isWhitespace(char)) {
       tokens.push({ type: 'space', content: ' ' })
       i++
       continue
     }
-    
-    // Handle scientific functions FIRST (before checking individual characters)
+
     if (isScientificMode && FunctionUtils.isScientificFunction(text, i)) {
       const func = FunctionUtils.extractFunction(text, i)
       tokens.push({ type: 'function', content: func })
       i += func.length
       continue
     }
-    
-    // Handle modulo operator BEFORE other character checks
+
     const modulo = FunctionUtils.extractModulo(text, i)
     if (modulo) {
       tokens.push({ type: 'operator', content: modulo })
       i += modulo.length
       continue
     }
-    
-    // Handle numbers (including decimals in one token)
-    if (TokenUtils.isNumber(char)) {
-      let number = ''
-      while (i < text.length && (TokenUtils.isNumber(text[i]) || TokenUtils.isDecimal(text[i]))) {
-        number += text[i++]
+
+    // digits-only number
+    if (isDigit(char)) {
+      let num = ''
+      while (i < text.length && isDigit(text[i])) {
+        num += text[i++]
       }
-      tokens.push({ type: 'number', content: number })
+      tokens.push({ type: 'number', content: num })
       continue
     }
-    
-    // Handle decimal points separately (when not part of a number)
-    if (TokenUtils.isDecimal(char)) {
+
+    // decimal point as its own token (never merged)
+    if (isDot(char)) {
       tokens.push({ type: 'decimal', content: '.' })
       i++
       continue
     }
-    
-    // Handle shift operators (programmer mode)
-    if (isProgrammerMode && TokenUtils.isShiftOperator(char, nextChar)) {
-      tokens.push({ type: 'operator', content: char + nextChar })
+
+    if (isProgrammerMode && TokenUtils.isShiftOperator(char, next)) {
+      tokens.push({ type: 'operator', content: char + next })
       i += 2
       continue
     }
-    
-    // Handle standard and programmer operators
+
     if (TokenUtils.isStandardOperator(char) || TokenUtils.isProgrammerOperator(char)) {
       tokens.push({ type: 'operator', content: char })
       i++
       continue
     }
-    
-    // Handle scientific operators
+
     if (isScientificMode && TokenUtils.isScientificOperator(char)) {
       tokens.push({ type: 'operator', content: char })
       i++
       continue
     }
-    
-    // Handle parentheses and absolute value bars
+
     if (TokenUtils.isParenthesis(char)) {
       tokens.push({ type: 'parenthesis', content: char })
       i++
       continue
     }
-    
-    // Handle scientific constants (AFTER function check to avoid conflicts)
+
     if (isScientificMode && TokenUtils.isScientificConstant(char)) {
       tokens.push({ type: 'constant', content: char })
       i++
       continue
     }
-    
-    // Handle scientific symbols
+
     if (isScientificMode && TokenUtils.isScientificSymbol(char)) {
       tokens.push({ type: 'function', content: char })
       i++
       continue
     }
-    
-    // Default case - treat as text
+
     tokens.push({ type: 'text', content: char })
     i++
   }
-  
+
   return tokens
 }
   

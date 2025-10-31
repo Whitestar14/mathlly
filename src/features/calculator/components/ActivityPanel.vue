@@ -123,8 +123,7 @@
       </div>
     </template>
     <p class="text-sm text-muted-foreground mb-4">
-      Are you sure you want to clear all history items? This action cannot be
-      undone.
+      Are you sure you want to clear all history items for {{ mode }} mode? This action cannot be undone.
     </p>
     <div class="flex justify-end space-x-2">
       <BaseButton
@@ -247,14 +246,8 @@ const {
 const { toast } = useToast()
 const { setInitialAnimation } = useAnimation()
 
-// Computed properties with explicit typing
-const isProgrammerMode: ComputedRef<boolean> = computed(
-  () => props.mode === 'Programmer'
-)
-
-// Fixed: Remove the isProgrammerMode condition - history should be clearable in all modes
 const showClearButton: ComputedRef<boolean> = computed(
-  () => historyItems.value.length > 0 && !isProgrammerMode.value
+  () => historyItems(props.mode).value.length > 0
 )
 
 const hasMemorySlots: ComputedRef<boolean> = computed(
@@ -268,7 +261,7 @@ watch(
     if (isOpen) {
       if (currentTab.value === 'history') {
         setInitialAnimation(true)
-        await loadHistory()
+        await loadHistory(props.mode)
         setTimeout(() => setInitialAnimation(false), 500)
       } else if (currentTab.value === 'memory') {
         await loadMemorySlots(props.mode)
@@ -284,7 +277,7 @@ watch(
   async () => {
     if (props.isOpen) {
       if (currentTab.value === 'history') {
-        await loadHistory()
+        await loadHistory(props.mode)
       } else if (currentTab.value === 'memory') {
         await loadMemorySlots(props.mode)
       }
@@ -297,7 +290,7 @@ watch(currentTab, async (newTab: string) => {
   if (props.isOpen) {
     if (newTab === 'history') {
       setInitialAnimation(true)
-      await loadHistory()
+      await loadHistory(props.mode)
       setTimeout(() => setInitialAnimation(false), 500)
     } else if (newTab === 'memory') {
       await loadMemorySlots(props.mode)
@@ -340,11 +333,11 @@ const handleAddCurrentToMemory = async (): Promise<void> => {
 
 // Handle clear history confirmation
 const handleClearHistory = async (): Promise<void> => {
-  await clearAllHistory()
+  await clearAllHistory(props.mode)
   showClearConfirmation.value = false
   toast({
     title: 'History cleared',
-    description: 'All history items have been removed',
+    description: `All history items for ${props.mode} mode have been removed`,
   })
 }
 

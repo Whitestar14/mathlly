@@ -3,20 +3,17 @@
     <BaseButton
       v-for="base in bases"
       :key="base"
-      :variant="activeBase === base ? 'default' : 'outline'"
       size="sm"
       :class="[
-        'flex justify-between items-center py-2 px-3 h-auto text-xs font-medium',
-        activeBase === base 
-          ? 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/15 hover:text-primary/80' 
-          : ''
+        'flex justify-between items-center py-2 px-3 h-auto text-xs font-medium rounded-md border cursor-pointer transition-transform active:scale-95 duration-150',
+        activeBase === base
+          ? 'bg-primary/10 border-primary/30 text-primary shadow-sm hover:bg-primary/15 hover:text-primary/80'
+          : 'bg-muted/30 border-border hover:bg-muted/50 hover:text-foreground',
       ]"
       @click="$emit('base-change', base)"
     >
-      <span class="font-medium">
-        {{ base }}
-      </span>
-      <span 
+      <span class="font-medium">{{ base }}</span>
+      <span
         :class="[
           'font-mono text-xs truncate ml-2',
           activeBase === base ? 'text-primary font-semibold' : 'opacity-90'

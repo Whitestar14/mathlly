@@ -126,7 +126,7 @@ router.beforeEach(async (to, _, next) => {
         const startupNav = settings.startup.navigation
 
         if (startupNav === 'last-visited') {
-          const lastVisitedPath = storageStore.get('router', 'lastVisitedPath', '/home')
+          const lastVisitedPath = storageStore.get('router', 'lastVisitedPath', '/')
 
           if (lastVisitedPath && lastVisitedPath !== '/') {
             return next(lastVisitedPath)

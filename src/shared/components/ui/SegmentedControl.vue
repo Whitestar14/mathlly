@@ -18,29 +18,30 @@
   <div
     v-else
     class="inline-flex items-center gap-0.5 rounded-lg border border-border bg-background p-1 shadow-sm transition-all duration-200"
+    :class="{'w-full gap-1': disableOverflow }"
     role="radiogroup"
     aria-label="Segmented control"
     @keydown="onKeydown"
   >
     <!-- Visible deck with enhanced animations -->
     <template
-      v-for="(opt, i) in visibleDeck"
+      v-for="(opt, _) in visibleDeck"
       :key="opt.value"
     >
       <button
         :aria-checked="modelValue === opt.value"
         role="radio"
         type="button"
-        class="relative inline-flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-md transition-all duration-200 group"
+        class="relative inline-flex justify-center items-center gap-1.5 px-3 py-1 text-sm rounded-md transition-all duration-200 group"
         :class="[
           'hover:scale-[1.02] active:scale-[0.98]',
+          disableOverflow ? 'w-full' : '',
           modelValue === opt.value
             ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/20'
             : 'bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-foreground'
         ]"
         @click="select(opt.value)"
       >
-
         <component 
           :is="opt.icon" 
           v-if="opt.icon" 
@@ -96,6 +97,7 @@ const props = defineProps<{
   options: SegmentedOption[]
   maxVisible?: number
   overflowLabel?: string
+  disableOverflow?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -107,17 +109,21 @@ const maxVisible = computed(() => props.maxVisible ?? 3)
 const overflowLabel = computed(() => props.overflowLabel ?? 'More options')
 
 // Deck state for MCR promotion; kept in sync with options
-const visibleDeck = ref<SegmentedOption[]>(props.options.slice(0, maxVisible.value))
+const visibleDeck = ref<SegmentedOption[]>(
+  props.disableOverflow ? props.options : props.options.slice(0, maxVisible.value)
+)
 
 const visibleValueMap = computed(() => {
     return new Set(visibleDeck.value.map(o => o.value));
 });
 
-const overflowOptions = computed(() =>
-    props.options.filter(o => !visibleValueMap.value.has(o.value))
-);
+const overflowOptions = computed(() => {
+  if (props.disableOverflow) return []
+  return props.options.filter(o => !visibleValueMap.value.has(o.value))
+})
 
 function promoteToVisibleDeck(value: string) {
+  if (props.disableOverflow) return
   const chosen = props.options.find(o => o.value === value)
   if (chosen) {
     const deck = visibleDeck.value.slice()
@@ -137,10 +143,13 @@ function promoteToVisibleDeck(value: string) {
 watch(
   () => props.options,
   (opts) => {
+    if (props.disableOverflow) {
+      visibleDeck.value = opts
+      return
+    }
+    
     const preserved = visibleDeck.value.map(v => opts.find(o => o.value === v.value)).filter((o): o is SegmentedOption => o !== undefined)
-    
     const fill = opts.filter(o => !preserved.some(v => v.value === o.value)).slice(0, Math.max(0, maxVisible.value - preserved.length))
-    
     visibleDeck.value = [...preserved, ...fill].slice(0, maxVisible.value)
   },
   { deep: true, immediate: true }

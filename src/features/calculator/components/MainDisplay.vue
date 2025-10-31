@@ -161,17 +161,17 @@ const getParenthesesLevelClass = (token: Token): string => {
 // Enhanced token class to handle spaces and ghost parentheses
 const getTokenClass = (token: Token): string => {
   const baseClasses: Record<string, string> = {
-    'number': 'syntax-number',
+    'number': 'syntax-string',
     'operator': 'syntax-operator',
-    'function': 'syntax-function font-semibold',
-    'parenthesis': 'syntax-parenthesis font-bold',
-    'open': 'syntax-parenthesis font-bold',
-    'close': 'syntax-parenthesis font-bold',
-    'ghost': 'syntax-parenthesis font-bold opacity-50', // Ghost parentheses styling
+    'function': 'syntax-func font-semibold',
+    'parenthesis': 'syntax-special font-bold',
+    'open': 'syntax-special font-bold',
+    'close': 'syntax-special font-bold',
+    'ghost': 'syntax-comment font-bold not-italic opacity-40',
     'constant': 'syntax-constant',
-    'decimal': 'syntax-decimal',
+    'decimal': 'syntax-keyword',
     'space': '',
-    'text': 'syntax-text'
+    'text': 'syntax-keyword'
   }
   
   let baseClass = baseClasses[token.type] || 'syntax-text'

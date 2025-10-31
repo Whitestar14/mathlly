@@ -13,6 +13,8 @@ import { cloneDeep } from '@utils/object/objectUtils';
 import { settingsManifest } from '@settings/composables/settingsManifest';
 import { SettingsSearch, StartupSection, AppearanceSection, AdvancedSection, KeyboardSection, SettingsActions, UnsavedChangesModal } from '@settings/components';
 
+defineProps<Props>()
+
 defineOptions({
  name: 'SettingsPage',
 });
@@ -20,8 +22,6 @@ defineOptions({
 interface Props {
   isMobile?: boolean
 }
-
-defineProps<Props>()
 
 const router = useRouter();
 const settingsStore = useSettingsStore();
@@ -159,71 +159,87 @@ const handleManualPWAInstall = async () => {
 </script>
 
 <template>
- <div>
-  <BasePage title="Settings" :breadcrumbs="[ { label: 'Settings' } ]">
-   <div class="space-y-8 mx-auto max-w-4xl">
-    <SettingsSearch v-model="searchQuery" />
-
-    <div v-if="(dismissedInstall || installPromptSeen || canInstall) && !isInstalled" class="bg-primary/5 border border-border rounded-md p-3 flex items-center justify-between">
-     <div>
-      <h4 class="text-sm font-semibold">Install Prism App</h4>
-      <p class="text-xs text-muted-foreground">Add the app to your device for quick access and offline support.</p>
-     </div>
-     <div class="flex items-center gap-2">
-      <BaseButton variant="primary" size="sm" @click="handleManualPWAInstall">Install</BaseButton>
-     </div>
-    </div>
-    
-    <!-- Settings Sections -->
-    <StartupSection
-     :settings="localSettings"
-     :is-visible="isRendered('startup')"
-     @update:settings="updateSettings"
-    />
-
-    <AppearanceSection
-     :settings="localSettings"
-     :is-visible="isRendered('themes')"
-     @update:settings="updateSettings"
-    />
-
-    <KeyboardSection
-     v-show="!isMobile"
-     :settings="localSettings"
-     :is-visible="isRendered('keyboard')"
-     @update:settings="updateSettings"
-    />
-
-    <AdvancedSection :is-visible="isRendered('advanced')" />
-
-
-    <div
-     v-if="filteredManifest.length === 0 && searchQuery"
-     class="text-center py-10"
+  <div>
+    <BasePage
+      title="Settings"
+      :breadcrumbs="[ { label: 'Settings' } ]"
     >
-     <p class="text-foreground text-lg">
-      No settings found for "{{ searchQuery }}".
-     </p>
-     <p class="text-sm text-muted-foreground">
-      Try a different search term or check tool-specific options in the
-      menu.
-     </p>
-    </div>
+      <div class="space-y-8 mx-auto max-w-4xl">
+        <SettingsSearch v-model="searchQuery" />
 
-    <SettingsActions
-     :has-changes="hasChanges"
-     :is-loading="isSaving"
-     @cancel="goBack"
-     @save="saveSettings"
+        <div
+          v-if="(dismissedInstall || installPromptSeen || canInstall) && !isInstalled"
+          class="bg-primary/5 border border-border rounded-md p-3 flex items-center justify-between"
+        >
+          <div>
+            <h4 class="text-sm font-semibold">
+              Install Prism App
+            </h4>
+            <p class="text-xs text-muted-foreground">
+              Add the app to your device for quick access and offline support.
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <BaseButton
+              variant="primary"
+              size="sm"
+              @click="handleManualPWAInstall"
+            >
+              Install
+            </BaseButton>
+          </div>
+        </div>
+    
+        <!-- Settings Sections -->
+        <StartupSection
+          :settings="localSettings"
+          :is-visible="isRendered('startup')"
+          @update:settings="updateSettings"
+        />
+
+        <AppearanceSection
+          :settings="localSettings"
+          :is-visible="isRendered('themes')"
+          @update:settings="updateSettings"
+        />
+
+        <KeyboardSection
+          v-show="!isMobile"
+          :settings="localSettings"
+          :is-visible="isRendered('keyboard')"
+          @update:settings="updateSettings"
+        />
+
+        <AdvancedSection :is-visible="isRendered('advanced')" />
+
+
+        <div
+          v-if="filteredManifest.length === 0 && searchQuery"
+          class="text-center py-10"
+        >
+          <p class="text-foreground text-lg">
+            No settings found for "{{ searchQuery }}".
+          </p>
+          <p class="text-sm text-muted-foreground">
+            Try a different search term or check tool-specific options in the
+            menu.
+          </p>
+        </div>
+
+        <SettingsActions
+          :has-changes="hasChanges"
+          :is-loading="isSaving"
+          @cancel="goBack"
+          @save="saveSettings"
+        />
+      </div>
+    </BasePage>
+
+    <!-- Unsaved Changes Modal -->
+    <UnsavedChangesModal
+      v-model:open="showUnsavedChangesModal"
+      @confirm="confirmNavigation"
+      @cancel="cancelNavigation"
     />
-   </div>
-  </BasePage>
-
-  <!-- Unsaved Changes Modal -->
-  <UnsavedChangesModal
-   v-model:open="showUnsavedChangesModal"
-   @confirm="confirmNavigation"
-   @cancel="cancelNavigation"
-  />
- </div>
+  </div>
 </template>

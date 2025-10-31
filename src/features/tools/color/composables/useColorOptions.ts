@@ -8,7 +8,7 @@ interface ColorOptions {
 
 const DEFAULT_COLOR_OPTIONS: ColorOptions = {
   autoApplyAdjustments: true,
-  showImageExtractor: true
+  showImageExtractor: true,
 }
 
 export function useColorOptions() {
@@ -32,7 +32,7 @@ export function useColorOptions() {
         type: 'toggle',
         value: options,
         section: 'Experimental'
-      }
+      },
     ]
   )
 

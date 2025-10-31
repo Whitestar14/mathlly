@@ -12,7 +12,7 @@
       leave-from-class="opacity-100 scale-100 translate-y-0"
       leave-to-class="opacity-0 scale-95 translate-y-4"
     >
-  <Teleport to="#modal-root">
+      <Teleport to="#modal-root">
         <div
           v-if="open"
           class="fixed inset-0 flex items-center justify-center p-4"
@@ -233,21 +233,6 @@ useEventListener(document, 'keydown', handleEscapeKey, {
 .backdrop-enter-from,
 .backdrop-leave-to {
   opacity: 0;
-}
-
-/* Custom scrollbar for content area */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
-}
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: transparent;
-}
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: oklch(var(--muted-foreground) / 0.4);
-  border-radius: 3px;
-}
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: oklch(var(--muted-foreground) / 0.6);
 }
 
 /* Ensure proper focus management */

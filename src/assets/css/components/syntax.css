@@ -1,22 +1,23 @@
-/* styles/components/syntax.css */
-@layer components {
+@layer base {
   /* Theme-aware syntax tokens */
-  .syntax-number   { @apply text-blue-600 dark:text-blue-400; }
-  .syntax-operator,
-  .syntax-programmer-operator { @apply text-orange-600 dark:text-orange-400; }
-  .syntax-parenthesis { @apply text-muted-foreground font-semibold; }
-  .syntax-function { @apply text-pink-600 dark:text-pink-400; }
-  .syntax-decimal  { @apply text-primary font-bold; }
-  .syntax-text     { @apply text-foreground; }
-  .syntax-ghost    { @apply text-muted-foreground opacity-40; }
+  .syntax-tag { color: oklch(var(--syntax-tag)); }
+  .syntax-func { color: oklch(var(--syntax-func)); font-weight: 600; }
+  .syntax-string { color: oklch(var(--syntax-string)); }
+  .syntax-regexp { color: oklch(var(--syntax-regexp)); }
+  .syntax-markup { color: oklch(var(--syntax-markup)); }
+  .syntax-keyword { color: oklch(var(--syntax-keyword)); font-weight: 600; }
+  .syntax-special { color: oklch(var(--syntax-special)); }
+  .syntax-comment { color: oklch(var(--syntax-comment)); font-style: italic; }
+  .syntax-constant { color: oklch(var(--syntax-constant)); font-weight: 700; }
+  .syntax-operator { color: oklch(var(--syntax-operator)); }
 
   /* Parentheses nesting levels (scientific mode) */
-  .paren-level-0 { @apply text-blue-600   dark:text-blue-400; }
-  .paren-level-1 { @apply text-green-600  dark:text-green-400; }
-  .paren-level-2 { @apply text-purple-600 dark:text-purple-400; }
-  .paren-level-3 { @apply text-orange-600 dark:text-orange-400; }
-  .paren-level-4 { @apply text-pink-600   dark:text-pink-400; }
-  .paren-level-5 { @apply text-cyan-600   dark:text-cyan-400; }
+  .paren-level-0 { color: oklch(var(--syntax-paren-0)); }
+  .paren-level-1 { color: oklch(var(--syntax-paren-1)); }
+  .paren-level-2 { color: oklch(var(--syntax-paren-2)); }
+  .paren-level-3 { color: oklch(var(--syntax-paren-3)); }
+  .paren-level-4 { color: oklch(var(--syntax-paren-4)); }
+  .paren-level-5 { color: oklch(var(--syntax-paren-5)); }
 
   .paren-level-deep { @apply text-muted-foreground; }
   .paren-ghost      { @apply opacity-40 text-muted-foreground ml-0.5; }

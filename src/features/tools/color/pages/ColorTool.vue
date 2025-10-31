@@ -279,10 +279,30 @@ onMounted(async () => {
   keyboard.pushContext('tools.color')
 })
 
+const refreshPalettes = async () => {
+  palettesLoading.value = true
+  try {
+    await ensureDefaultPalette()
+    const freshPalettes = await fetchPalettes()
+    palettes.value = freshPalettes
+    
+    // Ensure selected palette still exists
+    const stillExists = freshPalettes.some(p => p.id === selectedPaletteId.value)
+    if (!stillExists) {
+      selectedPaletteId.value = freshPalettes.find(p => p.id === 'default')?.id || freshPalettes[0]?.id || 'default'
+    }
+  } catch (error) {
+    errorToast('Failed to refresh palettes')
+  } finally {
+    palettesLoading.value = false
+  }
+}
 
 onBeforeUnmount(() => {
   keyboard.popContext('tools.color');
 });
+
+defineExpose({ refreshPalettes })
 </script>
 
 <template>
@@ -310,7 +330,11 @@ onBeforeUnmount(() => {
 
           <Suspense>
             <template #default>
-              <Transition name="fade" mode="out-in" appear>
+              <Transition
+                name="fade"
+                mode="out-in"
+                appear
+              >
                 <div>
                   <GeneratorsCard
                     :current-color="current"
@@ -320,20 +344,22 @@ onBeforeUnmount(() => {
               </Transition>
             </template>
             <template #fallback>
-              <BaseCard title="Gradient Generator" class="h-[250px]">
-                <div class="h-20 bg-muted rounded animate-pulse mb-4"></div>
+              <BaseCard
+                title="Gradient Generator"
+                class="h-[250px]"
+              >
+                <div class="h-20 bg-muted rounded animate-pulse mb-4" />
                 <div class="flex gap-2 mb-2">
-                  <div class="h-8 w-12 bg-muted rounded animate-pulse"></div>
-                  <div class="h-8 w-12 bg-muted rounded animate-pulse"></div>
+                  <div class="h-8 w-12 bg-muted rounded animate-pulse" />
+                  <div class="h-8 w-12 bg-muted rounded animate-pulse" />
                 </div>
-                <div class="h-4 bg-muted rounded animate-pulse"></div>
+                <div class="h-4 bg-muted rounded animate-pulse" />
               </BaseCard>
             </template>
           </Suspense>
         </div>
 
         <div class="space-y-2">
-
           <div class="hidden lg:block space-y-6">
             <PaletteManagerContent />
             <AccessibilityContent />
@@ -347,15 +373,24 @@ onBeforeUnmount(() => {
               :collapsible="true"
               class="w-full"
             >
-              <AccordionItem id="palette" title="Color Palettes">
+              <AccordionItem
+                id="palette"
+                title="Color Palettes"
+              >
                 <PaletteManagerContent />
               </AccordionItem>
 
-              <AccordionItem id="accessibility" title="Accessibility">
+              <AccordionItem
+                id="accessibility"
+                title="Accessibility"
+              >
                 <AccessibilityContent />
               </AccordionItem>
 
-              <AccordionItem id="harmonies" title="Color Harmonies">
+              <AccordionItem
+                id="harmonies"
+                title="Color Harmonies"
+              >
                 <HarmoniesContent />
               </AccordionItem>
             </BaseAccordion>
@@ -380,7 +415,11 @@ onBeforeUnmount(() => {
             <span class="text-muted-foreground">{{ formats.hex }}</span>
           </div>
         </div>
-        <BaseButton size="sm" variant="outline" @click.stop="copyRgba">
+        <BaseButton
+          size="sm"
+          variant="outline"
+          @click.stop="copyRgba"
+        >
           Copy
         </BaseButton>
       </div>
@@ -388,13 +427,13 @@ onBeforeUnmount(() => {
 
     <DesktopPanelLoader
       :component="AdjustmentsPanel"
-      :isOpen="unref(adjustmentsPanel.isOpen)"
+      :is-open="unref(adjustmentsPanel.isOpen)"
       position="left"
-      :componentProps="{ 
+      :component-props="{ 
         currentColor: current, 
         updateColor: updateColor, 
         autoApply: autoApplyAdjustments,
-        showImageExtractor: showImageExtractor 
+        showImageExtractor: showImageExtractor,
       }"
     />
   </BasePage>

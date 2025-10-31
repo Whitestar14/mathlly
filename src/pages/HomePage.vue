@@ -33,22 +33,25 @@
             <div
               v-motion
               :initial="{ opacity: 0, y: 20 }"
-              :enter="{ opacity: 1, y: 0, transition: {  delay: 0.2 } }"
+              :enter="{ opacity: 1, y: 0, transition: { delay: 0.2 } }"
               class="self-center md:self-start mb-2"
             >
-              <RouterLink to="/info/update" class="inline-block">
+              <RouterLink
+                to="/info/update"
+                class="inline-block"
+              >
                 <BaseBadge
                   variant="accent"
                   :text="`${version.versionInfo.full} › see changelog`"
                   :show-notch="true"
-                ></BaseBadge>
+                />
               </RouterLink>
             </div>
 
             <h1
               v-motion
               :initial="{ opacity: 0, y: 20 }"
-              :enter="{ opacity: 1, y: 0, transition: {  delay: 0.3 } }"
+              :enter="{ opacity: 1, y: 0, transition: { delay: 0.3 } }"
               class="text-5xl md:text-6xl lg:text-7xl font-mono font-bold tracking-tight text-foreground"
             >
               Mathematical precision
@@ -58,7 +61,7 @@
             <p
               v-motion
               :initial="{ opacity: 0, y: 20 }"
-              :enter="{ opacity: 1, y: 0, transition: {  delay: 0.4 } }"
+              :enter="{ opacity: 1, y: 0, transition: { delay: 0.4 } }"
               class="text-base md:text-lg text-muted-foreground max-w-lg self-center md:self-start"
             >
               A comprehensive suite of mathematical tools designed to streamline
@@ -68,7 +71,7 @@
             <div
               v-motion
               :initial="{ opacity: 0, y: 20 }"
-              :enter="{ opacity: 1, y: 0, transition: {  delay: 0.5 } }"
+              :enter="{ opacity: 1, y: 0, transition: { delay: 0.5 } }"
               class="flex justify-center md:justify-start flex-wrap gap-4 mt-8"
             >
               <RouterLink to="/calculator">
@@ -192,7 +195,7 @@
               variant="new"
               text="New"
               class="absolute right-5 top-5"
-            ></BaseBadge>
+            />
           </RouterLink>
         </div>
       </div>

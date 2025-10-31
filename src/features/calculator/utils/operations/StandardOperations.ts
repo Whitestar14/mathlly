@@ -1,5 +1,6 @@
 import { CalculatorUtils } from '../constants/CalculatorUtils'
 import { CalculatorConstants } from '../constants/CalculatorConstants'
+import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory';
 
 /**
  * Handles standard calculator operations
@@ -18,7 +19,7 @@ export class StandardOperations {
   /**
    * Handle comma input for function arguments
    */
-  handleComma(): Record<string, any> {
+  handleComma(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       
@@ -48,7 +49,7 @@ export class StandardOperations {
    * @param {string} num - The number or decimal point to add
    * @returns {Object} Updated input state and error message
    */
-  handleNumber(num: string): Record<string, any> {
+  handleNumber(num: string): CalculatorResult {
     if (num === ',') {
       return this.handleComma();
     }
@@ -78,7 +79,7 @@ export class StandardOperations {
    * @param {string} op - The operator to add (+, -, ×, ÷)
    * @returns {Object} Updated input state and error message
    */
-  handleOperator(op: string): Record<string, any> {
+  handleOperator(op: string): CalculatorResult {
     const currentInput = this.calculator.input.trim();
     
     // Don't allow operators on empty input or error states
@@ -141,42 +142,47 @@ export class StandardOperations {
    * Handles backspace operation
    * @returns {Object} Updated input state and error message
    */
-  handleBackspace(): Record<string, any> {
-    if (
-      this.calculator.input === "0" ||
-      this.calculator.input === "Error" ||
-      this.calculator.input === "Overflow"
-    ) {
-      return this.createResponse();
-    }
-    const operatorMatch = this.calculator.input.match(
-      /(.*?)(\s*[+\-×÷]\s*)(\d)$/
-    );
-    this.calculator.input = operatorMatch
-      ? operatorMatch[1]
-      : this.calculator.input.length === 1
-      ? "0"
-      : this.calculator.input.slice(0, -1);
-    return this.createResponse();
+  handleBackspace(): CalculatorResult {
+  const input = this.calculator.input
+
+  if (input === "0" || input === "Error" || input === "Overflow") {
+    return this.createResponse()
   }
+
+  const newInput = input.slice(0, -1)
+
+  this.calculator.input = newInput.trim().length === 0 ? "0" : newInput
+
+  this.calculator.input = this.calculator.input
+  .replace(/\s+/g, ' ')
+  .replace(/^\s+|\s+$/g, '')
+
+  return this.createResponse()
+}
+
 
   /**
    * Handles clearing the last entered number or operator.
    * This is a basic implementation for standard mode.
    * @returns {Object} Updated input state and error message
    */
-  handleClearEntry(): Record<string, any> {
+  handleClearEntry(): CalculatorResult {
     const input = this.calculator.input;
-    if (input !== "0" && input !== "Error") {
-      const parts = input.split(/([+\-×÷])/);
-      if (parts.length > 1) {
-        this.calculator.input = parts.slice(0, -1).join("");
+    if (input === "0" || input === "Error") {
+      return this.createResponse();
+    }
+    if (/\s*[+\-×÷]\s*$/.test(input)) {
+      this.calculator.input = input.replace(/\s*[+\-×÷]\s*$/, "").trim();
+    } else {
+      const match = input.match(/(.*[+\-×÷])\s*(.*)$/);
+      if (match) {
+        this.calculator.input = match[1];
       } else {
         this.calculator.input = "0";
       }
-      if (this.calculator.input.trim() === '') {
-        this.calculator.input = '0';
-      }
+    }
+    if (this.calculator.input.trim() === "") {
+      this.calculator.input = "0";
     }
     return this.createResponse();
   }
@@ -185,7 +191,7 @@ export class StandardOperations {
    * Toggles the sign of the current number
    * @returns {Object} Updated input state and error message
    */
-  handleToggleSign(): Record<string, any> {
+  handleToggleSign(): CalculatorResult {
     const currentInput = this.calculator.input;
     if (currentInput !== "0" && currentInput !== "Error") {
       const parts = currentInput.split(/([+×÷])/);
@@ -203,7 +209,7 @@ export class StandardOperations {
    * Squares the current value
    * @returns {Object} Updated input state and error message
    */
-  handleSquare(): Record<string, any> {
+  handleSquare(): CalculatorResult {
     return this.handleOperation((value: number) => {
       if (!Number.isFinite(value)) throw new Error("Overflow");
       return Math.pow(value, 2);
@@ -214,7 +220,7 @@ export class StandardOperations {
    * Calculates the square root of the current value
    * @returns {Object} Updated input state and error message
    */
-  handleSquareRoot(): Record<string, any> {
+  handleSquareRoot(): CalculatorResult {
     return this.handleOperation((value: number) => {
       if (value < 0)
         throw new Error("Cannot calculate square root of negative number");
@@ -226,7 +232,7 @@ export class StandardOperations {
    * Calculates the reciprocal (1/x) of the current value
    * @returns {Object} Updated input state and error message
    */
-  handleReciprocal(): Record<string, any> {
+  handleReciprocal(): CalculatorResult {
     return this.handleOperation((value: number) => {
       if (value === 0) throw new Error("Cannot divide by zero");
       return 1 / value;
@@ -237,7 +243,7 @@ export class StandardOperations {
    * Converts the current value to a percentage
    * @returns {Object} Updated input state and error message
    */
-  handlePercentage(): Record<string, any> {
+  handlePercentage(): CalculatorResult {
     return this.handleOperation((value: number) => value / 100);
   }
 
@@ -246,7 +252,7 @@ export class StandardOperations {
    * @param {Function} operation - Function that takes a number and returns a transformed number
    * @returns {Object} Updated input state and error message
    */
-  handleOperation(operation: (value: number) => number): Record<string, any> {
+  handleOperation(operation: (value: number) => number): CalculatorResult {
     try {
       const value = this.calculator.calculations.evaluateExpression(this.calculator.input);
       const result = operation(value);
@@ -289,7 +295,7 @@ export class StandardOperations {
    * @param {string} [error=""] - Optional error message
    * @returns {Object} Standardized response with input and error
    */
-  createResponse(error: string = ""): Record<string, any> {
+  createResponse(error: string = ""): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: this.calculator.input,
       error: error

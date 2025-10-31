@@ -15,16 +15,12 @@ export function useColorMixing(onUpdate: (c: RGB) => void) {
     mixColor.value = convertColor(hex).rgb
     return true
   }
-  const setMixRgb = (rgb: RGB) => { mixColor.value = rgb }
+
   const setMixRatio = (v: number) => { mixRatio.value = Math.max(0, Math.min(100, Math.round(v))) }
 
   const applyMix = (base: RGB) => {
     onUpdate(mixColors(base, mixColor.value, mixRatio.value / 100))
   }
 
-  const adjustMixRatio = (value: number, baseColor: RGB) => {
-    setMixRatio(value)
-  }
-
-  return { mixColor, mixRatio, setMixHex, setMixRgb, setMixRatio, applyMix, adjustMixRatio }
+  return { mixColor, mixRatio, setMixHex, setMixRatio, applyMix, }
 }

@@ -80,7 +80,7 @@
           <BaseBadge
             :variant="getLoadTimeVariant(loadTime)"
             :text="getLoadTimeLabel(loadTime)"
-            size="xs"
+            size="sm"
           />
         </div>
       </div>
@@ -106,7 +106,7 @@
           <BaseBadge
             :variant="getDOMNodesVariant(domNodes)"
             :text="getDOMNodesLabel(domNodes)"
-            size="xs"
+            size="sm"
           />
         </div>
       </div>

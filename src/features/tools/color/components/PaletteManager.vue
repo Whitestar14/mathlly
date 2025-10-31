@@ -20,22 +20,22 @@
             @change="importPalette"
           >
           <BaseButton
+            v-tippy="{ content: 'Import palette from JSON' }"
             size="icon"
             variant="outline"
             aria-label="Import palette"
             @click="openImport"
-            v-tippy="{ content: 'Import palette from JSON' }"
           >
             <Upload class="h-4 w-4" />
           </BaseButton>
 
           <!-- Create -->
           <BaseButton
+            v-tippy="{ content: 'Create new palette' }"
             size="icon"
             variant="outline"
             aria-label="Create palette"
             @click="setIsCreateDialogOpen(true)"
-            v-tippy="{ content: 'Create new palette' }"
           >
             <Plus class="h-4 w-4" />
           </BaseButton>
@@ -56,13 +56,13 @@
               <input
                 :ref="el => setEditingInputRef(el, palette.id)"
                 v-model="editingName"
+                v-tippy="{ content: `${editingName.length}/${MAX_NAME_LENGTH}` }"
                 class="flex-1 w-1/2 border-0 bg-transparent border-b border-primary text-sm font-medium focus:ring-0 focus:border-primary px-0 py-0"
                 :maxlength="MAX_NAME_LENGTH"
-                v-tippy="{ content: `${editingName.length}/${MAX_NAME_LENGTH}` }"
                 @keydown.enter.prevent="saveEditingPalette"
                 @keydown.esc="cancelEditing"
                 @blur="saveEditingPalette"
-              />
+              >
             </template>
             <template v-else>
               <button
@@ -80,24 +80,24 @@
 
           <div class="flex items-center gap-1">
             <BaseButton
+              v-tippy="{ content: 'Add current color to palette' }"
               size="sm"
               variant="ghost"
               class="h-7 px-2"
               aria-label="Add current color"
               @click="addColorToPalette(palette.id)"
-              v-tippy="{ content: 'Add current color to palette' }"
             >
               <Plus class="size-3" />
             </BaseButton>
 
             <BaseButton
+              v-tippy="{ content: palette.id === 'default' ? 'Default palette cannot be renamed' : 'Rename palette' }"
               size="sm"
               variant="ghost"
               class="h-7 px-2"
               :disabled="palette.id === 'default'"
               aria-label="Rename palette"
               @click="startEditingPalette(palette)"
-              v-tippy="{ content: palette.id === 'default' ? 'Default palette cannot be renamed' : 'Rename palette' }"
             >
               <Edit3 class="size-3" />
             </BaseButton>
@@ -435,7 +435,8 @@ const deletePalette = async (id: string) => {
     const idx = props.palettes.findIndex(p => p.id === id)
 
     await removePalette(id)
-    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
+    
+    // Remove from local array
     const newPalettes = JSON.parse(JSON.stringify(props.palettes))
     const delIdx = newPalettes.findIndex((p: PaletteEntity) => p.id === id)
     if (delIdx !== -1) {
@@ -443,9 +444,28 @@ const deletePalette = async (id: string) => {
     }
     emit('update:palettes', newPalettes)
 
+    // Select neighbor palette
     if (props.selectedPaletteId === id) {
       const neighbor = props.palettes[idx - 1] || props.palettes[idx] || props.palettes[0]
       emit('update:selectedPaletteId', neighbor?.id ?? 'default')
+    }
+
+    // CRITICAL FIX: Refresh palettes from database to ensure default palette is loaded
+    await nextTick()
+    try {
+      const { ensureDefaultPalette, fetchPalettes } = await import('@color/services/palette')
+      await ensureDefaultPalette()
+      const freshPalettes = await fetchPalettes()
+      emit('update:palettes', freshPalettes)
+      
+      // Revalidate selection
+      const stillExists = freshPalettes.some(p => p.id === props.selectedPaletteId)
+      if (!stillExists) {
+        const defaultPalette = freshPalettes.find(p => p.id === 'default')
+        emit('update:selectedPaletteId', defaultPalette?.id ?? freshPalettes[0]?.id ?? 'default')
+      }
+    } catch (refreshError) {
+      console.error('Failed to refresh palettes after deletion:', refreshError)
     }
 
     success('Palette removed', { title: 'Deleted' })

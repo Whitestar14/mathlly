@@ -1,9 +1,29 @@
 <template>
   <div class="space-y-4">
     <div class="flex items-center gap-2">
-      <BaseBadge variant="beta">Experimental</BaseBadge>
+      <BaseBadge variant="beta">
+        Experimental
+      </BaseBadge>
     </div>
-    <p class="text-sm text-muted-foreground">Upload an image to extract dominant colors</p>
+    <p class="text-sm text-muted-foreground">
+      Upload an image to extract dominant colors
+    </p>
+    <div class="flex items-center gap-3 flex-col">
+      <BaseLabel class="text-xs font-medium">
+        Colors to extract
+      </BaseLabel>
+      <div class="flex items-center w-full gap-2">
+        <BaseSlider
+          :model-value="[extractionColorCount]"
+          :min="3"
+          :max="16"
+          :step="1"
+          class="w-full"
+          @update:model-value="(v: number) => extractionColorCount = v"
+        />
+        <span class="text-xs text-muted-foreground w-10">{{ extractionColorCount }}</span>
+      </div>
+    </div>
 
     <div
       v-if="!selectedImage"
@@ -26,33 +46,49 @@
         Click to upload
       </button>
       or drag and drop
-      <div class="text-xs text-muted-foreground mt-2">Maximum file size: 5MB</div>
+      <div class="text-xs text-muted-foreground mt-2">
+        Maximum file size: 5MB
+      </div>
     </div>
 
-    <div v-else-if="isProcessing" class="flex items-center justify-center py-8">
+    <div
+      v-else-if="isProcessing"
+      class="flex items-center justify-center py-8"
+    >
       <Loader2 class="h-6 w-6 animate-spin mr-2" />
       Extracting colors...
     </div>
 
-    <div v-else class="space-y-4">
+    <div
+      v-else
+      class="space-y-4"
+    >
       <div class="relative inline-block">
-        <img :src="selectedImage" class="max-h-48 rounded border" />
+        <img
+          :src="selectedImage"
+          class="max-h-48 rounded border"
+        >
         <button
-          @click="clearImage"
           class="absolute top-2 right-2 bg-background rounded-full p-1 shadow hover:bg-muted transition-colors"
+          @click="clearImage"
         >
           <X class="h-4 w-4" />
         </button>
       </div>
 
-      <div v-if="extractedColors.length > 0" class="space-y-2">
+      <div
+        v-if="extractedColors.length > 0"
+        class="space-y-2"
+      >
         <div class="flex items-center justify-between">
-          <p class="text-sm">{{ extractedColors.length }} colors extracted</p>
+          <p class="text-sm">
+            {{ extractedColors.length }} colors extracted
+          </p>
           <BaseButton
+            v-tippy="{ content: 'Export colors as JSON' }"
             variant="outline"
             size="sm"
             @click="exportColors"
-            v-tippy="{ content: 'Export colors as JSON' }"
           >
             <Download class="h-4 w-4 mr-1" />
             Export
@@ -62,8 +98,8 @@
           <Swatch
             v-for="(color, index) in extractedColors"
             :key="index"
-            :color="color"
             v-tippy="{ content: `${rgbToHex(color)}` }"
+            :color="color"
             @click="handleColorClick"
           />
         </div>
@@ -75,7 +111,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Upload, X, Loader2, Download } from 'lucide-vue-next'
-import { BaseBadge, BaseButton } from '@components/ui'
+import { BaseBadge, BaseButton, BaseSlider, BaseLabel } from '@components/ui'
 import Swatch from '@color/components/Swatch.vue'
 import { rgbToHex, extractDominantColors, resizeImage } from '@color/lib/color'
 import type { RGB } from '@color/lib/color'
@@ -83,7 +119,6 @@ import { useToast } from '@composables/ui/useToast'
 import { exportJSON } from '@shared/utils/object/exportJSON'
 import { useClipboard } from '@vueuse/core'
 const props = defineProps<{
-  currentColor: RGB
   updateColor: (c: RGB) => void
 }>()
 
@@ -91,6 +126,7 @@ const selectedImage = ref<string | null>(null)
 const extractedColors = ref<RGB[]>([])
 const isProcessing = ref(false)
 const fileInputRef = ref<HTMLInputElement | null>(null)
+const extractionColorCount = ref<number>(8)
 
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement
@@ -149,7 +185,7 @@ const extractColors = (imageDataUrl: string) => {
     canvas.height = height
     ctx.drawImage(img, 0, 0, width, height)
     const imageData = ctx.getImageData(0, 0, width, height)
-    const colors = extractDominantColors(imageData, 8)
+    const colors = extractDominantColors(imageData, extractionColorCount.value)
     extractedColors.value = colors
     isProcessing.value = false
     useToast().success(`Extracted ${colors.length} colors`)

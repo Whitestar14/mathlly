@@ -6,7 +6,7 @@
     background-color: oklch(var(--color-popover));
     color: oklch(var(--color-popover-foreground));
     border: 1px solid oklch(var(--color-border));
-    border-radius: 0.5rem;
+    border-radius: var(--radius);
   }
 
   /* Dark mode shadow enhancement */

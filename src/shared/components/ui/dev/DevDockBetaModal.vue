@@ -6,7 +6,7 @@
     :close-on-click-outside="false"
     :close-on-escape="false"
     :hide-close-button="true"
-    @update:open="handleModalClose"
+    @update:open="(val) => isOpen = val"
   >
     <template #title>
       <div class="flex items-center gap-3">
@@ -155,7 +155,7 @@
             <span class="font-medium text-foreground dark:text-foreground">
               I understand this is a beta feature
             </span>
-            <p class="text-muted-foreground dark:text-muted-foreground mt-1">
+            <p class="text-sm text-muted-foreground dark:text-muted-foreground mt-1">
               I acknowledge that this feature is experimental and may be unstable. I agree to provide 
               feedback if I encounter any issues.
             </p>
@@ -167,29 +167,20 @@
     <template #footer>
       <div class="flex items-center gap-1 justify-between">
         <BaseButton
-          variant="ghost"
+          variant="outline"
           class="text-xs"
           @click="handleDecline"
         >
-          Maybe Later
+          No Thanks
         </BaseButton>
-        <div class="flex items-center gap-3">
-          <BaseButton
-            variant="outline"
-            class="text-xs"
-            @click="handleDecline"
-          >
-            No Thanks
-          </BaseButton>
-          <BaseButton
-            :disabled="!hasReadAndUnderstood"
-            variant="primary"
-            class="text-xs"
-            @click="handleOptIn"
-          >
-            Enable DevDock
-          </BaseButton>
-        </div>
+        <BaseButton
+          :disabled="!hasReadAndUnderstood"
+          variant="primary"
+          class="text-xs"
+          @click="handleOptIn"
+        >
+          Enable DevDock
+        </BaseButton>
       </div>
     </template>
   </BaseModal>
@@ -213,7 +204,6 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'update:open', value: boolean): void;
   (e: 'opt-in'): void;
   (e: 'decline'): void;
 }
@@ -225,22 +215,14 @@ const hasReadAndUnderstood = ref(false);
 
 const isOpen = computed(() => props.open);
 
-const handleModalClose = (value: boolean) => {
-  if (!value) {
-    handleDecline();
-  }
-};
-
 const handleOptIn = () => {
   if (hasReadAndUnderstood.value) {
     emit('opt-in');
-    emit('update:open', false);
   }
 };
 
 const handleDecline = () => {
   emit('decline');
-  emit('update:open', false);
   hasReadAndUnderstood.value = false;
 };
 </script>

@@ -1,6 +1,6 @@
 <template>
-  <div class="relative flex flex-col gap-0.5">
-  <div class="flex items-center justify-center pb-1">
+  <div class="relative flex flex-col gap-0.5 text-base">
+    <div class="flex items-center justify-center pb-1">
       <SelectBar
         v-if="options && options.length > 0"
         class="max-w-20 rounded-e-none"
@@ -11,7 +11,7 @@
         :is-dropdown="true"
         @update:model-value="$emit('update:dropdownValue', $event)"
       />
-    <input
+      <input
         :id="id"
         ref="inputRef"
         :type="type"
@@ -21,17 +21,16 @@
         :aria-label="ariaLabel || placeholder"
         :aria-invalid="!!error"
         :class="[
-          'w-full rounded-lg rounded-s-none border bg-input text-foreground transition-colors focus:ring-0 disabled:opacity-60 disabled:cursor-not-allowed',
+          'w-full px-2.5 py-1 rounded-lg rounded-s-none border bg-input text-foreground transition-colors focus:ring-0 disabled:opacity-60 disabled:cursor-not-allowed',
           error ? 'border-destructive' : 'focus:border-primary border-border',
           $slots.icon || icon ? 'pl-10' : 'pl-4',
           $slots.suffix ? 'pr-10' : 'pr-4',
-          'py-1'
         ]"
         :aria-describedby="error ? `${id}-error` : undefined"
         @input="(e: Event) => { $emit('update:modelValue', (e.target as HTMLInputElement).value); $emit('input', e) }"
         @focus="handleFocus"
-      @blur="$emit('blur', $event)"
-    />
+        @blur="$emit('blur', $event)"
+      >
     </div>
 
     <div

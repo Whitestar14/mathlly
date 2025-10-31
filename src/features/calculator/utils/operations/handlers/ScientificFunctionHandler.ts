@@ -1,3 +1,4 @@
+import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory'
 import { CalculatorUtils } from '../../constants/CalculatorUtils'
 import { ParenthesesTracker } from '../../core/ParenthesesTracker'
 import { PowerOperationHandler } from './PowerOperationHandler'
@@ -28,7 +29,7 @@ export class ScientificFunctionHandler {
   /**
    * Handle scientific function operations
    */
-  handle(func: string): Record<string, any> {
+  handle(func: string): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       
@@ -89,7 +90,7 @@ export class ScientificFunctionHandler {
   /**
    * Handle square operation (x²) - kept in main handler as it's frequently used
    */
-  private handleSquareOperation(): Record<string, any> {
+  private handleSquareOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       
@@ -133,7 +134,7 @@ export class ScientificFunctionHandler {
     /**
    * Handle standard functions that need parentheses (sin, cos, log, etc.)
    */
-  private handleStandardFunction(funcName: string, currentInput: string): Record<string, any> {
+  private handleStandardFunction(funcName: string, currentInput: string): CalculatorResult {
     if (currentInput === '0' || currentInput === 'Error') {
       this.calculator.input = `${funcName}(`;
       this.parenthesesTracker.open(funcName.length);
@@ -154,7 +155,7 @@ export class ScientificFunctionHandler {
     return this.createResponse();
   }
 
-  private createResponse(input?: string, error: string = ""): Record<string, any> {
+  private createResponse(input?: string, error: string = ""): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: input || this.calculator.input,
       error: error

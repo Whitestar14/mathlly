@@ -34,27 +34,18 @@
     </template>
   </Suspense>
 </template>
+
 <script setup lang="ts">
 import {
+  inject,
   computed,
   defineAsyncComponent,
-  defineEmits,
-  defineProps,
-  inject,
 } from 'vue';
 import { useVibrate } from '@vueuse/core';
 import type { BitWidth } from '@calculator/utils/core/BitManipulation';
-import type { Base } from '@calculator/composables/useCalculatorState'; // Assuming Base is one of your imported types
+import type { Base, CalculatorMode } from '@calculator/composables/useCalculatorState';
 
-type CalculatorMode = 'Standard' | 'Scientific' | 'Programmer';
-
-interface CalculatorOptions {
-    hapticEnabled: {
-        value: boolean;
-    };
-}
-
-interface CalculatorButtonsProps {
+interface Props {
     mode: CalculatorMode;
     activeBase: Base;
     inputLength: number;
@@ -64,7 +55,7 @@ interface CalculatorButtonsProps {
     currentBitWidth?: BitWidth;
 }
 
-const props = withDefaults(defineProps<CalculatorButtonsProps>(), {
+const props = withDefaults(defineProps<Props>(), {
     maxLength: 50,
     hasMemory: false,
     currentValue: 0,
@@ -73,15 +64,14 @@ const props = withDefaults(defineProps<CalculatorButtonsProps>(), {
 
 const emit = defineEmits<{
     (e: 'button-click', value: string): void;
-    (e: 'clear'): void; // Added from your original logic, if needed
     (e: 'base-change', base: Base): void;
     (e: 'bit-toggle', bitPosition: number): void;
     (e: 'bit-width-change', width: BitWidth): void;
 }>();
 
-const options = inject('calculatorOptions') as CalculatorOptions; 
+const options: Record<string, any> = inject('calculatorOptions') ?? {}; 
 
-const { vibrate } = useVibrate({ pattern: 50 });
+const { vibrate } = useVibrate({ pattern: 100 });
 
 const StandardMode = defineAsyncComponent(() => import('./modes/StandardMode.vue'));
 const ScientificMode = defineAsyncComponent(() => import('./modes/ScientificMode.vue'));
@@ -102,7 +92,7 @@ const modeComponent = computed(() => {
 
 
 const handleButtonClick = (value: string): void => {
-    if (options?.hapticEnabled?.value) {
+    if (options.hapticFeedback.value) {
         vibrate();
     }
     emit('button-click', value);

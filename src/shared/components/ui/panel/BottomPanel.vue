@@ -15,7 +15,7 @@
         v-tippy="{ content: isExpanded ? 'Minimize Panel' : 'Expand Panel' }"
         variant="ghost"
         size="icon"
-        class="absolute right-14 top-3.5 p-1.5 rounded-full"
+        class="absolute right-14 top-3 p-1.5 rounded-full"
         aria-label="Toggle panel expansion"
         @click="$emit('toggle')"
       >

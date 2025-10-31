@@ -34,7 +34,10 @@
                   >
                     {{ crumb.label }}
                   </RouterLink>
-                  <span v-else class="text-foreground font-medium">
+                  <span
+                    v-else
+                    class="text-foreground font-medium"
+                  >
                     {{ crumb.label }}
                   </span>
                   <span
@@ -72,7 +75,7 @@
 <script setup lang="ts">
 import { computed, type ComputedRef } from 'vue'
 import { useRouter, type Router, RouterLink } from 'vue-router'
-import { Slash, ChevronLeftIcon } from 'lucide-vue-next'
+import { ChevronLeftIcon } from 'lucide-vue-next'
 import { useTitle } from '@composables/utils/useTitle'
 import { BaseButton } from '@components/ui'
 

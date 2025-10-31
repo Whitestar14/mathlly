@@ -31,6 +31,6 @@ import { useColorTemperature } from '@color/composables/useColorTemperature'
 import type { RGB } from '@color/lib/color'
 import { BaseButton } from '@components/ui'
 
-const props = defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void, autoApply: boolean }>()
+const props = defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void }>()
 const { makeWarmer, makeCooler } = useColorTemperature(props.updateColor)
 </script>

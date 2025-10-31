@@ -53,7 +53,7 @@
           <div
             class="absolute inset-0 h-1.5 rounded-full"
             style="background: linear-gradient(to right, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%));"
-          ></div>
+          />
           <SliderRoot
             v-model="hueSliderValue"
             class="relative flex items-center w-full"

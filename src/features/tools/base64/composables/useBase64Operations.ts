@@ -23,7 +23,7 @@ export function useBase64Operations(input: Ref<string>, options: Ref<Base64Optio
   const isValidBase64 = (raw: string): boolean => {
     if (!raw.trim()) return true
     try {
-      let s = raw.replace(/\s/g, "").replace(/-/g, "+").replace(/_/g, "/")
+      const s = raw.replace(/\s/g, "").replace(/-/g, "+").replace(/_/g, "/")
       if (options.value.outputFormat !== "url-safe" && s.length % 4 !== 0) return false
       atob(s)
       return true

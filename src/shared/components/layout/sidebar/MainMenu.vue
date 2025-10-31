@@ -9,9 +9,15 @@
     <!-- Content -->
     <div class="flex-1 overflow-hidden flex flex-col h-full">
       <!-- Show tool options or main menu -->
-      <div v-if="showToolOptions" class="flex-1 overflow-auto">
+      <div
+        v-if="showToolOptions"
+        class="flex-1 overflow-auto"
+      >
         <!-- Options loading state -->
-        <div v-if="isLoadingOptions" class="p-3 space-y-4">
+        <div
+          v-if="isLoadingOptions"
+          class="p-3 space-y-4"
+        >
           <div class="flex items-center gap-3 pb-2 border-b border-border">
             <div class="w-8 h-8 bg-muted animate-pulse rounded-md" />
             <div class="h-4 w-16 bg-muted animate-pulse rounded" />
@@ -61,7 +67,10 @@
       </div>
 
       <!-- Main menu -->
-      <div v-else class="flex-1 flex flex-col overflow-hidden">
+      <div
+        v-else
+        class="flex-1 flex flex-col overflow-hidden"
+      >
         <!-- Top section with options button -->
         <div
           v-if="hasToolOptions || isCheckingOptions"
@@ -77,7 +86,10 @@
               v-if="isCheckingOptions"
               class="h-4 w-4 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent"
             />
-            <Settings v-else class="h-4 w-4" />
+            <Settings
+              v-else
+              class="h-4 w-4"
+            />
             <span class="text-sm font-medium">Tool Options</span>
           </BaseButton>
         </div>
@@ -145,11 +157,9 @@
             <span class="flex flex-row justify-center items-center">
               <span>Themes</span>
 
-              <div class="mx-1 h-[10px] md:hidden w-px bg-border/60 transition-colors duration-200 hover:bg-border/80"></div>
+              <div class="mx-1 h-[10px] md:hidden w-px bg-border/60 transition-colors duration-200 hover:bg-border/80" />
 
-              <span class="text-xs text-foreground/40 md:hidden"
-                >{{ selectedThemePack }}-{{ schemeLabel }}</span
-              >
+              <span class="text-xs text-foreground/40 md:hidden">{{ selectedThemePack }}-{{ schemeLabel }}</span>
             </span>
 
             <span
@@ -162,12 +172,19 @@
           </BaseButton>
 
           <BaseModal v-model:open="showThemeModal">
-            <template #title>Theme Settings</template>
+            <template #title>
+              Theme Settings
+            </template>
 
             <!-- Modal sections -->
             <section class="space-y-3">
-              <h4 class="text-sm font-semibold text-foreground">Theme Mode</h4>
-              <SelectBar v-model="selectedTheme" :options="themeOptions" />
+              <h4 class="text-sm font-semibold text-foreground">
+                Theme Mode
+              </h4>
+              <SelectBar
+                v-model="selectedTheme"
+                :options="themeOptions"
+              />
               <p class="text-xs text-muted-foreground">
                 System mode follows your device preference automatically.
               </p>
@@ -176,10 +193,12 @@
             <div class="border-t border-border/60 mt-4 pt-4" />
 
             <section class="space-y-3">
-              <h4 class="text-sm font-semibold text-foreground">Theme Pack</h4>
-            <KeepAlive>
-              <ThemePackSelector v-model="selectedThemePack" />
-            </KeepAlive>
+              <h4 class="text-sm font-semibold text-foreground">
+                Theme Pack
+              </h4>
+              <KeepAlive>
+                <ThemePackSelector v-model="selectedThemePack" />
+              </KeepAlive>
               <p class="text-xs text-muted-foreground">
                 Theme packs change the personality of the interface.
               </p>

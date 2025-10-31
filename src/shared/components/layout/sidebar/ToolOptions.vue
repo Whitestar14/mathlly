@@ -365,14 +365,9 @@ input[type='color'] {
   cursor: pointer;
 }
 
+input[type='color']::-moz-color-swatch,
 input[type='color']::-webkit-color-swatch {
-  border-radius: 6px;
-  border: 1px solid hsl(var(--border));
-}
-
-input[type='color']::-moz-color-swatch {
-  border-radius: 6px;
-  border: 1px solid hsl(var(--border));
+  @apply rounded-md border-border border;
 }
 
 input[type='number']::-webkit-outer-spin-button,

@@ -26,7 +26,6 @@ export function initializeCalculatorModeSwitcher(initialMode?: CalculatorMode) {
   // Get calculator options for default mode
   const calculatorOptions = useCalculatorOptions();
 
-  // Use provided initial mode, or fallback to persisted mode, or use default from options
   const modeToUse =
     calculatorOptions.options.value.defaultMode ||
     initialMode ||

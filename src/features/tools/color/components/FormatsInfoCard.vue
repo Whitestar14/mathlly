@@ -14,7 +14,7 @@
           variant="outline"
           @click="copy(formats.hex, 'HEX')"
         >
-          <Copy class="h-5 w-5" />
+          <Copy class="size-4" />
         </BaseButton>
       </div>
     </div>
@@ -32,7 +32,7 @@
           variant="outline"
           @click="copy(rgbaText, 'RGBA')"
         >
-          <Copy class="h-5 w-5" />
+          <Copy class="size-4" />
         </BaseButton>
       </div>
     </div>
@@ -50,7 +50,7 @@
           variant="outline"
           @click="copy(`hsl(${Math.round(formats.hsl.h)}, ${Math.round(formats.hsl.s)}%, ${Math.round(formats.hsl.l)}%)`, 'HSL')"
         >
-          <Copy class="h-5 w-5" />
+          <Copy class="size-4" />
         </BaseButton>
       </div>
     </div>
@@ -68,7 +68,7 @@
           variant="outline"
           @click="copy(`oklch(${(formats.oklch.l / 100).toFixed(3)} ${(formats.oklch.c / 100).toFixed(3)} ${Math.round(formats.oklch.h)})`, 'OKLCH')"
         >
-          <Copy class="h-5 w-5" />
+          <Copy class="size-4" />
         </BaseButton>
       </div>
     </div>

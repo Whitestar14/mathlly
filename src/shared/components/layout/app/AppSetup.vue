@@ -13,23 +13,31 @@
 
     <PanelLoader
       :component="SidebarMenu"
-      :componentProps="{ isMobile: device.isMobile, onSidebarClose: sidebarPanel.close }"
+      :component-props="{ isMobile: device.isMobile, onSidebarClose: sidebarPanel.close }"
       side="left"
-      :isOpen="unref(sidebarPanel.isOpen)"
-      :widthRem="16"
+      :is-open="unref(sidebarPanel.isOpen)"
+      :width-rem="16"
     />
 
     <RouterView v-slot="{ Component }">
-        <Transition name="fade" mode="out-in">
-            <component 
-              :is="Component"
-              :settings="settings"
-              :is-mobile="device.isMobile"
-              />
-            </Transition>
-      </RouterView>
+      <Transition
+        name="fade"
+        mode="out-in"
+      >
+        <component 
+          :is="Component"
+          :settings="settings"
+          :is-mobile="device.isMobile"
+        />
+      </Transition>
+    </RouterView>
 
-    <PanelLoader :component="MainMenu" side="right" :isOpen="unref(menuPanel.isOpen)" :widthRem="16" />
+    <PanelLoader
+      :component="MainMenu"
+      side="right"
+      :is-open="unref(menuPanel.isOpen)"
+      :width-rem="16"
+    />
 
     <Toast :is-mobile="device.isMobile" />
     <ShortcutGuide v-model:show="isShortcutModalOpen" />
@@ -37,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, shallowRef, defineAsyncComponent, unref, ref } from 'vue'
+import { onMounted, onUnmounted, computed, shallowRef, defineAsyncComponent, unref } from 'vue'
 import { useDeviceStore } from '@stores/device'
 import { useKeyboardStore } from '@stores/keyboard'
 import { useSettingsStore } from '@stores/settings'
@@ -74,7 +82,7 @@ onMounted(() => {
     'Ctrl+L': () => sidebarPanel.toggle(),
     'Ctrl+M': () => menuPanel.toggle(),
     'Ctrl+Space': () => openShortcutModal(),
-    'Ctrl+Shift+M': () => toggleTheme(),
+    'Ctrl+Shift+M': () => {toggleTheme(); console.log("Triggered from the command")},
   })
   keyboard.pushContext('global')
 })

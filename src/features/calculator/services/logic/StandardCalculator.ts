@@ -2,6 +2,7 @@ import { ICalculator } from "@calculator/utils/core/ICalculator.ts";
 import { StandardOperations } from "@calculator/utils/operations/StandardOperations.ts";
 import { StandardCalculations } from "@calculator/utils/calculations/StandardCalculations.ts";
 import { CalculatorConstants } from "@calculator/utils/constants/CalculatorConstants.ts";
+import { CalculatorResult } from "../factory/CalculatorFactory";
 
 /**
  * Calculator implementation for standard mode
@@ -48,7 +49,7 @@ export class StandardCalculator extends ICalculator {
    * Handle equals operation
    * @returns {Object} Calculation result
    */
-  handleEquals(): Record<string, any> {
+  handleEquals(): CalculatorResult {
     try {
       this.currentExpression = this.input;
       const result = this.evaluateExpression(this.currentExpression);
@@ -66,7 +67,7 @@ export class StandardCalculator extends ICalculator {
   /**
    * Handle clear operation
    */
-  handleClear(): Record<string, any> {
+  handleClear(): CalculatorResult {
     super.handleClear();
     return {
       input: this.input,
@@ -80,7 +81,7 @@ export class StandardCalculator extends ICalculator {
    * @param {string} btn - Button value
    * @returns {Object} Updated state
    */
-  processButton(btn: string): Record<string, any> {
+  processButton(btn: string): CalculatorResult {
     try {
       this.error = '';
 
@@ -134,7 +135,7 @@ export class StandardCalculator extends ICalculator {
    * @param {string} btn - Button value
    * @returns {Object} Updated state
    */
-  handleButtonClick(btn: string): Record<string, any> {
+  handleButtonClick(btn: string): CalculatorResult {
     if (CalculatorConstants.BUTTON_TYPES.MEMORY.includes(btn as any)) {
       return super.handleButtonClick(btn);
     }

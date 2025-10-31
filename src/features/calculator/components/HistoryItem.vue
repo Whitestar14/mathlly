@@ -13,8 +13,16 @@
           <div class="text-sm text-secondary-foreground/75 break-all">
             {{ item.expression }}
           </div>
-          <div class="text-lg font-medium text-secondary-foreground/80 break-all">
-            {{ item.result }}
+          <div class="flex items-center justify-between gap-2">
+            <div
+              class="text-lg font-medium text-secondary-foreground/80 break-all"
+            >
+              {{ item.result }}
+            </div>
+            <kbd
+              class="text-xs rounded-sm text-accent/75 bg-accent/10"
+              v-if="item.mode === 'Programmer' && item.base"
+            >{{ item.base }}</kbd>
           </div>
 
           <BaseButton
@@ -40,7 +48,7 @@
 
       <ContextMenuItem
         class="context-menu-item"
-        @click="$emit('copy', item)"
+        @click="$emit('copy', copyText)"
       >
         <CopyIcon class="mr-2 h-4 w-4" />
         <span>Copy Item</span>
@@ -68,6 +76,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { TrashIcon, CheckIcon, CopyIcon, CodeIcon } from "lucide-vue-next";
 import {
   ContextMenuItem,
@@ -80,6 +89,9 @@ interface HistoryItem {
   expression: string;
   result: string;
   timestamp?: number;
+  mode?: string;
+  base?: string;
+  baseValues?: Record<string, string>;
 }
 
 interface Props {
@@ -88,11 +100,18 @@ interface Props {
   selectedItemId?: number | null;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   isMobile: false,
   selectedItemId: null,
 });
 defineEmits(['select', 'delete', 'copy', 'copy-json']);
+
+const copyText = computed(() => {
+  if (props.item.mode === 'Programmer' && props.item.base) {
+    return `${props.item.expression} = ${props.item.result} (${props.item.base})`
+  }
+  return `${props.item.expression} = ${props.item.result}`
+})
 </script>
 
 <style>

@@ -15,3 +15,23 @@ export type ColorFormats = {
   oklch: OKLCH
   lab: LAB
 }
+
+export function isRGBA(x: any): x is RGBA {
+  return 'r' in x && 'g' in x && 'b' in x && 'a' in x
+}
+export function isRGB(x: any): x is RGB {
+  return 'r' in x && 'g' in x && 'b' in x && !('a' in x)
+}
+export function isHSL(x: any): x is HSL {
+  return 'h' in x && 's' in x && 'l' in x
+}
+export function isHSV(x: any): x is HSV {
+  return 'h' in x && 's' in x && 'v' in x
+}
+export function isOKLCH(x: any): x is OKLCH {
+  return 'l' in x && 'c' in x && 'h' in x
+}
+export function isLAB(x: any): x is LAB {
+  return 'l' in x && 'a' in x && 'b' in x && !('c' in x)
+}
+

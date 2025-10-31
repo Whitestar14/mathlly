@@ -14,7 +14,6 @@
 
 /* Utilities */
 @import './utilities/patterns.css';
-@import './utilities/scrollbar.css';
 @import './utilities/zindex.css';
 @import './utilities/focus.css';
 
@@ -26,15 +25,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-html, body, #app {
-	overscroll-behavior-y: contain;
-	overscroll-behavior-x: contain;
-	-webkit-overflow-scrolling: touch;
-}
-
-.overflow-y-auto,
-.overflow-auto,
-.scrollable {
-	-webkit-overflow-scrolling: touch;
-}

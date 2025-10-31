@@ -83,7 +83,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['button-click', 'clear']);
+const emit = defineEmits(['button-click']);
 
 const isMaxLengthReached = computed(() => 
   props.inputLength >= props.maxLength
@@ -111,10 +111,6 @@ const shouldDisableButton = (value, variant, checkMaxLength = false) => {
 };
 
 const handleClick = (value) => {
-  if (value === 'C') {
-    emit('clear');
-  } else {
     emit('button-click', value);
-  }
 };
 </script>

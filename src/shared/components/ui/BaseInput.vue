@@ -33,7 +33,7 @@
         'py-2'
       ]"
       v-bind="$attrs"
-      @input="$emit('update:modelValue', $event.target.value as Event)"
+      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       @blur="$emit('blur', $event)"
       @focus="handleFocus"
     >

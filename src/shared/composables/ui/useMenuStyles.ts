@@ -9,10 +9,10 @@ export function useMenuStyles(currentPill: ComputedRef<string>) {
     const baseClasses = "w-full flex items-center gap-2.5 px-3 py-1.5 text-sm rounded-md transition-colors duration-200";
     
     if (currentPill.value === item.path) {
-      return `${baseClasses} bg-muted/70 hover:bg-muted text-primary font-medium`;
+      return `${baseClasses} bg-secondary/70 hover:bg-muted text-primary font-medium`;
     }
     
-    let classes = `${baseClasses} text-muted-foreground hover:bg-muted/70 hover:text-muted-foreground`;
+    let classes = `${baseClasses} text-muted-foreground hover:bg-secondary/70  hover:text-muted-foreground`;
     
     if (item.comingSoon) {
       classes += ' opacity-50 disabled:hover:!bg-inherit disabled:hover:text-muted-foreground';

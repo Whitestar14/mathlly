@@ -1,9 +1,6 @@
-   @layer base {
-    :root {
+@layer base {
+  :root {
     @apply font-sans font-normal;
-    /* Border radius variable - default to rounded */
-    --radius: 0.5rem;
-    /* Classic Theme - Gray + Indigo color palette - Light Mode (OKLCH) */
     --color-background: 100% 0 0;
     --color-foreground: 15% 0.004 285.82;
     --color-card: 100% 0 0;
@@ -16,7 +13,7 @@
     --color-secondary-foreground: 15% 0.004 285.82;
     --color-muted: 95.9% 0.004 285.82;
     --color-muted-foreground: 52.1% 0.004 285.82;
-    --color-accent: 0.530 0.267 279;
+    --color-accent: 0.53 0.267 279;
     --color-accent-foreground: 20% 0.01 270;
     --color-destructive: 62.8% 0.257 29.23;
     --color-destructive-foreground: 98% 0 0;
@@ -29,10 +26,26 @@
 
     --color-panel: 0.985 0.002 247.839;
 
-    --logo-bg-fill: 100% 0 0; 
+    --logo-bg-fill: 100% 0 0;
     --logo-stroke-stop-color: 65% 0.5 270;
     --logo-fg-stop-color: 65% 0.5 270;
     --color-highlight: 65% 0.5 270;
+    --syntax-tag: 0.55 0.18 275;
+    --syntax-func: 0.6 0.2 275;
+    --syntax-string: 0.65 0.18 150;
+    --syntax-regexp: 0.6 0.18 40;
+    --syntax-markup: 0.55 0.18 275;
+    --syntax-keyword: 0.5 0.22 280;
+    --syntax-special: 0.65 0.15 275;
+    --syntax-comment: 0.65 0.05 280;
+    --syntax-constant: 0.6 0.18 250;
+    --syntax-operator: 0.55 0.18 275;
+    --syntax-paren-0: 0.55 0.18 275;
+    --syntax-paren-1: 0.6 0.18 150;
+    --syntax-paren-2: 0.5 0.22 280;
+    --syntax-paren-3: 0.6 0.18 40;
+    --syntax-paren-4: 0.65 0.2 330;
+    --syntax-paren-5: 0.55 0.18 200;
   }
   .dark {
     --color-background: 0.278 0.033 256.848;
@@ -60,22 +73,39 @@
 
     --color-panel: 0.21 0.034 264.665;
 
-    --logo-bg-fill: 0.278 0.033 256.848; 
+    --logo-bg-fill: 0.278 0.033 256.848;
     --logo-stroke-stop-color: 92% 0 0;
     --logo-fg-stop-color: 92% 0 0;
     --color-highlight: 0.573 0.124 109;
+    --syntax-tag: 0.7 0.15 275;
+    --syntax-func: 0.72 0.18 275;
+    --syntax-string: 0.68 0.16 150;
+    --syntax-regexp: 0.7 0.16 40;
+    --syntax-markup: 0.7 0.15 275;
+    --syntax-keyword: 0.65 0.2 280;
+    --syntax-special: 0.75 0.12 275;
+    --syntax-comment: 0.55 0.05 280;
+    --syntax-constant: 0.7 0.16 250;
+    --syntax-operator: 0.68 0.15 275;
+
+    --syntax-paren-0: 0.7 0.15 275;
+    --syntax-paren-1: 0.68 0.16 150;
+    --syntax-paren-2: 0.65 0.2 280;
+    --syntax-paren-3: 0.7 0.16 40;
+    --syntax-paren-4: 0.72 0.18 330;
+    --syntax-paren-5: 0.68 0.16 200;
   }
 
-  [data-theme-pack="classic"]::selection {
-  background-color: oklch(var(--color-highlight) / 0.15);
-}
-[data-theme-pack="classic"]::-moz-selection {
-  background-color: oklch(var(--color-highlight) / 0.15);
-}
-[data-theme-pack="classic"].dark::selection {
-  background-color: oklch(var(--color-highlight) / 0.3);
-}
-[data-theme-pack="classic"].dark::-moz-selection {
-  background-color: oklch(var(--color-highlight) / 0.3);
-}
+  [data-theme-pack='orion']::selection {
+    background-color: oklch(var(--color-highlight) / 0.15);
+  }
+  [data-theme-pack='orion']::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.15);
+  }
+  [data-theme-pack='orion'].dark::selection {
+    background-color: oklch(var(--color-highlight) / 0.3);
+  }
+  [data-theme-pack='orion'].dark::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.3);
+  }
 }

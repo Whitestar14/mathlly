@@ -224,7 +224,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['button-click', 'clear']);
+const emit = defineEmits(['button-click']);
 
 // Inject calculator options from parent
 const options = inject('calculatorOptions');
@@ -283,10 +283,6 @@ const currentTrigFunctions = computed(() => {
 });
 
 const handleClick = (value) => {
-  if (value === 'C') {
-    emit('clear');
-    return;
-  }
   emit('button-click', value);
 };
 

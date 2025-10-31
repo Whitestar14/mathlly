@@ -1,11 +1,10 @@
-@import '../themes/classic.css';
+@import '../themes/orion.css';
 @import '../themes/ayu.css';
 @import '../themes/mira.css';
+@import '../themes/siena.css';
+@import '../themes/monaco.css';
 
 @layer base {
-  .border-style-sharp   { --radius: 0px; }
-  .border-style-rounded { --radius: 0.5rem; }
-
   * {
     scrollbar-width: thin;
     scrollbar-color: oklch(var(--color-muted)) transparent;
@@ -15,4 +14,9 @@
   width: 8px;
   background-color: transparent; 
 }
+}
+
+@layer components {
+  .border-style-sharp   { --radius: 0px; }
+  .border-style-rounded { --radius: 0.5rem; }
 }

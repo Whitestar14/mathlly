@@ -34,4 +34,4 @@ export function isValidRGBA(color: any): color is RGBA {
     typeof color.b === 'number' && color.b >= 0 && color.b <= 255 &&
     (color.a === undefined || (typeof color.a === 'number' && color.a >= 0 && color.a <= 1))
   );
-};
+}

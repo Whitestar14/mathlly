@@ -14,7 +14,9 @@
           <Sparkles class="size-4 text-primary" />
         </div>
         <div>
-          <h2 class="text-lg font-semibold text-foreground">Welcome to Prism</h2>
+          <h2 class="text-lg font-semibold text-foreground">
+            Welcome to Prism
+          </h2>
           <p class="text-sm text-muted-foreground">
             Your all-in-one dev toolkit (Beta)
           </p>
@@ -35,7 +37,9 @@
       <div class="flex items-start gap-3 p-4 rounded-lg bg-accent/10 dark:bg-accent/20 border border-accent/30 mb-6">
         <AlertTriangle class="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
         <div>
-          <h3 class="text-sm font-semibold text-accent">Beta Software Notice</h3>
+          <h3 class="text-sm font-semibold text-accent">
+            Beta Software Notice
+          </h3>
           <p class="text-sm text-accent/80 mt-1">
             Prism is currently in beta and data structure may change frequently as we improve the app (sorry!).
             therefore settings and history might be lost during updates. We recommend exporting important data regularly.
@@ -96,10 +100,13 @@
             v-model="dontShowAgain"
             type="checkbox"
             class="h-4 w-4 rounded border-border accent-checkbox focus:ring-2 focus:ring-primary/20 bg-background"
-          />
+          >
           <span class="text-sm text-muted-foreground">Don't show again</span>
         </label>
-        <BaseButton variant="primary" @click="handleGetStarted">
+        <BaseButton
+          variant="primary"
+          @click="handleGetStarted"
+        >
           Explore Tools
           <ArrowRight class="h-4 w-4" />
         </BaseButton>

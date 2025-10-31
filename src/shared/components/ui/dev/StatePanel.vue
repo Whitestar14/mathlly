@@ -8,7 +8,6 @@
           <BaseBadge
             :variant="Object.keys(stores).length > 0 ? 'success' : 'info'"
             :text="`${Object.keys(stores).length} stores`"
-            size="xs"
           />
           <BaseButton
             variant="ghost"
@@ -55,7 +54,6 @@
               <BaseBadge
                 variant="info"
                 :text="`${getStorePropertyCount(store)} props`"
-                size="xs"
               />
             </div>
             
@@ -127,7 +125,6 @@
                       <BaseBadge
                         variant="info"
                         :text="getValueType(value)"
-                        size="xs"
                       />
                     </div>
                     <div class="text-xs text-muted-foreground dark:text-muted-foreground font-mono break-all">

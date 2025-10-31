@@ -19,7 +19,7 @@
       </div>
 
       <div class="flex-grow flex justify-center sm:justify-end items-center">
-        <div class="w-full sm:w-auto flex justify-end items-center space-x-4">
+        <div class="w-full md:min-w-64 rounded-md sm:w-auto flex justify-end items-center space-x-4">
           <Suspense>
             <HeaderDock />
           </Suspense>
@@ -75,7 +75,7 @@ interface Emits {
   (e: 'open-shortcut-modal'): void;
 }
 
-const HeaderDock = defineAsyncComponent(() => import('./HeaderDock.vue'))
 defineProps<Props>();
 defineEmits<Emits>();
+const HeaderDock = defineAsyncComponent(() => import('./HeaderDock.vue'))
 </script>

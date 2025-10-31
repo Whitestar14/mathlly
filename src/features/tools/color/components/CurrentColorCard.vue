@@ -3,36 +3,45 @@
   <BaseCard title="Current color">
     <template #header>
       <div class="flex items-center gap-2">
-        
         <BaseButton 
+          v-tippy="{ content: 'Undo (Ctrl+Z)' }" 
           variant="outline" 
-          size="icon" 
+          size="icon"
           :disabled="!canUndo"
           aria-label="Undo last color change"
-          v-tippy="{ content: 'Undo (Ctrl+Z)' }"
           @click="props.onUndo"
         >
           <Undo class="h-4 w-4" />
         </BaseButton>
      
         <BaseButton
-        variant="outline"
-        size="icon"
-        :disabled="!canAddToPalette || colorExistsInPalette"
-        aria-label="Add to palette"
-        v-tippy="tooltipText"
-        @click="props.onAddToPalette"
+          v-tippy="tooltipText"
+          variant="outline"
+          size="icon"
+          :disabled="!canAddToPalette || colorExistsInPalette"
+          aria-label="Add to palette"
+          @click="props.onAddToPalette"
         >
-        <Plus class="h-4 w-4" />
-      </BaseButton>
+          <Plus class="h-4 w-4" />
+        </BaseButton>
 
-      <BaseButton variant="outline" size="icon" aria-label="Open adjustments" @click="openAdjustments" v-tippy="{ content: 'Open Adjustment Panel' }">
-        <Settings2 class="h-4 w-4" />
-      </BaseButton>
+        <BaseButton
+          v-tippy="{ content: 'Open Adjustment Panel' }"
+          variant="outline"
+          size="icon"
+          aria-label="Open adjustments"
+          @click="openAdjustments"
+        >
+          <Settings2 class="h-4 w-4" />
+        </BaseButton>
 
-      <BaseButton variant="ghost" size="sm" @click="genRandomColor">
-        <Shuffle class="h-4 w-4" /> <span class="hidden md:inline">Random</span>
-      </BaseButton>
+        <BaseButton
+          variant="ghost"
+          size="sm"
+          @click="genRandomColor"
+        >
+          <Shuffle class="h-4 w-4" /> <span class="hidden md:inline">Random</span>
+        </BaseButton>
       </div>
     </template>
 
@@ -53,7 +62,10 @@
           }"
         />
         <!-- Semi-transparent color overlay -->
-        <div class="absolute inset-0" :style="{ backgroundColor: rgbaText }" />
+        <div
+          class="absolute inset-0"
+          :style="{ backgroundColor: rgbaText }"
+        />
         <!-- Content overlay -->
         <div class="absolute inset-0 flex flex-col items-center justify-center text-secondary bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
           <Copy class="h-6 w-6 mb-1" />
@@ -79,22 +91,34 @@
         <!-- RGBA sliders -->
         <div class="space-y-4">
           <div class="flex items-center justify-between mb-2">
-            <BaseLabel class="text-sm font-medium">RGB Sliders</BaseLabel>
+            <BaseLabel class="text-sm font-medium">
+              RGB Sliders
+            </BaseLabel>
             <BaseButton
+              v-tippy="isAllBlack ? 'Cannot lock when color is black' : 'Lock RGB sliders to adjust proportionally'"
               variant="ghost"
               size="icon"
               :aria-label="isRgbLocked ? 'Unlock RGB sliders' : 'Lock RGB sliders'"
               :disabled="isAllBlack"
-              v-tippy="isAllBlack ? 'Cannot lock when color is black' : 'Lock RGB sliders to adjust proportionally'"
-              @click="isRgbLocked = !isRgbLocked"
               :class="{ 'text-foreground/90': isRgbLocked }"
+              @click="isRgbLocked = !isRgbLocked"
             >
-              <Lock v-if="isRgbLocked" class="h-4 w-4" />
-              <Unlock v-else class="h-4 w-4" />
+              <Lock
+                v-if="isRgbLocked"
+                class="h-4 w-4"
+              />
+              <Unlock
+                v-else
+                class="h-4 w-4"
+              />
             </BaseButton>
           </div>
 
-          <div v-for="k in rgbaKeys" :key="k" class="space-y-2">
+          <div
+            v-for="k in rgbaKeys"
+            :key="k"
+            class="space-y-2"
+          >
             <BaseLabel>{{ labelMap[k] }}: {{ displayValue(k) }}</BaseLabel>
             <BaseSlider
               :model-value="[getValue(k)]"
@@ -129,8 +153,15 @@
       </div>
     </div>
 
-    <BaseAccordion :multiple="false" :collapsible="true">
-      <AccordionItem id="formats" title="Formats & Info">
+    <BaseAccordion
+      default-value="format"
+      :multiple="false"
+      :collapsible="true"
+    >
+      <AccordionItem
+        id="formats"
+        title="Formats & Info"
+      >
         <FormatsInfoCard :formats="localFormats" />
       </AccordionItem>
     </BaseAccordion>

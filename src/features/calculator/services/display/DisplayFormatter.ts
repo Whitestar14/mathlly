@@ -1,21 +1,16 @@
 import { CacheManager } from '@utils/cache/CacheManager'
-import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptions'
 
 // Define interfaces for formatting options
 interface FormattingOptions {
   base?: string
   mode?: string
   useThousandsSeparator?: boolean
-  formatBinary?: boolean
-  formatHexadecimal?: boolean
-  formatOctal?: boolean
+  formatProgrammerNumbers?: boolean
 }
 
 interface ProgrammerFormattingOptions {
   useThousandsSeparator: boolean
-  formatBinary: boolean
-  formatHexadecimal: boolean
-  formatOctal: boolean
+  formatProgrammerNumbers: boolean
 }
 
 /**
@@ -28,9 +23,6 @@ export function useDisplayFormatter() {
     DISPLAY: 'display-preview',
     CONTENT: 'display-content'
   } as const
-
-  // Get calculator options
-  const calculatorOptions = useCalculatorOptions()
 
   /**
    * Format a value based on calculator mode and options
@@ -53,19 +45,15 @@ export function useDisplayFormatter() {
     const {
       base = "DEC",
       mode = "Standard",
-      useThousandsSeparator = calculatorOptions.useThousandsSeparator.value,
-      formatBinary = calculatorOptions.formatBinary.value,
-      formatHexadecimal = calculatorOptions.formatHexadecimal.value,
-      formatOctal = calculatorOptions.formatOctal.value,
+      useThousandsSeparator = true,
+      formatProgrammerNumbers = false,
     } = options
 
     let result: string
     if (mode === "Programmer") {
       result = formatProgrammer(value, base, {
         useThousandsSeparator,
-        formatBinary,
-        formatHexadecimal,
-        formatOctal,
+        formatProgrammerNumbers,
       })
     } else {
       result = formatStandard(value, useThousandsSeparator)
@@ -84,13 +72,11 @@ export function useDisplayFormatter() {
     const {
       base = "DEC",
       mode = "Standard",
-      useThousandsSeparator = calculatorOptions.useThousandsSeparator.value,
-      formatBinary = calculatorOptions.formatBinary.value,
-      formatHexadecimal = calculatorOptions.formatHexadecimal.value,
-      formatOctal = calculatorOptions.formatOctal.value,
+      useThousandsSeparator = true,
+      formatProgrammerNumbers = false,
     } = options
 
-    return `${value}-${base}-${mode}-${useThousandsSeparator}-${formatBinary}-${formatHexadecimal}-${formatOctal}`
+    return `${value}-${base}-${mode}-${useThousandsSeparator}-${formatProgrammerNumbers}`
   }
 
   /**
@@ -114,11 +100,11 @@ export function useDisplayFormatter() {
 
         switch (base) {
           case "BIN":
-            return formatBinaryNumber(part, options.formatBinary)
+            return formatBinaryNumber(part, options.formatProgrammerNumbers)
           case "HEX":
-            return formatHexNumber(part, options.formatHexadecimal)
+            return formatHexNumber(part, options.formatProgrammerNumbers)
           case "OCT":
-            return formatOctNumber(part, options.formatOctal)
+            return formatOctNumber(part, options.formatProgrammerNumbers)
           default:
             return formatDecimalNumber(part, options.useThousandsSeparator)
         }

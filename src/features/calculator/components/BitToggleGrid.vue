@@ -88,7 +88,7 @@ const onToggle = (pos: number) => {
   @apply w-full;
 }
 .bit-btn {
-  @apply min-w-0 min-h-0 px-2 py-0 text-sm md:size-6 md:px-3 md:py-6 md:text-base;
+  @apply min-w-0 flex min-h-0 px-2 py-0 text-sm md:size-6 md:px-3 md:py-6 md:text-base;
 }
 .bit-btn:disabled {
   opacity: 0.45;

@@ -201,7 +201,10 @@ const openReleaseNotes = (): void => {
               </p>
 
               <!-- Quick Feature Preview with Fade Transition -->
-              <div v-if="updateFeatures.length > 0" class="space-y-2">
+              <div
+                v-if="updateFeatures.length > 0"
+                class="space-y-2"
+              >
                 <Transition
                   enter-active-class="transition duration-150 ease-out"
                   enter-from-class="opacity-0"
@@ -210,7 +213,10 @@ const openReleaseNotes = (): void => {
                   leave-from-class="opacity-100"
                   leave-to-class="opacity-0"
                 >
-                  <div v-if="!showDetails" class="flex flex-wrap gap-1">
+                  <div
+                    v-if="!showDetails"
+                    class="flex flex-wrap gap-1"
+                  >
                     <span
                       v-for="(feature, index) in getPreviewFeatures()"
                       :key="index"
@@ -241,7 +247,10 @@ const openReleaseNotes = (): void => {
           leave-from-class="max-h-64 opacity-100"
           leave-to-class="max-h-0 opacity-0"
         >
-          <div v-if="showDetails" class="overflow-hidden">
+          <div
+            v-if="showDetails"
+            class="overflow-hidden"
+          >
             <div class="border-t border-border" />
             <div class="p-4">
               <div class="max-h-40 overflow-y-auto">
@@ -250,13 +259,25 @@ const openReleaseNotes = (): void => {
                   {{ isServiceWorkerUpdate ? 'Service Worker Updates' : `What's new in ${formatVersion(displayLatestVersion)}` }}
                 </h4>
                 <div class="space-y-2">
-                  <div v-for="(feature, index) in updateFeatures" :key="index" class="flex items-start gap-2">
+                  <div
+                    v-for="(feature, index) in updateFeatures"
+                    :key="index"
+                    class="flex items-start gap-2"
+                  >
                     <CheckIcon class="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />
                     <span class="text-xs text-muted-foreground leading-relaxed">{{ feature }}</span>
                   </div>
                 </div>
-                <div v-if="hasReleaseNotes" class="mt-4 pt-3 border-t border-border">
-                  <BaseButton variant="link" size="sm" class="text-xs p-0 h-auto" @click="openReleaseNotes">
+                <div
+                  v-if="hasReleaseNotes"
+                  class="mt-4 pt-3 border-t border-border"
+                >
+                  <BaseButton
+                    variant="link"
+                    size="sm"
+                    class="text-xs p-0 h-auto"
+                    @click="openReleaseNotes"
+                  >
                     <BookOpenIcon class="h-3 w-3" />
                     <span class="hidden sm:inline">View full release notes</span>
                     <span class="sm:hidden">Release notes</span>
@@ -271,7 +292,11 @@ const openReleaseNotes = (): void => {
         <!-- Action Bar (Update) -->
         <div class="border-t border-border bg-muted/30 p-3">
           <div class="flex gap-2 justify-end">
-            <BaseButton variant="outline" size="sm" @click="dismissUpdate">
+            <BaseButton
+              variant="outline"
+              size="sm"
+              @click="dismissUpdate"
+            >
               Later
             </BaseButton>
             <BaseButton
@@ -281,7 +306,10 @@ const openReleaseNotes = (): void => {
               :loading="isUpdating"
               @click="handleUpdate"
             >
-              <DownloadIcon v-if="!isUpdating" class="h-4 w-4" />
+              <DownloadIcon
+                v-if="!isUpdating"
+                class="h-4 w-4"
+              />
               {{ isUpdating ? 'Updating...' : isServiceWorkerUpdate ? 'Update App' : 'Update Now' }}
             </BaseButton>
           </div>
@@ -314,15 +342,23 @@ const openReleaseNotes = (): void => {
 
             <div class="flex-1 min-w-0">
               <div class="flex items-center justify-between mb-2">
-                <h3 class="text-sm font-semibold text-card-foreground">Install this app?</h3>
+                <h3 class="text-sm font-semibold text-card-foreground">
+                  Install this app?
+                </h3>
                 <div class="flex items-center gap-1 flex-shrink-0">
-                  <BaseButton variant="ghost" size="icon" @click="dismissInstall">
+                  <BaseButton
+                    variant="ghost"
+                    size="icon"
+                    @click="dismissInstall"
+                  >
                     <XIcon class="h-4 w-4" />
                   </BaseButton>
                 </div>
               </div>
 
-              <p class="text-xs text-muted-foreground leading-relaxed mb-3">Add Prism to your home screen for quick access.</p>
+              <p class="text-xs text-muted-foreground leading-relaxed mb-3">
+                Add Prism to your home screen for quick access.
+              </p>
             </div>
           </div>
         </div>
@@ -330,8 +366,20 @@ const openReleaseNotes = (): void => {
         <!-- Action Bar (Install) -->
         <div class="border-t border-border bg-muted/30 p-3">
           <div class="flex gap-2 justify-end">
-            <BaseButton variant="outline" size="sm" @click="dismissInstall">No thanks</BaseButton>
-            <BaseButton variant="primary" size="sm" @click="promptInstall">Install</BaseButton>
+            <BaseButton
+              variant="outline"
+              size="sm"
+              @click="dismissInstall"
+            >
+              No thanks
+            </BaseButton>
+            <BaseButton
+              variant="primary"
+              size="sm"
+              @click="promptInstall"
+            >
+              Install
+            </BaseButton>
           </div>
         </div>
       </div>

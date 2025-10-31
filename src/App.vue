@@ -1,11 +1,11 @@
 <template>
   <ErrorFallback
-  v-if="hasError"
-  :error="error"
-  :is-global-error="true"
+    v-if="hasError"
+    :error="error"
+    :is-global-error="true"
   />
   <Suspense v-else>
-      <AppProvider />
+    <AppProvider />
 
     <template #fallback>
       <div class="min-h-screen flex items-center justify-center">
@@ -16,14 +16,12 @@
 
   <UpdateNotification />
   <DevDock />
-  <ModalProvider />
 </template>
 
 <script setup lang="ts">
 import { shallowRef, onErrorCaptured, type ComponentPublicInstance, defineAsyncComponent } from 'vue'
 import { BaseLoader } from '@components/ui'
 import { useSettingsStore } from '@stores/settings'
-import ModalProvider from '@components/ui/modal/ModalProvider.vue'
 import { UpdateNotification } from '@components/layout'
 import { DevDock } from '@components/ui/dev'
 import ErrorFallback from '@pages/ErrorFallback.vue'

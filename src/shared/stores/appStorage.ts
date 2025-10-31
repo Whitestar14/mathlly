@@ -54,7 +54,7 @@ export const useAppStorageStore = defineStore('appStorage', () => {
 
   const BLOB_KEY = 'app:data'
   const VERSION_KEY = 'app:storage-version'
-  const STORAGE_VERSION = '0.0.0'
+  const STORAGE_VERSION = '0.0.2'
 
   // --- Private helpers
   function _loadBlob(): void {
@@ -92,18 +92,28 @@ export const useAppStorageStore = defineStore('appStorage', () => {
 
   // --- Actions
   function initialize(): void {
-    _ensureLoaded()
+    ensureStorageVersion();
+    _ensureLoaded();
   }
 
+  function get<
+    N extends StorageNamespace,
+    K extends keyof NamespaceMap[N],
+    D extends NamespaceMap[N][K]
+  >(
+    namespace: N,
+    key: K,
+    defaultValue: D
+  ): Exclude<NamespaceMap[N][K], undefined> | D
   function get<N extends StorageNamespace, K extends keyof NamespaceMap[N]>(
     namespace: N,
     key: K,
     defaultValue?: NamespaceMap[N][K]
-  ): NamespaceMap[N][K] {
+  ) {
     _ensureLoaded()
     const ns = blob.value[namespace] as NamespaceMap[N] | undefined
     const val = ns?.[key]
-    return (val !== undefined ? val : defaultValue) as NamespaceMap[N][K]
+    return (val !== undefined ? val : defaultValue)!
   }
 
   function set<N extends StorageNamespace, K extends keyof NamespaceMap[N]>(

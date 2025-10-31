@@ -2,15 +2,18 @@
   <BaseCard>
     <!-- Head: left = controls label, right = actions -->
     <template #head>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center justify-between w-full gap-3">
         <BaseLabel class="text-sm font-medium">
           Gradient generator
         </BaseLabel>
-        <span
-          class="mx-1 h-[10px] w-px bg-border/60"
-          aria-hidden="true"
+        <SegmentedControl
+          v-model="gradientType"
+          :options="[
+            { value: 'linear', label: 'Linear' },
+            { value: 'radial', label: 'Radial' }
+          ]"
+          class="flex-shrink-0"
         />
-        <span class="text-xs text-muted-foreground">Linear</span>
       </div>
     </template>
 
@@ -45,7 +48,9 @@
           <BaseLabel class="text-sm font-medium">
             Live preview
           </BaseLabel>
-          <span class="text-xs text-muted-foreground">{{ angle }}° • {{ gradientSteps }} steps</span>
+          <span class="text-xs text-muted-foreground">
+            {{ gradientType === 'linear' ? `${angle}° • ${gradientSteps} steps` : `${gradientSteps} steps` }}
+          </span>
         </div>
 
         <div class="bg-checkerboard w-full h-20 rounded-lg border border-border overflow-hidden relative">
@@ -73,8 +78,8 @@
 
       <!-- Organized sections with accordions -->
       <BaseAccordion
-        :multiple="true"
-        :default-value="['colors','settings']"
+        default-value=""
+        :multiple="false"
         class="space-y-0"
       >
         <!-- Color Controls - Primary interaction -->
@@ -83,64 +88,64 @@
           title="Color controls"
         >
           <div class="space-y-4">
-      <!-- Start/End color pickers -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- Start color -->
-        <div class="space-y-2">
+            <!-- Start/End color pickers -->
+            <div class="flex justify-around px-2 py-1 gap-3 md:gap-2 align-center">
+              <!-- Start color -->
+              <div class="space-y-2">
                 <BaseLabel class="text-xs">
                   Start color
                 </BaseLabel>
                 <div class="flex items-center w-full gap-2">
                   <Swatch
                     :color="startRgb"
-                    class="flex-none w-8 h-8"
+                    class="flex-none w-6 h-6"
                     @click="onStartColorSelect(startRgb)"
                   />
-    <BaseInput
-        v-model="startColorInputRef"
-        :options="[]"
-        :error="startInputError"
-        v-tippy="{ content: 'Type hex (e.g. #22c55e) or use the picker' }"
-        class="w-full md:w-40"
-        placeholder="#22c55e"
-      aria-label="Start color hex"
-        @focus="onStartFocus"
-        @blur="onStartBlur"
-        @keydown.enter="onStartEnter"
-        @input="onStartTyping"
-    />
-            <BaseColorPicker v-model="startRgba" />
-          </div>
-        </div>
+                  <BaseInput
+                    v-model="startColorInputRef"
+                    v-tippy="{ content: 'Type hex (e.g. #22c55e) or use the picker' }"
+                    :options="[]"
+                    :error="startInputError"
+                    class="w-full h-8 md:w-36"
+                    placeholder="#22c55e"
+                    aria-label="Start color hex"
+                    @focus="onStartFocus"
+                    @blur="onStartBlur"
+                    @keydown.enter="onStartEnter"
+                    @input="onStartTyping"
+                  />
+                  <BaseColorPicker v-model="startRgba" />
+                </div>
+              </div>
 
-        <!-- End color -->
-        <div class="space-y-2">
+              <!-- End color -->
+              <div class="space-y-2">
                 <BaseLabel class="text-xs">
                   End color
                 </BaseLabel>
                 <div class="flex items-center w-full gap-2">
                   <Swatch
                     :color="endRgb"
-                    class="flex-none w-8 h-8"
+                    class="flex-none w-6 h-6"
                     @click="onEndColorSelect(endRgb)"
                   />
-    <BaseInput
-        v-model="endColorInputRef"
-        :options="[]"
-        :error="endInputError"
-        v-tippy="{ content: 'Type hex (e.g. #ef4444) or use the picker' }"
-        class="w-full md:w-40"
-        placeholder="#ef4444"
-      aria-label="End color hex"
-        @focus="onEndFocus"
-        @blur="onEndBlur"
-        @keydown.enter="onEndEnter"
-        @input="onEndTyping"
-    />
-            <BaseColorPicker v-model="endRgba" />
-          </div>
-        </div>
-      </div>
+                  <BaseInput
+                    v-model="endColorInputRef"
+                    v-tippy="{ content: 'Type hex (e.g. #ef4444) or use the picker' }"
+                    :options="[]"
+                    :error="endInputError"
+                    class="w-full h-8 md:w-36"
+                    placeholder="#ef4444"
+                    aria-label="End color hex"
+                    @focus="onEndFocus"
+                    @blur="onEndBlur"
+                    @keydown.enter="onEndEnter"
+                    @input="onEndTyping"
+                  />
+                  <BaseColorPicker v-model="endRgba" />
+                </div>
+              </div>
+            </div>
           </div>
         </AccordionItem>
 
@@ -149,70 +154,70 @@
           id="settings"
           title="Advanced settings"
         >
-          <div class="space-y-6">
-      <!-- Steps + Angle controls -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <!-- Steps -->
-        <div class="space-y-3">
-                <div class="flex items-center gap-2 justify-between">
-                  <BaseLabel class="text-sm font-medium">
-                    Steps
-                  </BaseLabel>
-              <BaseInput
-                    v-model="gradientSteps"
-                    v-tippy="{ content: 'Number of color stops (3-12)' }"
-                type="number"
-                    class="w-24"
-                    min="3"
-                    max="12"
-                    placeholder="3-12"
-                    aria-label="Gradient steps (3-12)"
-                  />
-          </div>
-          <BaseSlider
-            :model-value="[gradientSteps]"
-            :min="MIN_STEPS"
-            :max="MAX_STEPS"
-            :step="1"
-            class="w-full"
-                  @update:model-value="(v: number[]) => setGradientSteps(v[0])"
-          />
-                <p class="text-xs text-muted-foreground">
-                  Controls how many color stops are generated
-                </p>
-        </div>
+          <div class="space-y-6 p-2">
+            <!-- Steps control -->
+            <div class="space-y-3">
+              <div class="flex items-center gap-2 justify-between">
+                <BaseLabel class="text-sm font-medium">
+                  Steps
+                </BaseLabel>
+                <BaseInput
+                  v-model="gradientSteps"
+                  v-tippy="{ content: 'Number of color stops (3-12)' }"
+                  type="number"
+                  class="w-24"
+                  min="3"
+                  max="12"
+                  placeholder="3-12"
+                  aria-label="Gradient steps (3-12)"
+                />
+              </div>
+              <BaseSlider
+                :model-value="[gradientSteps]"
+                :min="MIN_STEPS"
+                :max="MAX_STEPS"
+                :step="1"
+                class="w-full"
+                @update:model-value="(v: number[]) => setGradientSteps(v[0])"
+              />
+              <p class="text-xs text-muted-foreground">
+                Controls how many color stops are generated
+              </p>
+            </div>
 
-        <!-- Angle -->
-        <div class="space-y-3">
-                <div class="flex items-center gap-2 justify-between">
-                  <BaseLabel class="text-sm font-medium">
-                    Angle
-                  </BaseLabel>
-            <BaseInput
-                    v-model="angle"
-                    v-tippy="{ content: 'Linear gradient angle in degrees (0-360)' }"
-              type="number"
-                    class="w-24"
-                    min="0"
-                    max="360"
-                    placeholder="0-360°"
-                    aria-label="Gradient angle (0-360°)"
-            />
+            <!-- Angle control (only for linear) -->
+            <div
+              v-if="gradientType === 'linear'"
+              class="space-y-3"
+            >
+              <div class="flex items-center gap-2 justify-between">
+                <BaseLabel class="text-sm font-medium">
+                  Angle
+                </BaseLabel>
+                <BaseInput
+                  v-model="angle"
+                  v-tippy="{ content: 'Linear gradient angle in degrees (0-360)' }"
+                  type="number"
+                  class="w-24"
+                  min="0"
+                  max="360"
+                  placeholder="0-360°"
+                  aria-label="Gradient angle (0-360°)"
+                />
+              </div>
+              <BaseSlider
+                :model-value="[angle]"
+                :min="0"
+                :max="360"
+                :step="1"
+                class="w-full"
+                @update:model-value="(v: number[]) => setAngle(v[0])"
+              />
+              <p class="text-xs text-muted-foreground">
+                Direction of the gradient in degrees
+              </p>
+            </div>
           </div>
-          <BaseSlider
-            :model-value="[angle]"
-            :min="0"
-            :max="360"
-            :step="1"
-            class="w-full"
-                  @update:model-value="(v: number[]) => setAngle(v[0])"
-          />
-                <p class="text-xs text-muted-foreground">
-                  Direction of the gradient in degrees
-                </p>
-        </div>
-      </div>
-        </div>
         </AccordionItem>
       </BaseAccordion>
     </div>
@@ -220,10 +225,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useClipboard } from '@vueuse/core'
 import { Copy, Download } from 'lucide-vue-next'
-import { BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider, BaseAccordion, AccordionItem } from '@components/ui'
+import { BaseCard, BaseButton, BaseInput, BaseLabel, BaseSlider, BaseAccordion, AccordionItem, SegmentedControl } from '@components/ui'
 import BaseColorPicker from '@shared/components/ui/BaseColorPicker.vue'
 import Swatch from './Swatch.vue'
 import { useToast } from '@composables/ui/useToast'
@@ -265,6 +270,17 @@ const angle = ref<number>(90)
 const setGradientSteps = (n: number) => { gradientSteps.value = Math.min(MAX_STEPS, Math.max(MIN_STEPS, Math.round(n))) }
 const setAngle = (n: number) => { angle.value = Math.min(360, Math.max(0, Math.round(n))) }
 
+// Watch currentColor and update startRgba when it changes
+watch(
+  () => props.currentColor,
+  (newColor) => {
+    startRgba.value = { r: newColor.r, g: newColor.g, b: newColor.b, a: newColor.a ?? 1 }
+  },
+  { deep: true }
+)
+
+const gradientType = ref<'linear' | 'radial'>('linear')
+
 // Gradient stops
 const gradientColors = computed<(RGB & { a: number })[]>(() => {
   const start = startRgba.value
@@ -292,12 +308,16 @@ const gradientCss = computed(() => {
   const stops = gradientColors.value
     .map((color, index) => `${rgbaToCss(color, color.a)} ${(index / (gradientColors.value.length - 1)) * 100}%`)
     .join(', ')
+  
+  if (gradientType.value === 'radial') {
+    return `radial-gradient(circle, ${stops})`
+  }
   return `linear-gradient(${angle.value}deg, ${stops})`
 })
 
 // Export swatches to JSON
 const exportSwatches = () => {
-  exportGradientColors(startRgba.value, endRgba.value, gradientSteps.value, angle.value, gradientColors.value)
+  exportGradientColors(startRgba.value, endRgba.value, gradientSteps.value, angle.value, gradientColors.value, gradientType.value)
 }
 
 const { copy } = useClipboard()

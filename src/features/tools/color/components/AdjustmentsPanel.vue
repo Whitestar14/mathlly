@@ -36,7 +36,6 @@
           <ColorTemperature
             :current-color="currentColor"
             :update-color="updateColor"
-            :auto-apply="autoApply"
           />
         </AccordionItem>
 
@@ -58,7 +57,6 @@
           title="Image Color Extractor"
         >
           <ImageColorExtractor
-            :current-color="currentColor"
             :update-color="updateColor"
           />
         </AccordionItem>
@@ -77,11 +75,8 @@ import ImageColorExtractor from './ImageColorExtractor.vue'
 import type { RGB } from '@color/lib/color'
 import { useKeyboardStore } from '@stores/keyboard'
 import { usePanel } from '@composables/ui/usePanel'
-import { useColorOptions } from '../composables/useColorOptions'
 
-defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void, autoApply: boolean }>()
-
-const { showImageExtractor } = useColorOptions()
+defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void, showImageExtractor: boolean, autoApply: boolean }>()
 
 // local panel keyboard toggle
 const panel = usePanel('adjustments')

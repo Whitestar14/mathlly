@@ -29,8 +29,25 @@
     --logo-stroke-stop-color: 0% 0 0;
     --logo-fg-stop-color: 7.5% 0.004 285.82;
     --color-highlight: 70% 0.01 285.82;
+    --syntax-tag: 0.28 0.08 285;
+    --syntax-func: 0.32 0.1 285;
+    --syntax-string: 0.38 0.12 285;
+    --syntax-regexp: 0.34 0.08 285;
+    --syntax-markup: 0.3 0.08 285;
+    --syntax-keyword: 0.26 0.1 285;
+    --syntax-special: 0.4 0.08 285;
+    --syntax-comment: 0.55 0.05 285;
+    --syntax-constant: 0.34 0.12 285;
+    --syntax-operator: 0.3 0.08 285;
+
+    --syntax-paren-0: 0.28 0.08 285;
+    --syntax-paren-1: 0.32 0.08 285;
+    --syntax-paren-2: 0.36 0.08 285;
+    --syntax-paren-3: 0.4 0.08 285;
+    --syntax-paren-4: 0.44 0.08 285;
+    --syntax-paren-5: 0.48 0.08 285;
   }
-  /* Mira Theme Pack - Dark */
+
   [data-theme-pack='mira'].dark {
     --color-background: 15% 0.004 285.82;
     --color-foreground: 98% 0 0;
@@ -61,6 +78,22 @@
     --logo-stroke-stop-color: 98% 0 0;
     --logo-fg-stop-color: 98% 0 0;
     --color-highlight: 85% 0 0;
+    --syntax-tag: 0.75 0.08 285;
+    --syntax-func: 0.8 0.06 285;
+    --syntax-string: 0.7 0.08 285;
+    --syntax-regexp: 0.75 0.08 285;
+    --syntax-markup: 0.75 0.08 285;
+    --syntax-keyword: 0.85 0.04 285;
+    --syntax-special: 0.65 0.08 285;
+    --syntax-comment: 0.55 0.06 285;
+    --syntax-constant: 0.8 0.06 285;
+    --syntax-operator: 0.75 0.08 285;
+    --syntax-paren-0: 0.8 0.06 285;
+    --syntax-paren-1: 0.75 0.08 285;
+    --syntax-paren-2: 0.7 0.08 285;
+    --syntax-paren-3: 0.65 0.08 285;
+    --syntax-paren-4: 0.6 0.08 285;
+    --syntax-paren-5: 0.55 0.06 285;
   }
 
   [data-theme-pack='mira']::selection {

@@ -14,9 +14,9 @@
           @update:model-value="(v: Record<string, number>) => adjustBrightness(v[0], currentColor)"
         />
         <BaseButton
+          v-if="!autoApply"
           size="sm"
           variant="outline"
-          v-if="!autoApply"
           @click="applyBrightness(currentColor)"
         >
           Apply
@@ -37,9 +37,9 @@
           @update:model-value="(v: Record<string, number>) => adjustSaturation(v[0], currentColor)"
         />
         <BaseButton
+          v-if="!autoApply"
           size="sm"
           variant="outline"
-          v-if="!autoApply"
           @click="applySaturation(currentColor)"
         >
           Apply
@@ -60,9 +60,9 @@
           @update:model-value="(v: Record<string, number>) => adjustHue(v[0], currentColor)"
         />
         <BaseButton
+          v-if="!autoApply"
           size="sm"
           variant="outline"
-          v-if="!autoApply"
           @click="applyHue(currentColor)"
         >
           Apply

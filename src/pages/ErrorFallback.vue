@@ -90,8 +90,15 @@
       </div>
 
       <!-- Technical Details (use BaseCollapsible for proper behavior) -->
-      <div v-if="errorState.stackTrace && !isOffline && !is404Error" class="mt-8 ml-auto mr-auto max-w-[90vw]">
-        <BaseCollapsible title="Technical Details" :defaultOpen="false" v-model:open="showDetails">
+      <div
+        v-if="errorState.stackTrace && !isOffline && !is404Error"
+        class="mt-8 ml-auto mr-auto max-w-[90vw]"
+      >
+        <BaseCollapsible
+          v-model:open="showDetails"
+          title="Technical Details"
+          :default-open="false"
+        >
           <div class="flex justify-end gap-2 mb-2">
             <button
               type="button"
@@ -99,7 +106,10 @@
               aria-label="Copy stack trace"
               @click.stop="copyStack"
             >
-              <component :is="copied ? Check : Copy" class="h-4 w-4 transition-transform duration-150" />
+              <component
+                :is="copied ? Check : Copy"
+                class="size-4 transition-transform duration-150"
+              />
             </button>
 
             <button
@@ -438,10 +448,15 @@ import { useClipboard } from '@vueuse/core'
 
 const { copy } = useClipboard()
 
+const copied = ref(false);
+
 const copyStack = async () => {
   const text = errorState.stackTrace || ''
   await copy(text)
 
+  copied.value = true;
+
+  setTimeout(() => copied.value = false, 500)
   success('Stack trace copied to clipboard.')
 }
 
