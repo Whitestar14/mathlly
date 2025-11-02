@@ -5,8 +5,8 @@ import {
   shallowRef,
   onMounted,
   onUnmounted,
-  type Ref,
   type ComputedRef,
+  type Ref
 } from 'vue';
 import { useKeyboardStore } from '@stores/keyboard';
 import { useMemoize, useThrottleFn } from '@vueuse/core';
@@ -14,6 +14,7 @@ import { useDisplayFormatter } from '@calculator/services/display/DisplayFormatt
 import { CalculatorUtils } from '@calculator/utils/constants/CalculatorUtils';
 import { useCalculatorOptions } from './useCalculatorOptions';
 import type { Calculator } from '@calculator/services/factory/CalculatorFactory';
+import type { CalculatorResult } from '@calculator/services/factory/CalculatorFactory';
 import { isProgrammerCalculator } from '@calculator/services/factory/CalculatorFactory';
 import type {
   CalculatorState,
@@ -22,16 +23,14 @@ import type {
 } from './useCalculatorState';
 import type { UseMemoryUIReturn } from './useMemoryUI';
 
-interface CalculatorResult {
-  input: string;
-  error?: string;
-  result?: string;
-  expression?: string;
-  displayValues?: Record<string, any>;
-}
-
 interface HistoryService {
-  addToHistory: (expression: string, result: string) => void;
+  addToHistory: (
+    expression: string,
+    result: string,
+    mode: CalculatorMode,
+    base?: string,
+    baseValues?: Record<string, string>
+  ) => Promise<void>;
 }
 
 interface ControllerOptions {
@@ -51,7 +50,6 @@ interface ControllerReturn {
   preview: ComputedRef<string>;
   animatedResult: ComputedRef<string>;
   handleButtonClick: (btn: string) => void;
-  handleClear: () => void;
   handleBaseChange: (newBase: Base) => void;
 }
 
@@ -105,20 +103,28 @@ export function CalculatorController(
       }
 
       if (btn === '=' && state.mode !== 'Programmer' && result.result) {
-        historyService.addToHistory(result.expression!, result.result);
+        historyService.addToHistory(result.expression!, result.result, state.mode);
+        setAnimation(result.result);
+      }
+
+      if (btn === '=' && state.mode === 'Programmer' && result.result && isProgrammerCalculator(calculator.value)) {
+        const baseValues = Object.entries(calculator.value.states).reduce((acc, [base, state]) => {
+          acc[base] = state.display;
+          return acc;
+        }, {} as Record<string, string>);
+        
+        historyService.addToHistory(
+          result.expression!,
+          result.result,
+          state.mode,
+          state.activeBase,
+          baseValues
+        );
         setAnimation(result.result);
       }
     } catch (err) {
       console.error('Calculator operation error:', err);
       updateState({ input: 'Error', error: 'Operation failed' });
-    }
-  };
-
-  const handleClear = (): void => {
-    const result = calculator.value.handleButtonClick('AC');
-    updateState({ input: result.input, error: '' });
-    if (state.mode === 'Programmer') {
-      displayRefresh();
     }
   };
 
@@ -173,14 +179,12 @@ export function CalculatorController(
     return {
       base: state.activeBase,
       mode: state.mode,
-      precision: calculatorOptions.options.value.precision,
+      precision: calculatorOptions.precision.value,
       useThousandsSeparator:
-        calculatorOptions.options.value.useThousandsSeparator,
-      notationMode: calculatorOptions.options.value.notationMode,
-      useFractions: calculatorOptions.options.value.useFractions,
-      formatBinary: calculatorOptions.options.value.formatBinary,
-      formatHexadecimal: calculatorOptions.options.value.formatHexadecimal,
-      formatOctal: calculatorOptions.options.value.formatOctal,
+        calculatorOptions.useThousandsSeparator.value,
+      notationMode: calculatorOptions.notationMode.value,
+      useFractions: calculatorOptions.useFractions.value,
+      formatProgrammerNumbers: calculatorOptions.formatProgrammerNumbers.value,
     };
   };
 
@@ -270,7 +274,7 @@ export function CalculatorController(
 
     keyboard.attachAllForContext('calculator', {
       Enter: () => handleButtonClick('='),
-      Escape: () => handleClear(),
+      Escape: () => handleButtonClick('C'),
       Backspace: () => handleButtonClick('backspace'),
       'Ctrl+Shift+A': () => toggleActivity(),
     });
@@ -334,7 +338,6 @@ export function CalculatorController(
     preview,
     animatedResult,
     handleButtonClick,
-    handleClear,
     handleBaseChange,
   };
 }

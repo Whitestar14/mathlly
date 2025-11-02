@@ -3,223 +3,88 @@
 @layer components {
   /* Base calculator button */
   .calc-btn {
-    @apply relative text-sm font-medium rounded-lg
-           flex justify-center items-center
-           transition-all duration-200 ease-out px-3 py-2
-           border border-border shadow-sm
-           /* focus-colors */
-           disabled:opacity-50 disabled:cursor-not-allowed;
-
-    min-height: 2.5rem;
-
-    /* Touch-friendly */
+    @apply relative flex items-center justify-center
+           text-sm font-medium rounded-lg
+           px-3 py-2 border shadow-sm
+           transition-transform transition-colors duration-500 ease-out
+           disabled:opacity-50 disabled:cursor-not-allowed
+           min-h-[2.5rem]
+           touch-manipulation;
     -webkit-tap-highlight-color: transparent;
-    touch-action: manipulation;
-
-    /* Hardware acceleration */
     transform: translateZ(0);
     backface-visibility: hidden;
   }
 
-  /* Mobile active states */
-  @media (max-width: 767px) {
-    .calc-btn:active {
-      @apply bg-muted text-muted-foreground;
-    }
+  .calc-btn:hover {
+    @apply scale-[1.01] shadow-md border-border;
   }
 
-  /* Desktop hover effects */
-  @media (hover: hover) and (pointer: fine) {
-    .calc-btn {
-      backdrop-filter: blur(4px);
-    }
-
-    .calc-btn:hover {
-      transform: scale(1.02);
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-        0 2px 4px -2px rgb(0 0 0 / 0.1);
-      border-color: oklch(var(--color-border));
-    }
-  }
-
-  /* Reduced motion support */
-  @media (prefers-reduced-motion: reduce) {
-    .calc-btn {
-      transition: none !important;
-      transform: none !important;
-    }
-  }
-
-  /* Button grid container */
-  .calc-btn-grid {
-    @apply h-full gap-1.5;
-    min-height: 44px; /* iOS minimum touch target */
+  .calc-btn:active {
+    @apply scale-[0.98];
   }
 
   /* Number buttons */
   .calc-number-btn {
-    @apply text-foreground bg-card border-border;
-  }
-
-  @media (max-width: 767px) {
-    .calc-number-btn:active {
-      @apply bg-muted text-muted-foreground;
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .calc-number-btn:hover {
-      @apply bg-muted/50 text-muted-foreground;
-    }
+    @apply text-foreground bg-card border-border
+           hover:bg-muted/50 hover:text-muted-foreground
+           active:bg-muted active:text-muted-foreground;
   }
 
   /* Function buttons */
   .calc-function-btn {
-    @apply text-muted-foreground bg-muted border-border;
-  }
-
-  @media (max-width: 767px) {
-    .calc-function-btn:active {
-      @apply bg-muted/70 text-muted-foreground;
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .calc-function-btn:hover {
-      @apply bg-muted/30 text-foreground;
-    }
+    @apply text-muted-foreground bg-muted border-border
+           hover:bg-muted/30 hover:text-foreground
+           active:bg-muted/70 active:text-muted-foreground;
   }
 
   /* Operator buttons */
   .calc-operator-btn {
-    @apply text-primary-foreground bg-primary border-primary;
-  }
-
-  @media (max-width: 767px) {
-    .calc-operator-btn:active {
-      @apply bg-primary/90;
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .calc-operator-btn:hover {
-      @apply bg-primary/90;
-    }
+    @apply text-primary-foreground bg-primary border-primary
+           hover:bg-primary/90 active:bg-primary/90;
   }
 
   /* Memory buttons */
   .calc-memory-btn {
-    @apply text-xs font-medium font-mono tracking-wide 
-           text-muted-foreground bg-transparent p-2 border-0 shadow-none;
-    min-height: 2rem;
+    @apply text-xs font-medium font-mono tracking-wide
+           text-muted-foreground bg-transparent p-2 border-0 shadow-none
+           min-h-[2rem]
+           hover:bg-muted/20 hover:text-foreground
+           active:bg-muted/20 active:text-muted-foreground;
   }
 
-  @media (max-width: 767px) {
-    .calc-memory-btn:active {
-      @apply bg-muted/20 text-muted-foreground;
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .calc-memory-btn:hover {
-      @apply bg-muted/20 text-foreground;
-    }
-  }
-
-  /* Active state */
-  .calc-active-btn,
-  .active {
-    @apply text-primary-foreground bg-primary shadow-md border-primary;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .calc-active-btn:hover,
-    .active:hover {
-      @apply bg-primary/90;
-    }
+  /* Active state (persistent) */
+  .calc-active-btn {
+    @apply text-primary-foreground bg-primary shadow-md border-primary
+           hover:bg-primary/90;
   }
 
   /* Top row buttons */
   .calc-btn-top {
-    @apply py-1 px-3 text-xs;
-    min-height: 2rem;
+    @apply py-1 px-3 text-xs min-h-[2rem];
   }
 
   /* Dropdown items */
   .calc-dropdown-item {
-    @apply text-sm font-medium rounded-lg
-           flex items-center justify-center
+    @apply text-sm font-medium rounded-lg flex items-center justify-center
            text-muted-foreground bg-muted border border-border
-           focus-colors
-           transition-colors duration-150 ease-out;
-
-    width: 3.5rem;
-    height: 2.5rem;
+           transition-colors duration-150 ease-out
+           w-14 h-10
+           hover:bg-muted/50 hover:text-muted-foreground
+           active:bg-muted active:text-muted-foreground;
   }
 
-  @media (max-width: 767px) {
-    .calc-dropdown-item:active {
-      @apply bg-muted text-muted-foreground;
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .calc-dropdown-item:hover {
-      @apply bg-muted/50 text-muted-foreground;
-      transform: scale(1.05);
-    }
-  }
-
-  /* Small dropdown items */
   .calc-dropdown-item-small {
-    @apply text-xs font-medium rounded-md
-           flex items-center justify-center
+    @apply text-xs font-medium rounded-md flex items-center justify-center
            text-muted-foreground bg-muted border border-border
-           focus-colors
-           transition-colors duration-150 ease-out;
-
-    width: 2.5rem;
-    height: 2rem;
+           transition-colors duration-150 ease-out
+           w-10 h-8
+           hover:bg-muted/50 hover:text-muted-foreground
+           active:bg-muted active:text-muted-foreground;
   }
 
-  @media (max-width: 767px) {
-    .calc-dropdown-item-small:active {
-      @apply bg-muted text-muted-foreground;
-    }
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .calc-dropdown-item-small:hover {
-      @apply bg-muted/50 text-muted-foreground;
-      transform: scale(1.1);
-    }
-  }
-}
-
-/* Mobile optimizations */
-@media (max-width: 767px) {
-  /* Ensure minimum touch targets */
-  .calc-btn {
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  /* Optimize grid for mobile */
+  /* Button grid container */
   .calc-btn-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(44px, 1fr));
-    gap: 0.25rem;
-  }
-}
-
-/* Performance mode for older devices */
-@media (max-width: 767px) and (max-resolution: 1.5dppx) {
-  .calc-btn,
-  .calc-dropdown-item,
-  .calc-dropdown-item-small {
-    transition: none !important;
-    transform: none !important;
-    box-shadow: none !important;
-    backdrop-filter: none !important;
+    @apply h-full gap-1.5 grid grid-cols-[repeat(auto-fit,minmax(44px,1fr))];
+    min-height: 44px; /* iOS minimum touch target */
   }
 }

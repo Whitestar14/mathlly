@@ -38,7 +38,7 @@
             <BaseBadge
               :variant="isDev ? 'warning' : 'success'"
               :text="isDev ? 'Development' : 'Production'"
-              size="xs"
+              size="sm"
             />
           </div>
         </div>

@@ -2,8 +2,8 @@ import { type ComputedRef } from 'vue';
 import { useToast } from '@composables/ui/useToast';
 import { useMemoryStorage, type MemorySlot } from './useMemoryStorage';
 import { useMemoryOperations } from './useMemoryOperations';
-import type { CalculatorMode } from './useCalculatorState';
-import type { Calculator } from '@calculator/services/factory/CalculatorFactory';
+import type { Base, CalculatorMode } from './useCalculatorState';
+import { isProgrammerCalculator, type Calculator } from '@calculator/services/factory/CalculatorFactory';
 
 export interface UseMemoryUIReturn {
   memorySlots: ReturnType<typeof useMemoryStorage>['memorySlots'];
@@ -164,11 +164,11 @@ export function useMemoryUI(): UseMemoryUIReturn {
       // Evaluate the current input to get the actual value
       let valueToStore: any;
       try {
-        if (mode === 'Programmer') {
+        if (mode === 'Programmer' && isProgrammerCalculator(calculator)) {
           valueToStore = calculator.evaluateExpression(currentInput, activeBase);
           // Convert to decimal for storage
           if (activeBase !== 'DEC' && calculator.convertToBase) {
-            valueToStore = calculator.convertToBase(valueToStore, activeBase as string, 'DEC');
+            valueToStore = calculator.convertToBase(valueToStore, activeBase as Base, 'DEC');
           }
         } else {
           valueToStore = calculator.evaluateExpression(currentInput);

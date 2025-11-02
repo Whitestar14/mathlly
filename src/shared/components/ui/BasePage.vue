@@ -16,7 +16,7 @@
           size="icon"
           @click="goBack"
         >
-          <ArrowLeftIcon class="size-4" />
+          <ChevronLeftIcon class="size-4" />
         </BaseButton>
         <div class="flex items-center gap-3">
           <template v-if="breadcrumbs && breadcrumbs.length > 0">
@@ -34,13 +34,16 @@
                   >
                     {{ crumb.label }}
                   </RouterLink>
-                  <span v-else class="text-foreground font-medium">
+                  <span
+                    v-else
+                    class="text-foreground font-medium"
+                  >
                     {{ crumb.label }}
                   </span>
-                  <ChevronRightIcon
+                  <span
                     v-if="index < breadcrumbs.length - 1"
-                    class="h-4 w-4 text-muted-foreground"
-                  />
+                    class="text-muted-foreground"
+                  >/</span>
                 </li>
               </ol>
             </nav>
@@ -72,7 +75,7 @@
 <script setup lang="ts">
 import { computed, type ComputedRef } from 'vue'
 import { useRouter, type Router, RouterLink } from 'vue-router'
-import { ArrowLeftIcon, ChevronRightIcon } from 'lucide-vue-next'
+import { ChevronLeftIcon } from 'lucide-vue-next'
 import { useTitle } from '@composables/utils/useTitle'
 import { BaseButton } from '@components/ui'
 

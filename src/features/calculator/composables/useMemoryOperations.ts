@@ -1,5 +1,5 @@
-import type { CalculatorMode } from './useCalculatorState';
-import type { Calculator } from '@calculator/services/factory/CalculatorFactory';
+import type { Base, CalculatorMode } from './useCalculatorState';
+import { isProgrammerCalculator, type Calculator } from '@calculator/services/factory/CalculatorFactory';
 import { useMemoryStorage, type MemorySlot } from './useMemoryStorage';
 
 // Types
@@ -61,13 +61,14 @@ export function useMemoryOperations(): UseMemoryOperationsReturn {
     memoryValue: any
   ): MemoryOperationResult => {
     try {
+      if (!isProgrammerCalculator(calculator)) return { input: '0' }
       const decimalValue = memoryValue.toString();
       const newStates: DisplayValues = {};
       const bases = ['DEC', 'HEX', 'OCT', 'BIN'];
 
       bases.forEach((base: string) => {
         try {
-          const converted = calculator.convertToBase!(decimalValue, 'DEC', base);
+          const converted = calculator.convertToBase(decimalValue, 'DEC', base as Base);
           newStates[base] = { input: converted, display: converted };
         } catch (e) {
           console.error(`Error converting to ${base}:`, e);
@@ -75,7 +76,7 @@ export function useMemoryOperations(): UseMemoryOperationsReturn {
         }
       });
 
-      const activeBaseValue = calculator.convertToBase!(decimalValue, 'DEC', activeBase);
+      const activeBaseValue = calculator.convertToBase(decimalValue, 'DEC', activeBase as Base);
 
       if ('states' in calculator) {
         (calculator as any).states = { ...newStates };
@@ -152,8 +153,9 @@ export function useMemoryOperations(): UseMemoryOperationsReturn {
     calculator: Calculator, 
     activeBase: string
   ): string => {
+    if (!isProgrammerCalculator(calculator)) return '0'
     if (activeBase !== 'DEC' && calculator.convertToBase) {
-      return calculator.convertToBase(value, activeBase, 'DEC');
+      return calculator.convertToBase(value, activeBase as Base, 'DEC');
     }
     return value.toString();
   };

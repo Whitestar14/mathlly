@@ -14,7 +14,7 @@ export const BASES = {
  * Button categories for calculator operations
  */
 export const BUTTON_TYPES = {
-  OPERATORS: ['+', '-', '×', '÷', '%'] as const,
+  OPERATORS: ['+', '-', '×', '÷', '%', 'mod'] as const,
   FUNCTIONS: ['AC', 'CE', 'backspace', '=', '±'] as const,
   MEMORY: ['MC', 'MR', 'M+', 'M-', 'MS'] as const,
   PROGRAMMER_OPERATORS: ['<<', '>>', '&', '|', '^', '~'] as const,
@@ -25,7 +25,7 @@ export const BUTTON_TYPES = {
     'csch', 'sech', 'coth', 'acsch', 'asech', 'acoth',
     'log', 'ln', 'log2', 'log10', 'exp',
     '10^x', '2^x', 'e^x', 'x^y', 'x²', 'x³',
-    '√', '∛', 'y√x', 'nthroot', 'sqrt', 'cbrt', 'cube',
+    '√', '∛', 'y√x', 'nthroot', 'sqrt', 'cbrt', 'sqr', 'cube',
     'abs', 'ceil', 'floor', 'round', 'factorial', '1/x',
     'rand', 'gcd', 'lcm', 'mod', 'dms', 'deg',
     'n!', '|x|', 'exp'
@@ -43,7 +43,7 @@ export const REGEX = {
   DECIMAL_POINT: /\./,
   SHIFT_OPERATOR: /\s*[<>]{2}\s*$/,
   PARENTHESIS: /[()]/,
-  SCIENTIFIC_FUNCTION: /^(sin|cos|tan|asin|acos|atan|csc|sec|cot|acsc|asec|acot|sinh|cosh|tanh|asinh|acosh|atanh|csch|sech|coth|acsch|asech|acoth|log|ln|log2|log10|exp|sqrt|cbrt|cube|nthroot|abs|ceil|floor|round|factorial|gcd|lcm)\(/,
+  SCIENTIFIC_FUNCTION: /^(sin|cos|tan|asin|acos|atan|csc|sec|cot|acsc|asec|acot|sinh|cosh|tanh|asinh|acosh|atanh|csch|sech|coth|acsch|asech|acoth|log|ln|log2|log10|exp|sqrt|cbrt|sqr|cube|nthroot|abs|ceil|floor|round|factorial|gcd|lcm)\(/,
   TRIG_FUNCTION: /^(sin|cos|tan|asin|acos|atan|csc|sec|cot|acsc|asec|acot)\(/,
   HYPERBOLIC_FUNCTION: /^(sinh|cosh|tanh|asinh|acosh|atanh|csch|sech|coth|acsch|asech|acoth)\(/,
   LOG_FUNCTION: /^(log|ln|log2|log10|exp)\(/,
@@ -102,7 +102,8 @@ export const FUNCTION_MAPPINGS = {
   '→DMS': 'dms',
   '→DEG': 'deg',
   'n!': 'n!',
-  '|x|': 'abs'
+  '|x|': 'abs',
+  'mod': 'mod'
 } as const
 
 /**
@@ -134,6 +135,15 @@ export const CalculatorConstants = {
   } as const,
   
   /**
+   * Bit widths for programmer mode
+   */
+  BIT_WIDTHS: {
+    WORD: 16,
+    DWORD: 32,
+    QWORD: 64
+  } as const,
+  
+  /**
    * Button categories
    */
   BUTTON_TYPES,
@@ -162,3 +172,4 @@ export type MemoryType = typeof BUTTON_TYPES.MEMORY[number]
 export type ProgrammerOperatorType = typeof BUTTON_TYPES.PROGRAMMER_OPERATORS[number]
 export type ScientificFunctionType = typeof BUTTON_TYPES.SCIENTIFIC_FUNCTIONS[number]
 export type ErrorMessageType = keyof typeof ERROR_MESSAGES
+export type BitWidthType = keyof typeof CalculatorConstants.BIT_WIDTHS

@@ -1,202 +1,22 @@
-/* stylelint-disable at-rule-no-unknown */
+@import '../themes/orion.css';
+@import '../themes/ayu.css';
+@import '../themes/mira.css';
+@import '../themes/siena.css';
+@import '../themes/monaco.css';
 
 @layer base {
-      :root {
-    @apply font-sans font-normal;
-    /* Border radius variable - default to rounded */
-    --radius: 0.5rem;
-    /* Classic Theme - Gray + Indigo color palette - Light Mode (OKLCH) */
-    --color-background: 100% 0 0;
-    --color-foreground: 15% 0.004 285.82;
-    --color-card: 100% 0 0;
-    --color-card-foreground: 15% 0.004 285.82;
-    --color-popover: 100% 0 0;
-    --color-popover-foreground: 15% 0.004 285.82;
-    --color-primary: 65% 0.5 270;
-    --color-primary-foreground: 98% 0 0;
-    --color-secondary: 95.9% 0.004 285.82;
-    --color-secondary-foreground: 15% 0.004 285.82;
-    --color-muted: 95.9% 0.004 285.82;
-    --color-muted-foreground: 52.1% 0.004 285.82;
-    --color-accent: 95.9% 0.004 285.82;
-    --color-accent-foreground: 15% 0.004 285.82;
-    --color-destructive: 62.8% 0.257 29.23;
-    --color-destructive-foreground: 98% 0 0;
-    --color-border: 90% 0.004 285.82;
-    --color-input: 100% 0 0;
-    --color-ring: 65% 0.5 270;
-    --backdrop: 0% 0 0;
-    --backdrop-light: 100% 0 0;
-    --backdrop-surface: 100% 0 0;
-
-    --color-panel: 0.985 0.002 247.839;
-
-    --logo-bg-fill: 100% 0 0; 
-    --logo-stroke-stop-color: 65% 0.5 270;
-    --logo-fg-stop-color: 65% 0.5 270;
-  }
-  .dark {
-    --color-background: 0.278 0.033 256.848;
-    --color-foreground: 92% 0 0;
-    --color-card: 0.278 0.033 256.848;
-    --color-card-foreground: 92% 0 0;
-    --color-popover: 0.21 0.034 264.665;
-    --color-popover-foreground: 92% 0 0;
-    --color-primary: 0.673 0.182 276.935;
-    --color-primary-foreground: 92% 0 0;
-    --color-secondary: 0.358 0.033 256.848;
-    --color-secondary-foreground: 0.872 0.01 258.338;
-    --color-muted: 0.3 0.027 264.364;
-    --color-muted-foreground: 65.1% 0.004 285.82;
-    --color-accent: 0.258 0.033 256.848;
-    --color-accent-foreground: 92% 0 0;
-    --color-destructive: 0.872 0.01 258.338;
-    --color-destructive-foreground: 0.21 0.034 264.665;
-    --color-border: 0.373 0.034 259.733;
-    --color-input: 0.278 0.033 256.848;
-    --color-ring: 0.785 0.115 274.713;
-    --backdrop: 0% 0 0;
-    --backdrop-light: 25% 0.01 250;
-    --backdrop-surface: 0.278 0.033 256.848;
-
-    --color-panel: 0.21 0.034 264.665;
-
-    --logo-bg-fill: 0.278 0.033 256.848; 
-    --logo-stroke-stop-color: 92% 0 0;
-    --logo-fg-stop-color: 92% 0 0;
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(var(--color-muted)) transparent;
   }
 
-  /* Mira Theme Pack - Light */
-  [data-theme-pack="mira"] {
-    --color-background: 100% 0 0;
-    --color-foreground: 15% 0.004 285.82;
-    --color-card: 100% 0 0;
-    --color-card-foreground: 15% 0.004 285.82;
-    --color-popover: 100% 0 0;
-    --color-popover-foreground: 15% 0.004 285.82;
-    --color-primary: 25% 0.015 285.82;
-    --color-primary-foreground: 98% 0 0;
-    --color-secondary: 95.9% 0.004 285.82;
-    --color-secondary-foreground: 25% 0.015 285.82;
-    --color-muted: 95.9% 0.004 285.82;
-    --color-muted-foreground: 52.1% 0.004 285.82;
-    --color-accent: 95.9% 0.004 285.82;
-    --color-accent-foreground: 25% 0.015 285.82;
-    --color-destructive: 62.8% 0.257 29.23;
-    --color-destructive-foreground: 98% 0 0;
-    --color-border: 90% 0.004 285.82;
-    --color-input: 100% 0 0;
-    --color-ring: 25% 0.015 285.82;
-    --backdrop: 0% 0 0;
-    --backdrop-light: 98% 0 0;
-    --backdrop-surface: 100% 0 0;
+  * ::-webkit-scrollbar {
+  width: 8px;
+  background-color: transparent; 
+}
+}
 
-    --color-panel: 100% 0 0;
-
-    --logo-bg-fill: 100% 0 0;
-    --logo-stroke-stop-color: 0% 0 0;
-    --logo-fg-stop-color: 7.5% 0.004 285.82;
-  }
-  /* Mira Theme Pack - Dark */
-  [data-theme-pack="mira"].dark {
-    --color-background: 15% 0.004 285.82;
-    --color-foreground: 98% 0 0;
-    --color-card: 15% 0.004 285.82;
-    --color-card-foreground: 98% 0 0;
-    --color-popover: 15% 0.004 285.82;
-    --color-popover-foreground: 98% 0 0;
-    --color-primary: 85% 0 0;
-    --color-primary-foreground: 25% 0.015 285.82;
-    --color-secondary: 25% 0.004 285.82;
-    --color-secondary-foreground: 98% 0 0;
-    --color-muted: 25% 0.004 285.82;
-    --color-muted-foreground: 65.1% 0.004 285.82;
-    --color-accent: 25% 0.004 285.82;
-    --color-accent-foreground: 98% 0 0;
-    --color-destructive: 37.8% 0.257 29.23;
-    --color-destructive-foreground: 98% 0 0;
-    --color-border: 25% 0.004 285.82;
-    --color-input: 15% 0.004 285.82;
-    --color-ring: 98% 0 0;
-    --backdrop: 0% 0 0; 
-    --backdrop-light: 15% 0.005 270;
-    --backdrop-surface: 20% 0.01 270;
-
-    --color-panel: 15% 0.004 285.82;
-
-    --logo-bg-fill: 15% 0.004 285.82; 
-    --logo-stroke-stop-color: 98% 0 0;
-    --logo-fg-stop-color: 98% 0 0;
-  }
-
-  /* Ayu Theme Pack - Light */
-  [data-theme-pack="ayu"] {
-    --color-background: 0.988 0.002 248;
-    --color-foreground: 0.490 0.010 248;
-    --color-card: 0.991 0.000 0;
-    --color-card-foreground: 15% 0.004 285.82;
-    --color-popover: 0.991 0.000 0;
-    --color-popover-foreground: 15% 0.004 285.82;
-
-    --color-primary: 0.803 0.159 70;
-    --color-primary-foreground: 0.988 0.002 248;
-
-    --color-secondary: 0.967 0.002 248;
-    --color-secondary-foreground: 51% 0.004 285.82;
-
-    --color-muted: 95.9% 0.004 285.82;
-    --color-muted-foreground: 52.1% 0.004 285.82;
-    --color-accent: 0.674 0.141 244;
-    --color-accent-foreground: 15% 0.004 285.82;
-    --color-destructive: 0.636 0.186 24;
-    --color-destructive-foreground: 98% 0 0;
-    --color-border: 0.977 0.002 248;
-    --color-input: 0.991 0.000 0;
-    --color-ring: 0.772 0.157 69;
-    --backdrop: 0% 0 0;
-    --backdrop-light: 98% 0 0;
-    --backdrop-surface: 0.983 0.002 248;
-
-    --color-panel: 0.983 0.002 248;
-    --logo-bg-fill: 0.991 0.000 0;
-    --logo-stroke-stop-color: 0.748 0.160 53;
-    --logo-fg-stop-color: 0.748 0.160 53;
-  }
-
-  /* Ayu Theme Pack - Dark */
-  [data-theme-pack="ayu"].dark {
-    --color-background: 0.173 0.015 267;
-    --color-foreground: 0.798 0.010 94;
-    --color-card: 0.186 0.016 262;
-    --color-card-foreground: 98% 0 0;
-    --color-popover: 0.186 0.016 262;
-    --color-popover-foreground: 98% 0 0;
-
-    /* Primary: amber for headings/buttons */
-    --color-primary: 0.797 0.130 82;
-    --color-primary-foreground: 0.163 0.014 264;
-
-    /* Accents: use bluish highlights like VSCode Ayu */
-    --color-secondary: 25% 0.019 266;
-    --color-secondary-foreground: 93% 0 0;
-
-    --color-muted: 25% 0.019 266;
-    --color-muted-foreground: 65% 0.004 285.82;
-    --color-accent: 0.692 0.167 252;
-    --color-accent-foreground: 98% 0 0;
-    --color-destructive: 0.626 0.164 23;
-    --color-destructive-foreground: 95% 0 0;
-    --color-border: 0.195 0.016 262;
-    --color-input: 0.186 0.016 262;
-    --color-ring: 0.882 0.124 84;
-    --backdrop: 0% 0 0;
-    --backdrop-light: 10% 0.01 190;
-    --backdrop-surface: 0.186 0.016 262;
-
-    --color-panel: 0.183 0.014 264;
-
-    --logo-bg-fill: 11% 0.02 200;
-    --logo-stroke-stop-color: 98% 0 0;
-    --logo-fg-stop-color: 98% 0 0;
-  }
+@layer components {
+  .border-style-sharp   { --radius: 0px; }
+  .border-style-rounded { --radius: 0.5rem; }
 }

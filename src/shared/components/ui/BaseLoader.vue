@@ -16,8 +16,17 @@
         >
           <defs>
             <!-- Gloss gradient -->
-            <linearGradient id="gloss" x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="transparent" />
+            <linearGradient
+              id="gloss"
+              x1="0%"
+              y1="100%"
+              x2="100%"
+              y2="0%"
+            >
+              <stop
+                offset="0%"
+                stop-color="transparent"
+              />
               <stop
                 offset="35%"
                 stop-color="currentColor"
@@ -33,7 +42,10 @@
                 stop-color="currentColor"
                 stop-opacity="0.15"
               />
-              <stop offset="100%" stop-color="transparent" />
+              <stop
+                offset="100%"
+                stop-color="transparent"
+              />
             </linearGradient>
 
             <!-- Moving gloss rectangle with blur -->
@@ -56,8 +68,17 @@
             </mask>
 
             <!-- Blur filter for soft edges -->
-            <filter id="blur" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur in="SourceGraphic" stdDeviation="12" />
+            <filter
+              id="blur"
+              x="-20%"
+              y="-20%"
+              width="140%"
+              height="140%"
+            >
+              <feGaussianBlur
+                in="SourceGraphic"
+                stdDeviation="12"
+              />
             </filter>
           </defs>
 
@@ -76,7 +97,11 @@
     <template v-else-if="variant === 'expanded'">
       <div class="h-auto overflow-hidden">
         <div class="icon-loader">
-          <component :is="loaderIcon" :size="Number(size) || 5" class="animate-spin" />
+          <component
+            :is="loaderIcon"
+            :size="Number(size) || 5"
+            class="animate-spin"
+          />
         </div>
         <div
           v-if="message"

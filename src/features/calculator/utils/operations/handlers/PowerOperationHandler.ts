@@ -1,3 +1,4 @@
+import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory'
 import { CalculatorUtils } from '../../constants/CalculatorUtils'
 import { ParenthesesTracker } from '../../core/ParenthesesTracker'
 
@@ -16,7 +17,7 @@ export class PowerOperationHandler {
   /**
    * Handle cube operation (x³)
    */
-  handleCubeOperation(): Record<string, any> {
+  handleCubeOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       
@@ -60,7 +61,7 @@ export class PowerOperationHandler {
   /**
    * Handle power operation (x^y)
    */
-  handlePowerOperation(): Record<string, any> {
+  handlePowerOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       
@@ -91,7 +92,7 @@ export class PowerOperationHandler {
   /**
    * Handle common base power operations (10^, 2^, e^)
    */
-  handleBasePowerOperation(base: string): Record<string, any> {
+  handleBasePowerOperation(base: string): CalculatorResult {
     try {
       const currentInput = this.calculator.input
       const baseLength = base.length
@@ -118,19 +119,19 @@ export class PowerOperationHandler {
     }
   }
 
-  handle10PowerOperation(): Record<string, any> {
+  handle10PowerOperation(): CalculatorResult {
     return this.handleBasePowerOperation('10')
   }
 
-  handle2PowerOperation(): Record<string, any> {
+  handle2PowerOperation(): CalculatorResult {
     return this.handleBasePowerOperation('2')
   }
 
-  handleEPowerOperation(): Record<string, any> {
+  handleEPowerOperation(): CalculatorResult {
     return this.handleBasePowerOperation('e')
   }
 
-  handleExponentialOperation(): Record<string, any> {
+  handleExponentialOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input
       
@@ -156,7 +157,7 @@ export class PowerOperationHandler {
     }
   }
 
-  private createResponse(error: string = ""): Record<string, any> {
+  private createResponse(error: string = ""): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: this.calculator.input,
       error: error

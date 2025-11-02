@@ -14,7 +14,7 @@
 
       <SelectPortal>
         <SelectContent
-          class="select-content z-20 overflow-hidden bg-background text-foreground rounded-lg border border-border shadow-md"
+          class="select-content overflow-hidden bg-background text-foreground rounded-lg border border-border shadow-md"
           :position="position"
           :side-offset="5"
           :align="align"
@@ -97,7 +97,6 @@ defineEmits(["update:model-value"]);
 /* Ensure the dropdown matches the trigger width */
 [data-radix-popper-content-wrapper] {
   width: var(--radix-popper-anchor-width);
-  z-index: 20 !important;
 }
 
 /* Animation for the select dropdown */
@@ -106,6 +105,7 @@ defineEmits(["update:model-value"]);
   animation: selectContentShow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform, opacity;
   backface-visibility: hidden;
+  z-index: 50;
 }
 
 @keyframes selectContentShow {

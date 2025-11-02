@@ -36,6 +36,7 @@
       <BaseButton
         size="sm"
         class="w-full"
+        variant="outline"
         @click="applyMix(currentColor)"
       >
         <Blend class="h-4 w-4 mr-2" /> Mix colors
@@ -56,7 +57,7 @@ import type { RGB } from '@color/lib/color'
 const props = defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void }>()
 const { toast } = useToast()
 
-const { mixColor, mixRatio, setMixHex, setMixRatio, applyMix } = useColorMixing(props.updateColor)
+const { mixColor, mixRatio, setMixHex, applyMix, setMixRatio } = useColorMixing(props.updateColor)
 const mixHex = computed(() => convertColor(mixColor.value).hex)
 
 const onMixHex = (e: Event) => {

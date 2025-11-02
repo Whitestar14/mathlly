@@ -7,12 +7,28 @@
   }
 
   body, html {
+    --radius: 0.5rem;
     scrollbar-width: thin;
     scroll-behavior: smooth;
     scrollbar-color: oklch(var(--color-muted-foreground) / 0.5) transparent;
     -ms-text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  html, body, #app {
+	overscroll-behavior-y: contain;
+	overscroll-behavior-x: contain;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-gutter: stable;
+	scrollbar-base-color: transparent;
+	scrollbar-track-color: transparent;
+  }
+
+  .overflow-y-auto,
+  .overflow-auto,
+  .scrollable {
+    -webkit-overflow-scrolling: touch;
   }
 
   /* Form and interactive elements */
@@ -22,22 +38,6 @@
 
   textarea {
     @apply outline-none text-foreground bg-background transition-[border-color] duration-200 ease-linear focus:ring-1 focus:ring-ring/20 focus:border-ring/50;
-  }
-
-  /* WebKit scrollbar */
-  ::-webkit-scrollbar {
-    width: 4px;
-    height: 8px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background-color: oklch(var(--color-muted-foreground) / 0.5);
-    border-radius: 4px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: oklch(var(--color-muted-foreground) / 0.7);
   }
 
   /* Accessibility: reduced motion */

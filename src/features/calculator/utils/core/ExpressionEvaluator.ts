@@ -107,7 +107,7 @@ export class ExpressionEvaluator {
   /**
    * Validate evaluation result based on calculator mode
    */
-  private validateEvaluationResult(result: any, maxValue: any, minValue: any, mode: string): void {
+   validateEvaluationResult(result: any, maxValue: any, minValue: any, mode: string): void {
     if (!isFinite(result)) {
       if (isNaN(result)) {
         throw new Error(CalculatorConstants.ERROR_MESSAGES.DOMAIN_ERROR)

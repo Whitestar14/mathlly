@@ -3,6 +3,13 @@
     class="flex flex-col flex-grow transition-[padding] duration-300"
     :class="mainContentClasses"
   >
+    <!-- Route loading indicator -->
+    <div
+      v-show="showRouteLoading"
+      class="fixed left-0 top-0 h-0.5 w-full z-[100]"
+    >
+      <div class="h-full w-full bg-primary animate-[loading_1.2s_ease-in-out_infinite]" />
+    </div>
     <app-header
       :is-sidebar-open="unref(sidebarPanel.isOpen)"
       :is-menubar-open="unref(menuPanel.isOpen)"
@@ -10,121 +17,128 @@
       @toggle-menubar="menuPanel.toggle()"
       @open-shortcut-modal="openShortcutModal"
     />
+
     <PanelLoader
       :component="SidebarMenu"
-      :componentProps="{
-        isMobile: device.isMobile,
-        onSidebarClose: sidebarPanel.close,
-      }"
+      :component-props="{ isMobile: device.isMobile, onSidebarClose: sidebarPanel.close }"
       side="left"
-      :isOpen="unref(sidebarPanel.isOpen)"
-      :widthRem="16"
+      :is-open="unref(sidebarPanel.isOpen)"
+      :width-rem="16"
     />
 
-    <Suspense>
-      <app-view :settings="settings" :is-mobile="device.isMobile" />
-      <template #fallback>
-        <div class="flex-grow flex items-center justify-center">
-          <div class="w-20 h-20 rounded-full bg-muted animate-pulse" />
-        </div>
-      </template>
-    </Suspense>
+    <RouterView v-slot="{ Component }">
+      <Transition
+        name="fade"
+        mode="out-in"
+      >
+        <component 
+          :is="Component"
+          :settings="settings"
+          :is-mobile="device.isMobile"
+        />
+      </Transition>
+    </RouterView>
 
     <PanelLoader
       :component="MainMenu"
       side="right"
-      :isOpen="unref(menuPanel.isOpen)"
-      :widthRem="16"
+      :is-open="unref(menuPanel.isOpen)"
+      :width-rem="16"
     />
 
-    <toast :is-mobile="device.isMobile" />
-
+    <Toast :is-mobile="device.isMobile" />
+    <ModalProvider />
     <ShortcutGuide v-model:show="isShortcutModalOpen" />
   </div>
 </template>
 
 <script setup lang="ts">
-import {
-  onMounted,
-  onUnmounted,
-  computed,
-  unref,
-  shallowRef,
-  defineAsyncComponent,
-} from 'vue';
-import { useRouter } from 'vue-router';
-import { useFullscreen } from '@vueuse/core';
-import { useDeviceStore } from '@stores/device';
+import { onMounted, onUnmounted, computed, shallowRef, defineAsyncComponent, unref, ref, watch } from 'vue'
+import { useDeviceStore } from '@stores/device'
 import { useKeyboardStore } from '@stores/keyboard'
-import { useSettingsStore } from '@stores/settings';
-import { usePanel } from '@composables/ui/usePanel';
-import { useTheme } from '@composables/core/useTheme';
-import { AppHeader } from '@components/layout';
-import PanelLoader from '@components/ui/panel/PanelLoader.vue';
+import { useSettingsStore } from '@stores/settings'
+import { usePanel } from '@composables/ui/usePanel'
+import { useTheme } from '@composables/core/useTheme'
+import { useFullscreen } from '@vueuse/core'
+import { AppHeader } from '@components/layout'
+import PanelLoader from '@components/ui/panel/PanelLoader.vue'
 
-import { globalManifest } from '@app/lib/shortcuts';
+import { globalManifest } from '@app/lib/shortcuts'
 import { calculatorManifest } from '@calculator/lib/shortcuts'
-import { base64Manifest } from '@base64/lib/shortcuts';
+import { base64Manifest } from '@base64/lib/shortcuts'
+import { colorManifest } from '@color/lib/shortcuts'
 
-const SidebarMenu = defineAsyncComponent(
-  () => import('../sidebar/SidebarMenu.vue')
-);
-const AppView = defineAsyncComponent(() => import('./AppView.vue'));
-const MainMenu = defineAsyncComponent(() => import('../sidebar/MainMenu.vue'));
-const Toast = defineAsyncComponent(
-  () => import('@components/ui/BaseToast.vue')
-);
-const ShortcutGuide = defineAsyncComponent(
-  () => import('../modal/ShortcutGuide.vue')
-);
+import { RouterView } from 'vue-router'
+import { isRouteLoading } from '@router/router'
+import { useTimeoutFn } from '@vueuse/core'
 
-const router = useRouter();
-const device = useDeviceStore();
-const settings = useSettingsStore();
+// Note for future maintainers: the order of these imports are important
+// because of the lazy loading of the components, ModalProvider must be imported after the other components
+// imported lazily along with ShortcutGuide.vue. Do NOT MOVE THESE COMPONENTS AROUND.
+// or the MainCalculator.vue panel loader will break!
+const SidebarMenu = defineAsyncComponent(() => import('../sidebar/SidebarMenu.vue'))
+const MainMenu = defineAsyncComponent(() => import('../sidebar/MainMenu.vue'))
+const Toast = defineAsyncComponent(() => import('@components/ui/BaseToast.vue'))
+const ShortcutGuide = defineAsyncComponent(() => import('../modal/ShortcutGuide.vue'))
+const ModalProvider = defineAsyncComponent(() => import('@components/ui/modal/ModalProvider.vue'))
+const device = useDeviceStore()
+const settings = useSettingsStore()
 const keyboard = useKeyboardStore()
+const { toggleTheme } = useTheme()
 
-;[
-  ...globalManifest,
-  ...calculatorManifest,
-  ...base64Manifest,
-].forEach((cfg) => keyboard.register(cfg));
+;[globalManifest, calculatorManifest, base64Manifest, colorManifest].flat().forEach(cfg => keyboard.register(cfg))
 
-onMounted(async () => {
-  const minLoadTime = new Promise((resolve) => setTimeout(resolve, 300));
-  await Promise.all([settings.loadSettings(), router.isReady(), minLoadTime]);
-  device.initializeDeviceInfo();
-
-  keyboard.attachListener();
-  
+onMounted(() => {
+  keyboard.attachListener()
   keyboard.attachAllForContext('global', {
     'Ctrl+Alt+F': () => useFullscreen(document.documentElement).toggle(),
     'Ctrl+L': () => sidebarPanel.toggle(),
     'Ctrl+M': () => menuPanel.toggle(),
     'Ctrl+Space': () => openShortcutModal(),
-    'Ctrl+Shift+M': () => toggleTheme(),
+    'Ctrl+Shift+K': () => toggleTheme(),
   })
   keyboard.pushContext('global')
-});
+})
 
-const { toggleTheme } = useTheme();
+onUnmounted(device.destroyDeviceInfo)
 
-const isShortcutModalOpen = shallowRef(false);
-
-const sidebarPanel = usePanel('sidebar');
-const menuPanel = usePanel('menu');
+const sidebarPanel = usePanel('sidebar')
+const menuPanel = usePanel('menu')
+const isShortcutModalOpen = shallowRef(false)
 
 function openShortcutModal() {
-  isShortcutModalOpen.value = true;
+  isShortcutModalOpen.value = true
 }
 
 const mainContentClasses = computed(() => {
-  if (device.isMobile) return [];
-  const classes: string[] = [];
+  if (device.isMobile) return []
+  const classes: string[] = []
+  if (unref(sidebarPanel.isOpen)) classes.push('md:pl-64')
+  if (unref(menuPanel.isOpen)) classes.push('md:pr-64')
+  return classes
+})
 
-  if (unref(sidebarPanel.isOpen)) classes.push('md:pl-64');
-  if (unref(menuPanel.isOpen)) classes.push('md:pr-64');
-  return classes;
-});
+const showRouteLoading = ref(false)
+let cancelShow: (() => void) | null = null
+let cancelHide: (() => void) | null = null
 
-onUnmounted(device.destroyDeviceInfo);
+watch(isRouteLoading, (loading) => {
+  if (loading) {
+    cancelHide?.()
+    const { stop } = useTimeoutFn(() => (showRouteLoading.value = true), 120)
+    cancelShow = stop
+  } else {
+    cancelShow?.()
+    const { stop } = useTimeoutFn(() => (showRouteLoading.value = false), 150)
+    cancelHide = stop
+  }
+})
 </script>
+
+<style scoped>
+@keyframes loading {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(50%); }
+  100% { transform: translateX(200%); }
+}
+</style>

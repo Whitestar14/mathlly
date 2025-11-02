@@ -11,7 +11,7 @@
         class="flex-1 bg-transparent"
         @click="makeWarmer(currentColor)"
       >
-        <Sun class="h-4 w-4 mr-2" /> Warmer
+        <Sun class="size-4" /> Warmer
       </BaseButton>
       <BaseButton
         size="sm"
@@ -19,7 +19,7 @@
         class="flex-1 bg-transparent"
         @click="makeCooler(currentColor)"
       >
-        <Moon class="h-4 w-4 mr-2" /> Cooler
+        <Moon class="size-4" /> Cooler
       </BaseButton>
     </div>
   </div>

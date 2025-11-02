@@ -1,4 +1,4 @@
-<!-- src/features/tools/color/components/AdjustmentsCard.vue -->
+<!-- src/features/tools/color/components/AdjustmentsPanel.vue -->
 <template>
   <BasePanel
     id="adjustments"
@@ -24,6 +24,7 @@
           <ColorAdjustments
             :current-color="currentColor"
             :update-color="updateColor"
+            :auto-apply="autoApply"
           />
         </AccordionItem>
 
@@ -48,6 +49,17 @@
             :update-color="updateColor"
           />
         </AccordionItem>
+
+        <!-- Image Color Extractor Section -->
+        <AccordionItem
+          v-if="showImageExtractor"
+          id="image-extractor"
+          title="Image Color Extractor"
+        >
+          <ImageColorExtractor
+            :update-color="updateColor"
+          />
+        </AccordionItem>
       </BaseAccordion>
     </div>
   </BasePanel>
@@ -55,10 +67,21 @@
   
 <script setup lang="ts">
 import { BasePanel, BaseAccordion, AccordionItem } from '@components/ui'
+import { onMounted } from 'vue'
 import ColorAdjustments from './ColorAdjustments.vue'
 import ColorTemperature from './ColorTemperature.vue'
 import ColorMixing from './ColorMixing.vue'
+import ImageColorExtractor from './ImageColorExtractor.vue'
 import type { RGB } from '@color/lib/color'
+import { useKeyboardStore } from '@stores/keyboard'
+import { usePanel } from '@composables/ui/usePanel'
 
-defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void }>()
+defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void, showImageExtractor: boolean, autoApply: boolean }>()
+
+// local panel keyboard toggle
+const panel = usePanel('adjustments')
+const keyboard = useKeyboardStore()
+onMounted(() => {
+    keyboard.attachAllForContext('tools.color', { 'Ctrl+A': () => panel.toggle() })
+})
 </script>

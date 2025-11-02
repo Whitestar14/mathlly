@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { createToolOptions } from '@composables/ui/useToolOptions'
+import { useToolOptions } from '@composables/ui/useToolOptions'
 
 // Base64-specific option types
 export interface Base64Options {
@@ -28,7 +28,7 @@ const DEFAULT_BASE64_OPTIONS: Base64Options = {
 }
 
 export function useBase64Options() {
-  const { options, isLoading } = createToolOptions<Base64Options>(
+  const { options, isLoading } = useToolOptions<Base64Options>(
     'base64',
     'Base64 Encoder/Decoder',
     DEFAULT_BASE64_OPTIONS,

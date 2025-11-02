@@ -3,7 +3,7 @@
     <BaseCard title="Palettes">
       <template #head>
         <SegmentedControl
-          v-model="selectedPaletteId"
+          v-model="selectedPaletteIdComputed"
           :options="paletteTabs"
           :max-visible="2"
         />
@@ -20,7 +20,8 @@
             @change="importPalette"
           >
           <BaseButton
-            size="sm"
+            v-tippy="{ content: 'Import palette from JSON' }"
+            size="icon"
             variant="outline"
             aria-label="Import palette"
             @click="openImport"
@@ -30,7 +31,8 @@
 
           <!-- Create -->
           <BaseButton
-            size="sm"
+            v-tippy="{ content: 'Create new palette' }"
+            size="icon"
             variant="outline"
             aria-label="Create palette"
             @click="setIsCreateDialogOpen(true)"
@@ -42,8 +44,8 @@
 
       <!-- Active palette content -->
       <div
-        v-for="palette in palettes"
-        v-show="selectedPaletteId === palette.id"
+        v-for="palette in props.palettes"
+        v-show="props.selectedPaletteId === palette.id"
         :key="palette.id"
         class="space-y-3 mt-2"
       >
@@ -51,27 +53,26 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2 min-w-0">
             <template v-if="editingPaletteId === palette.id">
-              <BaseInput
+              <input
+                :ref="el => setEditingInputRef(el, palette.id)"
                 v-model="editingName"
-                class="h-8"
-                :placeholder="palette.name || 'New name'"
+                v-tippy="{ content: `${editingName.length}/${MAX_NAME_LENGTH}` }"
+                class="flex-1 w-1/2 border-0 bg-transparent border-b border-primary text-sm font-medium focus:ring-0 focus:border-primary px-0 py-0"
                 :maxlength="MAX_NAME_LENGTH"
                 @keydown.enter.prevent="saveEditingPalette"
                 @keydown.esc="cancelEditing"
                 @blur="saveEditingPalette"
-              />
-              <span class="text-xs text-muted-foreground">
-                {{ editingName.length }}/{{ MAX_NAME_LENGTH }}
-              </span>
+              >
             </template>
             <template v-else>
               <button
-                class="text-sm font-medium truncate hover:underline underline-offset-2"
+                class="group flex-1 justify-center items-center flex flex-row gap-1 text-sm font-medium truncate hover:border-px hover:border-b hover:border-dotted border-primary rounded-none px-1 -mx-1 transition-all duration-200"
                 :disabled="palette.id === 'default'"
                 :title="palette.name"
                 @click="startEditingPalette(palette)"
               >
-                {{ palette.name }}
+                <span>{{ palette.name }}</span>
+                <Edit3 class="size-3 opacity-0 group-hover:opacity-100 transition-opacity" />
               </button>
             </template>
             <span class="text-xs text-muted-foreground">• {{ palette.colors.length }} colors</span>
@@ -79,16 +80,18 @@
 
           <div class="flex items-center gap-1">
             <BaseButton
+              v-tippy="{ content: 'Add current color to palette' }"
               size="sm"
               variant="ghost"
               class="h-7 px-2"
               aria-label="Add current color"
               @click="addColorToPalette(palette.id)"
             >
-              <Plus class="h-3 w-3" />
+              <Plus class="size-3" />
             </BaseButton>
 
             <BaseButton
+              v-tippy="{ content: palette.id === 'default' ? 'Default palette cannot be renamed' : 'Rename palette' }"
               size="sm"
               variant="ghost"
               class="h-7 px-2"
@@ -96,7 +99,7 @@
               aria-label="Rename palette"
               @click="startEditingPalette(palette)"
             >
-              <Edit3 class="h-3 w-3" />
+              <Edit3 class="size-3" />
             </BaseButton>
 
             <!-- Overflow actions -->
@@ -108,7 +111,7 @@
                   class="h-7 px-2"
                   aria-label="More"
                 >
-                  <MoreVertical class="h-3 w-3" />
+                  <MoreVertical class="size-3" />
                 </BaseButton>
               </template>
 
@@ -167,7 +170,7 @@
                         aria-label="Swatch actions"
                         @click.stop
                       >
-                        <MoreVertical class="h-3 w-3" />
+                        <MoreVertical class="size-3" />
                       </BaseButton>
                     </template>
 
@@ -257,19 +260,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { PopoverItem, BaseCard, BasePopover, BaseButton, BaseInput, BaseModal, BaseLabel } from '@components/ui'
 import SegmentedControl from '@components/ui/SegmentedControl.vue'
 import Swatch from './Swatch.vue'
 import { Plus, Download, Upload, Trash2, Edit3, Palette, MoreVertical, Copy } from 'lucide-vue-next'
 import { type RGB, rgbToHex } from '@color/lib/color'
 import { useToast } from '@composables/ui/useToast'
-import { useClipboard } from '@vueuse/core'
+import { useClipboard, useVModel } from '@vueuse/core'
 
 // Service
 import {
-  ensureDefaultPalette,
-  fetchPalettes,
   nameExists,
   createPalette,
   updatePaletteName,
@@ -286,68 +287,61 @@ import {
 export interface PaletteManagerProps {
   currentColor: RGB
   onColorSelect: (color: RGB) => void
+  palettes: PaletteEntity[]
+  selectedPaletteId: string
 }
 
 const props = defineProps<PaletteManagerProps>()
-const { toast } = useToast()
+
+const emit = defineEmits<{
+  'update:selectedPaletteId': [value: string]
+  'update:palettes': [value: PaletteEntity[]]
+}>()
+
+const { success, error } = useToast()
 const { copy } = useClipboard()
 
-const MAX_NAME_LENGTH = 30
+const MAX_NAME_LENGTH = 15
 
 // State
-const palettes = ref<PaletteEntity[]>([])
-const selectedPaletteId = ref<string>('default')
 const newPaletteName = ref('')
 const isCreateDialogOpen = ref(false)
 const creating = ref(false)
 const editingPaletteId = ref<string | null>(null)
 const editingName = ref('')
+const editingInputRef = ref<HTMLInputElement | undefined>(undefined)
+const createInputRef = ref<any>(null)
+
 
 // Segmented control options
 const paletteTabs = computed(() =>
-  palettes.value.map((p) => ({ value: p.id, label: ellipsize(p.name, MAX_NAME_LENGTH) }))
+  props.palettes.map((p) => ({ value: p.id, label: p.name.length <= MAX_NAME_LENGTH ? p.name : `${p.name.slice(0, MAX_NAME_LENGTH - 1)}…` }))
 )
+
+const selectedPaletteIdComputed = useVModel(props, 'selectedPaletteId', emit)
 
 // Helpers
 const setIsCreateDialogOpen = (v: boolean) => {
   isCreateDialogOpen.value = v
+  if (v) {
+    focusCreateInput()
+  }
   if (!v) {
     newPaletteName.value = ''
     creating.value = false
   }
 }
 
-const openImport = () => document.getElementById('import-palette')?.click()
-
-function ellipsize(s: string, max: number) {
-  return s.length <= max ? s : `${s.slice(0, max - 1)}…`
+const focusCreateInput = async () => {
+  await nextTick();
+  (createInputRef.value as any)?.focus()
 }
+
+const openImport = () => document.getElementById('import-palette')?.click()
 
 function swatchKey(pid: string, c: RGB, i: number) {
   return `${pid}-${c.r}-${c.g}-${c.b}-${i}`
 }
-
-// Load palettes
-onMounted(async () => {
-  try {
-    await ensureDefaultPalette()
-    palettes.value = await fetchPalettes()
-    if (!palettes.value.some(p => p.id === selectedPaletteId.value)) {
-      selectedPaletteId.value = palettes.value[0]?.id ?? 'default'
-    }
-  } catch (e: any) {
-    toast({ title: 'Database error', description: e?.message || 'Failed to load palettes' })
-  }
-})
-
-// Create input focus (no blur on first keystroke)
-const createInputRef = ref<HTMLInputElement | null>(null)
-watch(isCreateDialogOpen, async (open) => {
-  if (open) {
-    await nextTick()
-    createInputRef.value?.focus()
-  }
-})
 
 // Create (single entry point for Enter + button)
 const handleCreateSubmit = async () => {
@@ -357,23 +351,25 @@ const handleCreateSubmit = async () => {
   const name = newPaletteName.value.trim()
   if (!name) return
   if (name.length > MAX_NAME_LENGTH) {
-    toast({ title: 'Name too long', description: `Max ${MAX_NAME_LENGTH} characters` })
+    error(`Max ${MAX_NAME_LENGTH} characters`, { title: 'Name too long' })
     return
   }
   if (await nameExists(name)) {
-    toast({ title: 'Name in use', description: 'Try a different palette name' })
+    error('Try a different palette name', { title: 'Name in use' })
     return
   }
 
   try {
     const palette = await createPalette(name, sanitizeColor(props.currentColor))
-    palettes.value = [...palettes.value, palette]
-    selectedPaletteId.value = palette.id
+    const newPalettes = [...props.palettes]
+    newPalettes.push(palette)
+    emit('update:palettes', newPalettes)
+    emit('update:selectedPaletteId', palette.id)
     newPaletteName.value = ''
     isCreateDialogOpen.value = false
-    toast({ title: 'Palette created!', description: `"${palette.name}" has been created` })
+    success(`"${palette.name}" has been created`, { title: 'Palette created!' })
   } catch (e: any) {
-    toast({ title: 'Error', description: e?.message || 'Failed to create palette' })
+    error(e?.message || 'Failed to create palette', { title: 'Error' })
   } finally {
     setTimeout(() => { creating.value = false }, 150)
   }
@@ -384,6 +380,10 @@ const startEditingPalette = (palette: PaletteEntity) => {
   if (palette.id === 'default') return
   editingPaletteId.value = palette.id
   editingName.value = palette.name
+  nextTick(() => {
+    editingInputRef.value?.focus()
+    editingInputRef.value?.select()
+  })
 }
 
 const saveEditingPalette = async () => {
@@ -391,7 +391,7 @@ const saveEditingPalette = async () => {
   if (!id) return
 
   const name = editingName.value.trim()
-  const current = palettes.value.find(p => p.id === id)
+  const current = props.palettes.find(p => p.id === id)
   if (!current) {
     cancelEditing()
     return
@@ -401,21 +401,26 @@ const saveEditingPalette = async () => {
     return
   }
   if (name.length > MAX_NAME_LENGTH) {
-    toast({ title: 'Name too long', description: `Max ${MAX_NAME_LENGTH} characters` })
+    error(`Max ${MAX_NAME_LENGTH} characters`, { title: 'Name too long' })
     return
   }
   if (await nameExists(name, id)) {
-    toast({ title: 'Name in use', description: 'Try a different palette name' })
+    error('Try a different palette name', { title: 'Name in use' })
     return
   }
 
   try {
     await updatePaletteName(id, name)
-    palettes.value = palettes.value.map(p => p.id === id ? { ...p, name } : p)
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    const idx = newPalettes.findIndex((p: PaletteEntity) => p.id === id)
+    if (idx !== -1) {
+      newPalettes[idx].name = name
+    }
+    emit('update:palettes', newPalettes)
     cancelEditing()
-    toast({ title: 'Renamed', description: `Palette is now "${name}"` })
+    success(`Palette is now "${name}"`, { title: 'Renamed' })
   } catch (e: any) {
-    toast({ title: 'Error', description: e?.message || 'Failed to rename palette' })
+    error(e?.message || 'Failed to rename palette', { title: 'Error' })
   }
 }
 
@@ -427,19 +432,45 @@ const cancelEditing = () => {
 // Delete: jump to nearest neighbor instead of default
 const deletePalette = async (id: string) => {
   try {
-    const idx = palettes.value.findIndex(p => p.id === id)
+    const idx = props.palettes.findIndex(p => p.id === id)
 
     await removePalette(id)
-    palettes.value = palettes.value.filter(p => p.id !== id)
+    
+    // Remove from local array
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    const delIdx = newPalettes.findIndex((p: PaletteEntity) => p.id === id)
+    if (delIdx !== -1) {
+      newPalettes.splice(delIdx, 1)
+    }
+    emit('update:palettes', newPalettes)
 
-    if (selectedPaletteId.value === id) {
-      const neighbor = palettes.value[idx - 1] || palettes.value[idx] || palettes.value[0]
-      selectedPaletteId.value = neighbor?.id ?? 'default'
+    // Select neighbor palette
+    if (props.selectedPaletteId === id) {
+      const neighbor = props.palettes[idx - 1] || props.palettes[idx] || props.palettes[0]
+      emit('update:selectedPaletteId', neighbor?.id ?? 'default')
     }
 
-    toast({ title: 'Deleted', description: 'Palette removed' })
+    // CRITICAL FIX: Refresh palettes from database to ensure default palette is loaded
+    await nextTick()
+    try {
+      const { ensureDefaultPalette, fetchPalettes } = await import('@color/services/palette')
+      await ensureDefaultPalette()
+      const freshPalettes = await fetchPalettes()
+      emit('update:palettes', freshPalettes)
+      
+      // Revalidate selection
+      const stillExists = freshPalettes.some(p => p.id === props.selectedPaletteId)
+      if (!stillExists) {
+        const defaultPalette = freshPalettes.find(p => p.id === 'default')
+        emit('update:selectedPaletteId', defaultPalette?.id ?? freshPalettes[0]?.id ?? 'default')
+      }
+    } catch (refreshError) {
+      console.error('Failed to refresh palettes after deletion:', refreshError)
+    }
+
+    success('Palette removed', { title: 'Deleted' })
   } catch (e: any) {
-    toast({ title: 'Error', description: e?.message || 'Failed to delete palette' })
+    error(e?.message || 'Failed to delete palette', { title: 'Error' })
   }
 }
 
@@ -448,10 +479,16 @@ const addColorToPalette = async (id: string) => {
   try {
     const next = await serviceAddColor(id, sanitizeColor(props.currentColor))
     if (!next) return
-    palettes.value = palettes.value.map(x => x.id === id ? next : x)
-    toast({ title: 'Added!', description: 'Current color added to palette' })
+    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    const idx = newPalettes.findIndex((x: PaletteEntity) => x.id === id)
+    if (idx !== -1) {
+      newPalettes[idx] = next
+    }
+    emit('update:palettes', newPalettes)
+    success('Current color added to palette', { title: 'Added!' })
   } catch (e: any) {
-    toast({ title: 'Error', description: e?.message || 'Failed to add color' })
+    error(e?.message || 'Failed to add color', { title: 'Error' })
   }
 }
 
@@ -459,9 +496,15 @@ const removeColorFromPalette = async (id: string, index: number) => {
   try {
     const next = await serviceRemoveColor(id, index)
     if (!next) return
-    palettes.value = palettes.value.map(x => x.id === id ? next : x)
+    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    const idx = newPalettes.findIndex((x: PaletteEntity) => x.id === id)
+    if (idx !== -1) {
+      newPalettes[idx] = next
+    }
+    emit('update:palettes', newPalettes)
   } catch (e: any) {
-    toast({ title: 'Error', description: e?.message || 'Failed to remove color' })
+    error(e?.message || 'Failed to remove color', { title: 'Error' })
   }
 }
 
@@ -482,14 +525,14 @@ const importPalette = async (event: Event) => {
   try {
     const text = await file.text()
     const imported = await importPaletteFromJSON(text, MAX_NAME_LENGTH)
-    palettes.value = [...palettes.value, imported]
-    selectedPaletteId.value = imported.id
-    toast({ title: 'Imported!', description: `"${imported.name}" has been imported` })
+    // FIX: Use JSON.parse(JSON.stringify) for reliable deep copy of reactive array
+    const newPalettes = JSON.parse(JSON.stringify(props.palettes))
+    newPalettes.push(imported)
+    emit('update:palettes', newPalettes)
+    emit('update:selectedPaletteId', imported.id)
+    success(`"${imported.name}" has been imported`, { title: 'Imported!' })
   } catch (err: any) {
-    toast({
-      title: 'Import failed',
-      description: err?.message || 'Please select a valid palette JSON',
-    })
+    error(err?.message || 'Please select a valid palette JSON', { title: 'Import failed' })
   } finally {
     (event.target as HTMLInputElement).value = ''
   }
@@ -499,8 +542,12 @@ const importPalette = async (event: Event) => {
 const copyHex = async (color: RGB) => {
   const hex = rgbToHex(sanitizeColor(color))
   await copy(hex)
-  toast({ title: 'Copied!', description: `${hex} copied to clipboard` })
+  success(`${hex} copied to clipboard`, { title: 'Copied!' })
 }
 
 const onColorSelect = (color: RGB) => props.onColorSelect(sanitizeColor(color))
+
+const setEditingInputRef = (el: any, paletteId: string) => {
+  if (editingPaletteId.value === paletteId) editingInputRef.value = el as HTMLInputElement
+}
 </script>

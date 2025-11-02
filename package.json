@@ -22,6 +22,7 @@
     "chart.js": "^4.4.9",
     "culori": "^4.0.2",
     "dexie": "^4.0.10",
+    "embla-carousel-vue": "^8.6.0",
     "html-to-image": "^1.11.13",
     "lucide-vue-next": "^0.469.0",
     "mathjs": "^14.2.1",

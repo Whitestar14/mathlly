@@ -45,7 +45,7 @@ const localSettings = computed({
   >
     <div class="space-y-6">
       <div class="px-3 py-2 rounded-md bg-muted/40 border border-border/40">
-        <p class="text-xs text-muted-foreground mb-1">
+        <p class="text-xs text-muted-foreground">
           <span class="font-bold">Theme settings</span> have been moved to the menu (open the menu and select "Themes") for a more immediate experience and to avoid first-paint flicker.
         </p>
       </div>

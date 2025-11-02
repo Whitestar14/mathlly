@@ -2,7 +2,7 @@
   <img src="./public/img/socials/github-social.png" alt="Prism Banner" width="100%" />
 
   # Prism
-  ### Mathematical Precision for Modern Development
+  ### Clarity at Speed
 
   [![Version](https://img.shields.io/badge/version-0.13.0--beta-blue.svg)](https://github.com/Whitestar14/mathlly)
   [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)

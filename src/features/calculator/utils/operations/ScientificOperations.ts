@@ -4,6 +4,7 @@ import { CalculatorUtils } from '../constants/CalculatorUtils'
 import { ScientificFunctionHandler } from './handlers/ScientificFunctionHandler'
 import { ScientificConstantHandler } from './handlers/ScientificConstantHandler'
 import { ScientificParenthesesHandler } from './handlers/ScientificParenthesesHandler'
+import { CalculatorResult } from "@features/calculator/services/factory/CalculatorFactory.ts"
 
 /**
  * Handles scientific calculator operations
@@ -37,7 +38,7 @@ export class ScientificOperations extends StandardOperations {
    * Handle scientific function operations (sin, cos, log, sqrt, etc.)
    * Delegates to specialized function handler
    */
-  handleScientificFunction(func: string): Record<string, any> {
+  handleScientificFunction(func: string): CalculatorResult {
     try {
       return this.functionHandler.handle(func)
     } catch (err: any) {
@@ -49,7 +50,7 @@ export class ScientificOperations extends StandardOperations {
    * Handle constant input (π, e)
    * Delegates to specialized constant handler
    */
-  handleConstant(constant: string): Record<string, any> {
+  handleConstant(constant: string): CalculatorResult {
     try {
       return this.constantHandler.handle(constant)
     } catch (err: any) {
@@ -61,7 +62,7 @@ export class ScientificOperations extends StandardOperations {
    * Handle parenthesis operations with scientific expression tracking
    * Delegates to specialized parentheses handler
    */
-  handleParenthesis(parenthesis: string): Record<string, any> {
+  handleParenthesis(parenthesis: string): CalculatorResult {
     try {
       return this.parenthesesHandler.handle(parenthesis)
     } catch (err: any) {
@@ -76,7 +77,7 @@ export class ScientificOperations extends StandardOperations {
    * Enhanced backspace handling for scientific expressions
    * Extends StandardOperations backspace with scientific-specific logic
    */
-  handleBackspace(): Record<string, any> {
+  handleBackspace(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       
@@ -121,7 +122,7 @@ export class ScientificOperations extends StandardOperations {
    * Enhanced clear entry for scientific mode
    * Handles clearing within parentheses and complex expressions
    */
-  handleClearEntry(): Record<string, any> {
+  handleClearEntry(): CalculatorResult {
     try {
       const input = this.calculator.input
       
@@ -157,7 +158,7 @@ export class ScientificOperations extends StandardOperations {
    * Handle numeric input - delegates to StandardOperations
    * StandardOperations already handles numbers, decimals, and comma properly
    */
-  handleNumber(num: string): Record<string, any> {
+  handleNumber(num: string): CalculatorResult {
     return super.handleNumber(num);
   }
 
@@ -165,28 +166,28 @@ export class ScientificOperations extends StandardOperations {
    * Handle arithmetic operators - delegates to StandardOperations
    * StandardOperations already handles +, -, ×, ÷ properly
    */
-  handleOperator(op: string): Record<string, any> {
+  handleOperator(op: string): CalculatorResult {
     return super.handleOperator(op);
   }
 
   /**
    * Handle percentage - delegates to StandardOperations
    */
-  handlePercentage(): Record<string, any> {
+  handlePercentage(): CalculatorResult {
     return super.handlePercentage();
   }
 
   /**
    * Handle sign toggle - delegates to StandardOperations
    */
-  handleToggleSign(): Record<string, any> {
+  handleToggleSign(): CalculatorResult {
     return super.handleToggleSign();
   }
 
   /**
    * Handle comma for function arguments - delegates to StandardOperations
    */
-  handleComma(): Record<string, any> {
+  handleComma(): CalculatorResult {
     return super.handleComma();
   }
 
@@ -211,7 +212,7 @@ export class ScientificOperations extends StandardOperations {
    * Create a standardized response
    * Uses the same format as StandardOperations for consistency
    */
-  createResponse(error: string = ""): Record<string, any> {
+  createResponse(error: string = ""): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: this.calculator.input,
       error: error

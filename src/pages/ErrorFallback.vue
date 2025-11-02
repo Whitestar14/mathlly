@@ -89,17 +89,40 @@
         </BaseButton>
       </div>
 
-      <!-- Technical Details -->
+      <!-- Technical Details (use BaseCollapsible for proper behavior) -->
       <div
         v-if="errorState.stackTrace && !isOffline && !is404Error"
-        class="mt-8 p-4 bg-muted dark:bg-background ml-auto mr-auto max-w-[90vw] rounded-lg text-left overflow-auto border border-border max-h-60"
+        class="mt-8 ml-auto mr-auto max-w-[90vw]"
       >
-        <details>
-          <summary class="cursor-pointer text-primary dark:text-primary font-medium text-sm">
-            Technical Details
-          </summary>
-          <pre class="mt-2 text-xs text-foreground dark:text-muted-foreground whitespace-pre-wrap break-words">{{ errorState.stackTrace }}</pre>
-        </details>
+        <BaseCollapsible
+          v-model:open="showDetails"
+          title="Technical Details"
+          :default-open="false"
+        >
+          <div class="flex justify-end gap-2 mb-2">
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 px-2 py-1 rounded hover:bg-muted/60"
+              aria-label="Copy stack trace"
+              @click.stop="copyStack"
+            >
+              <component
+                :is="copied ? Check : Copy"
+                class="size-4 transition-transform duration-150"
+              />
+            </button>
+
+            <button
+              type="button"
+              class="inline-flex items-center gap-2 px-2 py-1 rounded hover:bg-muted/60"
+              @click.stop="reportError"
+            >
+              Report
+            </button>
+          </div>
+
+          <pre class="text-xs text-foreground dark:text-muted-foreground whitespace-pre-wrap break-words">{{ errorState.stackTrace }}</pre>
+        </BaseCollapsible>
       </div>
     </div>
   </BasePage>
@@ -109,10 +132,11 @@
 import { ref, computed, watch, onUnmounted, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useIntervalFn, useTimeoutFn, useNetwork } from '@vueuse/core'
-import { HomeIcon, RefreshCwIcon, ArrowLeft } from 'lucide-vue-next'
-import { clearRouteError, routeError } from '@router/errorHandler'
+import { HomeIcon, RefreshCwIcon, Copy, ArrowLeft, Check } from 'lucide-vue-next'
+import { clearRouteError, routeError, routePath, hasError } from '@router/errorHandler'
 import { useToast } from '@composables/ui/useToast'
-import { BasePage, BaseButton } from '@components/ui'
+import { useAppStorageStore } from '@stores/appStorage'
+import { BasePage, BaseButton, BaseCollapsible } from '@components/ui'
 
 const props = defineProps({
   error: {
@@ -137,7 +161,8 @@ const props = defineProps({
   }
 })
 
-const { toast } = useToast()
+const { toast, success, error: toastError, warning } = useToast()
+const storageStore = useAppStorageStore()
 const router = useRouter()
 const route = useRoute()
 
@@ -338,10 +363,13 @@ function updateErrorState() {
 const navigateToHome = () => {
   if (isManualRetrying.value) return
   cancelAutomaticRetry()
+  // Clear stored route error state and global error flag, then navigate to last visited path
   clearRouteError()
-  router.push('/').catch((err) => {
-    console.error('ErrorFallback: Failed to navigate home:', err)
-    toast({ type: 'error', message: 'Could not navigate to home. Please try again.'})
+  hasError.value = false
+  const last = storageStore.get('router', 'lastVisitedPath', routePath.value || '/') || '/'
+  router.replace(last).catch((err) => {
+    console.error('ErrorFallback: Failed to navigate to last visited path:', err)
+    toastError('Could not navigate to previous page. Please try again.')
   })
 }
 
@@ -353,10 +381,7 @@ async function handleManualRetry() {
   cancelAutomaticRetry()
 
   if (isOffline.value) {
-    toast({
-      type: 'warning',
-      message: 'Still offline. Please check your connection.',
-    })
+    warning('Still offline. Please check your connection.')
     useTimeoutFn(() => {
       isManualRetrying.value = false
     }, 1500)
@@ -412,4 +437,47 @@ watch(isOnline, (online) => {
 }, { immediate: true })
 
 onUnmounted(cancelAutomaticRetry)
+
+const showDetails = ref(false)
+
+const toggleDetails = () => {
+  showDetails.value = !showDetails.value
+}
+
+import { useClipboard } from '@vueuse/core'
+
+const { copy } = useClipboard()
+
+const copied = ref(false);
+
+const copyStack = async () => {
+  const text = errorState.stackTrace || ''
+  await copy(text)
+
+  copied.value = true;
+
+  setTimeout(() => copied.value = false, 500)
+  success('Stack trace copied to clipboard.')
+}
+
+const reportError = () => {
+  try {
+    // Open a pre-filled GitHub issue for the repo (owner/repo are public in this workspace)
+    const title = encodeURIComponent(`Error Report: ${errorState.visualCode} - ${errorState.title}`)
+    const bodyParts = [
+      `**Page:** ${route.fullPath || routePath.value || 'unknown'}`,
+      `**Title:** ${errorState.title}`,
+      '',
+      '**Stack Trace:**',
+      '```',
+      errorState.stackTrace || '(none)',
+      '```'
+    ]
+    const body = encodeURIComponent(bodyParts.join('\n'))
+    const url = `https://github.com/Whitestar14/mathlly/issues/new?title=${title}&body=${body}`
+    window.open(url, '_blank')
+  } catch (e) {
+    toastError('Could not open GitHub for reporting.')
+  }
+}
 </script>

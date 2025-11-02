@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia'
-import { computed, ref, markRaw, type Ref } from 'vue'
+import { computed, ref, markRaw, UnwrapRef, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-// Tool option configuration types
 export interface ToolOption {
   id: string
   label: string
@@ -16,10 +15,10 @@ export interface ToolOption {
   section?: string
 }
 
-export interface ToolConfig {
+export interface ToolConfig<T extends Record<string, any> = Record<string, any>> {
   toolId: string
   toolName: string
-  defaultSettings: Record<string, any>
+  defaultSettings: UnwrapRef<T>
   options: ToolOption[]
 }
 
@@ -31,9 +30,6 @@ export const useToolSettingsStore = defineStore('toolSettings', () => {
     
     if (path === '/calculator' || path.startsWith('/calculator/')) {
       return 'calculator'
-    }
-    if (path.startsWith('/tools/base64')) {
-      return 'base64'
     }
     if (path.startsWith('/tools/')) {
       const toolName = path.split('/tools/')[1]?.split('/')[0]

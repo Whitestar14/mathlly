@@ -1,3 +1,4 @@
+import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory'
 import { CalculatorUtils } from '../../constants/CalculatorUtils'
 import { ParenthesesTracker } from '../../core/ParenthesesTracker'
 
@@ -16,7 +17,7 @@ export class ScientificParenthesesHandler {
   /**
    * Handle parenthesis operations
    */
-  handle(parenthesis: string): Record<string, any> {
+  handle(parenthesis: string): CalculatorResult {
     try {
       const result = this.parenthesesTracker.handleParenthesisInput(this.calculator.input, parenthesis)
       this.calculator.input = result.input
@@ -26,7 +27,7 @@ export class ScientificParenthesesHandler {
     }
   }
 
-  private createResponse(error: string = ""): Record<string, any> {
+  private createResponse(error: string = ""): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: this.calculator.input,
       error: error

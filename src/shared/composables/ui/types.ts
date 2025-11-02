@@ -28,7 +28,6 @@ export interface ToggleOptions {
 // --- Composable API Types ---
 export interface PanelAPI {
   isOpen: Ref<boolean>;
-  preloadIsOpen: Ref<boolean>;
   isMobile: Ref<boolean>;
   isExpanded: Ref<boolean>;
   panel: Ref<HTMLElement | null>;
@@ -46,7 +45,6 @@ export interface PanelAPI {
 
 export interface LightweightPanelAPI {
   readonly isOpen: boolean;
-  readonly preloadIsOpen: boolean;
   readonly isMobile: boolean;
   readonly panels: Record<string, PanelAPI>;
   readonly options: PanelOptions | undefined;

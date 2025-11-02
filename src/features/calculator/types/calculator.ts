@@ -4,10 +4,9 @@ export interface CalculatorOptions {
   precision: number;
   useFractions: boolean;
   syntaxHighlighting: boolean;
+  hapticFeedback: boolean;
   useThousandsSeparator: boolean;
-  formatBinary: boolean;
-  formatHexadecimal: boolean;
-  formatOctal: boolean;
+  formatProgrammerNumbers: boolean;
   angleUnit: 'degrees' | 'radians' | 'gradians';
   notationMode: 'standard' | 'scientific' | 'engineering';
   hyperbolicMode: boolean;

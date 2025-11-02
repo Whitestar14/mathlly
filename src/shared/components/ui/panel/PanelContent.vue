@@ -28,7 +28,7 @@
           size="icon"
           @click="$emit('close')"
         >
-          <XIcon class="h-4 w-4" />
+          <ChevronsDownIcon class="size-5" />
         </BaseButton>
       </div>
     </div>
@@ -59,7 +59,7 @@
 </template>
   
 <script setup>
-import { XIcon } from "lucide-vue-next"
+import { ChevronsDownIcon } from "lucide-vue-next"
 import { BaseButton } from '@components/ui'
 
 defineProps({

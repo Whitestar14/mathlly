@@ -34,7 +34,7 @@ const props = defineProps<{
 
 const harmonies = useColorHarmonies(() => props.current)
 const { copy } = useClipboard()
-const { toast } = useToast()
+const { info } = useToast()
 
 const activeColors = computed(() => {
   switch (props.active) {
@@ -49,6 +49,6 @@ const activeColors = computed(() => {
 const copyHex = async (c: RGB) => {
   const hex = rgbToHex(c)
   await copy(hex)
-  toast({ title: 'Copied!', description: `${hex} copied to clipboard` })
+  info(`${hex} copied to clipboard`, { title: 'Copied!' })
 }
 </script>

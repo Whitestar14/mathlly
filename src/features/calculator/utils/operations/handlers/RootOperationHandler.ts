@@ -1,3 +1,4 @@
+import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory'
 import { CalculatorUtils } from '../../constants/CalculatorUtils'
 import { ParenthesesTracker } from '../../core/ParenthesesTracker'
 
@@ -16,7 +17,7 @@ export class RootOperationHandler {
   /**
    * Handle square root operation (√)
    */
-  handleSquareRootOperation(): Record<string, any> {
+  handleSquareRootOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       
@@ -68,7 +69,7 @@ export class RootOperationHandler {
   /**
    * Handle cube root operation (∛)
    */
-  handleCubeRootOperation(): Record<string, any> {
+  handleCubeRootOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input
       
@@ -97,7 +98,7 @@ export class RootOperationHandler {
   /**
    * Handle nth root operation (y√x)
    */
-  handleNthRootOperation(): Record<string, any> {
+  handleNthRootOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       
@@ -141,7 +142,7 @@ export class RootOperationHandler {
   /**
    * Handle reciprocal operation (1/x)
    */
-  handleReciprocalOperation(): Record<string, any> {
+  handleReciprocalOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       
@@ -178,7 +179,7 @@ export class RootOperationHandler {
     }
   }
 
-  private createResponse(error: string = ""): Record<string, any> {
+  private createResponse(error: string = ""): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: this.calculator.input,
       error: error

@@ -14,7 +14,7 @@
           variant="outline"
           @click="copy(formats.hex, 'HEX')"
         >
-          <Copy class="h-5 w-5" />
+          <Copy class="size-4" />
         </BaseButton>
       </div>
     </div>
@@ -32,7 +32,7 @@
           variant="outline"
           @click="copy(rgbaText, 'RGBA')"
         >
-          <Copy class="h-5 w-5" />
+          <Copy class="size-4" />
         </BaseButton>
       </div>
     </div>
@@ -50,7 +50,7 @@
           variant="outline"
           @click="copy(`hsl(${Math.round(formats.hsl.h)}, ${Math.round(formats.hsl.s)}%, ${Math.round(formats.hsl.l)}%)`, 'HSL')"
         >
-          <Copy class="h-5 w-5" />
+          <Copy class="size-4" />
         </BaseButton>
       </div>
     </div>
@@ -68,7 +68,7 @@
           variant="outline"
           @click="copy(`oklch(${(formats.oklch.l / 100).toFixed(3)} ${(formats.oklch.c / 100).toFixed(3)} ${Math.round(formats.oklch.h)})`, 'OKLCH')"
         >
-          <Copy class="h-5 w-5" />
+          <Copy class="size-4" />
         </BaseButton>
       </div>
     </div>
@@ -127,11 +127,11 @@ import { getColorName, getLuminance, getReadableTextColor, rgbToHex } from '@col
 import { computed } from 'vue'
 
 const props = defineProps<{ formats: ColorFormats }>()
-const { toast } = useToast()
+const { info } = useToast()
 
 const copy = async (text: string, label: string) => {
   await navigator.clipboard.writeText(text)
-  toast({ title: 'Copied!', description: `${label} value copied to clipboard` })
+  info(`${label} value copied to clipboard`, { title: 'Copied!' })
 }
 
 // Use RGBA as standard (clamp alpha to 3 decimals to avoid ballooning)

@@ -1,3 +1,4 @@
+import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory';
 import { CalculatorUtils } from '../../constants/CalculatorUtils'
 
 /**
@@ -13,7 +14,7 @@ export class ScientificConstantHandler {
   /**
    * Handle constant input (π, e)
    */
-  handle(constant: string): Record<string, any> {
+  handle(constant: string): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       
@@ -41,7 +42,7 @@ export class ScientificConstantHandler {
     }
   }
 
-  private createResponse(error: string = ""): Record<string, any> {
+  private createResponse(error: string = ""): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: this.calculator.input,
       error: error

@@ -18,20 +18,30 @@
           Contrast checker
         </BaseLabel>
         <div class="flex items-center gap-2">
+          <div class="flex flex-row gap-1">
           <div
-            class="w-8 h-8 rounded border"
+            class="size-6 rounded border"
             :style="{ backgroundColor: convertColor(currentSafe).hex }"
           />
           <span class="text-sm">vs</span>
           <div
-            class="w-8 h-8 rounded border"
+            class="size-6 rounded border"
             :style="{ backgroundColor: convertColor(contrastBg).hex }"
           />
-          <BaseInput
-            :value="convertColor(contrastBg).hex"
-            placeholder="#ffffff"
+          </div>
+          <InputGroup
+            v-model="colorInput"
+            v-model:dropdown-value="selectedFormat"
+            :options="formatOptions"
+            :error="inputError"
+            :placeholder="placeholderForFormat"
+            dropdown-label="Input format"
+            dropdown-placeholder="Auto"
             class="flex-1"
-            @input="(e: Event) => setContrastBg(convertColor((e.target as HTMLInputElement).value).rgb)"
+            @focus="onFocus"
+            @blur="onBlur"
+            @input="onTyping"
+            @keydown.enter="onEnter"
           />
         </div>
         <div class="flex items-center justify-between">
@@ -47,11 +57,17 @@
             WCAG {{ contrastLevel.text === 'Fail' ? 'Non-compliant' : 'Compliant' }}
           </span>
         </div>
-        <div
-          class="p-4 rounded border text-center"
-          :style="{ backgroundColor: convertColor(contrastBg).hex, color: convertColor(currentSafe).hex }"
-        >
-          Sample Text Preview
+          <div
+          class="p-4 rounded border flex justify-center items-center"
+           :style="{ backgroundColor: convertColor(contrastBg).hex, color: convertColor(currentSafe).hex }"
+
+>
+        <textarea
+          v-model="sampleText"
+          @blur="onPreviewBlur"
+          dir="ltr"
+          class="text-center w-full h-5 resize-none focus:ring-0 bg-transparent outline-none"
+        />
         </div>
       </div>
 
@@ -68,7 +84,7 @@
           <div class="flex items-center gap-2">
             <component
               :is="sim.icon"
-              class="h-4 w-4"
+              class="size-4"
             />
             <span class="text-sm">{{ sim.label }}</span>
           </div>
@@ -86,14 +102,24 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import SegmentedControl from '@components/ui/SegmentedControl.vue'
-import { BaseCard, BaseInput, BaseLabel, BaseBadge } from '@components/ui'
+import { BaseCard, BaseLabel, BaseBadge, InputGroup } from '@components/ui'
 import { Eye, EyeOff } from 'lucide-vue-next'
 import { convertColor, simulateColorBlindness, getContrastRatio } from '@color/lib/color'
-import type { RGB } from '@color/lib/color'
+import type { RGB, RGBA } from '@color/lib/color'
 import type { BadgeVariant } from '@composables/ui/useBadge'
+import { useColorInput } from '@color/composables/useColorInput'
 
 const props = defineProps<{ currentColor: RGB, onColorSelect: (c: RGB) => void }>()
 const activeTab = ref<'contrast' | 'vision'>('contrast')
+const sampleText = ref('Sample Text Preview')
+
+const defaultText = 'Sample Text Preview'
+
+function onPreviewBlur() {
+  if (!sampleText.value.trim()) {
+    sampleText.value = defaultText
+  }
+}
 
 const currentSafe = computed<RGB>(() => props.currentColor ?? { r: 0, g: 0, b: 0 })
 
@@ -107,7 +133,9 @@ const contrastLevel = computed((): { variant: BadgeVariant; text: string } => {
   if (ratio >= 3) return { variant: 'warning', text: 'AA Large' }
   return { variant: 'alpha', text: 'Fail' }
 })
-const setContrastBg = (rgb: RGB) => { contrastBg.value = rgb }
+
+const contrastBgRgba = computed(() => ({ ...contrastBg.value, a: 1 }))
+const { selectedFormat, colorInput, inputError, placeholderForFormat, formatOptions, onFocus, onBlur, onEnter, onTyping } = useColorInput(contrastBgRgba, (c: RGBA) => { contrastBg.value = { r: c.r, g: c.g, b: c.b } })
 
 // Vision
 const simulations = computed(() => [

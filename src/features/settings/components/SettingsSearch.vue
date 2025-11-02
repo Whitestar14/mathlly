@@ -23,7 +23,7 @@ defineEmits<Emits>();
         :icon="SearchIcon"
         :autofocus="true"
         aria-label="Search settings"
-        @update:model-value="$emit('update:modelValue', $event)"
+        @update:model-value="$emit('update:modelValue', $event as string)"
       />
     </div>
   </div>

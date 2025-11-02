@@ -151,56 +151,34 @@ const syntaxHighlightingEnabled: ComputedRef<boolean> = computed(() =>
   calculatorOptions.syntaxHighlighting.value
 )
 
-// Enhanced parentheses level styling to handle ghost parentheses
 const getParenthesesLevelClass = (token: Token): string => {
   if (!['open', 'close', 'ghost', 'parenthesis'].includes(token.type)) return ''
   
-  const colors = [
-    'text-blue-600',
-    'text-green-600', 
-    'text-purple-600',
-    'text-orange-600',
-    'text-pink-600'
-  ]
-  
-  let baseColor = colors[(token.parentLevel || 0) % colors.length]
-  
-  // Make ghost parentheses semi-transparent
-  if (token.type === 'ghost') {
-    baseColor += ' opacity-50'
-  }
-  
-  return baseColor
+  if (token.type === 'ghost') return 'paren-ghost'
+  return `paren-level-${Math.min(token.parentLevel || 0, 5)}`
 }
 
 // Enhanced token class to handle spaces and ghost parentheses
 const getTokenClass = (token: Token): string => {
   const baseClasses: Record<string, string> = {
-    'number': 'syntax-number',
+    'number': 'syntax-string',
     'operator': 'syntax-operator',
-    'function': 'syntax-function font-semibold',
-    'parenthesis': 'syntax-parenthesis font-bold',
-    'open': 'syntax-parenthesis font-bold',
-    'close': 'syntax-parenthesis font-bold',
-    'ghost': 'syntax-parenthesis font-bold opacity-50', // Ghost parentheses styling
-    'constant': 'syntax-constant text-green-600 font-bold',
-    'decimal': 'syntax-decimal',
+    'function': 'syntax-func font-semibold',
+    'parenthesis': 'syntax-special font-bold',
+    'open': 'syntax-special font-bold',
+    'close': 'syntax-special font-bold',
+    'ghost': 'syntax-comment font-bold not-italic opacity-40',
+    'constant': 'syntax-constant',
+    'decimal': 'syntax-keyword',
     'space': '',
-    'text': 'syntax-text'
+    'text': 'syntax-keyword'
   }
   
   let baseClass = baseClasses[token.type] || 'syntax-text'
   
   // Add mode-specific enhancements
   if (props.mode === 'Programmer' && token.type === 'number') {
-    switch (props.activeBase) {
-      case 'BIN': baseClass += ' text-green-700'
-        break
-      case 'OCT': baseClass += ' text-yellow-700'
-        break
-      case 'HEX': baseClass += ' text-purple-700'
-        break
-    }
+    baseClass += ` syntax-number-${props.activeBase.toLowerCase()}`
   }
   
   return baseClass

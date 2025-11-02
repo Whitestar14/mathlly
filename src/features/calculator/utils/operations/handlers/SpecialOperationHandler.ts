@@ -1,3 +1,4 @@
+import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory';
 import { CalculatorUtils } from '../../constants/CalculatorUtils';
 import { ParenthesesTracker } from '../../core/ParenthesesTracker';
 
@@ -17,7 +18,7 @@ export class SpecialOperationHandler {
    * Handle absolute value operation (|x|)
    * Creates |x| notation that will be converted to abs(x) by ExpressionConverter
    */
-  handleAbsoluteOperation(): Record<string, any> {
+  handleAbsoluteOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
 
@@ -74,7 +75,7 @@ export class SpecialOperationHandler {
    * Handle factorial operation (n!)
    * Adds ! directly to the input - mathjs handles factorial natively
    */
-  handleFactorialOperation(): Record<string, any> {
+  handleFactorialOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
 
@@ -128,7 +129,7 @@ export class SpecialOperationHandler {
   /**
    * Handle modulo operation
    */
-  handleModuloOperation(): Record<string, any> {
+  handleModuloOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
 
@@ -154,7 +155,7 @@ export class SpecialOperationHandler {
   /**
    * Handle random number generation
    */
-  handleRandomOperation(): Record<string, any> {
+  handleRandomOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
       const randomValue = Math.random().toString();
@@ -184,7 +185,7 @@ export class SpecialOperationHandler {
   /**
    * Handle DMS (Degrees, Minutes, Seconds) conversion
    */
-  handleDMSOperation(): Record<string, any> {
+  handleDMSOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
 
@@ -221,7 +222,7 @@ export class SpecialOperationHandler {
   /**
    * Handle degree conversion
    */
-  handleDegreeOperation(): Record<string, any> {
+  handleDegreeOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input;
 
@@ -255,7 +256,7 @@ export class SpecialOperationHandler {
     }
   }
 
-  private createResponse(error: string = ''): Record<string, any> {
+  private createResponse(error: string = ''): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: this.calculator.input,
       error: error,

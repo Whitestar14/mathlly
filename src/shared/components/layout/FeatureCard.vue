@@ -29,7 +29,10 @@ import {
   CloudIcon,
   HeartIcon,
   ShieldCheckIcon,
-  SparklesIcon
+  SparklesIcon,
+  LayersIcon,
+  ZapIcon,
+  WorkflowIcon
 } from "lucide-vue-next";
 
 defineProps({
@@ -60,7 +63,10 @@ const getFeatureIcon = (iconName) => {
     'FunctionSquare': FunctionSquareIcon,
     'Heart': HeartIcon,
     'ShieldCheck': ShieldCheckIcon,
-    'Sparkles': SparklesIcon
+    'Sparkles': SparklesIcon,
+    'Layers': LayersIcon,
+    'Zap': ZapIcon,
+    'Workflow': WorkflowIcon
   };
   
   return iconMap[iconName] || CalculatorIcon;

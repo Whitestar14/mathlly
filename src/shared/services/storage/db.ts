@@ -8,6 +8,8 @@ export interface HistoryEntry {
   expression?: string;
   result?: string;
   mode?: string;
+  base?: string;
+  baseValues?: Record<string, string>;
 }
 
 export interface MemoryItem {
@@ -39,6 +41,9 @@ export interface Settings {
   startup: {
     navigation: string;
   };
+  keyboard: {
+    shortcutsEnabled: boolean;
+  };
 }
 
 export class PrismDatabase extends Dexie {
@@ -51,10 +56,10 @@ export class PrismDatabase extends Dexie {
     super('prism-app');
 
     this.version(2).stores({
-      history: '++id, timestamp',
       settings: 'id',
+      history: '++id, mode, timestamp, [mode+timestamp]',
       memory: '++id, slot, value, label, mode, timestamp',
-      palettes: 'id, name, createdAt'
+      palettes: 'id, name, createdAt',
     });
   }
 }
@@ -68,7 +73,8 @@ export async function resetDatabase(dbInstance: PrismDatabase): Promise<boolean>
   try {
     dbInstance.close();
     await Dexie.delete('prism-app');
-     
+    localStorage.clear();
+    
     window.location.reload();
      
     return true;

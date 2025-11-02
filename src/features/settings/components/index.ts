@@ -1,5 +1,6 @@
 export { default as AdvancedSection } from './AdvancedSection.vue'
 export { default as AppearanceSection } from './AppearanceSection.vue'
+export { default as KeyboardSection } from './KeyboardSection.vue'
 export { default as SettingsActions } from './SettingsActions.vue'
 export { default as SettingsSearch } from './SettingsSearch.vue'
 export { default as StartupSection } from './StartupSection.vue'

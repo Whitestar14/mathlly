@@ -14,7 +14,6 @@
           :max-length="maxLength"
           :has-memory="hasMemory"
           @button-click="handleButtonClick"
-          @clear="handleClear"
           @base-change="handleBaseChange"
         />
       </Transition>
@@ -32,53 +31,63 @@
   </Suspense>
 </template>
 
-<script setup>
-import { computed, defineAsyncComponent } from 'vue';
+<script setup lang="ts">
+import {
+  inject,
+  computed,
+  defineAsyncComponent,
+} from 'vue';
+import { useVibrate } from '@vueuse/core';
+import type { Base, CalculatorMode } from '@calculator/composables/useCalculatorState';
 
-const props = defineProps({
-  mode: {
-    type: String,
-    required: true,
-    validator: (value) => ['Standard', 'Scientific', 'Programmer'].includes(value)
-  },
-  activeBase: {
-    type: String,
-    required: true
-  },
-  inputLength: {
-    type: Number,
-    required: true
-  },
-  maxLength: {
-    type: Number,
-    default: 50
-  },
-  hasMemory: {
-    type: Boolean,
-    default: false
-  }
+interface Props {
+    mode: CalculatorMode;
+    activeBase: Base;
+    inputLength: number;
+    maxLength?: number;
+    hasMemory?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+    maxLength: 50,
+    hasMemory: false,
 });
 
-const emit = defineEmits(['button-click', 'clear', 'base-change']);
+const emit = defineEmits<{
+    (e: 'button-click', value: string): void;
+    (e: 'base-change', base: Base): void;
+}>();
+
+const options: Record<string, any> = inject('calculatorOptions') ?? {}; 
+
+const { vibrate } = useVibrate({ pattern: 100 });
 
 const StandardMode = defineAsyncComponent(() => import('./modes/StandardMode.vue'));
 const ScientificMode = defineAsyncComponent(() => import('./modes/ScientificMode.vue'));
 const ProgrammerMode = defineAsyncComponent(() => import('./modes/ProgrammerMode.vue'));
 
 const modeComponent = computed(() => {
-  switch (props.mode) {
-    case 'Standard':
-      return StandardMode;
-    case 'Scientific':
-      return ScientificMode;
-    case 'Programmer':
-      return ProgrammerMode;
-    default:
-      return StandardMode;
-  }
+    switch (props.mode) {
+        case 'Standard':
+            return StandardMode;
+        case 'Scientific':
+            return ScientificMode;
+        case 'Programmer':
+            return ProgrammerMode;
+        default:
+            return StandardMode;
+    }
 });
 
-const handleButtonClick = (value) => emit('button-click', value);
-const handleClear = () => emit('clear');
-const handleBaseChange = (base) => emit('base-change', base);
+
+const handleButtonClick = (value: string): void => {
+    if (options.hapticFeedback.value) {
+        vibrate();
+    }
+    emit('button-click', value);
+}
+
+const handleBaseChange = (base: Base): void => {
+    emit('base-change', base);
+}
 </script>

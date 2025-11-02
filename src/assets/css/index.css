@@ -3,7 +3,6 @@
 /* Base layer */
 @import './base/reset.css';
 @import './base/typography.css';
-@import './base/theme-vars.css';
 @import './base/theme.css';
 
 /* Components */
@@ -15,16 +14,14 @@
 
 /* Utilities */
 @import './utilities/patterns.css';
-@import './utilities/scrollbar.css';
 @import './utilities/zindex.css';
 @import './utilities/focus.css';
 
 /* Animations */
 @import './animations/fade.css';
 @import './animations/scale.css';
+@import './animations/slide.css';
 
-/* Tailwind directives should remain in the entry file */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-

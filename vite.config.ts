@@ -105,7 +105,9 @@ export default defineConfig({
   },
   server: {
     port: 8080,
-    open: true,
+    host: '0.0.0.0',
+    allowedHosts: ['dev.local'],
+    open: false,
   },
   define: {
     __VUE_PROD_DEVTOOLS__: false,

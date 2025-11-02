@@ -9,7 +9,7 @@
     <template #trigger>
       <BaseButton
         variant="outline"
-        size="sm"
+        size="sm px-2 py-1 h-8"
         class="flex items-center gap-2"
       >
         <div
@@ -21,16 +21,17 @@
     </template>
 
     <template #default>
-      <div class="p-4 w-72 space-y-4 bg-card rounded-lg">
+      <div :class="isMobile ? 'p-3 w-full max-w-sm space-y-4 bg-card/80 rounded-lg' : 'p-4 w-72 space-y-4 bg-card rounded-lg'">
         <!-- SV panel -->
         <div
           ref="svEl"
-          class="relative w-full h-36 rounded-md cursor-crosshair select-none overflow-hidden"
+          :class="isMobile ? 'relative w-full h-48 rounded-md cursor-crosshair select-none overflow-hidden touch-none' : 'relative w-full h-36 rounded-md cursor-crosshair select-none overflow-hidden touch-none'"
           :style="{ background: `hsl(${hsva.h}, 100%, 50%)` }"
           @pointerdown="onSvPointerDown"
           @pointermove="onSvPointerMove"
           @pointerup="onSvPointerUp"
           @pointerleave="onSvPointerUp"
+          @pointercancel="onSvPointerUp"
         >
           <!-- Make overlays match the rounded corners -->
           <div class="absolute inset-0 rounded-md bg-gradient-to-r from-white to-transparent" />
@@ -48,14 +49,27 @@
         </div>
 
         <!-- Hue slider -->
-        <BaseSlider
-          :model-value="[hsva.h]"
-          :min="0"
-          :max="360"
-          :step="1"
-          class="w-full"
-          @update:model-value="onHueUpdate"
-        />
+        <div class="relative w-full">
+          <div
+            class="absolute inset-0 h-1.5 rounded-full"
+            style="background: linear-gradient(to right, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%));"
+          />
+          <SliderRoot
+            v-model="hueSliderValue"
+            class="relative flex items-center w-full"
+            :min="0"
+            :max="360"
+            :step="1"
+          >
+            <SliderTrack class="relative h-1.5 w-full grow overflow-hidden rounded-full bg-transparent">
+              <SliderRange class="absolute h-full bg-transparent" />
+            </SliderTrack>
+            <SliderThumb
+              class="size-5 cursor-pointer transition-all duration-100 rounded-full border border-primary bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 touch-none"
+              :class="isMobile ? 'size-6' : ''"
+            />
+          </SliderRoot>
+        </div>
 
         <!-- Alpha slider -->
         <div class="bg-checkerboard rounded-md p-2">
@@ -93,10 +107,20 @@ import { useVModel, useElementBounding } from '@vueuse/core'
 import { BasePopover, BaseSlider, BaseInput, BaseButton } from '@components/ui'
 import { Palette } from 'lucide-vue-next'
 import { type RGBA, hexToHsva, hsvaToRgba, rgbaToHex } from '@color/lib/color'
+import { useDeviceStore } from '@stores/device'
+import {
+  SliderRoot,
+  SliderTrack,
+  SliderRange,
+  SliderThumb
+} from 'radix-vue'
 
 // eslint-disable-next-line vue/no-unused-properties
 const props = defineProps<{ modelValue: RGBA }>()
 const emit = defineEmits<{ (e: 'update:modelValue', val: RGBA): void }>()
+
+const device = useDeviceStore()
+const isMobile = computed(() => device.isMobile)
 
 const open = ref(false)
 
@@ -116,7 +140,7 @@ watch(
     const hex = rgbaToHex(rgbaVal, true)
     const parsed = hexToHsva(hex)
     if (parsed) {
-      // If saturation is zero (grayscale) or hue is undefined, preserve existing hue
+      // If saturation is zero (grayscale), preserve existing hue
       const preserveH = hsva.h
       Object.assign(hsva, {
         h: parsed.s === 0 ? preserveH : parsed.h,
@@ -143,9 +167,12 @@ watch(
 )
 
 // Sliders
-function onHueUpdate(v: number[]) {
-  hsva.h = clamp(v[0], 0, 360)
-}
+const hueSliderValue = computed({
+  get: () => [hsva.h],
+  set: (value: number[]) => {
+    hsva.h = clamp(value[0], 0, 360)
+  }
+})
 function onAlphaUpdate(v: number[]) {
   hsva.a = clamp(v[0] / 100, 0, 1)
 }
@@ -188,16 +215,16 @@ function updateSvFromEvent(e: PointerEvent) {
   const rect = svEl.value.getBoundingClientRect()
 
   // Local coordinates clamped to element bounds
-  const localX = clamp(e.clientX - rect.left, 0, rect.width)
-  const localY = clamp(e.clientY - rect.top, 0, rect.height)
+  const localX = Math.max(0, Math.min(e.clientX - rect.left, rect.width))
+  const localY = Math.max(0, Math.min(e.clientY - rect.top, rect.height))
 
   // Fallback to reactive bounding if rect is zero during initial mount
   const w = rect.width || width.value || 1
   const h = rect.height || height.value || 1
 
   // Normalize to [0,1]
-  const s = clamp(localX / w, 0, 1)
-  const v = clamp(1 - localY / h, 0, 1)
+  const s = Math.max(0, Math.min(localX / w, 1))
+  const v = Math.max(0, Math.min(1 - localY / h, 1))
 
   // Update without touching hue
   hsva.s = s

@@ -41,7 +41,7 @@
           <BaseBadge
             :variant="needRefresh ? 'success' : 'info'"
             :text="needRefresh ? 'Yes' : 'No'"
-            size="xs"
+            size="sm"
           />
           <div 
             v-if="needRefresh"
@@ -57,7 +57,7 @@
           <BaseBadge
             :variant="shouldShowUpdate ? 'success' : 'info'"
             :text="shouldShowUpdate ? 'Yes' : 'No'"
-            size="xs"
+            size="sm"
           />
           <div 
             v-if="shouldShowUpdate"
@@ -105,7 +105,7 @@
           <BaseBadge
             :variant="offlineReady ? 'success' : 'info'"
             :text="offlineReady ? 'Ready' : 'Not Ready'"
-            size="xs"
+            size="sm"
           />
         </div>
         <div>
@@ -113,7 +113,7 @@
           <BaseBadge
             :variant="updatesEnabled ? 'success' : 'warning'"
             :text="updatesEnabled ? 'Enabled' : 'Disabled'"
-            size="xs"
+            size="sm"
           />
         </div>
       </div>

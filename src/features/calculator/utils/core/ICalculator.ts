@@ -2,15 +2,14 @@ import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptio
 import { ExpressionEvaluator } from '@calculator/utils/core/ExpressionEvaluator';
 import { CalculatorConstants } from '../constants/CalculatorConstants';
 import { CalculatorUtils } from '../constants/CalculatorUtils';
-import type { CalculatorOptions } from '@features/calculator/types/calculator';
+import { CalculatorResult } from '@features/calculator/composables/MainCalculator';
+import { ICalculatorCore } from '@features/calculator/services/factory/CalculatorFactory';
 
 /**
  * Interface for calculator implementations.
  * All calculator types should implement these methods.
  */
-export class ICalculator {
-  calculatorOptions: ReturnType<typeof useCalculatorOptions>;
-  options: Record<string, any> | CalculatorOptions;
+export abstract class ICalculator implements ICalculatorCore {
   input: string;
   error: string;
   currentExpression: string;
@@ -18,14 +17,13 @@ export class ICalculator {
   evaluator: ExpressionEvaluator;
   operations: any;
   calculations: any;
+  MAX_INPUT_LENGTH: number;
+  calculatorOptions: ReturnType<typeof useCalculatorOptions>
 
   /**
    * Create a calculator instance
    */
   constructor() {
-    // Use calculator options composable
-    this.calculatorOptions = useCalculatorOptions();
-    this.options = this.calculatorOptions.options;
     this.input = '0';
     this.error = '';
     this.currentExpression = '';
@@ -37,6 +35,8 @@ export class ICalculator {
     // Operations will be injected by derived classes
     this.operations = null;
     this.calculations = null;
+    this.MAX_INPUT_LENGTH = 50;
+    this.calculatorOptions = useCalculatorOptions()
   }
 
   /**
@@ -45,7 +45,7 @@ export class ICalculator {
   createErrorResponse(
     error: Error | string,
     fallbackInput: string = 'Error'
-  ): Record<string, any> {
+  ): CalculatorResult {
     const errorMessage = CalculatorUtils.formatError(
       error instanceof Error ? error : new Error(error || 'Operation failed')
     );
@@ -59,14 +59,13 @@ export class ICalculator {
       input: this.input,
       error: this.error,
       expression: this.currentExpression,
-      success: false,
     };
   }
 
   /**
    * Normalizes operation results to a standard response format
    */
-  normalizeResponse(result: any): Record<string, any> {
+  normalizeResponse(result: any): CalculatorResult {
     // Handle null or undefined result
     if (!result) {
       return this.createErrorResponse('Invalid operation result');
@@ -111,7 +110,7 @@ export class ICalculator {
   /**
    * Process button input and route to appropriate handler
    */
-  processButton(btn: string): Record<string, any> {
+  processButton(btn: string): CalculatorResult {
     try {
       this.error = '';
 
@@ -147,7 +146,7 @@ export class ICalculator {
   /**
    * Handle button click - main entry point for button processing
    */
-  handleButtonClick(btn: string): Record<string, any> {
+  handleButtonClick(btn: string): CalculatorResult {
     // Check for error state first
     if (this.input === 'Error' && !['AC', 'CE'].includes(btn)) {
       this.handleClear();
@@ -172,14 +171,14 @@ export class ICalculator {
   /**
    * Handle equals operation
    */
-  handleEquals(): Record<string, any> {
+  handleEquals(): CalculatorResult {
     throw new Error('handleEquals must be implemented in derived class');
   }
 
   /**
    * Handle operator input
    */
-  handleOperator(operator: string): Record<string, any> {
+  handleOperator(operator: string): CalculatorResult {
     void operator;
     throw new Error('handleOperator must be implemented in derived class');
   }
@@ -187,7 +186,7 @@ export class ICalculator {
   /**
    * Handle number input
    */
-  handleNumber(num: string): Record<string, any> {
+  handleNumber(num: string): CalculatorResult {
     void num;
     throw new Error('handleNumber must be implemented in derived class');
   }
@@ -195,14 +194,14 @@ export class ICalculator {
   /**
    * Handle backspace operation
    */
-  handleBackspace(): Record<string, any> {
+  handleBackspace(): CalculatorResult {
     throw new Error('handleBackspace must be implemented in derived class');
   }
 
   /**
    * Clear calculator state
    */
-  handleClear(): Record<string, any> {
+  handleClear(): CalculatorResult {
     this.input = '0';
     this.error = '';
     this.currentExpression = '';

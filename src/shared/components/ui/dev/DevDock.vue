@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue';
-import { useLocalStorage, useWindowSize, useEventListener } from '@vueuse/core';
+import { useWindowSize, useEventListener } from '@vueuse/core';
 import { CodeIcon } from 'lucide-vue-next';
 import DesktopDevDock from './DesktopDevDock.vue';
 import MobileDevDock from './MobileDevDock.vue';
@@ -72,8 +72,11 @@ import PerformancePanel from './PerformancePanel.vue';
 import ConsolePanel from './ConsolePanel.vue';
 import StatePanel from './StatePanel.vue';
 import KeyboardShortcuts from './KeyboardShortcuts.vue';
+import { useAppStorageStore } from '@stores/appStorage';
 
 const isDevEnvironment: boolean = import.meta.env.DEV;
+
+const storageStore = useAppStorageStore();
 
 // Define panel keys as a const array to ensure string literal types
 const PANEL_KEYS = ['pwa', 'version', 'performance', 'console', 'state', 'shortcuts'] as const;
@@ -98,8 +101,12 @@ interface Tool {
 }
 
 // Beta opt-in state
-const hasOptedIn = useLocalStorage('dev-dock-beta-opted-in', false);
-const betaDecisionMade = useLocalStorage('dev-dock-beta-decision-made', false);
+const hasOptedIn = ref(storageStore.get('devDock', 'betaOptedIn', false));
+const betaDecisionMade = ref(storageStore.get('devDock', 'betaDecisionMade', false));
+
+// Watch and sync to storage
+watch(hasOptedIn, (val) => storageStore.set('devDock', 'betaOptedIn', val));
+watch(betaDecisionMade, (val) => storageStore.set('devDock', 'betaDecisionMade', val));
 const showBetaModal = ref(false);
 
 // Show modal on first visit if no decision has been made
@@ -117,19 +124,31 @@ const { width } = useWindowSize();
 const isMobile = computed(() => width.value < 768);
 
 // Persistent state (only initialize if opted in to avoid unnecessary localStorage writes)
-const isExpanded = useLocalStorage('dev-dock-expanded', false);
-const isDockOpen = useLocalStorage('dev-dock-open', false);
-const activePanels = useLocalStorage<ActivePanels>('dev-dock-panels', {
+const isExpanded = ref(storageStore.get('devDock', 'expanded', false));
+const isDockOpen = ref(storageStore.get('devDock', 'open', false));
+
+watch(isExpanded, (val) => storageStore.set('devDock', 'expanded', val));
+watch(isDockOpen, (val) => storageStore.set('devDock', 'open', val));
+const defaultPanels: ActivePanels = {
   pwa: false,
   version: false,
   performance: false,
   console: false,
   state: false,
-  shortcuts: false
-});
+  shortcuts: false,
+}
+
+const activePanels = ref<ActivePanels>(
+  (storageStore.get('devDock', 'panels', defaultPanels) ??
+    defaultPanels) as ActivePanels
+)
+
+watch(activePanels, (val) => storageStore.set('devDock', 'panels', val), { deep: true });
 
 // Desktop panel management - use string instead of keyof
-const currentDesktopPanel = useLocalStorage<string | null>('dev-dock-current-panel', null);
+const currentDesktopPanel = ref<string | null>(storageStore.get('devDock', 'currentPanel', null));
+
+watch(currentDesktopPanel, (val) => storageStore.set('devDock', 'currentPanel', val));
 
 // Mobile-specific state
 const activeMobilePanelIndex = ref(0);
@@ -153,28 +172,28 @@ const tools: Tool[] = [
   {
     key: 'performance',
     icon: 'Activity',
-    label: 'Performance',
+    label: 'Performance Monitor',
     component: PerformancePanel,
     title: 'Performance Monitor'
   },
   {
     key: 'console',
     icon: 'Terminal',
-    label: 'Console',
+    label: 'Console Logger',
     component: ConsolePanel,
     title: 'Console Logger'
   },
   {
     key: 'state',
     icon: 'Database',
-    label: 'State',
+    label: 'State Inspector',
     component: StatePanel,
     title: 'State Inspector'
   },
   {
     key: 'shortcuts',
     icon: 'Keyboard',
-    label: 'Shortcuts',
+    label: 'Keyboard Shortcuts',
     component: KeyboardShortcuts,
     title: 'Keyboard Shortcuts'
   }
@@ -188,9 +207,22 @@ const activePanelKeys = computed((): string[] => {
 });
 
 // Beta opt-in handlers
-const handleBetaOptIn = (): void => {
+const handleBetaOptIn = async (): Promise<void> => {
   hasOptedIn.value = true;
   betaDecisionMade.value = true;
+  showBetaModal.value = false;
+  
+  // Force immediate storage sync
+  storageStore.set('devDock', 'betaOptedIn', true);
+  storageStore.set('devDock', 'betaDecisionMade', true);
+  
+ await nextTick()
+  setTimeout(() => {
+    if (!isMobile.value && activePanelKeys.value.length === 0) {
+      isDockOpen.value = true
+    }
+  }, 200) // allow BaseModal transition to finish
+  
   console.log('🚀 DevDock Beta: Welcome to the beta program!');
   console.log('📝 Please report any issues or feedback');
 };
@@ -198,6 +230,7 @@ const handleBetaOptIn = (): void => {
 const handleBetaDecline = (): void => {
   hasOptedIn.value = false;
   betaDecisionMade.value = true;
+  showBetaModal.value = false;
   console.log('👋 DevDock Beta: Thanks for considering the beta program');
 };
 

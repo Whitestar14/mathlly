@@ -469,7 +469,7 @@ export const CalculatorUtils = {
       /sqr\($/, /cube\($/,
       
       // Other functions
-      /abs\($/, /ceil\($/, /floor\($/, /round\($/, /dms\($/, /deg\($/, /gcd\($/, /lcm\($/,
+      /abs\($/, /ceil\($/, /floor\($/, /round\($/, /dms\($/, /deg\($/, /gcd\($/, /lcm\($/, /mod$/,
       
       // Base power functions
       /10\^\($/, /2\^\($/, /e\^\($/

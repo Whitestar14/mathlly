@@ -28,11 +28,15 @@
             <BaseBadge
               v-if="item.comingSoon"
               variant="soon"
-            >soon</BaseBadge>
+            >
+              soon
+            </BaseBadge>
             <BaseBadge
               v-if="item.isNew"
               variant="new"
-            >new</BaseBadge>
+            >
+              new
+            </BaseBadge>
           </button>
         </NavigationMenuLink>
       </NavigationMenuItem>

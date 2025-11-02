@@ -218,8 +218,8 @@ defineExpose({
   padding: 1px;
   background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: xor;
   -webkit-mask-composite: xor;
+  mask-composite: xor;
   pointer-events: none;
 }
 

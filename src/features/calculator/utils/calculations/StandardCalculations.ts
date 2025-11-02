@@ -6,6 +6,7 @@ import {
 } from './formatters/ResultFormatter';
 import { CalculatorUtils } from '../constants/CalculatorUtils';
 import type { StandardCalculator } from '../../services/logic/StandardCalculator';
+import { useCalculatorOptions } from '@features/calculator/composables/useCalculatorOptions.ts';
 
 /**
  * Handles calculations for calculator modes
@@ -15,6 +16,7 @@ export class StandardCalculations {
   protected formatter: ResultFormatter;
   protected evaluator: ExpressionEvaluator;
   protected calculator?: StandardCalculator;
+  protected options = useCalculatorOptions()
 
   constructor(calculator?: StandardCalculator) {
     this.calculator = calculator;
@@ -74,7 +76,7 @@ export class StandardCalculations {
    * Formats a numeric result according to settings
    */
   public formatResult(result: number): string {
-    const options = this.calculator?.options || {};
+    const options = this.options || {};
     return this._formatResult(result, options);
   }
 

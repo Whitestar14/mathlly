@@ -1,5 +1,5 @@
 import { computed } from 'vue'
-import { createToolOptions } from '@composables/ui/useToolOptions'
+import { useToolOptions } from '@composables/ui/useToolOptions'
 import { CalculatorOptions } from '../types/calculator'
 
 // Default calculator options
@@ -9,16 +9,15 @@ const DEFAULT_CALCULATOR_OPTIONS: CalculatorOptions = {
   useFractions: false,
   syntaxHighlighting: true,
   useThousandsSeparator: true,
-  formatBinary: true,
-  formatHexadecimal: true,
-  formatOctal: true,
+  formatProgrammerNumbers: true,
   angleUnit: 'degrees',
   notationMode: 'standard',
-  hyperbolicMode: false
+  hyperbolicMode: false,
+  hapticFeedback: false,
 }
 
 export function useCalculatorOptions() {
-  const { options, isLoading } = createToolOptions<CalculatorOptions>(
+  const { options, isLoading } = useToolOptions<CalculatorOptions>(
     'calculator',
     'Calculator',
     DEFAULT_CALCULATOR_OPTIONS,
@@ -34,6 +33,14 @@ export function useCalculatorOptions() {
           { value: 'Scientific', label: 'Scientific' },
           { value: 'Programmer', label: 'Programmer' }
         ],
+        section: 'General'
+      },
+      {
+        id: 'hapticFeedback',
+        label: 'Haptic Feedback',
+        description: 'Vibrate on button press (mobile devices only)',
+        type: 'toggle',
+        value: options,
         section: 'General'
       },
       {
@@ -73,25 +80,9 @@ export function useCalculatorOptions() {
         section: 'Number Formatting'
       },
       {
-        id: 'formatBinary',
-        label: 'Format Binary Numbers',
-        description: 'Format binary numbers for better readability',
-        type: 'toggle',
-        value: options,
-        section: 'Number Formatting'
-      },
-      {
-        id: 'formatHexadecimal',
-        label: 'Format Hexadecimal Numbers',
-        description: 'Format hexadecimal numbers for better readability',
-        type: 'toggle',
-        value: options,
-        section: 'Number Formatting'
-      },
-      {
-        id: 'formatOctal',
-        label: 'Format Octal Numbers',
-        description: 'Format octal numbers for better readability',
+        id: 'formatProgrammerNumbers',
+        label: 'Format Programmer Numbers',
+        description: 'Group digits in binary, hexadecimal, and octal numbers for better readability',
         type: 'toggle',
         value: options,
         section: 'Number Formatting'
@@ -129,7 +120,7 @@ export function useCalculatorOptions() {
         type: 'toggle',
         value: options,
         section: 'Scientific'
-      }
+      },
     ]
   )
 
@@ -181,12 +172,11 @@ const cycleAngleMode = () =>
     useFractions: computed(() => options.value.useFractions),
     syntaxHighlighting: computed(() => options.value.syntaxHighlighting),
     useThousandsSeparator: computed(() => options.value.useThousandsSeparator),
-    formatBinary: computed(() => options.value.formatBinary),
-    formatHexadecimal: computed(() => options.value.formatHexadecimal),
-    formatOctal: computed(() => options.value.formatOctal),
+    formatProgrammerNumbers: computed(() => options.value.formatProgrammerNumbers),
     angleUnit: computed(() => options.value.angleUnit),
     notationMode: computed(() => options.value.notationMode),
     hyperbolicMode: computed(() => options.value.hyperbolicMode),
+    hapticFeedback: computed(() => options.value.hapticFeedback),
     
     // Display modes for UI
     angleDisplayMode,

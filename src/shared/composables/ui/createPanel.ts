@@ -1,10 +1,10 @@
-import { shallowRef, computed, nextTick, watch, markRaw, type Ref, type ComputedRef } from 'vue';
-import { useLocalStorage, useDebounceFn, type RemovableRef } from '@vueuse/core';
+import { shallowRef, computed, nextTick, watch, markRaw, onUnmounted, type Ref, type ComputedRef } from 'vue';
+import { useDebounceFn, useEventListener } from '@vueuse/core';
 import { useDraggable } from '@utils/misc/draggable';
+import { useAppStorageStore } from '@stores/appStorage';
 import {
   PanelOptions,
   PanelAPI,
-  PanelPreferences,
   ToggleOptions,
   DraggableReturn
 } from './types';
@@ -30,7 +30,6 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
   } = options;
 
   if (!storageKey) {
-    // If there's no storage key we return a no-op API to avoid runtime errors.
     console.error('usePanel requires a storageKey option.');
     return markRaw({
       isOpen: shallowRef(false),
@@ -51,13 +50,16 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     }) as PanelAPI;
   }
 
-  // Persisted open state per device type
-  const preferences: RemovableRef<PanelPreferences> = useLocalStorage(`${storageKey}-preferences`, {
-    desktop: { isOpen: defaultDesktopState },
-    mobile: { isOpen: false },
+  const storageStore = useAppStorageStore();
+
+  const preferences = computed({
+    get: () => storageStore.get('panels', storageKey, {
+      desktop: { isOpen: defaultDesktopState },
+      mobile: { isOpen: false },
+    }),
+    set: (value) => storageStore.set('panels', storageKey, value),
   });
 
-  // Compute initial open state from persisted preferences synchronously
   const initialIsOpen: ComputedRef<boolean> = computed(() =>
     initialIsMobile ? preferences.value.mobile.isOpen : preferences.value.desktop.isOpen
   );
@@ -73,9 +75,14 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
   const handle: Ref<HTMLElement | null> = shallowRef(null);
   const panel: Ref<HTMLElement | null> = shallowRef(null);
 
-  // Debounced update to persisted preferences to limit storage writes
+  const historyStateKey: Ref<string | null> = shallowRef(null);
+  let popstateCleanup: (() => void) | null = null;
+
   const updatePreferences = useDebounceFn(() => {
-    preferences.value[deviceContext.value].isOpen = isOpen.value;
+    preferences.value = {
+      ...preferences.value,
+      [deviceContext.value]: { isOpen: isOpen.value },
+    };
   }, 300);
 
   const draggable: DraggableReturn = useDraggable({
@@ -88,11 +95,49 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     maxHeight,
   });
 
+  const setupMobileBackButton = (): void => {
+    if (!currentIsMobile.value || !isOpen.value) return;
+    
+    // Push a state to history so back button has something to pop
+    const stateKey = `panel-${storageKey}-${Date.now()}`;
+    history.pushState({ panelKey: stateKey }, '');
+    historyStateKey.value = stateKey;
+    
+    // Listen for popstate (back button)
+    popstateCleanup = useEventListener(window, 'popstate', (event: PopStateEvent) => {
+      const state = event.state;
+      // Check if this popstate is for our panel
+      if (state?.panelKey === historyStateKey.value || historyStateKey.value) {
+        // Close the panel instead of going back
+        close(true);
+        historyStateKey.value = null;
+      }
+    });
+  };
+
+  const cleanupMobileBackButton = (): void => {
+    if (popstateCleanup) {
+      popstateCleanup();
+      popstateCleanup = null;
+    }
+    
+    // If we still have a history state, remove it
+    if (historyStateKey.value) {
+      // Go back to remove our pushed state if panel is closing normally
+      // Only if the current state matches our key
+      if (history.state?.panelKey === historyStateKey.value) {
+        history.back();
+      }
+      historyStateKey.value = null;
+    }
+  };
+
   /**
    * Close the panel.
    * @param isMobile - whether the close is occurring on mobile context (defaults to current context)
    */
   const close = async (isMobile: boolean = currentIsMobile.value): Promise<void> => {
+    cleanupMobileBackButton();
     currentIsMobile.value = isMobile;
 
     if (isMobile && animation() && draggable?.animateClose) {
@@ -101,7 +146,6 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
       isOpen.value = false;
     }
 
-    // Reset expanded state shortly after closing to allow any animation to finish
     setTimeout(() => (isExpanded.value = false), 300);
     updatePreferences();
   };
@@ -114,6 +158,11 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     currentIsMobile.value = isMobile;
     isOpen.value = true;
     updatePreferences();
+
+    if (isMobile) {
+      await nextTick();
+      setupMobileBackButton();
+    }
 
     if (isMobile && animation() && draggable) {
       await nextTick();
@@ -135,7 +184,6 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     const { expanded = false, isMobile = currentIsMobile.value } = options;
 
     if (expanded) {
-      // Only allow expansion on mobile while the panel is open
       if (!currentIsMobile.value || !isOpen.value) return;
       isExpanded.value = !isExpanded.value;
       if (draggable) nextTick(updatePanelDimensions);
@@ -155,7 +203,6 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     if (currentIsMobile.value === newIsMobile) return;
     currentIsMobile.value = newIsMobile;
 
-    // On switch to mobile collapse the panel; on switch to desktop restore desktop preference
     isOpen.value = newIsMobile ? false : preferences.value.desktop.isOpen;
     updatePreferences();
 
@@ -166,12 +213,14 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     draggable?.updatePanelDimensions?.();
   }, 100);
 
-  // Persist changes to open/expanded state
   watch([isOpen, isExpanded], updatePreferences, { flush: 'post' });
+
+  onUnmounted(() => {
+    cleanupMobileBackButton();
+  });
 
   const api: PanelAPI = {
     isOpen,
-    preloadIsOpen: initialIsOpen,
     isMobile: currentIsMobile,
     isExpanded,
     panel,

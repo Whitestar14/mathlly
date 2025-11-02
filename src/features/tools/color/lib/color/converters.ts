@@ -1,6 +1,6 @@
 // src/features/tools/color/composables/converters.ts
 import { converter, formatHex, parse } from "culori"
-import { RGB, RGBA, HSL, HSV, OKLCH, LAB, ColorFormats } from "./types"
+import { RGB, RGBA, HSL, HSV, OKLCH, LAB, ColorFormats, isRGB, isHSL, isHSV, isLAB, isOKLCH, isRGBA } from "./types"
 
 const toRgb = converter("rgb")
 const toHsl = converter("hsl")
@@ -16,16 +16,48 @@ const fromCuloriRgb = (c: any): RGB => ({
   g: clamp255((c?.g ?? 0) * 255),
   b: clamp255((c?.b ?? 0) * 255),
 })
+
 const toCuloriRgb = (rgb: RGB | RGBA) => ({
-  r: clamp01((rgb.r ?? 0) / 255),
-  g: clamp01((rgb.g ?? 0) / 255),
-  b: clamp01((rgb.b ?? 0) / 255),
-  a: "a" in rgb ? clamp01((rgb as any).a ?? 1) : undefined,
+  r: clamp01(rgb.r / 255),
+  g: clamp01(rgb.g / 255),
+  b: clamp01(rgb.b / 255),
+  a: "a" in rgb ? clamp01(rgb.a ?? 1) : undefined,
   mode: "rgb" as const,
 })
+
+export const toCuloriHsl = (hsl: HSL) => ({
+  h: hsl.h,
+  s: hsl.s / 100,
+  l: hsl.l / 100,
+  mode: "hsl" as const,
+})
+
+export const toCuloriHsv = (hsv: HSV) => ({
+  h: hsv.h,
+  s: hsv.s / 100,
+  v: hsv.v / 100,
+  mode: "hsv" as const,
+})
+
+export const toCuloriOklch = (oklch: OKLCH) => ({
+  l: oklch.l / 100,
+  c: oklch.c / 100,
+  h: oklch.h,
+  mode: "oklch" as const,
+})
+
+export const toCuloriLab = (lab: LAB) => ({
+  l: lab.l / 100,
+  a: lab.a / 100,
+  b: lab.b / 100,
+  mode: "lab" as const,
+})
+
+
 const getAlpha = (c: any): number | undefined =>
   typeof c?.a === "number" ? Math.max(0, Math.min(1, c.a)) : undefined
 
+// --- converters ---
 export function hexToRgb(hex: string): RGB {
   const c = toRgb(hex)
   return c ? fromCuloriRgb(c) : { r: 0, g: 0, b: 0 }
@@ -81,18 +113,18 @@ export function convertColor(input: string | RGB | RGBA | HSL | HSV | OKLCH | LA
   let c: any
   if (typeof input === "string") {
     c = parse(input) ?? toCuloriRgb({ r: 0, g: 0, b: 0 })
-  } else if ("a" in (input as any)) {
-    c = toCuloriRgb(input as RGBA)
-  } else if ("r" in (input as any)) {
-    c = toCuloriRgb(input as RGB)
-  } else if ("h" in (input as any) && "s" in (input as any) && "l" in (input as any)) {
-    c = { h: (input as HSL).h, s: (input as HSL).s / 100, l: (input as HSL).l / 100, mode: "hsl" }
-  } else if ("h" in (input as any) && "s" in (input as any) && "v" in (input as any)) {
-    c = { h: (input as HSV).h, s: (input as HSV).s / 100, v: (input as HSV).v / 100, mode: "hsv" }
-  } else if ("l" in (input as any) && "c" in (input as any) && !("a" in (input as any))) {
-    c = { l: (input as OKLCH).l / 100, c: (input as OKLCH).c / 100, h: (input as OKLCH).h, mode: "oklch" }
-  } else if ("l" in (input as any) && "a" in (input as any) && "b" in (input as any) && !("c" in (input as any))) {
-    c = { l: (input as LAB).l / 100, a: (input as LAB).a / 100, b: (input as LAB).b / 100, mode: "lab" }
+  } else if (isRGBA(input)) {
+    c = toCuloriRgb(input)
+  } else if (isRGB(input)) {
+    c = toCuloriRgb(input)
+  } else if (isHSL(input)) {
+    c = toCuloriHsl(input)
+  } else if (isHSV(input)) {
+    c = toCuloriHsv(input)
+  } else if (isOKLCH(input)) {
+    c = toCuloriOklch(input)
+  } else if (isLAB(input)) {
+    c = toCuloriLab(input)
   } else {
     c = toCuloriRgb({ r: 0, g: 0, b: 0 })
   }
@@ -119,5 +151,4 @@ export function convertColor(input: string | RGB | RGBA | HSL | HSV | OKLCH | LA
   }
 }
 
-// re-export helpers for other modules
 export { fromCuloriRgb, toCuloriRgb, clamp01, clamp255 }
