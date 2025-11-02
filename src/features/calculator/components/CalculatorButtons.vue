@@ -13,12 +13,8 @@
           :input-length="inputLength"
           :max-length="maxLength"
           :has-memory="hasMemory"
-          :current-value="currentValue"
-          :current-bit-width="currentBitWidth"
           @button-click="handleButtonClick"
           @base-change="handleBaseChange"
-          @bit-toggle="handleBitToggle"
-          @bit-width-change="handleBitWidthChange"
         />
       </Transition>
     </template>
@@ -42,7 +38,6 @@ import {
   defineAsyncComponent,
 } from 'vue';
 import { useVibrate } from '@vueuse/core';
-import type { BitWidth } from '@calculator/utils/core/BitManipulation';
 import type { Base, CalculatorMode } from '@calculator/composables/useCalculatorState';
 
 interface Props {
@@ -51,22 +46,16 @@ interface Props {
     inputLength: number;
     maxLength?: number;
     hasMemory?: boolean;
-    currentValue?: number;
-    currentBitWidth?: BitWidth;
 }
 
 const props = withDefaults(defineProps<Props>(), {
     maxLength: 50,
     hasMemory: false,
-    currentValue: 0,
-    currentBitWidth: 64,
 });
 
 const emit = defineEmits<{
     (e: 'button-click', value: string): void;
     (e: 'base-change', base: Base): void;
-    (e: 'bit-toggle', bitPosition: number): void;
-    (e: 'bit-width-change', width: BitWidth): void;
 }>();
 
 const options: Record<string, any> = inject('calculatorOptions') ?? {}; 
@@ -100,13 +89,5 @@ const handleButtonClick = (value: string): void => {
 
 const handleBaseChange = (base: Base): void => {
     emit('base-change', base);
-}
-
-const handleBitToggle = (bitPosition: number): void => {
-    emit('bit-toggle', bitPosition);
-}
-
-const handleBitWidthChange = (width: BitWidth): void => {
-    emit('bit-width-change', width);
 }
 </script>

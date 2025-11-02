@@ -186,7 +186,6 @@ export function useTheme(): UseThemeReturn {
   const toggleTheme = (): void => {
     let newTheme: ThemeOption
 
-    console.error("[useTheme]: Toggle theme triggered from composable")
     if (selectedTheme.value === THEME_OPTIONS.SYSTEM) {
       // If system, flip relative to current effective mode
       newTheme = isDark.value ? THEME_OPTIONS.LIGHT : THEME_OPTIONS.DARK

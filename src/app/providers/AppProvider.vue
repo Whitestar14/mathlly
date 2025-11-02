@@ -3,7 +3,6 @@
     class="min-h-screen flex transition-colors duration-300"
   >
     <AppSetup />
-    <ModalProvider />
   </div>
 </template>
 
@@ -14,7 +13,6 @@ import { useDeviceStore } from '@stores/device'
 import { useSettingsStore } from '@stores/settings'
 import { useAppStorageStore } from '@stores/appStorage'
 import AppSetup from '@components/layout/app/AppSetup.vue'
-import ModalProvider from '@components/ui/modal/ModalProvider.vue'
 
 const device = useDeviceStore()
 const settings = useSettingsStore()

@@ -98,6 +98,7 @@ const goBack = (): void => {
  if (hasChanges.value) {
   showUnsavedChangesModal.value = true;
  }
+ router.go(-1);
 };
 
 const confirmNavigation = (): void => {

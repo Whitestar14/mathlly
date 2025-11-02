@@ -69,11 +69,7 @@
           :max-length="maxInputLength"
           :active-base="state.activeBase"
           :has-memory="hasMemoryValue"
-          :current-value="currentDecimalValue"
-          :current-bit-width="currentBitWidth"
           @button-click="handleButtonClick"
-          @bit-toggle="handleBitToggle"
-          @bit-width-change="(width: BitWidth) => currentBitWidth = width"
         />
       </div>
     </div>
@@ -127,10 +123,6 @@ import {
   isProgrammerCalculator,
 } from '@calculator/services/factory/CalculatorFactory';
 import { useCalculatorSession } from '@calculator/composables/useCalculatorSession';
-import {
-  toggleBit,
-  type BitWidth,
-} from '@calculator/utils/core/BitManipulation';
 import type { BaseType } from '@calculator/utils/constants/CalculatorConstants';
 
 import { CalculatorButtons } from '@calculator/components';
@@ -227,51 +219,6 @@ const maxInputLength: ComputedRef<number> = computed(
 const hasMemoryValue: ComputedRef<boolean> = computed(
   () => memoryService.hasMemory(currentMode.value).value
 );
-
-const currentDecimalValue: ComputedRef<number> = computed(() => {
-  if (state.mode !== 'Programmer') return 0;
-  // @ts-ignore
-  if (!isProgrammerCalculator(calculator.value)) return 0;
-
-  try {
-    // @ts-ignore
-    const decState = calculator.value.states.DEC;
-    if (!decState?.input) return 0;
-    return parseInt(decState.input, 10) || 0;
-  } catch {
-    return 0;
-  }
-});
-
-const currentBitWidth = ref<BitWidth>(64);
-
-const handleBitToggle = (bitPosition: number): void => {
-  if (state.mode !== 'Programmer') return;
-  // @ts-ignore
-  if (!isProgrammerCalculator(calculator.value)) return;
-
-  try {
-    const currentValue = currentDecimalValue.value;
-    const newValue = toggleBit(
-      currentValue,
-      bitPosition,
-      currentBitWidth.value
-    );
-
-    // Update calculator state
-    calculator.value.updateAllStates(newValue);
-    const newInput = calculator.value.states.DEC.input;
-
-    updateState({ input: newInput });
-
-    // Update all base displays
-    const updatedValues = calculator.value.updateDisplayValues(newInput);
-    updateDisplayValues(updatedValues);
-  } catch (err) {
-    console.error('Bit toggle error:', err);
-    updateState({ error: 'Bit toggle failed' });
-  }
-};
 
 const openActivity = (): void | Promise<void> => activityPanel.open();
 

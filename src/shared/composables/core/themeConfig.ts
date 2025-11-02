@@ -115,7 +115,7 @@ const THEME_PACK_LIST = [
     description: 'Warm sepia tones inspired by aged paper and earth',
     preset: 'siena',
     preview: { light: '#C19A6B', dark: '#8B6F47' },
-    pwaColors: { light: '#C19A6B', dark: '#8B6F47' },
+    pwaColors: { light: '#ede3dc', dark: '#8B6F47' },
     default: false,
   }),
   createPack('ayu', {

@@ -91,21 +91,24 @@
       class="flex h-full w-full flex-1 flex-col gap-1"
     >
       <BitToggleGrid
-        :value="currentValue"
+        :value="currentDecimalValue"
         :bit-width="bitWidth"
-        @bit-toggle="emit('bit-toggle', $event)"
+        @bit-toggle="handleBitToggle"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, type Component } from 'vue'
+import { ref, computed, inject, type Component, type Ref } from 'vue'
 import { CalculatorButton } from '@calculator/components'
 import { SegmentedControl } from '@components/ui'
 import BitToggleGrid from '@calculator/components/BitToggleGrid.vue'
 import { Grid3x3, Binary } from 'lucide-vue-next'
 import { numberRows, programmerFirstRow, programmerSecondRow, memoryOperations, hexLetters } from './NumberRows'
+import { toggleBit } from '@calculator/utils/core/BitManipulation'
+import { isProgrammerCalculator, type Calculator } from '@calculator/services/factory/CalculatorFactory'
+import type { CalculatorState } from '@calculator/composables/useCalculatorState'
 
 type BitWidthValue = 16 | 32 | 64
 type ViewMode = 'keypad' | 'bits'
@@ -115,15 +118,18 @@ interface Props {
   inputLength: number
   maxLength: number
   hasMemory: boolean
-  currentValue: number
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<{
   (e: 'button-click', value: string): void
   (e: 'clear'): void
-  (e: 'bit-toggle', bitPosition: number): void
 }>()
+
+// Inject dependencies
+const calculator = inject<Ref<Calculator>>('calculator')!
+const updateState = inject<(updates: Partial<CalculatorState>) => void>('updateState')!
+const updateDisplayValues = inject<(values: Record<string, any>) => void>('updateDisplayValues')!
 
 const viewMode = ref<ViewMode>('keypad')
 
@@ -146,6 +152,45 @@ const cycleBitWidth = () => {
   if (bitWidth.value === 16) bitWidth.value = 32
   else if (bitWidth.value === 32) bitWidth.value = 64
   else bitWidth.value = 16
+}
+
+const currentDecimalValue = computed(() => {
+  if (!isProgrammerCalculator(calculator.value)) return 0
+
+  try {
+    const decState = calculator.value.states.DEC
+    if (!decState?.input) return 0
+    return parseInt(decState.input, 10) || 0
+  } catch {
+    return 0
+  }
+})
+
+// Handle bit toggle internally
+const handleBitToggle = (bitPosition: number): void => {
+  if (!isProgrammerCalculator(calculator.value)) return
+
+  try {
+    const currentValue = currentDecimalValue.value
+    const newValue = toggleBit(
+      currentValue,
+      bitPosition,
+      bitWidth.value
+    )
+
+    // Update calculator state
+    calculator.value.updateAllStates(newValue)
+    const newInput = calculator.value.states.DEC.input
+
+    updateState({ input: newInput })
+
+    // Update all base displays
+    const updatedValues = calculator.value.updateDisplayValues(newInput)
+    updateDisplayValues(updatedValues)
+  } catch (err) {
+    console.error('Bit toggle error:', err)
+    updateState({ error: 'Bit toggle failed' })
+  }
 }
 
 const isMaxLengthReached = computed(() => props.inputLength >= props.maxLength)

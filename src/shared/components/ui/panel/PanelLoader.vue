@@ -23,12 +23,10 @@ interface Props {
   isOpen: boolean
   side: 'left' | 'right'
   widthRem?: number
-  widthPx?: number
   componentProps?: Record<string, any>
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  widthPx: 256,
   componentProps: () => ({}),
 })
 
@@ -37,7 +35,6 @@ const sideClasses = computed(() =>
 )
 
 const inlineSize = computed(() => {
-  if (props.widthPx) return { width: `${props.widthPx}px` }
   const rem = props.widthRem ?? 16
   return { width: `${rem}rem` }
 })

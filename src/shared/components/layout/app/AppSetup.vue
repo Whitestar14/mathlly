@@ -3,6 +3,13 @@
     class="flex flex-col flex-grow transition-[padding] duration-300"
     :class="mainContentClasses"
   >
+    <!-- Route loading indicator -->
+    <div
+      v-show="showRouteLoading"
+      class="fixed left-0 top-0 h-0.5 w-full z-[100]"
+    >
+      <div class="h-full w-full bg-primary animate-[loading_1.2s_ease-in-out_infinite]" />
+    </div>
     <app-header
       :is-sidebar-open="unref(sidebarPanel.isOpen)"
       :is-menubar-open="unref(menuPanel.isOpen)"
@@ -40,12 +47,13 @@
     />
 
     <Toast :is-mobile="device.isMobile" />
+    <ModalProvider />
     <ShortcutGuide v-model:show="isShortcutModalOpen" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, computed, shallowRef, defineAsyncComponent, unref } from 'vue'
+import { onMounted, onUnmounted, computed, shallowRef, defineAsyncComponent, unref, ref, watch } from 'vue'
 import { useDeviceStore } from '@stores/device'
 import { useKeyboardStore } from '@stores/keyboard'
 import { useSettingsStore } from '@stores/settings'
@@ -61,18 +69,23 @@ import { base64Manifest } from '@base64/lib/shortcuts'
 import { colorManifest } from '@color/lib/shortcuts'
 
 import { RouterView } from 'vue-router'
+import { isRouteLoading } from '@router/router'
+import { useTimeoutFn } from '@vueuse/core'
 
+// Note for future maintainers: the order of these imports are important
+// because of the lazy loading of the components, ModalProvider must be imported after the other components
+// imported lazily along with ShortcutGuide.vue. Do NOT MOVE THESE COMPONENTS AROUND.
+// or the MainCalculator.vue panel loader will break!
 const SidebarMenu = defineAsyncComponent(() => import('../sidebar/SidebarMenu.vue'))
 const MainMenu = defineAsyncComponent(() => import('../sidebar/MainMenu.vue'))
 const Toast = defineAsyncComponent(() => import('@components/ui/BaseToast.vue'))
 const ShortcutGuide = defineAsyncComponent(() => import('../modal/ShortcutGuide.vue'))
-
+const ModalProvider = defineAsyncComponent(() => import('@components/ui/modal/ModalProvider.vue'))
 const device = useDeviceStore()
 const settings = useSettingsStore()
 const keyboard = useKeyboardStore()
 const { toggleTheme } = useTheme()
 
-// init keyboard shortcuts
 ;[globalManifest, calculatorManifest, base64Manifest, colorManifest].flat().forEach(cfg => keyboard.register(cfg))
 
 onMounted(() => {
@@ -82,7 +95,7 @@ onMounted(() => {
     'Ctrl+L': () => sidebarPanel.toggle(),
     'Ctrl+M': () => menuPanel.toggle(),
     'Ctrl+Space': () => openShortcutModal(),
-    'Ctrl+Shift+M': () => {toggleTheme(); console.log("Triggered from the command")},
+    'Ctrl+Shift+K': () => toggleTheme(),
   })
   keyboard.pushContext('global')
 })
@@ -104,4 +117,28 @@ const mainContentClasses = computed(() => {
   if (unref(menuPanel.isOpen)) classes.push('md:pr-64')
   return classes
 })
+
+const showRouteLoading = ref(false)
+let cancelShow: (() => void) | null = null
+let cancelHide: (() => void) | null = null
+
+watch(isRouteLoading, (loading) => {
+  if (loading) {
+    cancelHide?.()
+    const { stop } = useTimeoutFn(() => (showRouteLoading.value = true), 120)
+    cancelShow = stop
+  } else {
+    cancelShow?.()
+    const { stop } = useTimeoutFn(() => (showRouteLoading.value = false), 150)
+    cancelHide = stop
+  }
+})
 </script>
+
+<style scoped>
+@keyframes loading {
+  0% { transform: translateX(-100%); }
+  50% { transform: translateX(50%); }
+  100% { transform: translateX(200%); }
+}
+</style>
