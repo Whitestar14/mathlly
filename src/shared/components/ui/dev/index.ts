@@ -1,7 +1,6 @@
 export { default as ConsolePanel } from './ConsolePanel.vue'
 export { default as DesktopDevDock } from './DesktopDevDock.vue'
 export { default as DevDock } from './DevDock.vue'
-export { default as DevDockBetaModal } from './DevDockBetaModal.vue'
 export { default as DevPanel } from './DevPanel.vue'
 export { default as DockItem } from './DockItem.vue'
 export { default as DockToolbar } from './DockToolbar.vue'

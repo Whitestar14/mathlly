@@ -44,6 +44,10 @@ export interface Settings {
   keyboard: {
     shortcutsEnabled: boolean;
   };
+  experimental: {
+    commandPaletteEnabled: boolean;
+    devDockEnabled: boolean;
+  }
 }
 
 export class PrismDatabase extends Dexie {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { CircleHelp } from 'lucide-vue-next';
-import { RadioGroupRoot, RadioGroupItem } from 'radix-vue';
+import { RadioGroupRoot, RadioGroupItem, Separator } from 'radix-vue';
 import { ToggleBar, BaseCollapsible } from '@components/ui';
 import type { Settings } from '@services/storage/db';
 
@@ -39,7 +39,7 @@ const localSettings = computed({
   <BaseCollapsible
     v-if="isVisible"
     id="themes"
-    title="Themes & Preferences"
+    title="Appearance"
     icon="Palette"
     :default-open="true"
   >
@@ -148,6 +148,8 @@ const localSettings = computed({
           Choose between sharp modern edges or rounded friendly corners
         </p>
       </div>
+
+      <Separator class="h-px w-full bg-border" />
 
       <!-- Check for Updates -->
       <div class="flex items-center justify-between py-2">

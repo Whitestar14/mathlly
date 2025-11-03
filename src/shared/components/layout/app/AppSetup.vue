@@ -31,7 +31,7 @@
         name="fade"
         mode="out-in"
       >
-        <component 
+        <component
           :is="Component"
           :settings="settings"
           :is-mobile="device.isMobile"
@@ -49,6 +49,9 @@
     <Toast :is-mobile="device.isMobile" />
     <ModalProvider />
     <ShortcutGuide v-model:show="isShortcutModalOpen" />
+
+    <!-- Command Palette (completely self-contained) -->
+    <CommandPalette />
   </div>
 </template>
 
@@ -81,6 +84,8 @@ const MainMenu = defineAsyncComponent(() => import('../sidebar/MainMenu.vue'))
 const Toast = defineAsyncComponent(() => import('@components/ui/BaseToast.vue'))
 const ShortcutGuide = defineAsyncComponent(() => import('../modal/ShortcutGuide.vue'))
 const ModalProvider = defineAsyncComponent(() => import('@components/ui/modal/ModalProvider.vue'))
+const CommandPalette = defineAsyncComponent(() => import('@components/ui/CommandPalette.vue'))
+
 const device = useDeviceStore()
 const settings = useSettingsStore()
 const keyboard = useKeyboardStore()

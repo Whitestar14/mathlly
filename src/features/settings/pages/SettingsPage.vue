@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
-// Assuming these paths are correct
 import { useSettingsStore, DEFAULT_SETTINGS } from '@stores/settings';
 import { useKeyboardStore } from '@stores/keyboard';
 import { BasePage, BaseButton } from '@components/ui'
@@ -11,7 +10,7 @@ import type { Settings } from '@services/storage/db';
 import { filterByQuery } from '@utils/string/queryFilter';
 import { cloneDeep } from '@utils/object/objectUtils';
 import { settingsManifest } from '@settings/composables/settingsManifest';
-import { SettingsSearch, StartupSection, AppearanceSection, AdvancedSection, KeyboardSection, SettingsActions, UnsavedChangesModal } from '@settings/components';
+import { SettingsSearch, StartupSection, AppearanceSection, AdvancedSection, KeyboardSection, SettingsActions, UnsavedChangesModal, ExperimentalSection } from '@settings/components';
 
 defineProps<Props>()
 
@@ -66,6 +65,10 @@ const storeSnapshot = computed((): Settings => ({
  keyboard: {
   shortcutsEnabled: settingsStore.keyboard?.shortcutsEnabled ?? DEFAULT_SETTINGS.keyboard.shortcutsEnabled,
  },
+ experimental: {
+  commandPaletteEnabled: settingsStore.experimental?.commandPaletteEnabled ?? DEFAULT_SETTINGS.experimental.commandPaletteEnabled,
+  devDockEnabled: settingsStore.experimental?.devDockEnabled ?? DEFAULT_SETTINGS.experimental?.commandPaletteEnabled
+ }
 }));
 
 const hasChanges = computed((): boolean => {
@@ -211,14 +214,19 @@ const handleManualPWAInstall = async () => {
           @update:settings="updateSettings"
         />
 
-        <AdvancedSection :is-visible="isRendered('advanced')" />
+        <ExperimentalSection
+          :settings="localSettings"
+          :is-visible="isRendered('experimental')"
+          @update:settings="updateSettings"
+        />
 
+        <AdvancedSection :is-visible="isRendered('advanced')" />
 
         <div
           v-if="filteredManifest.length === 0 && searchQuery"
           class="text-center py-10"
         >
-          <p class="text-foreground text-lg">
+          <p class="text-foreground text-md">
             No settings found for "{{ searchQuery }}".
           </p>
           <p class="text-sm text-muted-foreground">

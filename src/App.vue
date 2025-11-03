@@ -15,7 +15,7 @@
   </Suspense>
 
   <UpdateNotification />
-  <DevDock />
+  <DevDock v-if="settings.experimental.devDockEnabled" />
 </template>
 
 <script setup lang="ts">

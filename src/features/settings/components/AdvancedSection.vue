@@ -51,7 +51,7 @@ const cancelResetDatabase = (): void => {
   <BaseCollapsible
     v-if="isVisible"
     id="advanced"
-    title="Advanced Settings"
+    title="Advanced"
     icon="Settings"
     :default-open="false"
   >
@@ -68,9 +68,8 @@ const cancelResetDatabase = (): void => {
 
         <p class="text-sm text-muted-foreground mb-3">
           If you're experiencing issues with the app, you can reset the
-          database to default settings. This will delete all your
-          calculation history, tool settings, and restore default
-          settings.
+          database to default settings. Before attempting this, try disabling experimental features
+          if you have them enabled and see it it resolves your issue
         </p>
 
         <div class="flex justify-end">

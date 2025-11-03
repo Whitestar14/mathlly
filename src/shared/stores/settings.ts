@@ -26,6 +26,10 @@ export const DEFAULT_SETTINGS: Settings = {
   keyboard: {
     shortcutsEnabled: true,
   },
+  experimental: {
+    commandPaletteEnabled: false,
+    devDockEnabled: false,
+  },
 }
 
 type FlattenedSettings = Record<string, any>
@@ -42,6 +46,7 @@ export const useSettingsStore = defineStore('settings', {
     appearance: (state): any => createSettingsProxy(state, 'appearance'),
     startup: (state): any => createSettingsProxy(state, 'startup'),
     keyboard: (state): any => createSettingsProxy(state, 'keyboard'),
+    experimental: (state): any => createSettingsProxy(state, 'experimental'),
   },
 
   actions: {

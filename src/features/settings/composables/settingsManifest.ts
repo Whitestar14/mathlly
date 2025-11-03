@@ -72,4 +72,19 @@ export const settingsManifest: SettingsManifestItem[] = [
       'bindings',
     ],
   },
+  {
+    id: 'experimental',
+    title: 'Experimental Features',
+    icon: 'FlaskConicalIcon',
+    keywords: [
+      'beta',
+      'experimental',
+      'command palette',
+      'cmd+k',
+      'ctrl+k',
+      'shortcuts',
+      'navigation',
+      'early access',
+    ],
+  },
 ];

@@ -181,6 +181,31 @@ export function useTheme(): UseThemeReturn {
     }
   })
 
+  // Add storage event listener for cross-tab theme pack sync
+  if (typeof window !== 'undefined') {
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'app:theme-pack') {
+        const newPack = event.newValue as ThemePackOption
+        if (newPack && selectedThemePack.value !== newPack && newPack in themePackConfigs) {
+          selectedThemePack.value = newPack
+          applyAll(selectedTheme.value, newPack, prefersDark.value, isDark)
+        }
+      }
+      // Also sync theme variants
+      if (event.key === 'app:theme-variants') {
+        try {
+          const newVariants = JSON.parse(event.newValue || '{}')
+          if (newVariants && typeof newVariants === 'object') {
+            themeVariants.value = newVariants
+            const pack = selectedThemePack.value
+            const variants = themeVariants.value[pack] ?? {}
+            applyPack(pack, variants)
+          }
+        } catch {}
+      }
+    })
+  }
+
   const isSystemTheme: ComputedRef<boolean> = computed(() => selectedTheme.value === THEME_OPTIONS.SYSTEM)
 
   const toggleTheme = (): void => {

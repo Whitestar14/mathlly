@@ -31,7 +31,7 @@ const localSettings = computed({
   <BaseCollapsible
     v-if="isVisible"
     id="startup"
-    title="Startup Preferences"
+    title="Startup"
     icon="Power"
     :default-open="true"
   >
