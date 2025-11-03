@@ -140,7 +140,7 @@ const cancelResetDatabase = (): void => {
       </div>
 
       <div
-        class="flex items-start gap-3 p-3 bg-accent/50 border border-border rounded-lg"
+        class="flex items-start gap-3 p-3 bg-accent/15 border border-border rounded-lg"
       >
         <div class="text-muted-foreground mt-0.5">
           <CircleHelp class="h-5 w-5" />
