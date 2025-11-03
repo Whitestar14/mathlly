@@ -1,7 +1,7 @@
 <template>
-  <div class="relative bg-card p-6 rounded-lg border border-border hover:shadow-lg transition-colors duration-300">
+  <div class="relative bg-card p-6 rounded-xl border border-border transition-colors duration-300">
     <div class="flex items-center gap-2 mb-4">
-      <div class="p-2 bg-primary/10 rounded-lg">
+      <div class="p-2 bg-primary/10 rounded-xl">
         <component
           :is="getFeatureIcon(icon)"
           class="h-6 w-6 text-primary"

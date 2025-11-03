@@ -133,7 +133,7 @@
           <div
             v-for="stat in statistics"
             :key="stat.label"
-            class="bg-muted dark:bg-background/50 rounded-lg p-6 text-center shadow-sm hover:shadow-md transition-shadow duration-300 border border-border dark:border-border/50"
+            class="bg-muted dark:bg-background/50 rounded-xl p-6 text-center shadow-sm transition-shadow duration-300 border border-border dark:border-border/50"
           >
             <h3
               class="text-3xl md:text-4xl font-bold text-primary dark:text-primary mb-2"
@@ -240,7 +240,7 @@
               Why Choose Prism?
             </h2>
             <div
-              class="bg-background dark:bg-background rounded-lg p-6 shadow-sm border border-border dark:border-border"
+              class="bg-background dark:bg-background rounded-xl p-6 shadow-sm border border-border dark:border-border"
             >
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div
@@ -272,7 +272,7 @@
               Our Mission
             </h2>
             <div
-              class="bg-background dark:bg-background rounded-lg shadow-sm border border-border dark:border-border overflow-hidden"
+              class="bg-background dark:bg-background rounded-xl shadow-sm border border-border dark:border-border overflow-hidden"
             >
               <div class="flex flex-col md:flex-row">
                 <div class="md:w-2/3 p-6">
@@ -314,7 +314,7 @@
           v-motion
           :initial="{ opacity: 0, y: 20 }"
           :enter="{ opacity: 1, y: 0 }"
-          class="relative overflow-hidden rounded-lg shadow-lg"
+          class="relative overflow-hidden rounded-xl shadow-lg"
         >
           <!-- Logo accent -->
           <div class="flex top-10 -left-5 absolute justify-center max-h-[60px]">
@@ -326,11 +326,7 @@
             <h2
               class="text-2xl md:text-3xl font-mono font-medium mb-4 text-background"
             >
-              Ready to experience
-              <kbd
-                class="inline-block bg-background/10 dark:bg-background/30 px-2 py-1 rounded text-background dark:text-background border border-background/20"
-              >
-                prism</kbd>?
+              Ready to experience <b class="text-secondary">prism</b>?
             </h2>
 
             <p
@@ -372,6 +368,7 @@
             <div class="mt-8 flex justify-center">
               <BaseBadge
                 variant="accent"
+                class="shadow-md text-primary-foreground/80 border-primary-foreground/20"
                 :text="version.versionInfo.full"
                 :show-notch="false"
               />
@@ -393,7 +390,7 @@
 
           <!-- Background with grid pattern -->
           <div
-            class="absolute inset-0 pattern-grid opacity-10 dark:opacity-50"
+            class="absolute inset-0 pattern-grid opacity-10 dark:opacity-25"
           />
 
           <!-- Decorative elements -->
