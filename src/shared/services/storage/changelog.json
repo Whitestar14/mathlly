@@ -1,6 +1,26 @@
 {
   "updates": [
     {
+      "version": "0.14.0",
+      "date": "November 3, 2025",
+      "features": [
+        "@milestone: Major UI/Design System overhaul with new Tailwind CSS components, themes, and animations",
+        "@milestone: Introduced comprehensive Color Tool with palette management, harmonies, gradients, and accessibility features",
+        "@milestone: Enhanced Calculator with bit manipulation, haptic feedback, and improved scientific functions",
+        "@milestone: Added Experimental features including Command Palette and Developer Tools",
+        "@planned: Added the barebones for widgets as the toolkit expands to supporting Converter",
+        "Massively improve Base64 and closed the parity gap with standards and is now feature-complete",
+        "Improved app performance by lazy-loading components with fallback and restructing the executing of tasks at runtime",
+        "Enhanced app by giving it a refresh and changing some icons into more appropriate descriptors",
+        "Added new seria, monaco, and ayu theme pack to the now migrated theme selector in the Menu panel, renaming classic theme to orion",
+        "Refactored app preference persistence by moving to a unified appStorage management for ease of extensibility",
+        "Fixed multiple bugs in calculator and made the experience more user-friendly and the display theme-adaptive",
+        "Introduced history for Programmer mode and added isolated histories for scientific and standard modes respectively",
+        "Rewrote the keybinding shortcuts store and registration and it is now, finally feature-complete",
+        "Enhanced type safety across the application and it should not behave more predictably"
+      ]
+    },
+    {
       "version": "0.13.1",
       "date": "September 19, 2025",
       "features": [
