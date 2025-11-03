@@ -2,14 +2,12 @@
   <div class="group relative">
     <ContextMenu
       :side-offset="5"
-      align="start"
-    >
+      align="start">
       <template #trigger>
         <div
           class="rounded-lg hover:bg-secondary/80 bg-secondary p-3 transition-colors cursor-pointer relative"
           :class="{ 'animate-highlight': selectedId === memorySlot.id }"
-          @click="$emit('recall', memorySlot)"
-        >
+          @click="$emit('recall', memorySlot)">
           <div class="flex items-center justify-between mb-2">
             <div class="flex items-center gap-2">
               <div class="w-6 h-6 rounded bg-primary/10 flex items-center justify-center">
@@ -19,7 +17,7 @@
                 {{ memorySlot.label }}
               </span>
             </div>
-            <!-- Desktop delete button (hover only) -->
+
             <BaseButton
               v-if="memorySlot.id !== undefined"
               v-tippy="{ content: 'Delete slot' }"
@@ -27,27 +25,24 @@
               size="icon"
               class="w-6 h-6 opacity-100 md:opacity-0 md:group-hover:opacity-100"
               :class="buttonClasses"
-              @click.stop="actionHandlers.delete"
-            >
+              @click.stop="actionHandlers.delete">
               <TrashIcon class="h-3 w-3" />
             </BaseButton>
           </div>
-          
+
           <div class="text-lg font-medium text-foreground break-all">
             {{ formatValue(memorySlot.value) }}
           </div>
-          
+
           <div class="flex items-end justify-between mt-2">
             <div class="text-xs text-muted-foreground">
               {{ timeAgo }}
             </div>
-            
-            <!-- Action buttons with responsive styling -->
-            <div 
+
+            <div
               class="flex items-center gap-1"
               :class="isMobile ? '' : 'opacity-0 group-hover:opacity-100 transition-opacity'"
-              @click.stop
-            >
+              @click.stop>
               <BaseButton
                 v-for="action in availableActions"
                 :key="action.key"
@@ -55,50 +50,40 @@
                 variant="ghost"
                 size="icon"
                 :class="buttonClasses"
-                @click="action.handler"
-              >
+                @click="action.handler">
                 <component
                   :is="action.icon"
-                  class="h-3 w-3"
-                />
+                  class="h-3 w-3" />
               </BaseButton>
             </div>
           </div>
         </div>
       </template>
 
-      <!-- Context Menu Items with proper separators -->
       <template
         v-for="item in contextMenuItems"
-        :key="item.key"
-      >
-        <!-- Render separator -->
-        <ContextMenuSeparator 
-          v-if="item.type === 'separator'" 
-          class="h-px bg-muted my-1" 
-        />
-        
-        <!-- Render menu item -->
+        :key="item.key">
+
+        <ContextMenuSeparator
+          v-if="item.type === 'separator'"
+          class="h-px bg-muted my-1" />
+
         <ContextMenuItem
           v-else
           :class="item.class"
-          @click="item.handler"
-        >
+          @click="item.handler">
           <component
             :is="item.icon"
-            class="mr-2 h-4 w-4"
-          />
+            class="mr-2 h-4 w-4" />
           <span>{{ item.label }}</span>
         </ContextMenuItem>
       </template>
     </ContextMenu>
 
-    <!-- Edit Label Modal -->
     <BaseModal
       v-if="memorySlot.id !== undefined"
       v-model:open="showEditLabel"
-      description="edit-label-dialog"
-    >
+      description="edit-label-dialog">
       <template #title>
         <div class="flex items-center">
           <EditIcon class="h-5 w-5 text-primary mr-2" />
@@ -116,14 +101,12 @@
             class="w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             placeholder="Enter label..."
             maxlength="50"
-            @keydown.enter="handleSaveLabel"
-          >
+            @keydown.enter="handleSaveLabel" />
         </div>
         <div class="flex justify-end space-x-2">
           <BaseButton
             variant="outline"
-            @click="showEditLabel = false"
-          >
+            @click="showEditLabel = false">
             Cancel
           </BaseButton>
           <BaseButton @click="handleSaveLabel">
@@ -136,23 +119,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, inject, type Ref, type ComputedRef } from "vue";
-import { 
-  TrashIcon, 
-  CheckIcon, 
-  CopyIcon, 
-  EditIcon, 
-  PlusIcon, 
-  MinusIcon 
-} from "lucide-vue-next";
+import { ref, computed, inject, type Ref, type ComputedRef } from 'vue'
+import {
+  TrashIcon,
+  CheckIcon,
+  CopyIcon,
+  EditIcon,
+  PlusIcon,
+  MinusIcon
+} from 'lucide-vue-next'
 import {
   ContextMenuItem,
-  ContextMenuSeparator,
-} from "radix-vue";
+  ContextMenuSeparator
+} from 'radix-vue'
 import { BaseButton, BaseModal, ContextMenu } from '@components/ui'
-import type { MemorySlot } from "@calculator/composables/useMemory";
-import type { Calculator } from "@calculator/services/factory/CalculatorFactory";
-import { useTimeAgo } from '@vueuse/core';
+import type { MemorySlot } from '@calculator/composables/useMemory'
+import type { Calculator } from '@calculator/services/factory/CalculatorFactory'
+import { useTimeAgo } from '@vueuse/core'
 
 interface Props {
   memorySlot: MemorySlot;
@@ -170,73 +153,65 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  selectedId: null,
-});
+  selectedId: null
+})
 
-const emit = defineEmits<Emits>();
+const emit = defineEmits<Emits>()
 
-// Inject dependencies from parent components
-const calculator = inject<Ref<Calculator>>('calculator')!;
-const currentInput = inject<ComputedRef<string>>('currentInput')!;
-const isMobile = inject<ComputedRef<boolean>>('isMobile')!;
+const calculator = inject<Ref<Calculator>>('calculator')!
+const currentInput = inject<ComputedRef<string>>('currentInput')!
+const isMobile = inject<ComputedRef<boolean>>('isMobile')!
 
-// Local state
-const showEditLabel: Ref<boolean> = ref(false);
-const editLabelValue: Ref<string> = ref(props.memorySlot.label || '');
+const showEditLabel: Ref<boolean> = ref(false)
+const editLabelValue: Ref<string> = ref(props.memorySlot.label || '')
 
-// Format value for display
 const formatValue = (value: any): string => {
   if (typeof value === 'object' && value.toString) {
-    return value.toString();
+    return value.toString()
   }
-  return String(value);
-};
+  return String(value)
+}
 
-// Format timestamp for display
-const timeAgo = useTimeAgo(props.memorySlot.timestamp);
+const timeAgo = useTimeAgo(props.memorySlot.timestamp)
 
-// Responsive button classes
-const buttonClasses = computed(() => 
-  isMobile.value 
-    ? 'w-7 h-7 bg-background/80 hover:bg-background border border-border/50'
-    : 'w-6 h-6'
-);
+const buttonClasses = computed(() =>
+  isMobile.value ?
+    'w-7 h-7 bg-background/80 hover:bg-background border border-border/50' :
+    'w-6 h-6'
+)
 
-// Get current calculator value
 const getCurrentValue = (): number => {
   if (!calculator.value || !currentInput.value) {
-    console.warn('Calculator or current input not available');
-    return 0;
+    console.warn('Calculator or current input not available')
+    return 0
   }
 
   try {
-    const value = calculator.value.evaluateExpression(currentInput.value);
-    return typeof value === 'number' ? value : parseFloat(String(value));
-  } catch (error) {
-    console.error('Error evaluating current input:', error);
-    return 0;
+    const value = calculator.value.evaluateExpression(currentInput.value)
+    return typeof value === 'number' ? value : parseFloat(String(value))
+  } catch(error) {
+    console.error('Error evaluating current input:', error)
+    return 0
   }
-};
+}
 
-// Action handlers
 const actionHandlers = {
   save: () => emit('save-to-slot', props.memorySlot, getCurrentValue()),
   edit: () => {
-    editLabelValue.value = props.memorySlot.label || '';
-    showEditLabel.value = true;
+    editLabelValue.value = props.memorySlot.label || ''
+    showEditLabel.value = true
   },
   add: () => emit('add-to-slot', props.memorySlot, getCurrentValue()),
   subtract: () => emit('subtract-from-slot', props.memorySlot, getCurrentValue()),
   delete: () => {
     if (props.memorySlot.id !== undefined) {
-      emit('delete', props.memorySlot.id);
+      emit('delete', props.memorySlot.id)
     }
   },
   recall: () => emit('recall', props.memorySlot),
   copy: () => emit('copy', props.memorySlot)
-};
+}
 
-// Available actions for buttons
 const availableActions = computed(() => [
   {
     key: 'save',
@@ -262,12 +237,11 @@ const availableActions = computed(() => [
     tooltip: 'Subtract current value',
     handler: actionHandlers.subtract
   }
-]);
+])
 
-// Context menu items with separators in the right places
 const contextMenuItems = computed(() => {
   const items = [
-    // Basic actions
+
     {
       key: 'recall',
       type: 'item',
@@ -284,7 +258,7 @@ const contextMenuItems = computed(() => {
       class: 'context-menu-item',
       handler: actionHandlers.copy
     },
-    // Edit label (only if slot has ID)
+
     ...(props.memorySlot.id !== undefined ? [{
       key: 'edit-context',
       type: 'item' as const,
@@ -293,14 +267,12 @@ const contextMenuItems = computed(() => {
       class: 'context-menu-item',
       handler: actionHandlers.edit
     }] : []),
-    
-    // First separator
+
     {
       key: 'separator1',
-      type: 'separator' as const,
+      type: 'separator' as const
     },
-    
-    // Math operations
+
     {
       key: 'add-context',
       type: 'item' as const,
@@ -317,14 +289,12 @@ const contextMenuItems = computed(() => {
       class: 'context-menu-item',
       handler: actionHandlers.subtract
     },
-    
-    // Second separator (only if delete option exists)
+
     ...(props.memorySlot.id !== undefined ? [{
       key: 'separator2',
-      type: 'separator' as const,
+      type: 'separator' as const
     }] : []),
-    
-    // Delete option (only if slot has ID)
+
     ...(props.memorySlot.id !== undefined ? [{
       key: 'delete-context',
       type: 'item' as const,
@@ -333,18 +303,17 @@ const contextMenuItems = computed(() => {
       class: 'context-menu-item-danger',
       handler: actionHandlers.delete
     }] : [])
-  ];
+  ]
 
-  return items;
-});
+  return items
+})
 
-// Handle save label with proper type checking
 const handleSaveLabel = (): void => {
   if (editLabelValue.value.trim() && props.memorySlot.id !== undefined) {
-    emit('edit-label', props.memorySlot.id, editLabelValue.value.trim());
+    emit('edit-label', props.memorySlot.id, editLabelValue.value.trim())
   }
-  showEditLabel.value = false;
-};
+  showEditLabel.value = false
+}
 </script>
 
 <style>

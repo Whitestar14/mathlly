@@ -1,44 +1,61 @@
-<template>
-  <div class="group relative bg-background rounded-lg border border-border p-6 hover:shadow-md transition-colors">
-    <!-- Version Badge -->
-    <div class="absolute -top-3 right-4">
-      <BaseBadge
-        variant="custom"
-        :text="`v${version}`"
-        :show-notch="true"
-      />
-    </div>
-    
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-base font-mono font-medium tracking-tight flex items-center">
-        <TagIcon class="h-4 w-4 mr-2 text-primary" />
-        Release
-      </h3>
-      <span class="text-xs text-muted-foreground">{{ date }}</span>
-    </div>
-    
-    <ul class="space-y-3">
-      <li
-        v-for="(feature, index) in features"
-        :key="index"
-        class="flex items-start group/item"
-      >
-        <CheckCircle2 class="h-4 w-4 text-green-500 mt-1 mr-3 shrink-0 opacity-75 group-hover/item:opacity-100 transition-opacity" />
-        <span class="text-sm text-muted-foreground">{{ feature }}</span>
-      </li>
-    </ul>
-  </div>
-</template>
-
 <script setup lang="ts">
-import { TagIcon, CheckCircle2 } from 'lucide-vue-next';
-import { BaseBadge } from '@components/ui'
-
-interface Props {
-  version: string;
-  date: string;
-  features: string[];
-}
-
-defineProps<Props>();
+defineProps({
+  title: { type: String, required: false, default: '' },
+  subtitle: { type: String, required: false, default: '' },
+  as: { type: String, required: false, default: 'div' }
+})
 </script>
+
+<template>
+  <component
+    :is="as || 'div'"
+    class="rounded-lg border bg-card border-border overflow-hidden border-collapse"
+    v-bind="$attrs">
+
+    <div
+      v-if="title || subtitle || $slots.head || $slots.header"
+      class="px-4 py-2 bg-muted/50 dark:bg-muted/40 border-b border-border">
+      <div class="flex items-center justify-between gap-4">
+
+        <div class="flex items-center gap-3 min-w-0">
+
+          <slot name="head">
+            <div v-if="title || subtitle">
+              <h3
+                v-if="title"
+                class="text-sm font-medium leading-6 truncate">
+                {{ title }}
+              </h3>
+              <p
+                v-if="subtitle"
+                class="text-xs text-muted-foreground mt-1 truncate">
+                {{ subtitle }}
+              </p>
+            </div>
+          </slot>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <slot name="header"></slot>
+        </div>
+      </div>
+    </div>
+
+    <div class="p-3 md:p-6 bg-card">
+      <slot></slot>
+    </div>
+
+    <div
+      v-if="$slots.footer || $slots.actions"
+      class="px-3 py-2 border-t border-border bg-muted/25 dark:bg-muted/20">
+      <div class="flex items-center justify-between">
+        <div>
+          <slot name="footer"></slot>
+        </div>
+        <div class="flex items-center gap-2">
+          <slot name="actions"></slot>
+        </div>
+      </div>
+    </div>
+  </component>
+</template>

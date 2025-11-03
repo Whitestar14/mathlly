@@ -6,18 +6,18 @@ export interface Token {
   parentLevel?: number
 }
 
-export type TokenType = 
-  | 'number'
-  | 'operator'
-  | 'function'
-  | 'parenthesis'
-  | 'constant'
-  | 'decimal'
-  | 'space'
-  | 'text'
-  | 'open'
-  | 'close'
-  | 'ghost'
+export type TokenType =
+  | 'number' |
+  'operator' |
+  'function' |
+  'parenthesis' |
+  'constant' |
+  'decimal' |
+  'space' |
+  'text' |
+  'open' |
+  'close' |
+  'ghost'
 
 /**
  * Utility class for token type classification and validation

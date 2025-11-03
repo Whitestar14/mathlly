@@ -9,14 +9,12 @@
       }
     ]"
     :disabled="disabled"
-    @click="$emit('click', value)"
-  >
-    <component 
-      :is="icon" 
-      v-if="icon" 
+    @click="$emit('click', value)">
+    <component
+      :is="icon"
+      v-if="icon"
       class="w-6 h-6 mx-auto"
-      :class="{ 'opacity-50': disabled }"
-    />
+      :class="{ 'opacity-50': disabled }" />
     <slot v-else>
       {{ value }}
     </slot>
@@ -32,7 +30,7 @@ defineProps({
   variant: {
     type: String,
     default: 'number',
-    validator: (val) => ['number', 'operator', 'function', 'memory'].includes(val)
+    validator: val => ['number', 'operator', 'function', 'memory'].includes(val)
   },
   icon: {
     type: [Object, Function],
@@ -42,7 +40,7 @@ defineProps({
     type: Boolean,
     default: false
   }
-});
+})
 
-defineEmits(['click']);
+defineEmits(['click'])
 </script>

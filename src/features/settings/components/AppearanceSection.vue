@@ -1,12 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue';
-import { CircleHelp } from 'lucide-vue-next';
-import { RadioGroupRoot, RadioGroupItem } from 'radix-vue';
-import { SelectBar, ToggleBar, BaseCollapsible } from '@components/ui';
-import ThemePackSelector from './ThemePackSelector.vue';
-import type { Settings } from '@services/storage/db';
-import type { ThemePackOption } from '@composables/core/useTheme';
-
+import { computed } from 'vue'
+import { CircleHelp } from 'lucide-vue-next'
+import { RadioGroupRoot, RadioGroupItem, Separator } from 'radix-vue'
+import { ToggleBar, BaseCollapsible } from '@components/ui'
+import type { Settings } from '@services/storage/db'
 
 interface Props {
   settings: Settings;
@@ -17,75 +14,51 @@ interface Emits {
   (e: 'update:settings', settings: Settings): void;
 }
 
-const props = defineProps<Props>();
-const emit = defineEmits<Emits>();
-
-const themeOptions = [
-  { value: 'light', label: 'Light' },
-  { value: 'dark', label: 'Dark' },
-  { value: 'system', label: 'System' },
-];
+const props = defineProps<Props>()
+const emit = defineEmits<Emits>()
 
 const textSizeOptions = [
   { value: 'small', label: 'Small' },
   { value: 'normal', label: 'Normal' },
   { value: 'medium', label: 'Medium' },
-  { value: 'large', label: 'Large' },
-];
+  { value: 'large', label: 'Large' }
+]
 
 const borderRadiusOptions = [
   { value: 'sharp', label: 'Sharp' },
-  { value: 'rounded', label: 'Rounded' },
-];
+  { value: 'rounded', label: 'Rounded' }
+]
 
 const localSettings = computed({
   get: () => props.settings,
-  set: (value) => emit('update:settings', value),
-});
+  set: value => emit('update:settings', value)
+})
 </script>
 
 <template>
   <BaseCollapsible
     v-if="isVisible"
     id="themes"
-    title="Themes & Preferences"
+    title="Appearance"
     icon="Palette"
-    :default-open="true"
-  >
+    :default-open="true">
     <div class="space-y-6">
-      <!-- Theme Pack Selection -->
-      <ThemePackSelector v-model="localSettings.appearance.themePack as ThemePackOption" />
-
-      <!-- Theme Mode Selection -->
-      <div>
-        <label
-          for="theme"
-          class="text-sm font-medium text-foreground mb-1.5 block"
-        >
-          Theme Mode
-        </label>
-        <SelectBar
-          v-model="localSettings.appearance.theme"
-          :options="themeOptions"
-        />
-        <p class="mt-1 text-xs text-muted-foreground">
-          Choose your preferred color theme or follow system settings
+      <div class="px-3 py-2 rounded-md bg-muted/40 border border-border/40">
+        <p class="text-xs text-muted-foreground">
+          <span class="font-bold">Theme settings</span> have been moved to the menu (open the menu and select "Themes") for a more immediate experience and to avoid first-paint flicker.
         </p>
       </div>
 
-      <!-- Text Size -->
       <div>
         <label
           for="textSize"
-          class="text-sm font-medium text-foreground mb-1.5 block"
-        >
+          class="text-sm font-medium text-foreground mb-1.5 block">
           Text Size
         </label>
         <div class="mt-2">
           <RadioGroupRoot
             v-model="localSettings.display.textSize"
-            class="inline-flex items-center rounded-md bg-muted p-1"
-          >
+            class="inline-flex items-center rounded-md bg-muted p-1">
             <div class="flex space-x-1">
               <RadioGroupItem
                 v-for="option in textSizeOptions"
@@ -96,8 +69,7 @@ const localSettings = computed({
                   localSettings.display.textSize === option.value
                     ? 'bg-background shadow-sm text-foreground'
                     : 'text-muted-foreground hover:text-foreground',
-                ]"
-              >
+                ]">
                 {{ option.label }}
               </RadioGroupItem>
             </div>
@@ -108,14 +80,12 @@ const localSettings = computed({
         </p>
       </div>
 
-      <!-- Animation Toggle -->
       <div class="flex items-center justify-between py-2">
         <div class="max-w-[80%]">
           <div class="flex items-center gap-2">
             <label
               for="animationDisabled"
-              class="text-sm font-medium text-foreground"
-            >
+              class="text-sm font-medium text-foreground">
               Disable Animation
             </label>
             <CircleHelp
@@ -127,8 +97,7 @@ const localSettings = computed({
                   return true;
                 },
               }"
-              class="h-4 w-4 cursor-help"
-            />
+              class="h-4 w-4 cursor-help" />
           </div>
           <p class="text-xs text-muted-foreground">
             Turn off animations for improved performance or reduced motion
@@ -137,19 +106,16 @@ const localSettings = computed({
         <ToggleBar v-model="localSettings.appearance.animationDisabled" />
       </div>
 
-      <!-- Border Style -->
       <div>
         <label
           for="borderRadius"
-          class="text-sm font-medium text-foreground mb-1.5 block"
-        >
+          class="text-sm font-medium text-foreground mb-1.5 block">
           Border Style
         </label>
         <div class="mt-2">
           <RadioGroupRoot
             v-model="localSettings.appearance.borderRadius"
-            class="inline-flex items-center rounded-md bg-muted p-1"
-          >
+            class="inline-flex items-center rounded-md bg-muted p-1">
             <div class="flex space-x-1">
               <RadioGroupItem
                 v-for="option in borderRadiusOptions"
@@ -160,8 +126,7 @@ const localSettings = computed({
                   localSettings.appearance.borderRadius === option.value
                     ? 'bg-background shadow-sm text-foreground'
                     : 'text-muted-foreground hover:text-foreground',
-                ]"
-              >
+                ]">
                 {{ option.label }}
               </RadioGroupItem>
             </div>
@@ -172,14 +137,14 @@ const localSettings = computed({
         </p>
       </div>
 
-      <!-- Check for Updates -->
+      <Separator class="h-px w-full bg-border" />
+
       <div class="flex items-center justify-between py-2">
         <div class="max-w-[80%]">
           <div class="flex items-center gap-2">
             <label
               for="checkForUpdates"
-              class="text-sm font-medium text-foreground"
-            >
+              class="text-sm font-medium text-foreground">
               Check for Updates
             </label>
           </div>

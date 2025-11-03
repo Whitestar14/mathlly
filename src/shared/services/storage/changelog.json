@@ -1,6 +1,21 @@
 {
   "updates": [
     {
+      "version": "0.13.1",
+      "date": "September 19, 2025",
+      "features": [
+        "Refactored Base64 tool into modular composables and components for better maintainability",
+        "Fixed Base64 decode/encode bugs with Unicode-safe handling (TextEncoder/TextDecoder) and improved validation",
+        "Added file drag-and-drop overlay and centralized file input handling to support desktop and mobile uploads",
+        "Introduced reusable UI pieces: TextAreaField, FileUpload, Base64Tabs, and PopoverItem for consistent styling",
+        "Implemented mobile-friendly quick actions using a compact popover and preserved desktop inline actions",
+        "Resolved various template/lint issues and improved component attribute ordering and accessibility",
+        "Polished UX: inline validation errors, per-tab buffers, smooth overlay transitions, and preserved input modes",
+        "Improved tests and developer ergonomics by extracting file/drag logic into `useBase64FileUI` and file operations into `useFileOperations`",
+        "Minor bugfixes and formatting improvements across Base64-related components and composables"
+      ]
+    },
+    {
       "version": "0.13.0",
       "date": "August 3, 2025",
       "features": [

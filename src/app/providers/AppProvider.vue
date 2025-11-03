@@ -1,58 +1,58 @@
 <template>
-  <div 
-    class="min-h-screen flex transition-colors duration-300"
-    :class="globalClasses"
-  >
-    <slot />
+  <div
+    class="min-h-screen flex transition-colors duration-300">
+    <AppSetup />
   </div>
 </template>
-  
+
 <script setup lang="ts">
-import { watch, onMounted, computed } from 'vue';
-import { createPanelContext } from '@composables/ui/panelContext';
-import { useDeviceStore } from '@stores/device';
-import { useSettingsStore } from '@stores/settings';
-import { usePWATheme } from '@composables/core/usePWATheme';
+import { computed, watch, watchEffect, onMounted, type Ref } from 'vue'
+import { createPanelContext } from '@composables/ui/panelContext'
+import { useDeviceStore } from '@stores/device'
+import { useSettingsStore } from '@stores/settings'
+import { useAppStorageStore } from '@stores/appStorage'
+import AppSetup from '@components/layout/app/AppSetup.vue'
 
-type TextSize = 'small' | 'normal' | 'medium' | 'large';
+const device = useDeviceStore()
+const settings = useSettingsStore()
+const { actions } = createPanelContext()
 
-interface PanelActions {
-  setMobile: (isMobile: boolean) => void;
+const storageStore = useAppStorageStore()
+storageStore.initialize()
+
+onMounted(() => { device.initializeDeviceInfo() })
+
+watch(() => device.isMobile, newVal => {
+  actions.setMobile(newVal)
+}, { immediate: true })
+
+function useBodyClasses(classes: Ref<Record<string, boolean>>) {
+  watchEffect(() => {
+    document.body.classList.forEach(cls => {
+      if (cls.startsWith('border-style-')) {
+        document.body.classList.remove(cls)
+      }
+    })
+
+    Object.entries(classes.value).forEach(([cls, active]) => {
+      document.body.classList.toggle(cls, active)
+    })
+  })
 }
 
-// Store instances
-const device = useDeviceStore();
-const settings = useSettingsStore();
-const { actions }: { actions: PanelActions } = createPanelContext();
+const globalClasses = computed(() => ({
+  'animation-disabled': settings.appearance.animationDisabled,
+  [`border-style-${settings.appearance.borderRadius}`]: true
+}))
 
-usePWATheme();
+useBodyClasses(globalClasses)
 
-onMounted(() => {
-  actions.setMobile(device.isMobile);
-});
+const textSize = computed(() => settings.display.textSize ?? 'medium')
 
-watch(() => device.isMobile, (newIsMobile: boolean) => {
-  actions.setMobile(newIsMobile);
-});
-
-const globalClasses = computed(() => {
-  const classes = [];
-  if (settings.appearance.animationDisabled) {
-    classes.push('animation-disabled');
+watch(textSize, newSize => {
+  const root = document.documentElement
+  for (const size of ['small', 'normal', 'medium', 'large']) {
+    root.classList.toggle(`ts-${size}`, size === newSize)
   }
-  classes.push(`border-style-${settings.appearance.borderRadius}`);
-  return classes;
-});
-
-const textSize = computed(() => 
-  (settings.display.textSize as TextSize) || "medium"
-);
-
-// Update text size classes
-watch(textSize, (newSize) => {
-  const root = document.documentElement;
-  ['small', 'normal', 'medium', 'large'].forEach(size => {
-    root.classList.toggle(`ts-${size}`, size === newSize);
-  });
-}, { immediate: true });
+}, { immediate: true })
 </script>

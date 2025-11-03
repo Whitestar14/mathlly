@@ -1,103 +1,129 @@
-import { ref, onMounted, onUnmounted, readonly } from "vue"
-import { useToast, type ToastAction } from "@composables/ui/useToast"
+import { ref, readonly, type Ref } from 'vue'
+import { useEventListener, useMediaQuery } from '@vueuse/core'
+import { useAppStorageStore } from '@stores/appStorage'
+import type { AppDataBlob } from '@stores/appStorage'
+
+const pwaInstalledFlagKey = 'pwaInstalled'
+
+let listenersInitialized = false
+let storageHydrated = false
+
+const deferredPrompt = ref<any | null>(null)
+const canInstall = ref(false)
+const isInstalled = ref(false)
+
+const dismissedInstall = ref<boolean>(false)
+const installPromptVisits = ref<number>(0)
+const installPromptSeen = ref<boolean>(false)
+const hasInstalledPreviously = ref<boolean>(false)
 
 export function usePWAInstallPrompt() {
-  const deferredPrompt = ref<Event | null>(null)
-  const isPWAInstalled = ref(false)
-  const hasVisitedBefore = ref(false)
-  const hasShownPrompt = ref(false)
+  const storageStore = useAppStorageStore()
 
-  const { toast } = useToast()
-
-  /**
-   * Checks if the app is currently installed as a PWA.
-   */
-  const checkPWAStatus = () => {
-    const mediaQuery = window.matchMedia("(display-mode: standalone)")
-    isPWAInstalled.value = mediaQuery.matches || (navigator as any).standalone
+  if (!storageHydrated) {
+    storageHydrated = true
+    dismissedInstall.value = storageStore.get('pwa', 'dismissedInstall', false) ?? false
+    installPromptVisits.value = storageStore.get('pwa', 'installPromptVisits', 0) ?? 0
+    installPromptSeen.value = storageStore.get('pwa', 'installPromptSeen', false) ?? false
+    hasInstalledPreviously.value = storageStore.get('pwa', pwaInstalledFlagKey, false) ?? false
   }
 
-  /**
-   * Handles the 'beforeinstallprompt' event, storing it and potentially showing the toast.
-   */
-  const handleBeforeInstallPrompt = (e: Event) => {
-    e.preventDefault()
-    deferredPrompt.value = e
-
-    if (!isPWAInstalled.value && hasVisitedBefore.value && !hasShownPrompt.value) {
-      triggerPWAInstallToast()
-      hasShownPrompt.value = true
-    }
-  }
-
-  /**
-   * Handles the 'appinstalled' event, confirming installation to the user.
-   */
-  const handleAppInstalled = () => {
-    isPWAInstalled.value = true
-    deferredPrompt.value = null
-    hasShownPrompt.value = false
-
-    toast({
-      title: "Prism is installed!",
-      message: "You can now launch Prism directly from your home screen.",
-      type: "success",
-      duration: 5000,
-    })
-  }
-
-  /**
-   * Triggers the PWA installation toast notification.
-   */
-  const triggerPWAInstallToast = () => {
-    // Define the action for the toast
-    const installAction: ToastAction = {
-      label: "Install",
-      onClick: async () => {
-        if (deferredPrompt.value) {
-          (deferredPrompt.value as any).prompt()
-          const { outcome } = await (deferredPrompt.value as any).userChoice
-          console.log(`User response to the install prompt: ${outcome}`)
-          deferredPrompt.value = null
-        }
-      },
-    }
-
-    toast({
-      id: 99999,
-      title: "Install Prism for quick access!",
-      message: "Add Prism to your home screen for a native app experience.",
-      type: "info",
-      duration: 15000,
-      dismissible: true,
-      action: installAction,
-      ariaRole: "status",
-    })
-  }
-
-  onMounted(() => {
-    const visitedFlag = localStorage.getItem("hasVisitedBefore")
-    if (visitedFlag === "true") {
-      hasVisitedBefore.value = true
+  const updateBooleanState = (
+    stateRef: Ref<boolean>,
+    key: keyof NonNullable<AppDataBlob['pwa']> | string,
+    value: boolean
+  ) => {
+    stateRef.value = value
+    if (value) {
+      storageStore.set('pwa', key as any, true)
     } else {
-      // Set the flag for future visits
-      setTimeout(() => {
-        localStorage.setItem("hasVisitedBefore", "true")
-        hasVisitedBefore.value = true
-      }, 1000)
+      storageStore.remove('pwa', key as any)
+    }
+  }
+
+  const setDismissed = (v: boolean) => updateBooleanState(dismissedInstall, 'dismissedInstall', v)
+  const setInstalledFlag = (v: boolean) => updateBooleanState(hasInstalledPreviously, pwaInstalledFlagKey, v)
+  const markPromptSeen = (v = true) => updateBooleanState(installPromptSeen, 'installPromptSeen', v)
+
+  const resetVisits = () => {
+    installPromptVisits.value = 0
+    storageStore.remove('pwa', 'installPromptVisits')
+  }
+
+  if (!listenersInitialized) {
+    listenersInitialized = true
+
+    const isStandalone = useMediaQuery('(display-mode: standalone)')
+    if (isStandalone.value || (navigator as any).standalone) {
+      isInstalled.value = true
+      setInstalledFlag(true)
     }
 
-    checkPWAStatus()
-    window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
-    window.addEventListener("appinstalled", handleAppInstalled)
-  })
+    useEventListener(window, 'beforeinstallprompt', (e: Event) => {
+      e.preventDefault()
+      deferredPrompt.value = e
 
-  onUnmounted(() => {
-    window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt)
-    window.removeEventListener("appinstalled", handleAppInstalled)
-  })
+      installPromptVisits.value = (installPromptVisits.value || 0) + 1
+      storageStore.set('pwa', 'installPromptVisits', installPromptVisits.value)
+
+      if (hasInstalledPreviously.value && !isInstalled.value) {
+        console.log('🚨 PWA UNINSTALLATION DETECTED')
+        setInstalledFlag(false)
+        isInstalled.value = false
+        setDismissed(false) // reset dismissal on potential re-install intent
+      }
+
+      if (!isInstalled.value && installPromptVisits.value >= 2) {
+        canInstall.value = true
+      }
+    })
+
+    useEventListener(window, 'appinstalled', () => {
+      isInstalled.value = true
+      setInstalledFlag(true)
+      deferredPrompt.value = null
+      canInstall.value = false
+
+      setDismissed(false)
+      resetVisits()
+    })
+  }
+
+  const promptInstall = async() => {
+    if (!deferredPrompt.value) return null
+    markPromptSeen(true)
+
+    deferredPrompt.value.prompt()
+    const choice = await (deferredPrompt.value as any).userChoice
+
+    deferredPrompt.value = null
+    canInstall.value = false
+    return choice
+  }
+
+  const dismissInstall = () => {
+    setDismissed(true)
+    markPromptSeen(true)
+    canInstall.value = false
+  }
+
+  const resetDismissal = () => {
+    setDismissed(false)
+  }
 
   return {
-    isPWAInstalled: readonly(isPWAInstalled),
+
+    canInstall: readonly(canInstall),
+    isInstalled: readonly(isInstalled),
+    dismissedInstall: readonly(dismissedInstall),
+    installPromptSeen: readonly(installPromptSeen),
+    installPromptVisits: readonly(installPromptVisits),
+    hasInstalledPreviously: readonly(hasInstalledPreviously),
+
+    promptInstall,
+    dismissInstall,
+    resetDismissal,
+    markPromptSeen,
+    resetVisits
   }
 }

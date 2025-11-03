@@ -11,8 +11,7 @@ export const networkStatus = useOnline()
 
 export function setRouteError(error: RouteError | Error, path: string): void {
   console.error(`[Router Error] Path: ${path}`, error)
-  
-  // Convert Error to RouteError if needed
+
   if (error instanceof Error) {
     routeError.value = {
       message: error.message,
@@ -21,7 +20,7 @@ export function setRouteError(error: RouteError | Error, path: string): void {
   } else {
     routeError.value = error
   }
-  
+
   routePath.value = path
   hasError.value = true
   isHandlingError.value = true
@@ -30,7 +29,7 @@ export function setRouteError(error: RouteError | Error, path: string): void {
 export function clearRouteError(): void {
   if (routeError.value) {
     routeError.value = null
-    routePath.value = ''  
+    routePath.value = ''
     isHandlingError.value = false
   }
   hasError.value = false
@@ -74,7 +73,6 @@ export function setupRouteErrorHandling(router: Router): void {
       }
     }
 
-    // Set State and Redirect
     setRouteError(processedError, currentPath)
     router.replace({ path: '/error' })
   })

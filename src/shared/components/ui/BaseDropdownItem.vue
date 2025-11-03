@@ -13,66 +13,60 @@
       itemClass
     ]"
     :disabled="disabled"
-    @click="handleClick"
-  >
-    <component 
-      :is="icon" 
-      v-if="icon" 
+    @click="handleClick">
+    <component
+      :is="icon"
+      v-if="icon"
       :class="[
         'h-4 w-4 mr-3 flex-shrink-0 transition-colors duration-150',
         {
           'text-muted-foreground group-hover:text-foreground': !active && !disabled,
           'text-primary': active && !disabled
         }
-      ]"
-    />
-    
+      ]" />
+
     <div class="flex-1 min-w-0">
       <div
         v-if="label"
-        class="font-medium truncate"
-      >
+        class="font-medium truncate">
         {{ label }}
       </div>
-      <div 
-        v-if="description" 
+      <div
+        v-if="description"
         :class="[
           'text-xs mt-0.5 truncate transition-colors duration-150',
           {
             'text-muted-foreground': !active,
             'text-primary/80': active
           }
-        ]"
-      >
+        ]">
         {{ description }}
       </div>
-      <slot v-if="!label" />
+      <slot v-if="!label"></slot>
     </div>
 
-    <div 
-      v-if="shortcut" 
+    <div
+      v-if="shortcut"
       :class="[
         'ml-3 text-xs font-mono px-1.5 py-0.5 rounded transition-colors duration-150',
         {
           'text-muted-foreground bg-muted/50': !active,
           'text-primary bg-primary/50': active
         }
-      ]"
-    >
+      ]">
       {{ shortcut }}
     </div>
 
-    <component 
-      :is="endIcon" 
-      v-if="endIcon" 
+    <component
+      :is="endIcon"
+      v-if="endIcon"
       :class="[
         'h-4 w-4 ml-3 flex-shrink-0 transition-colors duration-150',
         {
           'text-muted-foreground group-hover:text-muted-foreground': !active && !disabled,
           'text-primary': active && !disabled
         }
-      ]"
-    />
+      ]" />
   </button>
 </template>
 
@@ -114,14 +108,14 @@ const props = defineProps({
     type: String,
     default: ''
   }
-});
+})
 
-const emit = defineEmits(['click', 'select']);
+const emit = defineEmits(['click', 'select'])
 
-const handleClick = (event) => {
+const handleClick = event => {
   if (!props.disabled) {
-    emit('click', event);
-    emit('select', props.value || props.label);
+    emit('click', event)
+    emit('select', props.value || props.label)
   }
-};
+}
 </script>

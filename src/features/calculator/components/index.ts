@@ -1,5 +1,6 @@
 export { default as ActivityPanel } from './ActivityPanel.vue'
 export { default as BaseDisplay } from './BaseDisplay.vue'
+export { default as BitToggleGrid } from './BitToggleGrid.vue'
 export { default as CalculatorButton } from './CalculatorButton.vue'
 export { default as CalculatorButtons } from './CalculatorButtons.vue'
 export { default as CalculatorDisplay } from './CalculatorDisplay.vue'

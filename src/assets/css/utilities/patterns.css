@@ -1,0 +1,14 @@
+/* styles/utilities/patterns.css */
+@layer utilities {
+  .pattern-grid {
+    background-image:
+      linear-gradient(to right,  oklch(var(--color-border) / 0.3) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(var(--color-border) / 0.3) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  .pattern-dots {
+    background-image: radial-gradient(oklch(var(--color-border) / 0.5) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+}

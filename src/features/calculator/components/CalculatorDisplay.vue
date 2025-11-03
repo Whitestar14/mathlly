@@ -6,19 +6,16 @@
         error
           ? 'bg-destructive/10 dark:bg-destructive/20'
           : 'transition-colors duration-300 bg-secondary',
-      ]"
-    >
+      ]">
       <ChevronScroll
         :show-left-chevron="scrollState.canScrollLeft"
         :show-right-chevron="scrollState.canScrollRight"
         @scroll-to-previous="scrollToPrevious"
-        @scroll-to-next="scrollToNext"
-      />
+        @scroll-to-next="scrollToNext" />
 
       <ControlButtons
         @open-activity="$emit('open-activity')"
-        @copy-to-clipboard="copyToClipboard"
-      />
+        @copy-to-clipboard="copyToClipboard" />
 
       <MainDisplay
         ref="mainDisplay"
@@ -29,38 +26,36 @@
         :animated-result="animatedResult"
         :active-base="activeBase"
         :mode="mode"
-        @scroll-update="handleScrollUpdate"
-      />
+        @scroll-update="handleScrollUpdate" />
     </div>
     <div class="flex-initial">
       <BaseDisplay
         v-show="mode === 'Programmer'"
         :display-values="displayValues"
         :active-base="activeBase"
-        @base-change="$emit('base-change', $event)"
-      />
+        @base-change="$emit('base-change', $event)" />
     </div>
   </div>
 </template>
 
 <script setup>
 import { ChevronScroll, ControlButtons, MainDisplay, BaseDisplay } from '@calculator/components'
-import { useClipboard, useEventListener, useDebounceFn } from "@vueuse/core"
-import { computed, nextTick, shallowRef, reactive, watch } from "vue"
-import { useToast } from "@composables/ui/useToast"
+import { useClipboard, useEventListener, useDebounceFn } from '@vueuse/core'
+import { computed, nextTick, shallowRef, reactive, watch } from 'vue'
+import { useToast } from '@composables/ui/useToast'
 
 const props = defineProps({
-  input: { type: String, default: "" },
-  preview: { type: String, default: "" },
-  error: { type: String, default: "" },
+  input: { type: String, default: '' },
+  preview: { type: String, default: '' },
+  error: { type: String, default: '' },
   isAnimating: { type: Boolean, default: false },
-  animatedResult: { type: String, default: "" },
-  activeBase: { type: String, default: "DEC" },
-  mode: { type: String, default: "Standard" },
-  displayValues: { type: Object, default: () => ({}) },
+  animatedResult: { type: String, default: '' },
+  activeBase: { type: String, default: 'DEC' },
+  mode: { type: String, default: 'Standard' },
+  displayValues: { type: Object, default: () => ({}) }
 })
 
-defineEmits(["open-activity", "base-change"])
+defineEmits(['open-activity', 'base-change'])
 const { toast } = useToast()
 
 const mainDisplay = shallowRef(null)
@@ -73,7 +68,7 @@ const handleScrollUpdate = useDebounceFn(({ canScrollLeft, canScrollRight }) => 
   scrollState.canScrollRight = canScrollRight
 }, 100)
 
-useEventListener('keydown', (e) => {
+useEventListener('keydown', e => {
   if (e.key === 'ArrowLeft' && scrollState.canScrollLeft) {
     scrollToPrevious()
   }
@@ -92,9 +87,9 @@ function scrollToNext() {
 
 watch(
   () => props.input,
-  () => {nextTick(mainDisplay.value?.scrollToEnd)})
+  () => { nextTick(mainDisplay.value?.scrollToEnd) })
 
-const copyContent = computed(() => 
+const copyContent = computed(() =>
   props.animatedResult ? `${props.input} = ${props.animatedResult}` : props.input
 )
 
@@ -103,8 +98,8 @@ const { copy } = useClipboard({ legacy: true })
 function copyToClipboard() {
   copy(copyContent.value)
   toast({
-    title: "Copied!",
-    description: "Content copied to clipboard.",
+    title: 'Copied!',
+    description: 'Content copied to clipboard.'
   })
 }
 </script>

@@ -1,138 +1,119 @@
 <template>
   <DialogRoot
     :open="open"
-    @update:open="handleOpenChange"
-  >
-    <!-- Backdrop -->
-    <Transition name="backdrop">
-      <DialogOverlay
-        v-if="open"
-        class="fixed inset-0 bg-backdrop/50 backdrop-blur-sm z-40"
-        @click="closeModal"
-      />
-    </Transition>
-    <!-- Modal Container -->
+    @update:open="handleOpenChange">
+
     <Transition
       enter-active-class="transition duration-300 ease-out"
       enter-from-class="opacity-0 scale-95 translate-y-4"
       enter-to-class="opacity-100 scale-100 translate-y-0"
       leave-active-class="transition duration-200 ease-in"
       leave-from-class="opacity-100 scale-100 translate-y-0"
-      leave-to-class="opacity-0 scale-95 translate-y-4"
-    >
-      <div
-        v-if="open"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
-        @click.self="closeModal"
-      >
-        <DialogContent
-          :class="[
-            'relative flex flex-col bg-background border border-border rounded-xl shadow-2xl w-full max-h-[90vh]',
-            sizeClasses
-          ]"
-          :aria-labelledby="titleId"
-          role="dialog"
-          aria-modal="true"
-          @click.stop
-        >
-          <!-- Sticky Header -->
-          <div class="sticky top-0 z-10 flex-shrink-0 bg-background border-b border-border rounded-t-xl">
-            <div class="flex items-center justify-between p-3 pb-2">
-              <!-- Title Section -->
-              <div
-                :id="titleId"
-                class="flex-1 min-w-0 pr-4"
-                :class="hideCloseButton ? '' : 'pr-4'"
-              >
-                <DialogTitle
-                  as="h2"
-                  class="text-lg font-medium text-foreground leading-tight"
-                >
-                  <slot name="title">
-                    {{ title }}
-                  </slot>
-                </DialogTitle>
+      leave-to-class="opacity-0 scale-95 translate-y-4">
+      <Teleport to="#modal-root">
+        <div
+          v-if="open"
+          class="fixed inset-0 flex items-center justify-center p-4"
+          :style="{
+            zIndex: zIndex,
+            opacity: isTopModal ? 1 : 0,
+            pointerEvents: isTopModal ? 'auto' : 'none',
+            visibility: isTopModal ? 'visible' : 'hidden'
+          }"
+          @click.self="closeModal">
+          <DialogContent
+            ref="contentRef"
+            :class="[
+              'relative flex flex-col bg-background border border-border rounded-xl shadow-2xl w-full max-h-[90vh]',
+              sizeClasses
+            ]"
+            :aria-labelledby="titleId"
+            role="dialog"
+            aria-modal="true"
+            @click.stop>
+
+            <div class="sticky top-0 z-10 flex-shrink-0 bg-background border-b border-border rounded-t-xl">
+              <div class="flex items-center justify-between p-3 pb-2">
+
+                <div
+                  :id="titleId"
+                  class="flex-1 min-w-0 pr-4"
+                  :class="hideCloseButton ? '' : 'pr-4'">
+                  <DialogTitle
+                    as="h2"
+                    class="text-lg font-medium text-foreground leading-tight">
+                    <slot name="title">
+                      {{ title }}
+                    </slot>
+                  </DialogTitle>
+                </div>
+
+                <BaseButton
+                  v-if="!hideCloseButton"
+                  variant="ghost"
+                  size="icon"
+                  :aria-label="closeButtonLabel"
+                  @click="closeModal">
+                  <XIcon class="h-4 w-4" />
+                  <span class="sr-only">{{ closeButtonLabel }}</span>
+                </BaseButton>
               </div>
-              <!-- Close Button -->
-              <BaseButton
-                v-if="!hideCloseButton"
-                variant="ghost"
-                size="icon"
-                :aria-label="closeButtonLabel"
-                @click="closeModal"
-              >
-                <XIcon class="h-4 w-4" />
-                <span class="sr-only">{{ closeButtonLabel }}</span>
-              </BaseButton>
             </div>
-          </div>
-          <!-- Scrollable Content -->
-          <div class="flex-1 overflow-y-auto min-h-0">
-            <div class="p-6 pt-4">
-              <slot />
+
+            <div class="flex-1 overflow-y-auto min-h-0">
+              <div class="p-6 pt-4">
+                <slot></slot>
+              </div>
             </div>
-          </div>
-          <!-- Sticky Footer -->
-          <div
-            v-if="$slots.footer"
-            class="sticky bottom-0 z-10 flex-shrink-0 bg-background border-t border-border rounded-b-xl"
-          >
-            <div class="p-6 pt-4">
-              <slot name="footer" />
+
+            <div
+              v-if="$slots.footer"
+              class="sticky bottom-0 z-10 flex-shrink-0 bg-background border-t border-border rounded-b-xl">
+              <div class="p-6 pt-4">
+                <slot name="footer"></slot>
+              </div>
             </div>
-          </div>
-        </DialogContent>
-      </div>
+          </DialogContent>
+        </div>
+      </Teleport>
     </Transition>
   </DialogRoot>
 </template>
 
 <script setup lang="ts">
-import { computed, type ComputedRef } from 'vue';
+import { computed, type ComputedRef, onMounted, onBeforeUnmount, watch, ref, nextTick } from 'vue'
+import { useScrollLock } from '@vueuse/core'
+import { useFocusTrap } from '@shared/composables/utils/useFocusTrap'
 import {
   DialogRoot,
-  DialogOverlay,
   DialogContent,
-  DialogTitle,
-} from "radix-vue";
-import { useEventListener } from "@vueuse/core";
+  DialogTitle
+} from 'radix-vue'
+import { useEventListener } from '@vueuse/core'
 import BaseButton from '@components/ui/BaseButton.vue'
-import { XIcon } from "lucide-vue-next";
+import { XIcon } from 'lucide-vue-next'
+import { registerModal, unregisterModal, openModal as openModalManager, closeModal as closeModalManager, useModal, hasOpenModals } from '@shared/composables/ui/useModal'
 
-/**
- * Modal size options
- */
-type ModalSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | 'full';
+type ModalSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | 'full'
 
-/**
- * Component props interface
- */
 interface Props {
-  /** Whether the modal is open */
   open?: boolean;
-  /** Modal title (can also use title slot) */
   title?: string;
-  /** Modal size */
   size?: ModalSize;
-  /** Whether clicking outside closes the modal */
+  id?: string;
   closeOnClickOutside?: boolean;
   /** Whether pressing Escape closes the modal */
   closeOnEscape?: boolean;
-  /** Custom close button label for accessibility */
   closeButtonLabel?: string;
-  /** Whether to hide the 'x' close button */
-  hideCloseButton?: boolean; 
+  hideCloseButton?: boolean;
 }
 
 /**
  * Component emits interface
  */
 interface Emits {
-  /** Emitted when the modal open state changes */
   (e: 'update:open', value: boolean): void;
-  /** Emitted when the modal is closed */
   (e: 'close'): void;
-  /** Emitted when the modal is opened */
   (e: 'open'): void;
 }
 
@@ -140,22 +121,17 @@ const props = withDefaults(defineProps<Props>(), {
   open: false,
   title: '',
   size: 'md',
+  id: `modal-${Math.random().toString(36).substr(2, 9)}`,
   closeOnClickOutside: true,
   closeOnEscape: true,
   closeButtonLabel: 'Close dialog',
-  hideCloseButton: false,
-});
+  hideCloseButton: false
+})
 
-const emit = defineEmits<Emits>();
+const emit = defineEmits<Emits>()
 
-/**
- * Generate unique title ID for accessibility
- */
-const titleId = `modal-title-${Math.random().toString(36).substr(2, 9)}`;
+const titleId = `modal-title-${Math.random().toString(36).substr(2, 9)}`
 
-/**
- * Size classes mapping for different modal sizes
- */
 const sizeClassMap: Record<ModalSize, string> = {
   xs: 'max-w-xs',
   sm: 'max-w-sm',
@@ -167,53 +143,87 @@ const sizeClassMap: Record<ModalSize, string> = {
   '4xl': 'max-w-4xl',
   '5xl': 'max-w-5xl',
   '6xl': 'max-w-6xl',
-  full: 'max-w-[95vw]',
-};
+  full: 'max-w-[95vw]'
+}
 
-/**
- * Computed size classes based on the size prop
- */
 const sizeClasses: ComputedRef<string> = computed(() => {
-  return sizeClassMap[props.size] || sizeClassMap.md;
-});
+  return sizeClassMap[props.size] || sizeClassMap.md
+})
 
-/**
- * Handle modal open state changes
- */
-const handleOpenChange = (isOpen: boolean): void => {
-  emit('update:open', isOpen);
+onMounted(() => {
+  registerModal(props.id, () => {
+    emit('update:open', false)
+  })
+})
 
-  if (isOpen) {
-    emit('open');
+onBeforeUnmount(() => {
+  unregisterModal(props.id)
+})
+
+watch(() => props.open, val => {
+  if (val) openModalManager(props.id)
+  else closeModalManager(props.id)
+}, { immediate: true })
+
+const modalComposable = useModal(props.id)
+const zIndex = modalComposable.zIndex
+const isTopModal = modalComposable.isTopModal
+
+const isLocked = useScrollLock(document.body)
+
+const contentRef = ref<HTMLElement | null>(null)
+const focusTrap = useFocusTrap(contentRef)
+
+watch([modalComposable.isOpen, isTopModal], async([isOpen, isTop]) => {
+  const shouldActivate = isOpen && isTop
+  if (shouldActivate) {
+    await nextTick()
+    if (contentRef.value && contentRef.value instanceof HTMLElement) {
+      focusTrap.activate()
+      isLocked.value = true
+    }
   } else {
-    emit('close');
+    focusTrap.deactivate()
+    if (!hasOpenModals.value) {
+      isLocked.value = false
+    }
   }
-};
+}, { immediate: true })
 
-/**
- * Close the modal
- */
+onBeforeUnmount(() => {
+  focusTrap.deactivate()
+  isLocked.value = false
+})
+
+const handleOpenChange = (isOpen: boolean): void => {
+  if (isOpen) openModalManager(props.id)
+  else closeModalManager(props.id)
+
+  emit('update:open', isOpen)
+  if (isOpen) {
+    emit('open')
+  } else {
+    emit('close')
+  }
+}
+
 const closeModal = (): void => {
   if (props.closeOnClickOutside) {
-    handleOpenChange(false);
+    handleOpenChange(false)
   }
-};
+}
 
-/**
- * Handle escape key press
- */
 const handleEscapeKey = (event: KeyboardEvent): void => {
-  if (props.closeOnEscape && event.key === 'Escape' && props.open) {
-    event.preventDefault();
-    event.stopPropagation();
-    handleOpenChange(false);
+  if (props.closeOnEscape && event.key === 'Escape' && props.open && isTopModal.value) {
+    event.preventDefault()
+    event.stopPropagation()
+    handleOpenChange(false)
   }
-};
+}
 
-// Listen for escape key when modal is open
 useEventListener(document, 'keydown', handleEscapeKey, {
-  passive: false,
-});
+  passive: false
+})
 </script>
 
 <style scoped>
@@ -225,21 +235,6 @@ useEventListener(document, 'keydown', handleEscapeKey, {
 .backdrop-enter-from,
 .backdrop-leave-to {
   opacity: 0;
-}
-
-/* Custom scrollbar for content area */
-.overflow-y-auto::-webkit-scrollbar {
-  width: 6px;
-}
-.overflow-y-auto::-webkit-scrollbar-track {
-  background: transparent;
-}
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background-color: oklch(var(--muted-foreground) / 0.4);
-  border-radius: 3px;
-}
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background-color: oklch(var(--muted-foreground) / 0.6);
 }
 
 /* Ensure proper focus management */

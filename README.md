@@ -2,7 +2,7 @@
   <img src="./public/img/socials/github-social.png" alt="Prism Banner" width="100%" />
 
   # Prism
-  ### Mathematical Precision for Modern Development
+  ### Precision at Speed
 
   [![Version](https://img.shields.io/badge/version-0.13.0--beta-blue.svg)](https://github.com/Whitestar14/mathlly)
   [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -13,88 +13,71 @@
 
 ---
 
-## 🎯 Overview
-Prism is a sophisticated, developer-oriented mathematical application that combines powerful calculation capabilities with an intuitive user interface. Designed for developers, engineers, and students, Prism offers multiple calculation modes, real-time base conversions, and advanced mathematical operations—all while maintaining the precision and reliability required for professional work.
+## �� Overview
+
+Prism is a comprehensive developer toolkit that combines powerful mathematical calculations with essential coding utilities. Designed for developers, engineers, and technical professionals, Prism offers advanced calculators, encoding tools, color manipulation, and real-time evaluation—all while maintaining the precision and reliability required for professional development workflows.
 
 ### 🌟 What Makes Prism Special
-- **Developer-First Design**: Built specifically for software developers with programmer mode featuring bitwise operations and multi-base number system support
-- **Modern Architecture**: Leverages Vue 3 + Composition API with TypeScript for type safety and maintainability
-- **Performance Optimized**: Efficient caching, lazy loading, and optimized bundle size for fast loading
-- **Cross-Platform**: Responsive design that works seamlessly across desktop and mobile devices
+- **Developer-First Design**: Mathematical tools specifically crafted for software development workflows
+- **Unified Toolkit**: From advanced calculations to data encoding and color manipulation
+- **Modern Architecture**: Built with Vue 3 + TypeScript for type safety and performance
+- **Real-time Evaluation**: Instant feedback and validation across all tools
+- **Cross-Platform**: Responsive design that works seamlessly across desktop and mobile
+- **Progressive Web App**: Installable with offline capabilities
 
 ---
 
 ## ✨ Current Features
 
-### 🧮 Calculator Modes
-- **Standard Calculator**: Essential arithmetic operations with history tracking
-- **Programmer Calculator**: Multi-base support (HEX, DEC, OCT, BIN) with bitwise operations
-- **Scientific Calculator**: Advanced mathematical functions and constants
+### 🧮 Advanced Calculator
+- **Multiple Calculation Modes**: Standard, Scientific, and Programmer calculators
+- **Programmer Mode**: Multi-base support (HEX, DEC, OCT, BIN) with bitwise operations
+- **Real-time Base Conversion**: Instant conversion between number systems
+- **Scientific Functions**: Trigonometric, logarithmic, and exponential functions
 
 ### 🛠️ Developer Tools
-- **Base64 Encoder/Decoder**: Quick encoding and decoding utilities
-- **Real-time Base Conversion**: Instant conversion between number systems
-- **Keyboard Shortcuts**: Comprehensive hotkey support for power users
+- **Base64 Encoder/Decoder**: Efficient encoding and decoding with instant preview
+- **Color Manipulation**: Comprehensive color tools with palettes, gradients, and accessibility
 - **Expression Syntax Highlighting**: Color-coded mathematical expressions
+- **Keyboard Shortcuts**: Comprehensive hotkey support for power users
 
 ### 🎨 User Experience
-- **Dual Theme Support**: Dark and light themes with system preference detection
-- **Calculation History**: Persistent history with local storage
-- **Mobile-Responsive**: Touch-optimized interface for mobile devices
+- **Dual Theme Support**: Light and dark themes with system preference detection
+- **Persistent Sessions**: Saved calculations and tool states
+- **Mobile-Responsive**: Touch-optimized interface for all devices
 - **Accessibility**: ARIA labels and keyboard navigation support
-- **Progressive Web App**: Installable with offline capabilities
 
 ### ⚡ Technical Highlights
 - **TypeScript**: Full type safety and enhanced developer experience
 - **State Management**: Pinia for reactive state management
-- **Local Storage**: DexieJS for efficient IndexedDB operations
+- **Local Storage**: Efficient IndexedDB operations with automatic persistence
 - **Precise Calculations**: Decimal.js for accurate floating-point arithmetic
-- **Bundle Analysis**: Webpack analyzer for optimization insights
+- **Real-time Sync**: Cross-tab synchronization for seamless workflows
 
 ---
 
-## 🗺️ Roadmap: Building a Math Notebook
+## 🗺️ Roadmap
 
-### Phase 1: Enhanced Calculator (Q1 2025) ✅
-- [x] TypeScript migration for type safety
-- [x] Improved caching and performance optimization
-- [x] Enhanced syntax highlighting
-- [x] Mobile responsiveness improvements
+### Phase 2: Enhanced Scientific Calculator ✅
+- Advanced mathematical functions and physical constants
+- Matrix operations and statistical functions
+- Unit conversions and engineering notation
 
-### Phase 2: Scientific Calculator (Q2 2025) 🚧
-- [x] **Advanced Functions**: Trigonometric, logarithmic, and exponential functions
-- [ ] **Constants Library**: Mathematical and physical constants (π, e, c, etc.)
-- [ ] **Unit Conversions**: Length, weight, temperature, and more
-- [ ] **Statistical Functions**: Mean, median, standard deviation
-- [ ] **Matrix Operations**: Basic matrix arithmetic and operations
+### Phase 3: Developer Toolkit Expansion 🚧
+- **Advanced Encoding Tools**: JWT, URL encoding, hash generators
+- **Code Formatting**: JSON, XML, SQL beautification and validation
+- **API Testing Tools**: HTTP request builders and response analysis
+- **Regular Expression Tester**: Real-time regex testing and explanation
 
-### Phase 3: Math Notebook Core (Q3 2025) 📋
-- [ ] **Rich Text Editor**: Markdown-based editor with LaTeX support
-- [ ] **Equation Rendering**: Beautiful mathematical equation display
-- [ ] **Interactive Calculations**: Embed live calculations within notes
-- [ ] **Document Management**: Create, save, and organize math notebooks
-- [ ] **Export Options**: PDF, LaTeX, and HTML export capabilities
+### Phase 4: Collaboration & Sharing 📋
+- **Session Sharing**: Share calculation sessions and tool configurations
+- **Export Capabilities**: PDF reports, code snippets, and formatted results
+- **Cloud Sync**: Cross-device synchronization (planned)
 
-### Phase 4: Collaboration & Sharing (Q4 2025) 🤝
-- [ ] **Cloud Sync**: Cross-device synchronization
-- [ ] **Sharing**: Share notebooks and calculations with others
-- [ ] **Collaboration**: Real-time collaborative editing
-- [ ] **Version Control**: Track changes and revisions
-- [ ] **Public Gallery**: Share and discover community notebooks
-
-### Phase 5: Advanced Features (2026) 🚀
-- [ ] **Graphing Calculator**: 2D and 3D function plotting
-- [ ] **Programming Integration**: Code execution within notebooks
-- [ ] **Plugin System**: Extensible architecture for custom tools
-- [ ] **AI Assistant**: Mathematical problem-solving assistance
-- [ ] **Educational Tools**: Step-by-step solution explanations
-
-### Phase 6: Platform Expansion (2026+) 🌐
-- [ ] **Desktop Applications**: Native Windows, macOS, and Linux apps
-- [ ] **Mobile Apps**: Native iOS and Android applications
-- [ ] **API Platform**: RESTful API for third-party integrations
-- [ ] **Educational Partnerships**: Integration with learning platforms
-- [ ] **Enterprise Features**: Team management and advanced analytics
+### Phase 5: Platform Expansion 🌐
+- **Desktop Applications**: Native Windows, macOS, and Linux apps
+- **Mobile Apps**: Native iOS and Android applications
+- **Plugin System**: Extensible architecture for custom tools
 
 ---
 
@@ -118,154 +101,63 @@ pnpm dev
 
 # Build for production
 pnpm build
-
-# Type checking
-pnpm type-check
-
-# Lint and fix
-pnpm lint
 ```
-
-### Development Scripts
-
-| Command | Description
-|-----|-----
-| `pnpm dev` | Start development server with hot reload
-| `pnpm build` | Build optimized production bundle
-| `pnpm preview` | Preview production build locally
-| `pnpm type-check` | Run TypeScript type checking
-| `pnpm lint` | Lint and auto-fix code issues
-| `pnpm build:analyze` | Build with bundle analysis
-
 
 ---
 
-## ️ Architecture
+## Architecture
 
 ```plaintext
 src/
-├── assets/           # Static assets (fonts, images, global CSS)
-├── components/       # Reusable Vue components
-│   ├── base/         # Base UI components
-│   ├── layout/       # Layout-specific components
-│   └── ui/           # UI utility components
-├── composables/      # Vue 3 composable functions
-├── layouts/          # Page layouts and views
-│   ├── calculators/  # Calculator-specific layouts
-│   ├── tools/        # Tool layouts (Base64, etc.)
-│   └── utility/      # Utility pages (Settings, etc.)
-├── services/         # Business logic and services
-│   ├── display/      # Display formatting services
-│   ├── factory/      # Factory patterns
-│   └── logic/        # Calculator logic
-├── stores/           # Pinia state management
-├── utils/            # Utility functions and helpers
-│   ├── cache/        # Caching utilities
-│   ├── constants/    # Application constants
-│   └── misc/         # Miscellaneous utilities
-└── router/           # Vue Router configuration
+├── features/calculator/     # Calculator implementation
+├── features/tools/          # Developer tools (Base64, Color, etc.)
+├── shared/components/       # Reusable UI components
+├── shared/composables/      # Vue 3 composables
+├── shared/stores/          # Pinia state management
+└── shared/utils/           # Utility functions
 ```
 
 ---
 
-## ️ Technology Stack
+## 🛠️ Technology Stack
 
 ### Core Framework
+- **Vue 3** - Progressive JavaScript framework with Composition API
+- **TypeScript** - Type-safe JavaScript with full type checking
+- **Vite** - Next-generation frontend tooling and build system
 
-- **[Vue 3](https://vuejs.org/)** - Progressive JavaScript framework
-- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript
-- **[Vite](https://vitejs.dev/)** - Next-generation frontend tooling
-
-
-### State & Routing
-
-- **[Pinia](https://pinia.vuejs.org/)** - Vue state management
-- **[Vue Router](https://router.vuejs.org/)** - Official router for Vue.js
-
+### State & Data
+- **Pinia** - Intuitive state management for Vue
+- **Dexie.js** - IndexedDB wrapper for local data storage
+- **VueUse** - Collection of essential Vue composition utilities
 
 ### UI & Styling
-
-- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
-- **[Radix Vue](https://www.radix-vue.com/)** - Headless UI components
-- **[Lucide Icons](https://lucide.dev/)** - Beautiful & consistent icons
-
-
-### Utilities & Performance
-
-- **[VueUse](https://vueuse.org/)** - Collection of Vue composition utilities
-- **[DexieJS](https://dexie.org/)** - IndexedDB wrapper for local storage
-- **[Math.js](https://mathjs.org/)** - Extensive math library
-- **[Anime.js](https://animejs.com/)** - Lightweight animation library
-
+- **Tailwind CSS** - Utility-first CSS framework
+- **Radix Vue** - Headless UI components for accessibility
+- **Lucide Icons** - Consistent iconography system
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
-We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
-
-### How to Contribute
-
-1. **Fork the repository**
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes** and ensure they follow our coding standards
-4. **Add tests** for new functionality
-5. **Commit your changes**: `git commit -m 'Add amazing feature'`
-6. **Push to the branch**: `git push origin feature/amazing-feature`
-7. **Open a Pull Request**
-
+We welcome contributions! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
 
 ### Development Guidelines
-
-- **Code Style**: Follow the existing TypeScript and Vue 3 patterns
-- **Testing**: Add unit tests for new features
-- **Documentation**: Update documentation for API changes
-- **Performance**: Consider performance implications of changes
-- **Accessibility**: Ensure new features are accessible
-
-
-### Areas We Need Help
-
-- 🧮 Scientific calculator implementation
-- 📝 Math notebook editor development
-- 🎨 UI/UX improvements and design
-- 🧪 Test coverage expansion
-- 📚 Documentation and tutorials
-- 🌐 Internationalization (i18n)
-
+- Follow existing TypeScript and Vue 3 patterns
+- Add tests for new functionality
+- Update documentation for API changes
+- Consider performance implications
+- Ensure accessibility compliance
 
 ---
 
-## License
+## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
----
-
-## Acknowledgments
-
-- **Icons**: [Lucide](https://lucide.dev/) for beautiful iconography
-- **Fonts**: [Inter](https://rsms.me/inter/) and [Geist Mono](https://vercel.com/font) for typography
-- **Inspiration**: The developer community's need for better mathematical tools
-- **Contributors**: All the amazing people who have contributed to this project
-
+**MIT License** - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## Support & Community
-
-- **🐛 Bug Reports**: [GitHub Issues](https://github.com/Whitestar14/mathlly/issues)
-- **💡 Feature Requests**: [GitHub Discussions](https://github.com/Whitestar14/mathlly/discussions)
-- **📧 Contact**: [Your Email](mailto:your-email@example.com)
-- **🐦 Twitter**: [@xijibomi](https://twitter.com/xijibomi)
-
-
----
-
-<div>`<p>`Made with ❤️ by `<a href="https://github.com/Whitestar14">`Whitestar Studios`</a>``</p>`
-`<p>`⭐ Star this repository if you find it helpful!`</p>`
-
-</div>```plaintext
-
-
-```
+<div align="center">
+  <p><strong>Built with ❤️ for developers, by developers</strong></p>
+  <p>⭐ Star this repository if you find it helpful!</p>
+</div>

@@ -1,0 +1,117 @@
+@layer base {
+  [data-theme-pack='siena'] {
+    --color-background: 0.99 0.008 85;
+    --color-foreground: 0.13 0.02 25;
+    --color-card: 0.99 0.008 85;
+    --color-card-foreground: 0.13 0.02 25;
+    --color-popover: 0.99 0.008 85;
+    --color-popover-foreground: 0.13 0.02 25;
+    --color-primary: 0.55 0.12 35;
+    --color-primary-foreground: 0.99 0.008 85;
+    --color-secondary: 0.92 0.01 85;
+    --color-secondary-foreground: 0.13 0.02 25;
+    --color-muted: 0.94 0.008 85;
+    --color-muted-foreground: 0.45 0.02 35;
+    --color-accent: 0.45 0.05 45;
+    --color-accent-foreground: 0.13 0.02 25;
+    --color-destructive: 0.62 0.15 25;
+    --color-destructive-foreground: 0.99 0.008 85;
+    --color-border: 0.91 0.01 85;
+    --color-input: 0.99 0.008 85;
+    --color-ring: 0.45 0.12 35;
+    --backdrop: 0% 0 0;
+    --backdrop-light: 98% 0 0;
+    --backdrop-surface: 0.99 0.008 85;
+    --color-panel: 0.99 0.008 85;
+    --logo-bg-fill: 0.99 0.008 85;
+    --logo-stroke-stop-color: 0.13 0.02 25;
+    --logo-fg-stop-color: 0.13 0.02 25;
+    --color-highlight: 0.75 0.08 50;
+    --syntax-tag: 0.45 0.08 35;
+    --syntax-func: 0.48 0.10 40;
+    --syntax-string: 0.55 0.08 140;
+    --syntax-regexp: 0.46 0.08 35;
+    --syntax-markup: 0.44 0.08 35;
+    --syntax-keyword: 0.42 0.10 35;
+    --syntax-special: 0.50 0.08 35;
+    --syntax-comment: 0.65 0.03 50;
+    --syntax-constant: 0.52 0.12 30;
+    --syntax-operator: 0.45 0.08 35;
+    --syntax-paren-0: 0.42 0.10 35;
+    --syntax-paren-1: 0.44 0.10 35;
+    --syntax-paren-2: 0.46 0.10 35;
+    --syntax-paren-3: 0.48 0.10 35;
+    --syntax-paren-4: 0.50 0.10 35;
+    --syntax-paren-5: 0.52 0.10 35;
+  } 
+
+
+[data-theme-pack='siena'].dark {
+  --color-background: 0.15 0.008 25;
+  --color-foreground: 0.95 0.008 85;
+  --color-card: 0.12 0.008 25;
+  --color-card-foreground: 0.95 0.008 85;
+  --color-popover: 0.15 0.008 25;
+  --color-popover-foreground: 0.95 0.008 85;
+
+  --color-primary: 0.75 0.08 45;
+  --color-primary-foreground: 0.08 0.008 25;
+
+  --color-secondary: 0.20 0.005 25;
+  --color-secondary-foreground: 0.95 0.008 85;
+
+  --color-muted: 0.20 0.008 25;
+  --color-muted-foreground: 0.65 0.02 65;
+
+  --color-accent: 0.70 0.06 50;
+  --color-accent-foreground: 0.95 0.008 85;
+
+  --color-destructive: 0.55 0.12 25;
+  --color-destructive-foreground: 0.95 0.008 85;
+
+  --color-border: 0.20 0.008 25;
+  --color-input: 0.15 0.008 25;
+  --color-ring: 0.75 0.08 45;
+
+  --backdrop: 0% 0 0;
+  --backdrop-light: 15% 0.005 25;
+  --backdrop-surface: 0.12 0.008 25;
+
+  --color-panel: 0.15 0.008 25;
+  --logo-bg-fill: 0.15 0.008 25;
+  --logo-stroke-stop-color: 0.95 0.008 85;
+  --logo-fg-stop-color: 0.95 0.008 85;
+
+  --color-highlight: 0.75 0.08 50; 
+  
+  --syntax-tag: 0.65 0.06 55;
+  --syntax-func: 0.70 0.08 60;
+  --syntax-string: 0.75 0.05 140; 
+  --syntax-regexp: 0.67 0.06 55;
+  --syntax-markup: 0.65 0.06 55;
+  --syntax-keyword: 0.63 0.08 55;
+  --syntax-special: 0.72 0.06 55;
+  --syntax-comment: 0.60 0.02 70; 
+  --syntax-constant: 0.68 0.10 40;
+  --syntax-operator: 0.65 0.06 55;
+  --syntax-paren-0: 0.63 0.08 55;
+  --syntax-paren-1: 0.65 0.08 55;
+  --syntax-paren-2: 0.67 0.08 55;
+  --syntax-paren-3: 0.69 0.08 55;
+  --syntax-paren-4: 0.71 0.08 55;
+  --syntax-paren-5: 0.73 0.08 55;
+}
+
+  [data-theme-pack='siena']::selection {
+    background-color: oklch(var(--color-highlight) / 0.15);
+  }
+  [data-theme-pack='siena']::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.15);
+  }
+  [data-theme-pack='siena'].dark::selection {
+    background-color: oklch(var(--color-highlight) / 0.25);
+  }
+  [data-theme-pack='siena'].dark::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.25);
+  }
+}

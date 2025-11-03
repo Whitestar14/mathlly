@@ -1,16 +1,22 @@
-import { shallowRef, computed, nextTick, watch, markRaw, type Ref, type ComputedRef } from 'vue';
-import { useLocalStorage, useDebounceFn, type RemovableRef } from '@vueuse/core';
-import { useDraggable } from '@utils/misc/draggable';
+import { shallowRef, computed, nextTick, watch, markRaw, onUnmounted, type Ref, type ComputedRef } from 'vue'
+import { useDebounceFn, useEventListener } from '@vueuse/core'
+import { useDraggable } from '@utils/misc/draggable'
+import { useAppStorageStore } from '@stores/appStorage'
 import {
   PanelOptions,
   PanelAPI,
-  PanelPreferences,
   ToggleOptions,
   DraggableReturn
-} from './types';
+} from './types'
 
 /**
- * Creates a single, unified panel composable with state, persistence, responsiveness, and dragging.
+ * Create and manage a UI panel with persistence, responsive behavior and optional dragging.
+ *
+ * The returned API exposes reactive refs and methods to open/close/toggle the panel,
+ * react to viewport changes, and update dimension calculations when content changes.
+ *
+ * @param options - Configuration for the panel behavior and persistence key.
+ * @returns PanelAPI - Reactive state and methods to control the panel.
  */
 export function createPanel(options: PanelOptions = {}): PanelAPI {
   const {
@@ -20,12 +26,11 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     animation = () => false,
     maxHeightRatio = 0.8,
     snapThreshold = 0.3,
-    maxHeight,
-  } = options;
+    maxHeight
+  } = options
 
-  // Early return with default values if no storageKey provided
   if (!storageKey) {
-    console.error('usePanel requires a storageKey option.');
+    console.error('usePanel requires a storageKey option.')
     return markRaw({
       isOpen: shallowRef(false),
       preloadIsOpen: shallowRef(false),
@@ -37,50 +42,48 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
       isExpanded: shallowRef(false),
       handle: shallowRef(null),
       panel: shallowRef(null),
-      open: async () => {},
-      close: async () => {},
-      toggle: () => {},
-      handleResize: () => {},
-      updatePanelDimensions: () => {},
-    }) as PanelAPI;
+      open: async() => { },
+      close: async() => { },
+      toggle: () => { },
+      handleResize: () => { },
+      updatePanelDimensions: () => { }
+    }) as PanelAPI
   }
 
-  // --- State Persistence ---
-  // Use localStorage to remember open state per device type
-  const preferences: RemovableRef<PanelPreferences> = useLocalStorage(`${storageKey}-preferences`, {
-    desktop: { isOpen: defaultDesktopState },
-    mobile: { isOpen: false },
-  });
+  const storageStore = useAppStorageStore()
 
-  // This is the new, crucial piece: read the localStorage value directly and immediately.
+  const preferences = computed({
+    get: () => storageStore.get('panels', storageKey, {
+      desktop: { isOpen: defaultDesktopState },
+      mobile: { isOpen: false }
+    }),
+    set: value => storageStore.set('panels', storageKey, value)
+  })
+
   const initialIsOpen: ComputedRef<boolean> = computed(() =>
     initialIsMobile ? preferences.value.mobile.isOpen : preferences.value.desktop.isOpen
-  );
+  )
 
-  // Current device context - use shallowRef for better performance
-  const currentIsMobile: Ref<boolean> = shallowRef(initialIsMobile);
+  const currentIsMobile: Ref<boolean> = shallowRef(initialIsMobile)
   const deviceContext: ComputedRef<'mobile' | 'desktop'> = computed(() =>
     currentIsMobile.value ? 'mobile' : 'desktop'
-  );
+  )
 
-  // Initialize panel state from stored preferences based on device type
-  // Use the new initialIsOpen property to initialize the state.
-  const isOpen: Ref<boolean> = shallowRef(initialIsOpen.value);
+  const isOpen: Ref<boolean> = shallowRef(initialIsOpen.value)
+  const isExpanded: Ref<boolean> = shallowRef(false)
 
-  // New expanded state for mobile panels
-  const isExpanded: Ref<boolean> = shallowRef(false);
+  const handle: Ref<HTMLElement | null> = shallowRef(null)
+  const panel: Ref<HTMLElement | null> = shallowRef(null)
 
-  // References for draggable functionality - use shallowRef for DOM elements
-  const handle: Ref<HTMLElement | null> = shallowRef(null);
-  const panel: Ref<HTMLElement | null> = shallowRef(null);
+  const historyStateKey: Ref<string | null> = shallowRef(null)
+  let popstateCleanup: (() => void) | null = null
 
-  /**
-   * Updates the persisted preferences based on the current isOpen state and device type.
-   * Debounced to reduce storage writes.
-   */
   const updatePreferences = useDebounceFn(() => {
-    preferences.value[deviceContext.value].isOpen = isOpen.value;
-  }, 300);
+    preferences.value = {
+      ...preferences.value,
+      [deviceContext.value]: { isOpen: isOpen.value }
+    }
+  }, 300)
 
   const draggable: DraggableReturn = useDraggable({
     panel,
@@ -89,95 +92,129 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     isExpanded,
     maxHeightRatio,
     snapThreshold,
-    maxHeight,
-  });
+    maxHeight
+  })
+
+  const setupMobileBackButton = (): void => {
+    if (!currentIsMobile.value || !isOpen.value) return
+
+    const stateKey = `panel-${storageKey}-${Date.now()}`
+    history.pushState({ panelKey: stateKey }, '')
+    historyStateKey.value = stateKey
+
+    popstateCleanup = useEventListener(window, 'popstate', (event: PopStateEvent) => {
+      const state = event.state
+
+      if (state?.panelKey === historyStateKey.value || historyStateKey.value) {
+        close(true)
+        historyStateKey.value = null
+      }
+    })
+  }
+
+  const cleanupMobileBackButton = (): void => {
+    if (popstateCleanup) {
+      popstateCleanup()
+      popstateCleanup = null
+    }
+
+    if (historyStateKey.value) {
+      if (history.state?.panelKey === historyStateKey.value) {
+        history.back()
+      }
+      historyStateKey.value = null
+    }
+  }
 
   /**
-   * Closes the panel, handling animations if applicable.
+   * Close the panel.
+   * @param isMobile - whether the close is occurring on mobile context (defaults to current context)
    */
-  const close = async (isMobile: boolean = currentIsMobile.value): Promise<void> => {
-    currentIsMobile.value = isMobile;
+  const close = async(isMobile: boolean = currentIsMobile.value): Promise<void> => {
+    cleanupMobileBackButton()
+    currentIsMobile.value = isMobile
 
     if (isMobile && animation() && draggable?.animateClose) {
-      await draggable.animateClose();
+      await draggable.animateClose()
     } else {
-      isOpen.value = false;
+      isOpen.value = false
     }
 
-    // Use setTimeout to ensure expanded state is reset after animation completes
-    setTimeout(() => isExpanded.value = false, 300);
-    updatePreferences();
-  };
+    setTimeout(() => (isExpanded.value = false), 300)
+    updatePreferences()
+  }
 
   /**
-   * Opens the panel, handling animations and draggable setup if applicable.
+   * Open the panel and set up draggable behavior on mobile if configured.
+   * @param isMobile - whether the open should run in mobile mode (defaults to current context)
    */
-  const open = async (isMobile: boolean = currentIsMobile.value): Promise<void> => {
-    currentIsMobile.value = isMobile;
-    isOpen.value = true;
-    updatePreferences();
+  const open = async(isMobile: boolean = currentIsMobile.value): Promise<void> => {
+    currentIsMobile.value = isMobile
+    isOpen.value = true
+    updatePreferences()
+
+    if (isMobile) {
+      await nextTick()
+      setupMobileBackButton()
+    }
 
     if (isMobile && animation() && draggable) {
-      await nextTick();
-      draggable.animateOpen?.();
+      await nextTick()
+      draggable.animateOpen?.()
 
-      const success = draggable.setupDraggable?.();
+      const success = draggable.setupDraggable?.()
       if (!success) {
-        console.warn(`[createPanel ${storageKey}]: Draggable setup failed (handle likely not found).`);
+        console.warn(`[createPanel ${storageKey}]: Draggable setup failed (handle likely not found).`)
       }
     }
-  };
+  }
 
   /**
-   * Toggles the panel's open/closed state or expanded state.
+   * Toggle open/close or mobile-expanded state.
+   * @param options.expanded - if true, toggles the expanded mobile state instead of open/close
+   * @param options.isMobile - override current device context for the toggle
    */
   const toggle = (options: ToggleOptions = {}): void => {
-    const { expanded = false, isMobile = currentIsMobile.value } = options;
+    const { expanded = false, isMobile = currentIsMobile.value } = options
+
     if (expanded) {
-      if (!currentIsMobile.value || !isOpen.value) return;
-      isExpanded.value = !isExpanded.value;
-      if (draggable) {
-        nextTick(updatePanelDimensions);
-      }
-      updatePreferences();
-    } else {
-      if (isOpen.value) {
-        close(isMobile);
-      } else {
-        open(isMobile);
-      }
+      if (!currentIsMobile.value || !isOpen.value) return
+      isExpanded.value = !isExpanded.value
+      if (draggable) nextTick(updatePanelDimensions)
+      updatePreferences()
+      return
     }
-  };
+
+    if (isOpen.value) close(isMobile)
+    else open(isMobile)
+  }
 
   /**
-   * Handles responsive changes, updating state and draggable elements.
+   * Respond to viewport/device changes.
+   * @param newIsMobile - whether the new context should be considered mobile
    */
   const handleResize = (newIsMobile: boolean): void => {
-    if (currentIsMobile.value === newIsMobile) return;
-    currentIsMobile.value = newIsMobile;
+    if (currentIsMobile.value === newIsMobile) return
+    currentIsMobile.value = newIsMobile
 
-    isOpen.value = newIsMobile ? false : preferences.value.desktop.isOpen;
-    updatePreferences();
+    isOpen.value = newIsMobile ? false : preferences.value.desktop.isOpen
+    updatePreferences()
 
-    if (draggable) {
-      nextTick(updatePanelDimensions);
-    }
-  };
+    if (draggable) nextTick(updatePanelDimensions)
+  }
 
-  /**
-   * Recalculates panel dimensions, useful after resize or content changes.
-   * Debounced to prevent excessive calculations.
-   */
   const updatePanelDimensions = useDebounceFn(() => {
-    draggable?.updatePanelDimensions?.();
-  }, 100);
+    draggable?.updatePanelDimensions?.()
+  }, 100)
 
-  // Single watcher for state changes to reduce reactivity overhead
-  watch([isOpen, isExpanded], updatePreferences, { flush: 'post' });
+  watch([isOpen, isExpanded], updatePreferences, { flush: 'post' })
+
+  onUnmounted(() => {
+    cleanupMobileBackButton()
+  })
 
   const api: PanelAPI = {
     isOpen,
-    preloadIsOpen: initialIsOpen,
     isMobile: currentIsMobile,
     isExpanded,
     panel,
@@ -191,8 +228,8 @@ export function createPanel(options: PanelOptions = {}): PanelAPI {
     isDragging: draggable?.isDragging ?? shallowRef(false),
     translateY: draggable?.translateY ?? shallowRef(0),
     panelHeight: draggable?.panelHeight ?? shallowRef(0),
-    maxPanelHeight: draggable?.maxPanelHeight ?? shallowRef(0),
-  };
+    maxPanelHeight: draggable?.maxPanelHeight ?? shallowRef(0)
+  }
 
-  return api;
+  return api
 }
