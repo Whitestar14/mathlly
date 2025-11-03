@@ -74,7 +74,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Ellipsis } from 'lucide-vue-next'
-import { BasePopover, PopoverItem } from '@components/ui'
+import BasePopover from './BasePopover.vue'
+import PopoverItem from './PopoverItem.vue'
 
 export interface SegmentedOption {
   value: string

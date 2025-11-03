@@ -14,7 +14,7 @@
 
 /* Utilities */
 @import './utilities/patterns.css';
-@import './utilities/zindex.css';
+@import './utilities/zIndex.css';
 @import './utilities/focus.css';
 
 /* Animations */
