@@ -1,11 +1,10 @@
 <template>
-  <div class="relative bg-card p-6 rounded-lg border border-border hover:shadow-lg transition-colors duration-300">
+  <div class="relative bg-card p-6 rounded-xl border border-border transition-colors duration-300">
     <div class="flex items-center gap-2 mb-4">
-      <div class="p-2 bg-primary/10 rounded-lg">
+      <div class="p-2 bg-primary/10 rounded-xl">
         <component
           :is="getFeatureIcon(icon)"
-          class="h-6 w-6 text-primary"
-        />
+          class="h-6 w-6 text-primary" />
       </div>
       <h4 class="font-medium text-lg text-card-foreground">
         {{ title }}
@@ -18,9 +17,9 @@
 </template>
 
 <script setup>
-import {  
-  BinaryIcon, 
-  FunctionSquareIcon, 
+import {
+  BinaryIcon,
+  FunctionSquareIcon,
   CalculatorIcon,
   EyeIcon,
   HistoryIcon,
@@ -29,8 +28,11 @@ import {
   CloudIcon,
   HeartIcon,
   ShieldCheckIcon,
-  SparklesIcon
-} from "lucide-vue-next";
+  SparklesIcon,
+  LayersIcon,
+  ZapIcon,
+  WorkflowIcon
+} from 'lucide-vue-next'
 
 defineProps({
   icon: {
@@ -45,10 +47,9 @@ defineProps({
     type: String,
     required: true
   }
-});
+})
 
-// Map feature icon names to actual components
-const getFeatureIcon = (iconName) => {
+const getFeatureIcon = iconName => {
   const iconMap = {
     'Calculator': CalculatorIcon,
     'Eye': EyeIcon,
@@ -60,9 +61,12 @@ const getFeatureIcon = (iconName) => {
     'FunctionSquare': FunctionSquareIcon,
     'Heart': HeartIcon,
     'ShieldCheck': ShieldCheckIcon,
-    'Sparkles': SparklesIcon
-  };
-  
-  return iconMap[iconName] || CalculatorIcon;
-};
+    'Sparkles': SparklesIcon,
+    'Layers': LayersIcon,
+    'Zap': ZapIcon,
+    'Workflow': WorkflowIcon
+  }
+
+  return iconMap[iconName] || CalculatorIcon
+}
 </script>

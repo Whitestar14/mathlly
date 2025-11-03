@@ -1,13 +1,13 @@
 <script setup>
-import { Loader2Icon } from 'lucide-vue-next';
+import { Loader2Icon } from 'lucide-vue-next'
 defineProps({
   variant: {
     type: String,
-    default: 'default',
+    default: 'default'
   },
   size: {
     type: String,
-    default: 'default',
+    default: 'default'
   },
   type: {
     type: String,
@@ -33,13 +33,10 @@ defineProps({
       variant === 'default' ? 'btn-default' : `btn-${variant}`,
       'btn'
     ]"
-    aria-label="button"
-  >
+    aria-label="button">
     <Loader2Icon
       v-if="loading"
-      class="h-4 w-4 animate-spin"
-    />
-    <slot />
+      class="h-4 w-4 animate-spin" />
+    <slot></slot>
   </button>
 </template>
-

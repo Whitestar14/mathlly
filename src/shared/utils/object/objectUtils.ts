@@ -9,15 +9,15 @@ export function cloneDeep<T>(obj: T): T {
   if (obj === null || typeof obj !== 'object') {
     return obj
   }
-  
+
   const clone = (Array.isArray(obj) ? [] : {}) as T
-  
+
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       (clone as any)[key] = cloneDeep((obj as any)[key])
     }
   }
-  
+
   return clone
 }
 
@@ -25,7 +25,7 @@ export function cloneDeep<T>(obj: T): T {
  * Deep merge objects
  */
 export function merge<T extends Record<string, any>>(
-  target: T, 
+  target: T,
   ...sources: Array<Partial<T> | Record<string, any>>
 ): T {
   if (!sources.length) return target
@@ -56,24 +56,24 @@ export function isObject(item: any): item is Record<string, any> {
  * Get a value from an object by path
  */
 export function get<T = any>(
-  obj: Record<string, any>, 
-  path: string | string[], 
+  obj: Record<string, any>,
+  path: string | string[],
   defaultValue?: T
 ): T {
   if (!obj || typeof obj !== 'object') {
     return defaultValue as T
   }
-  
+
   const keys = Array.isArray(path) ? path : path.split('.')
   let result: any = obj
-  
+
   for (const key of keys) {
     if (result === undefined || result === null) {
       return defaultValue as T
     }
     result = result[key]
   }
-  
+
   return result === undefined ? (defaultValue as T) : result
 }
 
@@ -81,17 +81,17 @@ export function get<T = any>(
  * Set a value in an object by path
  */
 export function set(
-  obj: Record<string, any>, 
-  path: string | string[], 
+  obj: Record<string, any>,
+  path: string | string[],
   value: any
 ): Record<string, any> {
   if (!obj || typeof obj !== 'object') {
     return obj
   }
-  
+
   const keys = Array.isArray(path) ? path : path.split('.')
   let current = obj
-  
+
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i]
     if (current[key] === undefined) {
@@ -101,7 +101,7 @@ export function set(
     }
     current = current[key]
   }
-  
+
   current[keys[keys.length - 1]] = value
   return obj
 }
@@ -110,24 +110,22 @@ export function set(
  * Flattens a nested object structure with path-based keys
  */
 export function flattenObject(
-  obj: Record<string, any>, 
+  obj: Record<string, any>,
   separator: string = '_'
 ): Record<string, any> {
   const result: Record<string, any> = {}
-  
+
   function flatten(current: Record<string, any>, prefix: string = ''): void {
     for (const key in current) {
-      // Skip prototype properties
       if (!Object.prototype.hasOwnProperty.call(current, key)) continue
-      
-      // Special case for ID
+
       if (key === 'id' && prefix === '') {
         result[key] = current[key]
         continue
       }
-      
+
       const newKey = prefix ? `${prefix}${separator}${key}` : key
-      
+
       if (isObject(current[key]) && !Array.isArray(current[key])) {
         flatten(current[key], newKey)
       } else {
@@ -135,7 +133,7 @@ export function flattenObject(
       }
     }
   }
-  
+
   flatten(obj)
   return result
 }
@@ -144,23 +142,22 @@ export function flattenObject(
  * Unflatten an object with path-based keys into a nested structure
  */
 export function unflattenObject(
-  obj: Record<string, any>, 
+  obj: Record<string, any>,
   separator: string = '_'
 ): Record<string, any> {
   const result: Record<string, any> = {}
-  
+
   for (const key in obj) {
     if (!Object.prototype.hasOwnProperty.call(obj, key)) continue
-    
-    // Special case for ID
+
     if (key === 'id') {
       result.id = obj.id
       continue
     }
-    
+
     const keys = key.split(separator)
     let current = result
-    
+
     for (let i = 0; i < keys.length - 1; i++) {
       const currentKey = keys[i]
       if (!current[currentKey]) {
@@ -168,10 +165,10 @@ export function unflattenObject(
       }
       current = current[currentKey]
     }
-    
+
     current[keys[keys.length - 1]] = obj[key]
   }
-  
+
   return result
 }
 
@@ -180,7 +177,7 @@ export function unflattenObject(
  */
 export function isNestedStructure(obj: any): obj is Record<string, any> {
   if (!obj || typeof obj !== 'object') return false
-  return Object.keys(obj).some(key => 
+  return Object.keys(obj).some(key =>
     obj[key] && typeof obj[key] === 'object' && !Array.isArray(obj[key])
   )
 }

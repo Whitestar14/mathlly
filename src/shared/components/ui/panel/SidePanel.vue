@@ -3,32 +3,29 @@
     <div
       v-show="isOpen"
       class="panel-side"
-      :class="panelClasses"
-    >
+      :class="panelClasses">
       <PanelContent
         :title="title"
         :show-header="showHeader"
         :show-footer="showFooter"
         :content-class="contentClass"
-        @close="$emit('close')"
-      >
+        @close="$emit('close')">
         <template #default>
-          <slot />
+          <slot></slot>
         </template>
         <template #header-actions>
-          <slot name="header-actions" />
+          <slot name="header-actions"></slot>
         </template>
         <template
           v-if="$slots.footer"
-          #footer
-        >
-          <slot name="footer" />
+          #footer>
+          <slot name="footer"></slot>
         </template>
       </PanelContent>
     </div>
   </Transition>
 </template>
-  
+
 <script setup lang="ts">
 import { computed, type ComputedRef } from 'vue'
 import { PanelContent } from '@components/ui/panel'
@@ -54,7 +51,7 @@ const props = withDefaults(defineProps<Props>(), {
   title: '',
   showHeader: true,
   showFooter: true,
-  contentClass: '',
+  contentClass: ''
 })
 
 defineEmits<Emits>()
@@ -64,10 +61,10 @@ const panelClasses: ComputedRef<string[]> = computed(() => [
   props.position === 'left' ? 'left-0' : 'right-0',
   !props.isMobile && props.position === 'left' ? 'border-r' : '',
   !props.isMobile && props.position === 'right' ? 'border-l' : '',
-  'border-border',
+  'border-border'
 ])
 </script>
-  
+
 <style scoped>
 /* Side panel animations - Left side */
 .slide-left-enter-active,

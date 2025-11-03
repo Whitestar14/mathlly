@@ -1,13 +1,13 @@
-import * as math from 'mathjs';
-import type { MathNode, FunctionNode, SymbolNode } from 'mathjs';
-import { ERROR_MESSAGES } from '@calculator/utils/constants/CalculatorConstants';
+import * as math from 'mathjs'
+import type { MathNode, FunctionNode, SymbolNode } from 'mathjs'
+import { ERROR_MESSAGES } from '@calculator/utils/constants/CalculatorConstants'
 
 /**
  * Interface for a function's domain validation rule.
  * @param args The arguments of the function as a MathNode array.
  * @returns An error message string if the domain is violated, otherwise null.
  */
-type DomainRule = (args: MathNode[]) => string | null;
+type DomainRule = (args: MathNode[]) => string | null
 
 /**
  * A reusable helper to safely evaluate a MathNode to a number.
@@ -18,11 +18,11 @@ type DomainRule = (args: MathNode[]) => string | null;
  */
 function safeEval(node: MathNode): number | undefined {
   try {
-    const compiled = node.compile();
-    const result = compiled.evaluate();
-    return typeof result === 'number' ? result : undefined;
+    const compiled = node.compile()
+    const result = compiled.evaluate()
+    return typeof result === 'number' ? result : undefined
   } catch {
-    return undefined;
+    return undefined
   }
 }
 
@@ -34,7 +34,7 @@ function safeEval(node: MathNode): number | undefined {
  * @returns A formatted error message string.
  */
 function errorMessage(fn: string, arg: number, msg: string): string {
-  return `${ERROR_MESSAGES.DOMAIN_ERROR}: ${fn}(${arg}) - ${msg}`;
+  return `${ERROR_MESSAGES.DOMAIN_ERROR}: ${fn}(${arg}) - ${msg}`
 }
 
 /**
@@ -47,12 +47,12 @@ function errorMessage(fn: string, arg: number, msg: string): string {
  */
 function checkRangeDomain(name: string, predicate: (n: number) => boolean, message: string): DomainRule {
   return ([arg]) => {
-    const argValue = safeEval(arg);
+    const argValue = safeEval(arg)
     if (argValue !== undefined && !predicate(argValue)) {
-      return errorMessage(name, argValue, message);
+      return errorMessage(name, argValue, message)
     }
-    return null;
-  };
+    return null
+  }
 }
 
 /**
@@ -64,7 +64,7 @@ const domainRules: Record<string, DomainRule> = {
    * Domain rule for `acosh(x)`: x must be >= 1.
    */
   acosh: checkRangeDomain('acosh', x => x >= 1, 'argument must be ≥ 1'),
-  
+
   /**
    * Domain rule for `acoth(x)`: |x| must be > 1.
    */
@@ -74,7 +74,7 @@ const domainRules: Record<string, DomainRule> = {
    * Domain rule for `atanh(x)`: |x| must be < 1.
    */
   atanh: checkRangeDomain('atanh', x => Math.abs(x) < 1, 'argument must satisfy |x| < 1'),
-  
+
   /**
    * Domain rule for `asin(x)` and `acos(x)`: |x| must be <= 1.
    */
@@ -91,14 +91,14 @@ const domainRules: Record<string, DomainRule> = {
    * Note: The `ExpressionConverter` converts `ln` and `log` to `log` (natural) and `log10` (base 10).
    */
   log: checkRangeDomain('log', x => x > 0, 'argument must be > 0'),
-  log10: checkRangeDomain('log10', x => x > 0, 'argument must be > 0'),
-};
+  log10: checkRangeDomain('log10', x => x > 0, 'argument must be > 0')
+}
 
 /**
  * A Set of all function names that have a defined domain rule.
  * This provides a fast way to check if a function needs validation.
  */
-const knownFunctions = new Set(Object.keys(domainRules));
+const knownFunctions = new Set(Object.keys(domainRules))
 
 /**
  * A generic validator pipeline that walks a parsed mathjs AST to check for domain violations.
@@ -111,34 +111,29 @@ export class DomainValidator {
    * @returns An array of error messages for any domain violations found.
    */
   validate(expr: string | MathNode): string[] {
-    const errors: string[] = [];
-    let node: MathNode;
+    const errors: string[] = []
+    let node: MathNode
 
     try {
-      node = typeof expr === 'string' ? math.parse(expr) : expr;
-    } catch (parseError: any) {
-      // If parsing fails, we can't validate the domain.
-      return [parseError.message];
+      node = typeof expr === 'string' ? math.parse(expr) : expr
+    } catch(parseError: any) {
+      return [parseError.message]
     }
-    
-    // Find all function nodes in the AST.
-    const functionNodes = node.filter(n => n.type === 'FunctionNode') as FunctionNode[];
+
+    const functionNodes = node.filter(n => n.type === 'FunctionNode') as FunctionNode[]
 
     for (const fnNode of functionNodes) {
-      // Normalize function name to handle case variations.
-      const fnName = (fnNode.fn as SymbolNode).name.toLowerCase();
+      const fnName = (fnNode.fn as SymbolNode).name.toLowerCase()
 
-      // Check if a domain rule exists for this function using the fast lookup Set.
       if (knownFunctions.has(fnName)) {
-        // Run the rule and collect any error message.
-        const rule = domainRules[fnName];
-        const error = rule(fnNode.args);
+        const rule = domainRules[fnName]
+        const error = rule(fnNode.args)
         if (error) {
-          errors.push(error);
+          errors.push(error)
         }
       }
     }
-    
-    return errors;
+
+    return errors
   }
 }

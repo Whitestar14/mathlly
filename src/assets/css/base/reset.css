@@ -1,0 +1,58 @@
+/* styles/base/reset.css */
+@layer base {
+  /* Body + html base styles */
+  body {
+    @apply bg-background text-foreground;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body, html {
+    --radius: 0.5rem;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+    scrollbar-color: oklch(var(--color-muted-foreground) / 0.5) transparent;
+    -ms-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html, body, #app {
+	overscroll-behavior-y: contain;
+	overscroll-behavior-x: contain;
+	-webkit-overflow-scrolling: touch;
+	scrollbar-gutter: stable;
+	scrollbar-base-color: transparent;
+	scrollbar-track-color: transparent;
+  }
+
+  .overflow-y-auto,
+  .overflow-auto,
+  .scrollable {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Form and interactive elements */
+  a, input {
+    @apply focus-colors;
+  }
+
+  textarea {
+    @apply outline-none text-foreground bg-background transition-[border-color] duration-200 ease-linear focus:ring-1 focus:ring-ring/20 focus:border-ring/50;
+  }
+
+  /* Accessibility: reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+  .animation-disabled * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

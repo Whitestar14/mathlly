@@ -1,64 +1,58 @@
 <template>
   <div class="space-y-6">
     <slot name="header">
-      <div class="flex items-center gap-2 pb-3 border-b border-border">
-        <BaseButton
-          variant="ghost"
-          size="icon"
-          class="shrink-0 hover:bg-accent/50 transition-colors duration-200"
-          @click="$emit('close')"
-        >
-          <ArrowLeft class="h-4 w-4" />
-        </BaseButton>
-        <div class="flex-1 min-w-0">
-          <h3 class="text-base font-semibold text-foreground">
-            Tool Options
-          </h3>
+      <div class="sticky top-0 z-20 -p-3 bg-backdrop-surface/95 backdrop-blur-md border-b border-border">
+        <div class="flex items-center gap-2 p-2">
+          <BaseButton
+            variant="ghost"
+            size="icon"
+            class="shrink-0 transition-colors duration-200"
+            @click="$emit('close')">
+            <ArrowLeft class="h-4 w-4" />
+          </BaseButton>
+          <div class="flex-1 min-w-0">
+            <h3 class="text-base font-semibold text-foreground">
+              Tool Options
+            </h3>
+          </div>
         </div>
       </div>
     </slot>
-    <!-- Options grouped by section -->
+
     <div class="space-y-6 p-3">
       <template
         v-for="section in groupedOptions"
-        :key="section.name"
-      >
+        :key="section.name">
         <div
           v-if="section.options.length > 0"
-          class="space-y-4"
-        >
-          <!-- Section Header -->
+          class="space-y-4">
+
           <div class="flex items-center gap-2">
-            <div class="h-px flex-1 bg-border" />
+            <div class="h-px flex-1 bg-border"></div>
             <h4
-              class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2"
-            >
+              class="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
               {{ section.name }}
             </h4>
-            <div class="h-px flex-1 bg-border" />
+            <div class="h-px flex-1 bg-border"></div>
           </div>
           <div class="space-y-4">
             <div
               v-for="option in section.options"
               :key="option.id"
-              class="group"
-            >
-              <!-- Toggle Option -->
+              class="group">
+
               <div
                 v-if="option.type === 'toggle'"
-                class="flex items-start justify-between p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200"
-              >
+                class="flex items-start justify-between p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200">
                 <div class="flex-1 min-w-0 pr-4">
                   <label
                     :for="option.id"
-                    class="text-sm font-medium text-foreground cursor-pointer block"
-                  >
+                    class="text-sm font-medium text-foreground cursor-pointer block">
                     {{ option.label }}
                   </label>
                   <p
                     v-if="option.description"
-                    class="text-xs text-muted-foreground mt-1 leading-relaxed"
-                  >
+                    class="text-xs text-muted-foreground mt-1 leading-relaxed">
                     {{ option.description }}
                   </p>
                 </div>
@@ -67,26 +61,22 @@
                     :id="option.id"
                     :model-value="option.value.value[option.id]"
                     class="data-[state=checked]:bg-primary"
-                    @update:model-value="updateOptionValue(option, $event)"
-                  />
+                    @update:model-value="updateOptionValue(option, $event)" />
                 </div>
               </div>
-              <!-- SelectBar Option -->
+
               <div
                 v-else-if="option.type === 'select'"
-                class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3"
-              >
+                class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3">
                 <div>
                   <label
                     :for="option.id"
-                    class="text-sm font-medium text-foreground block"
-                  >
+                    class="text-sm font-medium text-foreground block">
                     {{ option.label }}
                   </label>
                   <p
                     v-if="option.description"
-                    class="text-xs text-muted-foreground mt-1 leading-relaxed"
-                  >
+                    class="text-xs text-muted-foreground mt-1 leading-relaxed">
                     {{ option.description }}
                   </p>
                 </div>
@@ -95,66 +85,56 @@
                   :model-value="option.value.value[option.id]"
                   :options="option.options || []"
                   class="w-full"
-                  @update:model-value="updateOptionValue(option, $event)"
-                />
+                  @update:model-value="updateOptionValue(option, $event)" />
               </div>
-              <!-- Radio Option -->
+
               <div
                 v-else-if="option.type === 'radio'"
-                class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3"
-              >
+                class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3">
                 <div>
                   <label class="text-sm font-medium text-foreground block">
                     {{ option.label }}
                   </label>
                   <p
                     v-if="option.description"
-                    class="text-xs text-muted-foreground mt-1 leading-relaxed"
-                  >
+                    class="text-xs text-muted-foreground mt-1 leading-relaxed">
                     {{ option.description }}
                   </p>
                 </div>
                 <RadioGroupRoot
                   :model-value="option.value.value[option.id]"
                   class="space-y-2"
-                  @update:model-value="updateOptionValue(option, $event)"
-                >
+                  @update:model-value="updateOptionValue(option, $event)">
                   <div
                     v-for="radioOption in option.options"
                     :key="radioOption.value"
-                    class="flex items-center space-x-3 p-2 rounded-md hover:bg-accent/30 transition-colors duration-200"
-                  >
+                    class="flex items-center space-x-3 p-2 rounded-md hover:bg-secondary/50 transition-colors duration-200">
                     <RadioGroupItem
                       :id="`${option.id}-${radioOption.value}`"
                       :value="radioOption.value"
-                      class="w-4 h-4 rounded-full border-2 border-border text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-all duration-200"
-                    />
+                      class="w-4 h-4 rounded-full border-2 border-border text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-transparent data-[state=checked]:border-primary transition-all duration-200" />
                     <label
                       :for="`${option.id}-${radioOption.value}`"
-                      class="text-sm text-foreground cursor-pointer flex-1"
-                    >
+                      class="text-sm text-foreground cursor-pointer flex-1">
                       {{ radioOption.label }}
                     </label>
                   </div>
                 </RadioGroupRoot>
               </div>
-              <!-- Range Option -->
+
               <div
                 v-else-if="option.type === 'range'"
-                class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3"
-              >
+                class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3">
                 <div class="flex items-center justify-between">
                   <div>
                     <label
                       :for="option.id"
-                      class="text-sm font-medium text-foreground block"
-                    >
+                      class="text-sm font-medium text-foreground block">
                       {{ option.label }}
                     </label>
                     <p
                       v-if="option.description"
-                      class="text-xs text-muted-foreground mt-1 leading-relaxed"
-                    >
+                      class="text-xs text-muted-foreground mt-1 leading-relaxed">
                       {{ option.description }}
                     </p>
                   </div>
@@ -163,8 +143,7 @@
                       {{ option.min }}
                     </span>
                     <span
-                      class="text-sm font-medium text-foreground bg-muted px-2 py-1 rounded-md min-w-[3rem] text-center"
-                    >
+                      class="text-sm font-medium text-foreground bg-muted px-2 py-1 rounded-md min-w-[3rem] text-center">
                       {{ option.value.value[option.id] }}
                     </span>
                     <span class="text-xs text-muted-foreground">
@@ -179,31 +158,27 @@
                     :min="option.min"
                     :max="option.max"
                     :step="option.step"
-                    @update:model-value="updateOptionValue(option, Number($event))"
-                  />
-                  <!-- Range track indicators -->
+                    @update:model-value="updateOptionValue(option, Number($event))" />
+
                   <div class="flex justify-between text-xs text-muted-foreground/60 mt-1 px-1">
                     <span>{{ option.min }}</span>
                     <span>{{ option.max }}</span>
                   </div>
                 </div>
               </div>
-              <!-- Color Option -->
+
               <div
                 v-else-if="option.type === 'color'"
-                class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3"
-              >
+                class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3">
                 <div>
                   <label
                     :for="option.id"
-                    class="text-sm font-medium text-foreground block"
-                  >
+                    class="text-sm font-medium text-foreground block">
                     {{ option.label }}
                   </label>
                   <p
                     v-if="option.description"
-                    class="text-xs text-muted-foreground mt-1 leading-relaxed"
-                  >
+                    class="text-xs text-muted-foreground mt-1 leading-relaxed">
                     {{ option.description }}
                   </p>
                 </div>
@@ -218,29 +193,25 @@
                         option,
                         ($event.target as HTMLInputElement).value
                       )
-                    "
-                  >
+                    " />
                   <span class="text-sm font-mono text-muted-foreground">
                     {{ option.value.value[option.id] }}
                   </span>
                 </div>
               </div>
-              <!-- Number Input Option -->
+
               <div
                 v-else-if="option.type === 'number'"
-                class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3"
-              >
+                class="p-3 rounded-lg border border-border/50 bg-card/30 hover:bg-card hover:border-border transition-all duration-200 space-y-3">
                 <div>
                   <label
                     :for="option.id"
-                    class="text-sm font-medium text-foreground block"
-                  >
+                    class="text-sm font-medium text-foreground block">
                     {{ option.label }}
                   </label>
                   <p
                     v-if="option.description"
-                    class="text-xs text-muted-foreground mt-1 leading-relaxed"
-                  >
+                    class="text-xs text-muted-foreground mt-1 leading-relaxed">
                     {{ option.description }}
                   </p>
                 </div>
@@ -257,18 +228,16 @@
                       option,
                       Number(($event.target as HTMLInputElement).value)
                     )
-                  "
-                >
+                  " />
               </div>
             </div>
           </div>
         </div>
       </template>
-      <!-- Empty state -->
+
       <div
         v-if="groupedOptions.length === 0"
-        class="text-center py-8"
-      >
+        class="text-center py-8">
         <Settings class="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
         <p class="text-sm text-muted-foreground">
           No options available for this tool
@@ -279,41 +248,39 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { ArrowLeft, Settings } from 'lucide-vue-next';
-import type { ToolConfig, ToolOption } from '@stores/toolSettings';
+import { computed } from 'vue'
+import { ArrowLeft, Settings } from 'lucide-vue-next'
+import type { ToolConfig, ToolOption } from '@stores/toolSettings'
 import { BaseButton, SelectBar, ToggleBar, BaseSlider } from '@components/ui'
-import { RadioGroupRoot, RadioGroupItem } from 'radix-vue';
+import { RadioGroupRoot, RadioGroupItem } from 'radix-vue'
 
 interface Props {
   toolOptions: ToolConfig;
 }
 
-const props = defineProps<Props>();
+const props = defineProps<Props>()
 defineEmits<{
   close: [];
-}>();
+}>()
 
-// Update option value with proper reactivity
 const updateOptionValue = (option: ToolOption, newValue: any) => {
-  option.value.value[option.id] = newValue;
-};
+  option.value.value[option.id] = newValue
+}
 
-// Group options by section
 const groupedOptions = computed(() => {
-  const sections = new Map<string, typeof props.toolOptions.options>();
-  props.toolOptions.options.forEach((option) => {
-    const sectionName = option.section || 'General';
+  const sections = new Map<string, typeof props.toolOptions.options>()
+  props.toolOptions.options.forEach(option => {
+    const sectionName = option.section || 'General'
     if (!sections.has(sectionName)) {
-      sections.set(sectionName, []);
+      sections.set(sectionName, [])
     }
-    sections.get(sectionName)!.push(option);
-  });
+    sections.get(sectionName)!.push(option)
+  })
   return Array.from(sections.entries()).map(([name, options]) => ({
     name,
-    options,
-  }));
-});
+    options
+  }))
+})
 </script>
 
 <style scoped>
@@ -363,14 +330,9 @@ input[type='color'] {
   cursor: pointer;
 }
 
+input[type='color']::-moz-color-swatch,
 input[type='color']::-webkit-color-swatch {
-  border-radius: 6px;
-  border: 1px solid hsl(var(--border));
-}
-
-input[type='color']::-moz-color-swatch {
-  border-radius: 6px;
-  border: 1px solid hsl(var(--border));
+  @apply rounded-md border-border border;
 }
 
 input[type='number']::-webkit-outer-spin-button,

@@ -7,32 +7,30 @@
       <NavigationMenuItem
         v-for="item in category.items"
         :key="item.path"
-        class="space-y-0.5"
-      >
+        class="space-y-0.5">
         <NavigationMenuLink
           :active="currentPill === item.path"
-          as-child
-        >
+          as-child>
           <button
             :data-path="item.path"
             :disabled="item.comingSoon ?? false"
             :class="getMenuItemClasses(item)"
-            @click="$emit('item-click', $event, item)"
-          >
+            @click="$emit('item-click', $event, item)">
             <component
               :is="item.icon"
               class="menu-icon"
-              :class="getIconClasses(item.path)"
-            />
+              :class="getIconClasses(item.path)" />
             <span>{{ item.name }}</span>
             <BaseBadge
               v-if="item.comingSoon"
-              variant="soon"
-            />
+              variant="soon">
+              soon
+            </BaseBadge>
             <BaseBadge
               v-if="item.isNew"
-              variant="new"
-            />
+              variant="new">
+              new
+            </BaseBadge>
           </button>
         </NavigationMenuLink>
       </NavigationMenuItem>
@@ -41,14 +39,14 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed } from 'vue'
 import {
   NavigationMenuItem,
-  NavigationMenuLink,
-} from "radix-vue";
-import { useMenuStyles } from '@composables/ui/useMenuStyles';
+  NavigationMenuLink
+} from 'radix-vue'
+import { useMenuStyles } from '@composables/ui/useMenuStyles'
 import { BaseBadge } from '@components/ui'
-import type { NavigationCategory as NavigationCategoryType, NavigationItem } from '@composables/ui/useSidebarNavigation';
+import type { NavigationCategory as NavigationCategoryType, NavigationItem } from '@composables/ui/useSidebarNavigation'
 
 interface Props {
   category: NavigationCategoryType;
@@ -59,11 +57,11 @@ interface Emits {
   (e: 'item-click', event: Event, item: NavigationItem): void;
 }
 
-const props = defineProps<Props>();
-defineEmits<Emits>();
+const props = defineProps<Props>()
+defineEmits<Emits>()
 
-const currentPillRef = computed(() => props.currentPill);
-const { getMenuItemClasses, getIconClasses } = useMenuStyles(currentPillRef);
+const currentPillRef = computed(() => props.currentPill)
+const { getMenuItemClasses, getIconClasses } = useMenuStyles(currentPillRef)
 </script>
 
 <style scoped>

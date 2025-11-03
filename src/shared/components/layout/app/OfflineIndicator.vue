@@ -1,45 +1,43 @@
 <template>
   <div class="hidden md:inline-block">
-    <div 
-      v-tippy="{ 
-        content: networkStatus ? 'Connected' : 'Not connected. Some functionality may not be available', 
-        placement: 'bottom' 
+    <div
+      v-tippy="{
+        content: networkStatus ? 'Connected' : 'Not connected. Some functionality may not be available',
+        placement: 'bottom'
       }"
       class="transition-all duration-300 rounded-full p-1 border transform-gpu"
       :class="[
-        networkStatus 
-          ? 'text-emerald-600 border-emerald-500/30' 
+        networkStatus
+          ? 'text-emerald-600 border-emerald-500/30'
           : 'text-muted-foreground border-border/30',
         { 'animate-pulse-custom': isAnimating }
-      ]"
-    >
+      ]">
       <component
         :is="networkStatus ? Wifi : WifiOff"
-        class="size-4"
-      />
+        class="size-4" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue';
+import { ref, watchEffect } from 'vue'
 import { useOnline } from '@vueuse/core'
-import { Wifi, WifiOff } from 'lucide-vue-next';
-import { useTimeoutFn } from '@vueuse/core';
+import { Wifi, WifiOff } from 'lucide-vue-next'
+import { useTimeoutFn } from '@vueuse/core'
 
-const isAnimating = ref(false);
-const networkStatus = useOnline();
+const isAnimating = ref(false)
+const networkStatus = useOnline()
 
 const { start: startAnimation } = useTimeoutFn(() => {
-  isAnimating.value = false;
-}, 2000);
-  
+  isAnimating.value = false
+}, 2000)
+
 watchEffect(() => {
   if (networkStatus.value !== undefined) {
-    isAnimating.value = true;
-    startAnimation();
+    isAnimating.value = true
+    startAnimation()
   }
-});
+})
 </script>
 
 <style scoped>

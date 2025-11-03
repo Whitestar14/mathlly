@@ -1,46 +1,34 @@
-import { type Ref } from 'vue';
+export function useSampleData() {
+  const pick = <T>(arr: T[]) => arr[Math.floor(Math.random() * arr.length)]
 
-export function useSampleData(input: Ref<string>, selectedFileName: Ref<string>) {
-  const loadSampleText = (): void => {
-    const sampleTexts = [
-      "Hello, World! This is a sample text for Base64 encoding.",
-      "The quick brown fox jumps over the lazy dog. 🦊",
-      "Base64 is a group of binary-to-text encoding schemes.",
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-    ];
-    
-    input.value = sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
-    selectedFileName.value = "";
-  };
+  const loadSampleText = (): string => {
+    const samples = [
+      'Hello, World! This is a sample text for Base64 encoding.',
+      'Base64 is a group of binary-to-text encoding schemes.',
+      'Mathlly/Prism is an awesome tool!',
+      'Vue.js is a progressive JavaScript framework.',
+      'TypeScript extends JavaScript by adding types.'
+    ]
+    return pick(samples)
+  }
 
-  const loadSampleBase64 = (): void => {
-    const sampleBase64s = [
-      "SGVsbG8sIFdvcmxkIQ==",
-      "VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=",
-      "QmFzZTY0IGlzIGEgZ3JvdXAgb2YgYmluYXJ5LXRvLXRleHQgZW5jb2Rpbmcgc2NoZW1lcy4=",
-      "TWF0aGxseSBpcyBhbiBhd2Vzb21lIHRvb2wh"
-    ];
-    
-    input.value = sampleBase64s[Math.floor(Math.random() * sampleBase64s.length)];
-    selectedFileName.value = "";
-  };
+  const loadSampleBase64 = (): string => {
+    const samples = [
+      'SGVsbG8sIFdvcmxkIQ==',
+      'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=',
+      'QmFzZTY0IGlzIGEgZ3JvdXAgb2YgYmluYXJ5LXRvLXRleHQgZW5jb2Rpbmcgc2NoZW1lcy4=',
+      'TWF0aGxseSBpcyBhbiBhd2Vzb21lIHRvb2wh',
+      'TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4='
+    ]
+    return pick(samples)
+  }
 
-  const generateRandomData = (): void => {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
-    const length = Math.floor(Math.random() * 200) + 50;
-    let result = '';
-    
-    for (let i = 0; i < length; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    
-    input.value = result;
-    selectedFileName.value = "";
-  };
+  const generateRandomData = (): string => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'
+    let s = ''
+    for (let i = 0; i < 32; i++) s += chars.charAt(Math.floor(Math.random() * chars.length))
+    return s
+  }
 
-  return {
-    loadSampleText,
-    loadSampleBase64,
-    generateRandomData
-  };
+  return { loadSampleText, loadSampleBase64, generateRandomData }
 }

@@ -1,17 +1,17 @@
-import { BaseType } from '../constants/CalculatorConstants.ts';
-import { CalculatorUtils } from '../constants/CalculatorUtils';
-import { StandardCalculations } from './StandardCalculations';
+import { BaseType } from '../constants/CalculatorConstants.ts'
+import { CalculatorUtils } from '../constants/CalculatorUtils'
+import { StandardCalculations } from './StandardCalculations'
 
 /**
  * Programmer calculator wrapper that extends StandardCalculations
  * Adds base conversion and integer-only evaluation
  */
 export class ProgrammerCalculations extends StandardCalculations {
-  private currentBase: BaseType;
+  private currentBase: BaseType
 
   constructor(initialBase: BaseType = 'DEC') {
-    super();
-    this.currentBase = initialBase;
+    super()
+    this.currentBase = initialBase
   }
 
   /**
@@ -19,18 +19,17 @@ export class ProgrammerCalculations extends StandardCalculations {
    */
   evaluateExpression(expr: string, options: Record<string, any> = {}): number {
     try {
-      const base = (options.base as BaseType) || this.currentBase;
+      const base = (options.base as BaseType) || this.currentBase
 
-      // Use parent evaluation with programmer mode
       const result = super.evaluateExpression(expr, {
         mode: 'programmer',
         base: base,
         ...options
-      });
+      })
 
-      return Math.trunc(result);
-    } catch (err: any) {
-      throw new Error(CalculatorUtils.formatError(err, "Invalid expression"));
+      return Math.trunc(result)
+    } catch(err: any) {
+      throw new Error(CalculatorUtils.formatError(err, 'Invalid expression'))
     }
   }
 
@@ -38,16 +37,16 @@ export class ProgrammerCalculations extends StandardCalculations {
    * Formats results for specific base with integer validation
    */
   formatResult(result: number, options?: Record<string, any>): string {
-    const base: BaseType = (options?.base as BaseType) || this.currentBase;
-    if (!result && result !== 0) return 'Overflow';
+    const base: BaseType = (options?.base as BaseType) || this.currentBase
+    if (!result && result !== 0) return 'Overflow'
 
     try {
-      this.validateResult(result);
+      this.validateResult(result)
 
-      return CalculatorUtils.formatForBase(Math.abs(result), base);
-    } catch (err) {
-      console.error('Error formatting result:', err);
-      return base === 'DEC' ? super._formatResult(result) : 'Overflow';
+      return CalculatorUtils.formatForBase(Math.abs(result), base)
+    } catch(err) {
+      console.error('Error formatting result:', err)
+      return base === 'DEC' ? super._formatResult(result) : 'Overflow'
     }
   }
 
@@ -55,6 +54,6 @@ export class ProgrammerCalculations extends StandardCalculations {
    * Evaluates expression with specific base
    */
   evaluateExpressionWithBase(expr: string, base: BaseType): number {
-    return this.evaluateExpression(expr, { base });
+    return this.evaluateExpression(expr, { base })
   }
 }

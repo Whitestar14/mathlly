@@ -1,0 +1,110 @@
+@layer base {
+  [data-theme-pack='monaco'] {
+    --color-background: 1.0 0 0;
+    --color-foreground: 0.30 0.005 250;
+    --color-card: 1.0 0 0;
+    --color-card-foreground: 0.30 0.005 250;
+    --color-popover: 1.0 0 0;
+    --color-popover-foreground: 0.30 0.005 250;
+    --color-primary: 0.55 0.18 250;
+    --color-primary-foreground: 1.0 0 0;
+    --color-secondary: 0.94 0.005 250;
+    --color-secondary-foreground: 0.30 0.005 250;
+    --color-muted: 0.92 0.005 250;
+    --color-muted-foreground: 0.50 0.005 250;
+    --color-accent: 0.60 0.20 245;
+    --color-accent-foreground: 0.30 0.005 250;
+    --color-destructive: 0.62 0.26 29;
+    --color-destructive-foreground: 1.0 0 0;
+    --color-border: 0.88 0.005 250;
+    --color-input: 1.0 0 0;
+    --color-ring: 0.55 0.18 250;
+
+    --backdrop: 0 0 0;
+    --backdrop-light: 1.0 0 0;
+    --backdrop-surface: 1.0 0 0;
+    --color-panel: 1.0 0 0;
+    --logo-bg-fill: 1.0 0 0;
+    --logo-stroke-stop-color: 0 0 0;
+    --logo-fg-stop-color: 0.30 0.005 250;
+    --color-highlight: 0.65 0.15 245;
+    
+    --syntax-tag: 0.55 0.18 250;
+    --syntax-func: 0.75 0.15 85;
+    --syntax-string: 0.65 0.15 25;
+    --syntax-regexp: 0.65 0.15 25;
+    --syntax-markup: 0.55 0.18 250;
+    --syntax-keyword: 0.60 0.18 245;
+    --syntax-special: 0.60 0.15 200;
+    --syntax-comment: 0.55 0.12 140;
+    --syntax-constant: 0.60 0.15 200;
+    --syntax-operator: 0.30 0.005 250;
+    --syntax-paren-0: 0.50 0.10 250;
+    --syntax-paren-1: 0.55 0.12 250;
+    --syntax-paren-2: 0.60 0.14 250;
+    --syntax-paren-3: 0.65 0.16 250;
+    --syntax-paren-4: 0.70 0.18 250;
+    --syntax-paren-5: 0.75 0.20 250;
+  }
+
+  [data-theme-pack='monaco'].dark {
+    --color-background: 0.18 0.01 250;
+    --color-foreground: 0.85 0.005 250;
+    --color-card: 0.18 0.01 250;
+    --color-card-foreground: 0.85 0.005 250;
+    --color-popover: 0.18 0.01 250;
+    --color-popover-foreground: 0.85 0.005 250;
+    --color-primary: 0.65 0.18 245;
+    --color-primary-foreground: 0.18 0.01 250;
+    --color-secondary: 0.25 0.01 250;
+    --color-secondary-foreground: 0.85 0.005 250;
+    --color-muted: 0.28 0.01 250;
+    --color-muted-foreground: 0.60 0.005 250;
+    --color-accent: 0.70 0.16 240;
+    --color-accent-foreground: 0.85 0.005 250;
+    --color-destructive: 0.38 0.26 29;
+    --color-destructive-foreground: 0.85 0.005 250;
+    --color-border: 0.23 0.01 250;
+    --color-input: 0.18 0.01 250;
+    --color-ring: 0.65 0.18 245;
+
+    --backdrop: 0 0 0;
+    --backdrop-light: 0.18 0.01 250;
+    --backdrop-surface: 0.25 0.01 250;
+    --color-panel: 0.18 0.01 250;
+    --logo-bg-fill: 0.18 0.01 250;
+    --logo-stroke-stop-color: 0.85 0.005 250;
+    --logo-fg-stop-color: 0.85 0.005 250;
+    --color-highlight: 0.60 0.15 245;
+
+    --syntax-tag: 0.70 0.18 245;
+    --syntax-func: 0.85 0.15 85;
+    --syntax-string: 0.65 0.15 35;
+    --syntax-regexp: 0.65 0.15 35;
+    --syntax-markup: 0.70 0.18 245;
+    --syntax-keyword: 0.65 0.18 245;
+    --syntax-special: 0.65 0.15 200;
+    --syntax-comment: 0.55 0.12 140;
+    --syntax-constant: 0.65 0.15 200;
+    --syntax-operator: 0.85 0.005 250;
+    --syntax-paren-0: 0.75 0.10 250;
+    --syntax-paren-1: 0.80 0.12 250;
+    --syntax-paren-2: 0.85 0.14 250;
+    --syntax-paren-3: 0.90 0.16 250;
+    --syntax-paren-4: 0.95 0.18 250;
+    --syntax-paren-5: 1.0 0.20 250;
+  }
+
+  [data-theme-pack='monaco']::selection {
+    background-color: oklch(var(--color-highlight) / 0.20);
+  }
+  [data-theme-pack='monaco']::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.20);
+  }
+  [data-theme-pack='monaco'].dark::selection {
+    background-color: oklch(var(--color-highlight) / 0.30);
+  }
+  [data-theme-pack='monaco'].dark::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.30);
+  }
+}

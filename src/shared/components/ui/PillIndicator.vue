@@ -1,8 +1,7 @@
 <template>
   <div
     class="absolute will-change-transform rounded-full bg-primary/80 transition-all duration-300 ease-in-out"
-    :style="computedStyle"
-  />
+    :style="computedStyle"></div>
 </template>
 
 <script setup>
@@ -11,15 +10,15 @@ import { computed } from 'vue'
 const props = defineProps({
   position: {
     type: Object,
-    default: () => ({}),
+    default: () => ({})
   },
   height: {
     type: Number,
-    default: 15,
+    default: 15
   },
   width: {
     type: Number,
-    default: 2,
+    default: 2
   }
 })
 

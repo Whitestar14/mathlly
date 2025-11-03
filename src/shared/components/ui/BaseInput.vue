@@ -3,18 +3,16 @@
     <slot name="prefix">
       <div
         v-if="$slots.icon || icon"
-        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-      >
+        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
         <slot name="icon">
           <component
             :is="icon"
             v-if="icon"
-            class="h-4 w-4"
-          />
+            class="h-4 w-4" />
         </slot>
       </div>
     </slot>
-    
+
     <input
       :id="id"
       ref="inputRef"
@@ -26,32 +24,30 @@
       :aria-invalid="!!error"
       :aria-describedby="error ? `${id}-error` : undefined"
       :class="[
-        'w-full rounded-lg border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
+        'w-full rounded-lg border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
         error ? 'border-destructive' : 'border-border',
         $slots.icon || icon ? 'pl-10' : 'pl-4',
         $slots.suffix ? 'pr-10' : 'pr-4',
         'py-2'
       ]"
       v-bind="$attrs"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       @blur="$emit('blur', $event)"
-      @focus="$emit('focus', $event)"
-    >
-    
-    <slot name="suffix" />
-    
+      @focus="handleFocus" />
+
+    <slot name="suffix"></slot>
+
     <div
       v-if="error"
       :id="`${id}-error`"
-      class="mt-1 text-sm text-destructive"
-    >
+      class="mt-1 text-sm text-destructive">
       {{ error }}
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted, nextTick } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -89,22 +85,38 @@ const props = defineProps({
   autofocus: {
     type: Boolean,
     default: false
+  },
+  autoSelect: {
+    type: Boolean,
+    default: true
   }
-});
+})
 
-defineEmits(['update:modelValue', 'blur', 'focus']);
+const emit = defineEmits<{
+  'update:modelValue': [value: string | number],
+  'blur': [event: FocusEvent],
+  'focus': [event: FocusEvent]
+}>()
 
-const inputRef = ref(null);
+const inputRef = ref<HTMLInputElement | null>(null)
+
+const handleFocus = (event: FocusEvent) => {
+  emit('focus', event)
+  if (props.autoSelect) {
+    nextTick(() => inputRef.value?.select())
+  }
+}
 
 onMounted(() => {
   if (props.autofocus && inputRef.value) {
-    inputRef.value.focus();
+    inputRef.value.focus()
   }
-});
+})
 
 defineExpose({
   focus: () => inputRef.value?.focus(),
   blur: () => inputRef.value?.blur(),
+  select: () => inputRef.value?.select(),
   input: inputRef
-});
+})
 </script>

@@ -1,4 +1,4 @@
-import { markRaw } from 'vue';
+import { markRaw } from 'vue'
 import {
   CompassIcon,
   Code2Icon,
@@ -6,12 +6,13 @@ import {
   MessagesSquareIcon,
   CogIcon,
   SparklesIcon,
+  PaletteIcon,
   FunctionSquareIcon,
   RegexIcon,
   LineChartIcon,
   ArrowRightLeftIcon,
   BinaryIcon
-} from 'lucide-vue-next';
+} from 'lucide-vue-next'
 
 export interface NavigationItem {
   name: string;
@@ -40,84 +41,92 @@ export interface FooterItem {
 export function useSidebarNavigation() {
   const categories = markRaw<NavigationCategory[]>([
     {
-      title: "Navigation",
+      title: 'Navigation',
       items: [
-        { 
-          name: "Home", 
-          path: "/", 
-          icon: CompassIcon, 
-          comingSoon: false, 
-          isNew: false 
-        },
+        {
+          name: 'Home',
+          path: '/',
+          icon: CompassIcon,
+          comingSoon: false,
+          isNew: false
+        }
       ]
     },
     {
-      title: "Calculators",
+      title: 'Calculators',
       items: [
-        { 
-          name: "Calculator", 
-          path: "/calculator", 
-          icon: Code2Icon, 
-          comingSoon: false, 
-          isNew: false 
+        {
+          name: 'Calculator',
+          path: '/calculator',
+          icon: Code2Icon,
+          comingSoon: false,
+          isNew: false
         },
         {
-          name: "Functions",
-          path: "/functions",
+          name: 'Functions',
+          path: '/functions',
           icon: FunctionSquareIcon,
-          comingSoon: true,
-        },
-        { 
-          name: "Regex", 
-          path: "/regex", 
-          icon: RegexIcon, 
-          comingSoon: true 
+          comingSoon: true
         },
         {
-          name: "Graphing",
-          path: "/graphing",
+          name: 'Regex',
+          path: '/regex',
+          icon: RegexIcon,
+          comingSoon: true
+        },
+        {
+          name: 'Graphing',
+          path: '/graphing',
           icon: LineChartIcon,
-          comingSoon: true,
+          comingSoon: true
         },
         {
-          name: "Converter",
-          path: "/converter",
+          name: 'Converter',
+          path: '/converter',
           icon: ArrowRightLeftIcon,
-          comingSoon: true,
-        },
-      ],
+          comingSoon: true
+        }
+      ]
     },
     {
-      title: "Tools",
+      title: 'Tools',
       items: [
         {
-          name: "Base64",
-          path: "/tools/base64",
+          name: 'Base64',
+          path: '/tools/base64',
           icon: BinaryIcon,
           isNew: false,
           comingSoon: false,
-          description: "Encode and decode Base64 strings",
+          description: 'Encode and decode Base64 strings'
         },
-      ],
+        {
+          name: 'Color',
+          path: '/tools/color',
+          icon: PaletteIcon,
+          isNew: true,
+          comingSoon: false,
+          description: 'Convert and preview colors (hex, rgb, cmyk, oklch)'
+        }
+      ]
     },
     {
-      title: "Information",
+      title: 'Information',
       items: [
-        { 
-          name: "Updates", 
-          path: "/info/update", 
-          comingSoon: false, 
-          icon: SparklesIcon 
+        {
+          name: 'Updates',
+          path: '/info/update',
+          comingSoon: false,
+          icon: SparklesIcon
         },
-        { 
-          name: "About", 
-          path: "/info/about", 
-          comingSoon: false, 
-          icon: InfoIcon 
-        },
-      ],
-    },
-  ]);
+        {
+          name: 'About',
+          path: '/info/about',
+          comingSoon: false,
+          icon: InfoIcon
+        }
+      ]
+    }
+  ])
 
   const footerItems = markRaw<FooterItem[]>([
     {
@@ -132,10 +141,10 @@ export function useSidebarNavigation() {
       icon: MessagesSquareIcon,
       label: 'Send Feedback'
     }
-  ]);
+  ])
 
   return {
     categories,
     footerItems
-  };
+  }
 }

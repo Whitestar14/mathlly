@@ -6,96 +6,65 @@
     position="left"
     :max-height-ratio="0.8"
     :snap-threshold="0.4"
-    :default-desktop-state="false"
-  >
-    <!-- Sticky Tab Navigation -->
+    :default-desktop-state="false">
+
     <template #sticky>
-      <div
-        class="border-b border-border bg-backdrop-surface/95 backdrop-blur-md shadow-sm"
-      >
-        <div class="flex relative justify-evenly">
-          <PillIndicator :position="indicatorStyle" />
-          <div
-            v-for="tab in tabs"
-            :key="tab.value"
-            ref="tabElements"
-            :data-path="tab.value"
-            class="px-4 py-3 text-sm font-medium transition-colors relative cursor-pointer"
-            :class="[
-              currentTab === tab.value
-                ? 'text-primary'
-                : 'text-muted-foreground hover:text-foreground',
-            ]"
-            @click="handleTabChange(tab.value, $event.target as HTMLElement)"
-          >
-            {{ tab.label }}
-          </div>
-        </div>
-      </div>
+      <BaseTabs
+        v-model="currentTab"
+        :tabs="tabs" />
     </template>
 
-    <!-- Scrollable Content -->
     <div class="p-3 overflow-x-hidden">
-      <!-- History Tab Content -->
+
       <div v-if="currentTab === 'history'">
         <HistoryList
           :mode="mode"
           :is-mobile="isMobile"
           @select-item="handleSelectItem"
-          @history-close="$emit('history-close')"
-        />
+          @history-close="$emit('history-close')" />
       </div>
 
-      <!-- Memory Tab Content -->
       <div v-if="currentTab === 'memory'">
         <MemoryList
           :mode="mode"
           :is-mobile="isMobile"
           @recall-slot="handleRecallSlot"
           @memory-close="$emit('memory-close')"
-          @add-current-value="handleAddCurrentToMemory"
-        />
+          @add-current-value="handleAddCurrentToMemory" />
       </div>
     </div>
 
-    <!-- Footer -->
     <template #footer>
-      <!-- History Tab Footer -->
+
       <div
         v-if="currentTab === 'history' && showClearButton"
-        class="flex justify-end"
-      >
+        class="flex justify-end">
         <BaseButton
           v-tippy="{ content: 'Clear History' }"
           variant="ghost"
           size="icon"
           class="hidden md:flex text-destructive hover:text-destructive hover:bg-destructive/10"
-          @click="showClearConfirmation = true"
-        >
+          @click="showClearConfirmation = true">
           <TrashIcon class="w-4 h-4" />
         </BaseButton>
         <BaseButton
           variant="destructive"
           class="w-full md:hidden"
-          @click="showClearConfirmation = true"
-        >
+          @click="showClearConfirmation = true">
           <TrashIcon class="w-4 h-4 mr-2" />
           Clear History
         </BaseButton>
       </div>
 
-      <!-- Memory Tab Footer -->
       <div
         v-if="currentTab === 'memory'"
-        class="flex justify-between items-center md:justify-end w-full"
-      >
+        class="flex justify-between items-center md:justify-end w-full">
         <BaseButton
           v-if="hasMemorySlots"
           variant="destructive"
           size="sm"
           class="md:hidden"
-          @click="showClearMemoryConfirmation = true"
-        >
+          @click="showClearMemoryConfirmation = true">
           <TrashIcon class="w-4 h-4" />
           Clear
         </BaseButton>
@@ -107,8 +76,7 @@
             variant="ghost"
             size="icon"
             class="hidden md:flex text-destructive hover:text-destructive hover:bg-destructive/10"
-            @click="showClearMemoryConfirmation = true"
-          >
+            @click="showClearMemoryConfirmation = true">
             <TrashIcon class="w-4 h-4" />
           </BaseButton>
 
@@ -116,11 +84,10 @@
             v-tippy="{
               content: 'Creates a new memory slot',
             }"
-            variant="default"
+            variant="outline"
             size="sm"
             class="w-[80%]"
-            @click="handleAddCurrentToMemory"
-          >
+            @click="handleAddCurrentToMemory">
             <PlusIcon class="w-4 h-4" />
             Add New Slot
           </BaseButton>
@@ -129,11 +96,9 @@
     </template>
   </BasePanel>
 
-  <!-- Clear history confirmation modal -->
   <BaseModal
     v-model:open="showClearConfirmation"
-    description="confirmation-dialog"
-  >
+    description="confirmation-dialog">
     <template #title>
       <div class="flex items-center">
         <AlertTriangleIcon class="h-5 w-5 text-destructive mr-2" />
@@ -141,30 +106,25 @@
       </div>
     </template>
     <p class="text-sm text-muted-foreground mb-4">
-      Are you sure you want to clear all history items? This action cannot be
-      undone.
+      Are you sure you want to clear all history items for {{ mode }} mode? This action cannot be undone.
     </p>
     <div class="flex justify-end space-x-2">
       <BaseButton
         variant="outline"
-        @click="showClearConfirmation = false"
-      >
+        @click="showClearConfirmation = false">
         Cancel
       </BaseButton>
       <BaseButton
         variant="destructive"
-        @click="handleClearHistory"
-      >
+        @click="handleClearHistory">
         Clear All
       </BaseButton>
     </div>
   </BaseModal>
 
-  <!-- Clear memory confirmation modal -->
   <BaseModal
     v-model:open="showClearMemoryConfirmation"
-    description="confirmation-dialog"
-  >
+    description="confirmation-dialog">
     <template #title>
       <div class="flex items-center">
         <AlertTriangleIcon class="h-5 w-5 text-destructive mr-2" />
@@ -178,14 +138,12 @@
     <div class="flex justify-end space-x-2">
       <BaseButton
         variant="outline"
-        @click="showClearMemoryConfirmation = false"
-      >
+        @click="showClearMemoryConfirmation = false">
         Cancel
       </BaseButton>
       <BaseButton
         variant="destructive"
-        @click="handleClearMemory"
-      >
+        @click="handleClearMemory">
         Clear All Memory
       </BaseButton>
     </div>
@@ -200,23 +158,16 @@ import {
   inject,
   defineAsyncComponent,
   type Ref,
-  type ComputedRef,
+  type ComputedRef
 } from 'vue'
 import { TrashIcon, AlertTriangleIcon, PlusIcon } from 'lucide-vue-next'
-import { BaseButton, BaseModal, BasePanel, PillIndicator } from '@components/ui'
+import { BaseButton, BaseModal, BasePanel, BaseTabs } from '@components/ui'
 import { useHistory, type HistoryItem } from '@calculator/composables/useHistory'
 import { useMemoryUI, type MemorySlot } from '@calculator/composables/useMemory'
 import { useAnimation } from '@shared/composables/ui/useAnimation'
 import { useToast } from '@shared/composables/ui/useToast'
-import { usePills } from '@shared/composables/ui/usePills'
 import type { Calculator } from '@calculator/services/factory/CalculatorFactory'
 import type { CalculatorMode } from '@calculator/composables/useCalculatorState'
-
-// Types
-interface Tab {
-  label: string
-  value: string
-}
 
 interface Emits {
   (e: 'select-item', item: HistoryItem): void
@@ -224,7 +175,6 @@ interface Emits {
   (e: 'memory-close'): void
 }
 
-// Props and emits
 const props = defineProps<{
   mode: CalculatorMode
   isMobile: boolean
@@ -233,14 +183,12 @@ const props = defineProps<{
 
 const emit = defineEmits<Emits>()
 
-// Inject dependencies from parent
 const calculator = inject<Ref<Calculator>>('calculator')!
 const currentInput = inject<ComputedRef<string>>('currentInput')!
 const activeBase = inject<ComputedRef<string>>('activeBase')!
 const updateState = inject<(updates: any) => void>('updateState')!
 const updateDisplayValues = inject<(values: any) => void>('updateDisplayValues')!
 
-// Async components
 const HistoryList = defineAsyncComponent(
   () => import('./HistoryList.vue')
 )
@@ -248,66 +196,41 @@ const MemoryList = defineAsyncComponent(
   () => import('./MemoryList.vue')
 )
 
-// Tabs configuration
-const tabs: Ref<Tab[]> = ref([
+const tabs = [
   { label: 'History', value: 'history' },
-  { label: 'Memory', value: 'memory' },
-])
+  { label: 'Memory', value: 'memory' }
+]
 
-const tabElements: Ref<HTMLElement[]> = ref([])
+const currentTab = ref('history')
+const showClearConfirmation: Ref<boolean> = ref(false)
+const showClearMemoryConfirmation: Ref<boolean> = ref(false)
 
-// Composables
 const { historyItems, clearAll: clearAllHistory, loadHistory } = useHistory()
 const {
   memorySlots,
   clearAllMemory,
   loadMemorySlots,
   selectMemorySlot,
-  handleAddCurrentToMemory: addCurrentToMemory,
+  handleAddCurrentToMemory: addCurrentToMemory
 } = useMemoryUI()
 const { toast } = useToast()
 const { setInitialAnimation } = useAnimation()
 
-// Tab navigation using usePills
-const { currentPill, indicatorStyle, handleNavigation } = usePills({
-  position: 'bottom',
-  updateRoute: false,
-  defaultPill: 'history',
-  containerRef: tabElements,
-})
-
-// Local state
-const showClearConfirmation: Ref<boolean> = ref(false)
-const showClearMemoryConfirmation: Ref<boolean> = ref(false)
-
-// Computed properties with explicit typing
-const currentTab: ComputedRef<string> = computed(() => currentPill.value)
-const isProgrammerMode: ComputedRef<boolean> = computed(
-  () => props.mode === 'Programmer'
-)
-
-// Fixed: Remove the isProgrammerMode condition - history should be clearable in all modes
 const showClearButton: ComputedRef<boolean> = computed(
-  () => historyItems.value.length > 0 && !isProgrammerMode.value
+  () => historyItems(props.mode).value.length > 0
 )
 
 const hasMemorySlots: ComputedRef<boolean> = computed(
   () => memorySlots.value.filter((slot: MemorySlot) => slot.mode === props.mode).length > 0
 )
 
-// Handle tab change
-const handleTabChange = (value: string, tabElement: HTMLElement): void => {
-  handleNavigation(value, tabElement)
-}
-
-// Watch for panel open/close
 watch(
   () => props.isOpen,
-  async (isOpen: boolean) => {
+  async(isOpen: boolean) => {
     if (isOpen) {
       if (currentTab.value === 'history') {
         setInitialAnimation(true)
-        await loadHistory()
+        await loadHistory(props.mode)
         setTimeout(() => setInitialAnimation(false), 500)
       } else if (currentTab.value === 'memory') {
         await loadMemorySlots(props.mode)
@@ -317,13 +240,12 @@ watch(
   { immediate: true }
 )
 
-// Watch for mode changes
 watch(
   () => props.mode,
-  async () => {
+  async() => {
     if (props.isOpen) {
       if (currentTab.value === 'history') {
-        await loadHistory()
+        await loadHistory(props.mode)
       } else if (currentTab.value === 'memory') {
         await loadMemorySlots(props.mode)
       }
@@ -331,12 +253,11 @@ watch(
   }
 )
 
-// Watch for tab changes
-watch(currentTab, async (newTab: string) => {
+watch(currentTab, async(newTab: string) => {
   if (props.isOpen) {
     if (newTab === 'history') {
       setInitialAnimation(true)
-      await loadHistory()
+      await loadHistory(props.mode)
       setTimeout(() => setInitialAnimation(false), 500)
     } else if (newTab === 'memory') {
       await loadMemorySlots(props.mode)
@@ -344,19 +265,17 @@ watch(currentTab, async (newTab: string) => {
   }
 })
 
-// Handle history item selection
 const handleSelectItem = (item: HistoryItem): void => {
   emit('select-item', item)
 }
 
-// Handle memory slot recall - now uses the composable
 const handleRecallSlot = (slot: MemorySlot): void => {
   selectMemorySlot({
     slot,
     calculator: calculator.value,
     activeBase: activeBase.value,
     updateState,
-    updateDisplayValues,
+    updateDisplayValues
   })
 
   if (props.isMobile) {
@@ -364,36 +283,32 @@ const handleRecallSlot = (slot: MemorySlot): void => {
   }
 }
 
-// Handle adding current value to memory - now uses the composable
-const handleAddCurrentToMemory = async (): Promise<void> => {
+const handleAddCurrentToMemory = async(): Promise<void> => {
   await addCurrentToMemory({
     currentInput: currentInput.value,
     mode: props.mode,
     calculator: calculator.value,
-    activeBase: activeBase.value,
+    activeBase: activeBase.value
   })
 
-  // Reload memory slots to update the UI
   await loadMemorySlots(props.mode)
 }
 
-// Handle clear history confirmation
-const handleClearHistory = async (): Promise<void> => {
-  await clearAllHistory()
+const handleClearHistory = async(): Promise<void> => {
+  await clearAllHistory(props.mode)
   showClearConfirmation.value = false
   toast({
     title: 'History cleared',
-    description: 'All history items have been removed',
+    description: `All history items for ${props.mode} mode have been removed`
   })
 }
 
-// Handle clear memory confirmation
-const handleClearMemory = async (): Promise<void> => {
+const handleClearMemory = async(): Promise<void> => {
   await clearAllMemory(props.mode)
   showClearMemoryConfirmation.value = false
   toast({
     title: 'Memory cleared',
-    description: `All memory slots for ${props.mode} mode have been removed`,
+    description: `All memory slots for ${props.mode} mode have been removed`
   })
 }
 </script>

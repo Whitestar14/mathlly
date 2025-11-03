@@ -16,7 +16,7 @@ export class CacheUtils {
     const optionsKey = options.options ? JSON.stringify(options.options) : ''
     const baseKey = `${expr}-${openParenCount}-${syntaxHighlightingEnabled}`
     const modeKey = `${options.mode || 'Standard'}-${options.base || 'DEC'}`
-    
+
     return `${baseKey}-${modeKey}-${optionsKey}`
   }
 
