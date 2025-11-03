@@ -308,20 +308,33 @@ handleOperator(op: string): Record<string, any> {
   handleToggleSign(): Record<string, any> {
     try {
       const state = this.calculator.states[this.calculator.activeBase];
-      const currentInput = state.input;
+      const currentInput = state.input.trim();
       
-      if (currentInput !== "0" && currentInput !== "Error") {
+      if (currentInput === "0" || currentInput === "Error") {
+        return this.createResponse(state.input);
+      }
+      
         const parts = CalculatorUtils.splitExpression(currentInput);
-        const lastPart = parts[parts.length - 1].trim();
+      
+      let lastPart = '';
+      for (let i = parts.length - 1; i >= 0; i--) {
+        const part = parts[i].trim();
+        if (part && !/^([+\-×÷%]|\s*<<\s*|\s*>>\s*|\s*&\s*|\s*\|\s*|\s*\^\s*|\s*~\s*)$/.test(part)) {
+          lastPart = part;
+          break;
+        }
+      }
         
         if (lastPart) {
+        const lastPartIndex = parts.lastIndexOf(lastPart);
+        
           if (lastPart.startsWith("-")) {
-            parts[parts.length - 1] = lastPart.slice(1);
+          parts[lastPartIndex] = lastPart.slice(1);
           } else {
-            parts[parts.length - 1] = "-" + lastPart;
+          parts[lastPartIndex] = "-" + lastPart;
           }
-          state.input = parts.join(" ").trim();
-        }
+        
+        state.input = parts.join("").trim();
       }
       
       return this.createResponse(state.input);
