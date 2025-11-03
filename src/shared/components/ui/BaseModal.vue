@@ -16,7 +16,12 @@
         <div
           v-if="open"
           class="fixed inset-0 flex items-center justify-center p-4"
-          :style="{ zIndex: zIndex }"
+          :style="{ 
+            zIndex: zIndex,
+            opacity: isTopModal ? 1 : 0,
+            pointerEvents: isTopModal ? 'auto' : 'none',
+            visibility: isTopModal ? 'visible' : 'hidden'
+          }"
           @click.self="closeModal"
         >
           <DialogContent
@@ -84,7 +89,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, type ComputedRef, onMounted, onBeforeUnmount, watch, ref } from 'vue';
+import { computed, type ComputedRef, onMounted, onBeforeUnmount, watch, ref, nextTick } from 'vue';
 import { useScrollLock } from '@vueuse/core'
 import { useFocusTrap } from '@shared/composables/utils/useFocusTrap'
 import {
@@ -95,7 +100,7 @@ import {
 import { useEventListener } from "@vueuse/core";
 import BaseButton from '@components/ui/BaseButton.vue'
 import { XIcon } from "lucide-vue-next";
-import { registerModal, unregisterModal, openModal as openModalManager, closeModal as closeModalManager, useModal } from '@shared/composables/ui/useModal'
+import { registerModal, unregisterModal, openModal as openModalManager, closeModal as closeModalManager, useModal, hasOpenModals } from '@shared/composables/ui/useModal'
 
 type ModalSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | 'full';
 
@@ -172,21 +177,28 @@ watch(() => props.open, (val) => {
 
 const modalComposable = useModal(modalId)
 const zIndex = modalComposable.zIndex
+const isTopModal = modalComposable.isTopModal
 
 const isLocked = useScrollLock(document.body)
 
 const contentRef = ref<HTMLElement | null>(null)
 const focusTrap = useFocusTrap(contentRef)
 
-watch(modalComposable.isOpen, (open) => {
-  if (open) {
-    focusTrap.activate()
-    isLocked.value = true
+watch([modalComposable.isOpen, isTopModal], async ([isOpen, isTop]) => {
+  const shouldActivate = isOpen && isTop
+  if (shouldActivate) {
+    await nextTick()
+    if (contentRef.value && contentRef.value instanceof HTMLElement) {
+      focusTrap.activate()
+      isLocked.value = true
+    }
   } else {
     focusTrap.deactivate()
-    isLocked.value = false
+    if (!hasOpenModals.value) {
+      isLocked.value = false
+    }
   }
-})
+}, { immediate: true })
 
 onBeforeUnmount(() => {
   focusTrap.deactivate()
@@ -212,7 +224,7 @@ const closeModal = (): void => {
 };
 
 const handleEscapeKey = (event: KeyboardEvent): void => {
-  if (props.closeOnEscape && event.key === 'Escape' && props.open) {
+  if (props.closeOnEscape && event.key === 'Escape' && props.open && isTopModal.value) {
     event.preventDefault();
     event.stopPropagation();
     handleOpenChange(false);

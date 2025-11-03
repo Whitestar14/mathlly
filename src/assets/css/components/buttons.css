@@ -2,7 +2,7 @@
 @layer components {
   /* Base button */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium duration-200 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-colors;
+    @apply inline-flex items-center text-nowrap justify-center gap-2 rounded-md text-sm font-medium duration-200 transition-colors disabled:opacity-50 disabled:pointer-events-none focus-colors;
   }
 
   /* Variants */

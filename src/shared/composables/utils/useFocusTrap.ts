@@ -17,6 +17,10 @@ export function useFocusTrap(containerRef: Ref<HTMLElement | null>) {
    * Finds all focusable elements within the container and returns them as a NodeList.
    */
   const getFocusableElements = (container: HTMLElement): NodeListOf<HTMLElement> => {
+    // Ensure container is actually an HTMLElement with querySelectorAll method
+    if (!container || typeof container.querySelectorAll !== 'function') {
+      throw new Error('Invalid container: must be an HTMLElement with querySelectorAll method');
+    }
     return container.querySelectorAll<HTMLElement>(FOCUSABLE_ELEMENTS_SELECTOR);
   };
 

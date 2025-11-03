@@ -60,7 +60,7 @@ const emit = defineEmits<{
 
 const options: Record<string, any> = inject('calculatorOptions') ?? {}; 
 
-const { vibrate } = useVibrate({ pattern: 100 });
+const { vibrate } = useVibrate({ pattern: 50 });
 
 const StandardMode = defineAsyncComponent(() => import('./modes/StandardMode.vue'));
 const ScientificMode = defineAsyncComponent(() => import('./modes/ScientificMode.vue'));

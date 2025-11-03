@@ -15,29 +15,28 @@ export function unregisterModal(id: string) {
   if (idx !== -1) modalStack.value.splice(idx, 1)
 }
 
-// Ensure only one modal is open at a time by closing others when opening a new one
+// Support modal stacking - multiple modals can be open simultaneously
 export function openModal(id: string) {
   const modal = modalRegistry[id]
   if (!modal) return
 
-  // close any other open modal(s)
-  modalStack.value.slice().forEach((existingId) => {
-    if (existingId !== id) closeModal(existingId)
-  })
-
-  modal.isOpen = true
+  // Add to stack if not already present
   const idx = modalStack.value.indexOf(id)
   if (idx !== -1) modalStack.value.splice(idx, 1)
   modalStack.value.push(id)
-  modal.zIndex = baseZIndex + modalStack.value.length * 10
+  updateModalVisibility()
 }
 
 export function closeModal(id: string) {
   const modal = modalRegistry[id]
   if (!modal) return
+  
   modal.isOpen = false
   const idx = modalStack.value.indexOf(id)
   if (idx !== -1) modalStack.value.splice(idx, 1)
+  
+  updateModalVisibility()
+  
   modal.onClose?.()
 }
 
@@ -46,14 +45,47 @@ export function closeTopModal() {
   closeModal(modalStack.value[modalStack.value.length - 1])
 }
 
+function updateModalVisibility() {
+  const topModalId = modalStack.value.length > 0 
+    ? modalStack.value[modalStack.value.length - 1] 
+    : null
+  
+  modalStack.value.forEach((modalId, index) => {
+    const modal = modalRegistry[modalId]
+    if (modal) {
+      modal.zIndex = baseZIndex + (index + 1) * 10
+      modal.isOpen = modalId === topModalId
+    }
+  })
+  
+  Object.keys(modalRegistry).forEach((modalId) => {
+    if (!modalStack.value.includes(modalId)) {
+      const modal = modalRegistry[modalId]
+      if (modal) {
+        modal.isOpen = false
+      }
+    }
+  })
+}
+
 export function useModal(id: string) {
   const modal = computed(() => modalRegistry[id])
+  const isTopModal = computed(() => {
+    return modalStack.value.length > 0 && 
+           modalStack.value[modalStack.value.length - 1] === id
+  })
+  
   return {
     isOpen: computed(() => modal.value?.isOpen ?? false),
+    isTopModal,
     zIndex: computed(() => modal.value?.zIndex ?? baseZIndex),
     open: () => openModal(id),
     close: () => closeModal(id),
-    toggle: () => (modal.value?.isOpen ? closeModal(id) : openModal(id)),
+    toggle: () => {
+      const isCurrentlyOpen = modal.value?.isOpen
+      if (isCurrentlyOpen) closeModal(id)
+      else openModal(id)
+    },
   }
 }
 

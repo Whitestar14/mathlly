@@ -396,7 +396,7 @@ async function handleManualRetry() {
     clearRouteError()
 
     try {
-      const targetPath = props.path || route.redirectedFrom?.fullPath || router.options.history.state.back || '/'
+      const targetPath = routePath.value || props.path || route.fullPath || '/'
       await router.replace(targetPath)
     } catch (err) {
       console.error('ErrorFallback: Error during manual retry navigation attempt:', err)

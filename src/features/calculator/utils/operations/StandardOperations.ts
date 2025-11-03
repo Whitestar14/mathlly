@@ -83,7 +83,7 @@ export class StandardOperations {
     const currentInput = this.calculator.input.trim();
     
     // Don't allow operators on empty input or error states
-    if (currentInput === "0" || currentInput === "Error" || !currentInput) {
+    if (currentInput === "Error" || !currentInput) {
       return this.createResponse();
     }
     

@@ -1,5 +1,6 @@
 <template>
   <BaseModal
+    id="dev-dock-beta-modal"
     :open="isOpen"
     size="lg"
     title="Developer Tools Beta"

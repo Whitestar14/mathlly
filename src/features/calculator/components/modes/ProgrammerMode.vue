@@ -17,85 +17,93 @@
       </button>
     </div>
 
-    <!-- Keypad view -->
-    <div
-      v-show="viewMode === 'keypad'"
-      class="flex h-full w-full flex-1 flex-col gap-1"
+    <!-- View mode content with transition -->
+    <Transition
+      name="scale"
+      mode="out-in"
     >
-      <!-- Memory -->
-      <div class="grid grid-cols-5 gap-1">
-        <CalculatorButton
-          v-for="op in memoryOperations"
-          :key="op"
-          :value="op"
-          variant="memory"
-          :disabled="(op === 'MC' || op === 'MR') && !hasMemory"
-          @click="emit('button-click', op)"
-        >
-          {{ op }}
-        </CalculatorButton>
-      </div>
-
-      <!-- Main grid: HEX letters + keypad -->
-      <div class="grid grid-cols-5 gap-1 h-full">
-        <!-- HEX column -->
-        <div class="flex flex-col gap-1">
+      <!-- Keypad view -->
+      <div
+        v-if="viewMode === 'keypad'"
+        key="keypad"
+        class="flex h-full w-full flex-1 flex-col gap-1"
+      >
+        <!-- Memory -->
+        <div class="grid grid-cols-5 gap-1">
           <CalculatorButton
-            v-for="letter in hexLetters"
-            :key="letter"
-            :value="letter"
-            variant="function"
-            :disabled="!isDigitEnabled(letter)"
-            @click="emit('button-click', letter)"
+            v-for="op in memoryOperations"
+            :key="op"
+            :value="op"
+            variant="memory"
+            :disabled="(op === 'MC' || op === 'MR') && !hasMemory"
+            @click="emit('button-click', op)"
           >
-            {{ letter }}
+            {{ op }}
           </CalculatorButton>
         </div>
 
-        <!-- 4-col main keypad -->
-        <div class="col-span-4 grid grid-cols-4 gap-1 h-full">
-          <CalculatorButton
-            v-for="btn in programmerFirstRow"
-            :key="btn.value"
-            :value="btn.value"
-            :icon="btn.icon"
-            :variant="btn.variant"
-            :disabled="shouldDisable(btn)"
-            @click="emit('button-click', btn.value)"
-          />
-          <CalculatorButton
-            v-for="btn in programmerSecondRow"
-            :key="btn.value"
-            :value="btn.value"
-            class="h-full"
-            :variant="btn.variant"
-            :disabled="shouldDisable(btn)"
-            @click="emit('button-click', btn.value)"
-          />
-          <CalculatorButton
-            v-for="btn in numberRows.flat()"
-            :key="btn.value + (btn.variant || '')"
-            :value="btn.value"
-            :variant="btn.variant"
-            class="h-full"
-            :disabled="!isDigitEnabled(btn.value) || shouldDisable(btn)"
-            @click="emit('button-click', btn.value)"
-          />
+        <!-- Main grid: HEX letters + keypad -->
+        <div class="grid grid-cols-5 gap-1 h-full">
+          <!-- HEX column -->
+          <div class="flex flex-col gap-1">
+            <CalculatorButton
+              v-for="letter in hexLetters"
+              :key="letter"
+              :value="letter"
+              variant="function"
+              :disabled="!isDigitEnabled(letter)"
+              @click="emit('button-click', letter)"
+            >
+              {{ letter }}
+            </CalculatorButton>
+          </div>
+
+          <!-- 4-col main keypad -->
+          <div class="col-span-4 grid grid-cols-4 gap-1 h-full">
+            <CalculatorButton
+              v-for="btn in programmerFirstRow"
+              :key="btn.value"
+              :value="btn.value"
+              :icon="btn.icon"
+              :variant="btn.variant"
+              :disabled="shouldDisable(btn)"
+              @click="emit('button-click', btn.value)"
+            />
+            <CalculatorButton
+              v-for="btn in programmerSecondRow"
+              :key="btn.value"
+              :value="btn.value"
+              class="h-full"
+              :variant="btn.variant"
+              :disabled="shouldDisable(btn)"
+              @click="emit('button-click', btn.value)"
+            />
+            <CalculatorButton
+              v-for="btn in numberRows.flat()"
+              :key="btn.value + (btn.variant || '')"
+              :value="btn.value"
+              :variant="btn.variant"
+              class="h-full"
+              :disabled="!isDigitEnabled(btn.value) || shouldDisable(btn)"
+              @click="emit('button-click', btn.value)"
+            />
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Bits view -->
-    <div
-      v-if="viewMode === 'bits'"
-      class="flex h-full w-full flex-1 flex-col gap-1"
-    >
-      <BitToggleGrid
-        :value="currentDecimalValue"
-        :bit-width="bitWidth"
-        @bit-toggle="handleBitToggle"
-      />
-    </div>
+      <!-- Bits view -->
+      <div
+        v-else-if="viewMode === 'bits'"
+        key="bits"
+        class="flex h-full w-full flex-1 flex-col gap-1"
+      >
+        <BitToggleGrid
+          :value="currentDecimalValue"
+          :bit-width="bitWidth"
+          @bit-toggle="handleBitToggle"
+        />
+      </div>
+    </Transition>
   </div>
 </template>
 
