@@ -16,15 +16,15 @@ export interface FormatOptions {
   options?: Record<string, any> // Calculator options from toolSettings
 }
 
-export type TokenType = 
-  | 'number'
-  | 'operator'
-  | 'function'
-  | 'parenthesis'
-  | 'constant'
-  | 'decimal'
-  | 'space'
-  | 'text'
-  | 'open'
-  | 'close'
-  | 'ghost'
+export type TokenType =
+  | 'number' |
+  'operator' |
+  'function' |
+  'parenthesis' |
+  'constant' |
+  'decimal' |
+  'space' |
+  'text' |
+  'open' |
+  'close' |
+  'ghost'

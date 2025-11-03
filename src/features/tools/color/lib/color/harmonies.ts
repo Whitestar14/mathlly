@@ -1,10 +1,10 @@
-// src/features/tools/color/composables/harmonies.ts
-import { RGB } from "./types"
-import { adjustHue } from "./adjustments"
-import { converter } from "culori"
-const toHsl = converter("hsl")
-const toRgb = converter("rgb")
-import { toCuloriRgb, fromCuloriRgb } from "./converters"
+
+import { RGB } from './types'
+import { adjustHue } from './adjustments'
+import { converter } from 'culori'
+const toHsl = converter('hsl')
+const toRgb = converter('rgb')
+import { toCuloriRgb, fromCuloriRgb } from './converters'
 
 export function generateComplementary(rgb: RGB): RGB {
   return adjustHue(rgb, 180)
@@ -23,9 +23,9 @@ export function generateMonochromatic(rgb: RGB): RGB[] {
     Math.max(0, L - 20),
     L,
     Math.min(100, L + 20),
-    Math.min(100, L + 40),
+    Math.min(100, L + 40)
   ]
   return variations.map(l =>
-    fromCuloriRgb(toRgb({ h: hsl?.h ?? 0, s: hsl?.s ?? 0, l: l / 100, mode: "hsl" }))
+    fromCuloriRgb(toRgb({ h: hsl?.h ?? 0, s: hsl?.s ?? 0, l: l / 100, mode: 'hsl' }))
   )
 }

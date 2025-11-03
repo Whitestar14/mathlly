@@ -5,7 +5,7 @@ import { LRUCache } from './LRUCache'
  */
 export class CacheManager {
   private static caches = new Map<string, LRUCache<any>>()
-  
+
   /**
    * Get or create a cache with the specified name and capacity
    * @param name - The name of the cache
@@ -18,7 +18,7 @@ export class CacheManager {
     }
     return this.caches.get(name) as LRUCache<T>
   }
-  
+
   /**
    * Clear a specific cache by name
    * @param name - The name of the cache to clear
@@ -31,7 +31,7 @@ export class CacheManager {
     }
     return false
   }
-  
+
   /**
    * Clear all caches
    */
@@ -40,7 +40,7 @@ export class CacheManager {
       cache.clear()
     }
   }
-  
+
   /**
    * Get the size of a specific cache
    * @param name - The name of the cache
@@ -52,7 +52,7 @@ export class CacheManager {
     }
     return 0
   }
-  
+
   /**
    * Get statistics about all caches
    * @returns Object with cache statistics

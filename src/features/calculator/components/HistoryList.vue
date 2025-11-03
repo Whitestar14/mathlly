@@ -1,65 +1,52 @@
 <template>
   <div>
-    <!-- History Items List -->
-    <TransitionGroup 
-      v-if="!isProgrammerMode && historyItems.length > 0" 
-      tag="div" 
+
+    <TransitionGroup
+      v-if="HistoryItems.length > 0"
+      tag="div"
       class="space-y-2"
-      name="history-list" 
-      @before-enter="historyAnimation.onBeforeEnter" 
-      @enter="historyAnimation.onEnter" 
-      @leave="historyAnimation.onLeave"
-    >
-      <history-item-component 
-        v-for="(item, index) in historyItems" 
-        :key="item.id" 
-        :item="item" 
+      name="history-list"
+      @before-enter="historyAnimation.onBeforeEnter"
+      @enter="historyAnimation.onEnter"
+      @leave="historyAnimation.onLeave">
+      <HistoryItemComponent
+        v-for="(item, index) in HistoryItems"
+        :key="item.id"
+        :item="item"
         :is-mobile="isMobile"
-        :selected-id="selectedItemId" 
-        :data-index="index" 
-        @select="handleSelectItem" 
-        @delete="handleDelete"
-        @copy="copyItem"
-        @copy-json="copyAsJson"
-      />
+        :selected-id="selectedItemId"
+        :data-index="index"
+        @select="handleSelectItem"
+        @delete="handleDelete(item.id!)"
+        @copy="copyItem(item)"
+        @copy-json="copyAsJson(item)" />
     </TransitionGroup>
 
-    <div 
-      v-show="!historyItems.length || isProgrammerMode"
-      class="text-center py-4 flex flex-col items-center justify-center h-full"
-    >
-      <div class="p-3 rounded-lg bg-muted/80 mb-3 font-medium min-w-[80%] flex flex-col items-center">
-        <div v-show="isProgrammerMode">
-          <p class="text-muted-foreground">
-            History feature coming soon
-          </p>
-          <p class="text-muted-foreground text-xs">
-            History is currently unavailable for Programmer Mode
-          </p>
-        </div>
-
-        <div v-show="!isProgrammerMode">
-          <p class="text-muted-foreground font-medium">
-            No history items yet
-          </p>
-          <p class="text-muted-foreground text-xs">
-            Your calculations will appear here as you work
-          </p>
-        </div>
+    <div
+      v-else
+      class="text-center py-4 flex flex-col items-center justify-center h-full">
+      <div
+        class="p-3 rounded-lg bg-muted/50 gap-2 font-medium min-w-[80%] flex flex-col items-center">
+        <p class="text-muted-foreground font-medium">
+          No history items yet for {{ props.mode }} mode
+        </p>
+        <p class="text-muted-foreground text-xs">
+          Your calculations will appear here as you work
+        </p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent, type Ref, type ComputedRef } from "vue";
-import { useHistory, type HistoryItem } from "@calculator/composables/useHistory";
-import { useAnimation } from "@composables/ui/useAnimation";
-import { useToast } from "@composables/ui/useToast";
-import { useClipboard } from "@vueuse/core";
+import { ref, computed, defineAsyncComponent, type Ref } from 'vue'
+import { useHistory, type HistoryItem } from '@calculator/composables/useHistory'
+import { useAnimation } from '@composables/ui/useAnimation'
+import { useToast } from '@composables/ui/useToast'
+import { useClipboard } from '@vueuse/core'
 
 interface Props {
-  mode?: string;
+  mode?: 'Standard' | 'Scientific' | 'Programmer';
   isMobile?: boolean;
 }
 
@@ -68,41 +55,23 @@ interface Emits {
   (e: 'history-close'): void;
 }
 
-interface AnimationController {
-  onBeforeEnter: (el: Element) => void;
-  onEnter: (el: Element, done: () => void) => void;
-  onLeave: (el: Element, done: () => void) => void;
-}
-
-interface ToastService {
-  toast: (options: {
-    title: string;
-    description: string;
-  }) => void;
-}
-
-interface ClipboardService {
-  copy: (text: string) => Promise<void>;
-}
-
 const props = withDefaults(defineProps<Props>(), {
-  mode: "Standard",
-  isMobile: false,
-});
+  mode: 'Standard',
+  isMobile: false
+})
 
-const emit = defineEmits<Emits>();
+const emit = defineEmits<Emits>()
 
-// Async component
-const HistoryItemComponent = defineAsyncComponent(() => import("./HistoryItem.vue"));
+const HistoryItemComponent = defineAsyncComponent(
+  () => import('./HistoryItem.vue')
+)
 
-// Composables
-const { historyItems, deleteItem } = useHistory();
-const { toast }: ToastService = useToast();
-const { copy }: ClipboardService = useClipboard();
-const { createListAnimation } = useAnimation();
+const { historyItems, deleteItem } = useHistory()
+const { toast } = useToast()
+const { copy } = useClipboard()
+const { createListAnimation } = useAnimation()
 
-// Create history animation with custom options
-const historyAnimation: AnimationController = createListAnimation({
+const historyAnimation = createListAnimation({
   initialDelay: 50,
   initialDuration: 400,
   enterTransform: [-20, 0],
@@ -111,83 +80,72 @@ const historyAnimation: AnimationController = createListAnimation({
   moveDuration: 300,
   moveEasing: 'easeOutQuad',
   moveDelay: 150
-});
+})
 
-// Local state 
-const selectedItemId: Ref<number | null> = ref(null);
+const selectedItemId: Ref<number | null> = ref(null)
 
-// Computed properties
-const isProgrammerMode: ComputedRef<boolean> = computed(() => props.mode === "Programmer");
+const HistoryItems = computed(() => historyItems(props.mode).value)
 
-// Handle history item selection
 const handleSelectItem = (item: HistoryItem): void => {
-  if (isProgrammerMode.value) return;
-
   if (item.id !== undefined) {
-    selectedItemId.value = item.id;
-    setTimeout(() => {
-      selectedItemId.value = null;
-    }, 300);
+    selectedItemId.value = item.id
+    setTimeout(() => (selectedItemId.value = null), 300)
   }
 
-  const selectionData: HistoryItem = {
+  emit('select-item', {
     expression: item.expression.trim(),
     result: item.result,
     timestamp: item.timestamp,
-  };
+    mode: item.mode,
+    base: item.base,
+    baseValues: item.baseValues
+  })
 
-  emit("select-item", selectionData);
+  if (props.isMobile) emit('history-close')
+}
 
-  if (props.isMobile) {
-    emit('history-close');
-  }
-};
+const handleDelete = async(id: number): Promise<void> => {
+  await deleteItem(id, props.mode)
+}
 
-const handleDelete = async (id: number): Promise<void> => {
-  await deleteItem(id);
-};
-
-const copyItem = async (item: HistoryItem): Promise<void> => {
+const copyItem = async(item: HistoryItem): Promise<void> => {
   try {
-    await copy(`${item.expression} = ${item.result}`);
+    await copy(`${item.expression} = ${item.result}`)
     toast({
-      title: "Copied to clipboard",
-      description: "The calculation has been copied to your clipboard",
-    });
-  } catch (error) {
-    console.error('Failed to copy item:', error);
+      title: 'Copied to clipboard',
+      description: 'The calculation has been copied to your clipboard'
+    })
+  } catch {
     toast({
-      title: "Copy failed",
-      description: "Failed to copy the calculation to clipboard",
-    });
+      title: 'Copy failed',
+      description: 'Failed to copy the calculation to clipboard'
+    })
   }
-};
+}
 
-const copyAsJson = async (item: HistoryItem): Promise<void> => {
+const copyAsJson = async(item: HistoryItem): Promise<void> => {
   try {
     const jsonData = JSON.stringify(
       {
         expression: item.expression,
         result: item.result,
-        timestamp: item.timestamp,
+        timestamp: item.timestamp
       },
       null,
-      2,
-    );
-    
-    await copy(jsonData);
+      2
+    )
+    await copy(jsonData)
     toast({
-      title: "Copied as JSON",
-      description: "The calculation has been copied in JSON format",
-    });
-  } catch (error) {
-    console.error('Failed to copy as JSON:', error);
+      title: 'Copied as JSON',
+      description: 'The calculation has been copied in JSON format'
+    })
+  } catch {
     toast({
-      title: "Copy failed",
-      description: "Failed to copy the calculation as JSON",
-    });
+      title: 'Copy failed',
+      description: 'Failed to copy the calculation as JSON'
+    })
   }
-};
+}
 </script>
 
 <style scoped>

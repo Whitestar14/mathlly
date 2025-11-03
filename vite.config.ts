@@ -6,7 +6,7 @@ import { resolve } from 'path'
 import type { PluginOption } from 'vite'
 
 import manifestJson from './public/manifest.json'
-const manifest: Partial<ManifestOptions> = manifestJson as Partial<ManifestOptions>;
+const manifest: Partial<ManifestOptions> = manifestJson as Partial<ManifestOptions>
 
 export default defineConfig({
   plugins: [
@@ -30,9 +30,9 @@ export default defineConfig({
               cacheName: 'static-assets',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30 * 12,
-              },
-            },
+                maxAgeSeconds: 60 * 60 * 24 * 30 * 12
+              }
+            }
           },
           {
             urlPattern: /\.(?:js|css)$/,
@@ -41,9 +41,9 @@ export default defineConfig({
               cacheName: 'static-resources',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30,
-              },
-            },
+                maxAgeSeconds: 60 * 60 * 24 * 30
+              }
+            }
           }
         ]
       },
@@ -79,8 +79,8 @@ export default defineConfig({
       '@calculator': resolve(__dirname, './src/features/calculator'),
       '@base64': resolve(__dirname, './src/features/tools/base64'),
       '@color': resolve(__dirname, './src/features/tools/color'),
-      '@settings': resolve(__dirname, './src/features/settings'),
-    },
+      '@settings': resolve(__dirname, './src/features/settings')
+    }
   },
   build: {
     target: 'esnext',
@@ -88,8 +88,8 @@ export default defineConfig({
     terserOptions: {
       compress: {
         drop_console: true,
-        drop_debugger: true,
-      },
+        drop_debugger: true
+      }
     },
     rollupOptions: {
       output: {
@@ -97,18 +97,20 @@ export default defineConfig({
           'vendor-vue': ['vue', 'vue-router', 'pinia'],
           'vendor-ui': ['radix-vue', 'lucide-vue-next'],
           'vendor-utils': ['@vueuse/core', '@vueuse/motion'],
-          'vendor-math': ['mathjs', 'chart.js', 'vue-chartjs'],
-        },
-      },
+          'vendor-math': ['mathjs', 'chart.js', 'vue-chartjs']
+        }
+      }
     },
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 1000
   },
   server: {
     port: 8080,
-    open: true,
+    host: '0.0.0.0',
+    allowedHosts: ['dev.local'],
+    open: false
   },
   define: {
     __VUE_PROD_DEVTOOLS__: false,
-    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true,
-  },
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: true
+  }
 })

@@ -1,4 +1,4 @@
-<!-- src/features/tools/color/components/ColorAdjustments.vue -->
+
 <template>
   <div class="space-y-4">
     <div class="space-y-2">
@@ -11,13 +11,12 @@
           :min="-1"
           :max="1"
           :step="0.01"
-          @update:model-value="(v) => setBrightness(v[0])"
-        />
+          @update:model-value="(v: Record<string, number>) => adjustBrightness(v[0], currentColor)" />
         <BaseButton
+          v-if="!autoApply"
           size="sm"
           variant="outline"
-          @click="applyBrightness(currentColor)"
-        >
+          @click="applyBrightness(currentColor)">
           Apply
         </BaseButton>
       </div>
@@ -33,13 +32,12 @@
           :min="0"
           :max="2"
           :step="0.1"
-          @update:model-value="(v) => setSaturation(v[0])"
-        />
+          @update:model-value="(v: Record<string, number>) => adjustSaturation(v[0], currentColor)" />
         <BaseButton
+          v-if="!autoApply"
           size="sm"
           variant="outline"
-          @click="applySaturation(currentColor)"
-        >
+          @click="applySaturation(currentColor)">
           Apply
         </BaseButton>
       </div>
@@ -55,19 +53,17 @@
           :min="-180"
           :max="180"
           :step="1"
-          @update:model-value="(v) => setHue(v[0])"
-        />
+          @update:model-value="(v: Record<string, number>) => adjustHue(v[0], currentColor)" />
         <BaseButton
+          v-if="!autoApply"
           size="sm"
           variant="outline"
-          @click="applyHue(currentColor)"
-        >
+          @click="applyHue(currentColor)">
           Apply
         </BaseButton>
       </div>
     </div>
 
-    <!-- Contrast Section -->
     <div class="pt-4 border-t border-border">
       <div class="space-y-2">
         <div class="flex items-center gap-2">
@@ -76,15 +72,14 @@
           </BaseLabel>
         </div>
         <BaseButton
-          v-tippy="{ 
+          v-tippy="{
             content: 'Automatically adjust contrast for better visual clarity and accessibility compliance',
             placement: 'top'
           }"
           size="sm"
           variant="outline"
           class="w-full justify-start"
-          @click="applyContrast(currentColor)"
-        >
+          @click="applyContrast(currentColor)">
           <Contrast class="h-4 w-4 mr-2" />
           Auto Contrast
         </BaseButton>
@@ -94,25 +89,26 @@
 </template>
 
 <script setup lang="ts">
-import { Contrast } from 'lucide-vue-next';
-import type { RGB } from '@color/lib/color';
-import { BaseSlider, BaseButton, BaseLabel } from '@components/ui';
-import { useColorAdjustments } from '@color/composables/useColorAdjustments';
+import { Contrast } from 'lucide-vue-next'
+import type { RGB } from '@color/lib/color'
+import { BaseSlider, BaseButton, BaseLabel } from '@components/ui'
+import { useColorAdjustments } from '@color/composables/useColorAdjustments'
 
 const props = defineProps<{
   currentColor: RGB;
   updateColor: (c: RGB) => void;
-}>();
+  autoApply: boolean;
+}>()
 const {
   brightness,
   saturation,
   hue,
-  setBrightness,
-  setSaturation,
-  setHue,
   applyBrightness,
   applySaturation,
   applyHue,
   applyContrast,
-} = useColorAdjustments(props.updateColor);
+  adjustBrightness,
+  adjustSaturation,
+  adjustHue
+} = useColorAdjustments(props.updateColor, props.autoApply)
 </script>

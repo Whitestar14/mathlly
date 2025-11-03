@@ -1,10 +1,10 @@
-import { format } from "mathjs"
+import { format } from 'mathjs'
 
 /**
  * Format options interface for mathjs
  */
 interface FormatOptions {
-  notation?: "fixed" | "exponential" | "engineering" | "auto" | "hex" | "bin" | "oct"
+  notation?: 'fixed' | 'exponential' | 'engineering' | 'auto' | 'hex' | 'bin' | 'oct'
   precision?: number
 }
 
@@ -19,16 +19,16 @@ abstract class BaseCalculator {
   protected maxInputLength: number = 100
 
   constructor() {
-    // Subclasses will initialize these properties
+
   }
 
   sanitizeInput(expr: string): string {
-    const sanitized = expr.replace(this.invalidCharsRegex, "")
-    return sanitized.replace(/^[+×÷]/, "").slice(0, this.maxInputLength)
+    const sanitized = expr.replace(this.invalidCharsRegex, '')
+    return sanitized.replace(/^[+×÷]/, '').slice(0, this.maxInputLength)
   }
 
   formatResult(result: any): string {
-    return format(result, this.formatOptions).replace(this.prefixRegex, "")
+    return format(result, this.formatOptions).replace(this.prefixRegex, '')
   }
 
   isValidChar(char: string): boolean {
@@ -41,7 +41,7 @@ export class HexCalculator extends BaseCalculator {
     super()
     this.invalidCharsRegex = /[^0-9A-Fa-f+\-×÷]/g
     this.validCharsRegex = /^[0-9A-Fa-f]$/
-    this.formatOptions = { notation: "hex" }
+    this.formatOptions = { notation: 'hex' }
     this.prefixRegex = /^0x/i
   }
 }
@@ -51,7 +51,7 @@ export class DecCalculator extends BaseCalculator {
     super()
     this.invalidCharsRegex = /[^0-9+\-×÷]/g
     this.validCharsRegex = /^[0-9]$/
-    this.formatOptions = { notation: "fixed", precision: 0 }
+    this.formatOptions = { notation: 'fixed', precision: 0 }
     this.prefixRegex = /^/
   }
 }
@@ -61,7 +61,7 @@ export class OctCalculator extends BaseCalculator {
     super()
     this.invalidCharsRegex = /[^0-7+\-×÷]/g
     this.validCharsRegex = /^[0-7]$/
-    this.formatOptions = { notation: "oct" }
+    this.formatOptions = { notation: 'oct' }
     this.prefixRegex = /^0o/i
   }
 }
@@ -71,7 +71,7 @@ export class BinCalculator extends BaseCalculator {
     super()
     this.invalidCharsRegex = /[^01+\-×÷]/g
     this.validCharsRegex = /^[01]$/
-    this.formatOptions = { notation: "bin" }
+    this.formatOptions = { notation: 'bin' }
     this.prefixRegex = /^0b/i
   }
 }

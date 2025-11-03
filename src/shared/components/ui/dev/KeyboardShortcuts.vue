@@ -1,30 +1,26 @@
 <template>
   <div class="space-y-4">
-    <!-- Shortcuts Overview -->
+
     <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <div class="flex items-center justify-between mb-2">
         <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Shortcuts Overview</span>
         <div class="flex items-center gap-2">
           <BaseBadge
             variant="success"
-            :text="`${getTotalShortcuts()} shortcuts`"
-            size="xs"
-          />
+            :text="`${getTotalShortcuts()} shortcuts`" />
           <BaseButton
             variant="ghost"
             size="icon"
             class="h-5 w-5"
             :disabled="isTestingShortcut"
-            @click="testShortcut"
-          >
-            <ZapIcon 
+            @click="testShortcut">
+            <ZapIcon
               class="h-3 w-3"
-              :class="{ 'animate-pulse text-yellow-500': isTestingShortcut }"
-            />
+              :class="{ 'animate-pulse text-yellow-500': isTestingShortcut }" />
           </BaseButton>
         </div>
       </div>
-      
+
       <div class="grid grid-cols-2 gap-3 text-xs">
         <div>
           <span class="text-muted-foreground dark:text-muted-foreground block">Categories</span>
@@ -37,7 +33,6 @@
       </div>
     </div>
 
-    <!-- Category Filter -->
     <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <div class="flex items-center justify-between mb-2">
         <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Filter by Category</span>
@@ -46,13 +41,12 @@
           variant="ghost"
           size="sm"
           class="text-xs"
-          @click="clearFilter"
-        >
+          @click="clearFilter">
           <XIcon class="h-3 w-3 mr-1" />
           Clear
         </BaseButton>
       </div>
-      
+
       <div class="flex flex-wrap gap-1">
         <button
           v-for="category in ['all', ...Object.keys(shortcutCategories)]"
@@ -63,8 +57,7 @@
               ? 'bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-primary border border-indigo-200 dark:border-indigo-800'
               : 'bg-muted dark:bg-background text-muted-foreground dark:text-muted-foreground hover:bg-muted dark:hover:bg-accent border border-border dark:border-border'
           ]"
-          @click="selectedCategory = category"
-        >
+          @click="selectedCategory = category">
           {{ category === 'all' ? 'All' : category }}
           <span class="ml-1 opacity-60">
             ({{ category === 'all' ? getTotalShortcuts() : Object.keys(shortcutCategories[category] || {}).length }})
@@ -73,120 +66,102 @@
       </div>
     </div>
 
-    <!-- Shortcuts List -->
     <div class="space-y-2">
       <div
         v-for="(shortcuts, categoryName) in filteredCategories"
         :key="categoryName"
-        class="bg-background dark:bg-background border border-border dark:border-border rounded-lg overflow-hidden"
-      >
-        <!-- Category Header -->
+        class="bg-background dark:bg-background border border-border dark:border-border rounded-lg overflow-hidden">
+
         <div class="p-3 border-b border-border dark:border-border bg-muted dark:bg-background/50">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
-              <component 
-                :is="getCategoryIcon(categoryName)" 
-                class="h-4 w-4 text-primary dark:text-primary" 
-              />
+              <component
+                :is="getCategoryIcon(categoryName)"
+                class="h-4 w-4 text-primary dark:text-primary" />
               <h4 class="text-sm font-medium text-foreground dark:text-foreground">
                 {{ categoryName }}
               </h4>
               <BaseBadge
-                variant="info"
-                :text="`${Object.keys(shortcuts).length} shortcuts`"
-                size="xs"
-              />
+                variant="new"
+                :text="`${Object.keys(shortcuts).length} shortcuts`" />
             </div>
-            
+
             <div class="flex items-center gap-1">
               <BaseButton
                 variant="ghost"
                 size="icon"
                 class="h-6 w-6"
-                @click="copyCategory(categoryName, shortcuts)"
-              >
+                @click="copyCategory(categoryName, shortcuts)">
                 <CopyIcon class="h-3 w-3" />
               </BaseButton>
-              
+
               <BaseButton
                 variant="ghost"
                 size="icon"
                 class="h-6 w-6"
-                @click="toggleCategory(categoryName)"
-              >
-                <ChevronDownIcon 
+                @click="toggleCategory(categoryName)">
+                <ChevronDownIcon
                   class="h-3 w-3 transition-transform duration-200"
-                  :class="{ 'rotate-180': expandedCategories[categoryName] }"
-                />
+                  :class="{ 'rotate-180': expandedCategories[categoryName] }" />
               </BaseButton>
             </div>
           </div>
         </div>
-        
-        <!-- Shortcuts Content -->
+
         <Transition
           enter-active-class="transition-all duration-300 ease-out"
           enter-from-class="max-h-0 opacity-0"
           enter-to-class="max-h-96 opacity-100"
           leave-active-class="transition-all duration-200 ease-in"
           leave-from-class="max-h-96 opacity-100"
-          leave-to-class="max-h-0 opacity-0"
-        >
+          leave-to-class="max-h-0 opacity-0">
           <div
             v-if="expandedCategories[categoryName]"
-            class="overflow-hidden"
-          >
+            class="overflow-hidden">
             <div class="p-3 space-y-2">
               <div
                 v-for="(shortcut, keys) in shortcuts"
                 :key="keys"
                 class="flex items-center justify-between p-2 rounded-lg hover:bg-muted dark:hover:bg-background/50 transition-colors group"
-                @click="highlightShortcut(keys)"
-              >
+                @click="highlightShortcut(keys)">
                 <div class="flex-1 min-w-0">
                   <span class="text-sm text-foreground dark:text-muted-foreground">{{ shortcut.description }}</span>
                   <div
                     v-if="shortcut.note"
-                    class="text-xs text-muted-foreground dark:text-muted-foreground mt-1"
-                  >
+                    class="text-xs text-muted-foreground dark:text-muted-foreground mt-1">
                     {{ shortcut.note }}
                   </div>
                 </div>
-                
+
                 <div class="flex items-center gap-2 ml-4">
-                  <!-- Test button -->
+
                   <BaseButton
                     v-if="shortcut.testable"
                     variant="ghost"
                     size="icon"
                     class="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
                     :disabled="isTestingShortcut"
-                    @click.stop="testSpecificShortcut(keys)"
-                  >
+                    @click.stop="testSpecificShortcut(keys)">
                     <PlayIcon class="h-3 w-3" />
                   </BaseButton>
-                  
-                  <!-- Copy button -->
+
                   <BaseButton
                     variant="ghost"
                     size="icon"
                     class="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                    @click.stop="copyShortcut(keys, shortcut.description)"
-                  >
+                    @click.stop="copyShortcut(keys, shortcut.description)">
                     <CopyIcon class="h-3 w-3" />
                   </BaseButton>
-                  
-                  <!-- Keyboard combination -->
+
                   <div class="flex items-center gap-1">
                     <kbd
                       v-for="(key, index) in formatKeyboardShortcut(keys)"
                       :key="index"
                       class="px-2 py-1 text-xs font-medium bg-background dark:bg-background text-foreground dark:text-muted-foreground rounded border border-border dark:border-border shadow-sm font-mono"
-                      :class="{ 
-                        'animate-pulse bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700': 
-                          highlightedShortcut === keys 
-                      }"
-                    >
+                      :class="{
+                        'animate-pulse bg-yellow-100 dark:bg-yellow-900/30 border-yellow-300 dark:border-yellow-700':
+                          highlightedShortcut === keys
+                      }">
                       {{ key }}
                     </kbd>
                   </div>
@@ -198,7 +173,6 @@
       </div>
     </div>
 
-    <!-- Search -->
     <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <div class="flex items-center gap-2 mb-2">
         <SearchIcon class="h-4 w-4 text-muted-foreground" />
@@ -206,29 +180,24 @@
           v-model="searchQuery"
           type="text"
           placeholder="Search shortcuts..."
-          class="flex-1 text-sm bg-transparent border-none outline-none text-foreground dark:text-foreground placeholder-gray-500 dark:placeholder-gray-400"
-        >
+          class="flex-1 text-sm bg-transparent border-none outline-none text-foreground dark:text-foreground placeholder-gray-500 dark:placeholder-gray-400" />
         <BaseButton
           v-if="searchQuery"
           variant="ghost"
           size="icon"
           class="h-5 w-5"
-          @click="searchQuery = ''"
-        >
+          @click="searchQuery = ''">
           <XIcon class="h-3 w-3" />
         </BaseButton>
       </div>
-      
-      <!-- Search Results -->
+
       <div
         v-if="searchQuery && searchResults.length > 0"
-        class="space-y-1 max-h-32 overflow-y-auto"
-      >
+        class="space-y-1 max-h-32 overflow-y-auto">
         <div
           v-for="result in searchResults"
           :key="`${result.category}-${result.keys}`"
-          class="flex items-center justify-between p-2 bg-muted dark:bg-background rounded text-xs"
-        >
+          class="flex items-center justify-between p-2 bg-muted dark:bg-background rounded text-xs">
           <div>
             <span class="text-foreground dark:text-foreground">{{ result.description }}</span>
             <span class="text-muted-foreground dark:text-muted-foreground ml-2">({{ result.category }})</span>
@@ -238,76 +207,67 @@
           </kbd>
         </div>
       </div>
-      
+
       <div
         v-else-if="searchQuery && searchResults.length === 0"
-        class="text-xs text-muted-foreground dark:text-muted-foreground text-center py-2"
-      >
+        class="text-xs text-muted-foreground dark:text-muted-foreground text-center py-2">
         No shortcuts found for "{{ searchQuery }}"
       </div>
     </div>
 
-    <!-- Actions -->
     <div class="space-y-2">
       <div class="flex gap-2">
         <BaseButton
           variant="outline"
           size="sm"
           class="flex-1 text-xs"
-          @click="expandAll"
-        >
+          @click="expandAll">
           <ExpandIcon class="h-3 w-3 mr-1.5" />
           Expand All
         </BaseButton>
-        
+
         <BaseButton
           variant="outline"
           size="sm"
           class="flex-1 text-xs"
-          @click="collapseAll"
-        >
+          @click="collapseAll">
           <ShrinkIcon class="h-3 w-3 mr-1.5" />
           Collapse All
         </BaseButton>
       </div>
-      
+
       <BaseButton
         variant="outline"
         size="sm"
         class="w-full text-xs"
-        @click="printShortcutGuide"
-      >
+        @click="printShortcutGuide">
         <PrinterIcon class="h-3 w-3 mr-1.5" />
         Print Shortcut Guide
       </BaseButton>
     </div>
 
-    <!-- Export Actions -->
     <div class="pt-3 border-t border-border dark:border-border">
       <div class="flex gap-2">
         <BaseButton
           variant="ghost"
           size="sm"
           class="text-xs flex-1"
-          @click="exportShortcuts"
-        >
+          @click="exportShortcuts">
           <DownloadIcon class="h-3 w-3 mr-1.5" />
           Export All
         </BaseButton>
-        
+
         <BaseButton
           variant="ghost"
           size="sm"
           class="text-xs flex-1"
-          @click="logShortcuts"
-        >
+          @click="logShortcuts">
           <TerminalIcon class="h-3 w-3 mr-1.5" />
           Log to Console
         </BaseButton>
       </div>
     </div>
 
-    <!-- Development Note -->
     <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
       <div class="flex items-start gap-2">
         <InfoIcon class="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
@@ -364,140 +324,139 @@ const highlightedShortcut = ref('')
 const isTestingShortcut = ref(false)
 const activeListeners = ref(12) // Mock value - would be dynamic in real implementation
 
-// Enhanced shortcut categories with more details
 const shortcutCategories: Record<string, Record<string, ShortcutInfo>> = {
   'Developer Dock': {
-    'Ctrl+Shift+D': { 
+    'Ctrl+Shift+D': {
       description: 'Toggle Developer Dock',
-            note: 'Opens/closes the developer tools panel',
+      note: 'Opens/closes the developer tools panel',
       testable: true
     },
-    'Ctrl+Shift+P': { 
+    'Ctrl+Shift+P': {
       description: 'Toggle Performance Panel',
       note: 'Monitor app performance metrics',
       testable: true
     },
-    'Ctrl+Shift+S': { 
+    'Ctrl+Shift+S': {
       description: 'Toggle State Panel',
       note: 'View Pinia store states',
       testable: true
     },
-    'Ctrl+Shift+K': { 
+    'Ctrl+Shift+K': {
       description: 'Toggle Keyboard Shortcuts Panel',
       note: 'View this shortcuts guide',
       testable: true
     }
   },
   'Calculator Navigation': {
-    'Ctrl+1': { 
+    'Ctrl+1': {
       description: 'Switch to Standard Mode',
       note: 'Basic arithmetic operations',
       testable: true
     },
-    'Ctrl+2': { 
+    'Ctrl+2': {
       description: 'Switch to Programmer Mode',
       note: 'Binary, hex, and bitwise operations',
       testable: true
     },
-    'Ctrl+H': { 
+    'Ctrl+H': {
       description: 'Toggle History Panel',
       note: 'Show/hide calculation history',
       testable: true
     },
-    'Ctrl+M': { 
+    'Ctrl+M': {
       description: 'Toggle Memory Panel',
       note: 'Access memory operations',
       testable: true
     }
   },
   'Calculator Operations': {
-    'Enter': { 
+    'Enter': {
       description: 'Calculate Result',
       note: 'Execute the current expression',
       testable: false
     },
-    'Escape': { 
+    'Escape': {
       description: 'Clear All',
       note: 'Reset calculator state',
       testable: false
     },
-    'Backspace': { 
+    'Backspace': {
       description: 'Delete Last Character',
       note: 'Remove the last entered character',
       testable: false
     },
-    'Ctrl+C': { 
+    'Ctrl+C': {
       description: 'Copy Result',
       note: 'Copy current result to clipboard',
       testable: false
     },
-    'Ctrl+V': { 
+    'Ctrl+V': {
       description: 'Paste Value',
       note: 'Paste clipboard content',
       testable: false
     }
   },
   'Memory Operations': {
-    'Ctrl+Shift+M': { 
+    'Ctrl+Shift+M': {
       description: 'Memory Store',
       note: 'Store current result in memory',
       testable: false
     },
-    'Ctrl+R': { 
+    'Ctrl+R': {
       description: 'Memory Recall',
       note: 'Recall value from memory',
       testable: false
     },
-    'Ctrl+L': { 
+    'Ctrl+L': {
       description: 'Memory Clear',
       note: 'Clear all memory slots',
       testable: false
     },
-    'Ctrl+Plus': { 
+    'Ctrl+Plus': {
       description: 'Memory Add',
       note: 'Add current result to memory',
       testable: false
     }
   },
   'Application Navigation': {
-    'Ctrl+/': { 
+    'Ctrl+/': {
       description: 'Toggle Sidebar',
       note: 'Show/hide main navigation',
       testable: true
     },
-    'Ctrl+,': { 
+    'Ctrl+,': {
       description: 'Open Settings',
       note: 'Access application settings',
       testable: true
     },
-    'Ctrl+Shift+?': { 
+    'Ctrl+Shift+?': {
       description: 'Show Keyboard Shortcuts',
       note: 'Display this help dialog',
       testable: true
     },
-    'Alt+Home': { 
+    'Alt+Home': {
       description: 'Go to Home',
       note: 'Navigate to home page',
       testable: true
     }
   },
   'Theme & Display': {
-    'Ctrl+Shift+T': { 
+    'Ctrl+Shift+T': {
       description: 'Toggle Theme',
       note: 'Switch between light and dark mode',
       testable: true
     },
-    'Ctrl+0': { 
+    'Ctrl+0': {
       description: 'Reset Zoom',
       note: 'Reset display zoom to default',
       testable: false
     },
-    'Ctrl+Plus': { 
+    'Ctrl+Plus': {
       description: 'Zoom In',
       note: 'Increase display zoom',
       testable: false
     },
-    'Ctrl+Minus': { 
+    'Ctrl+Minus': {
       description: 'Zoom Out',
       note: 'Decrease display zoom',
       testable: false
@@ -505,7 +464,6 @@ const shortcutCategories: Record<string, Record<string, ShortcutInfo>> = {
   }
 }
 
-// Initialize expanded state
 Object.keys(shortcutCategories).forEach(category => {
   expandedCategories[category] = true
 })
@@ -521,10 +479,10 @@ const filteredCategories = computed(() => {
 
 const searchResults = computed((): SearchResult[] => {
   if (!searchQuery.value) return []
-  
+
   const results: SearchResult[] = []
   const query = searchQuery.value.toLowerCase()
-  
+
   Object.entries(shortcutCategories).forEach(([category, shortcuts]) => {
     Object.entries(shortcuts).forEach(([keys, shortcut]) => {
       if (
@@ -540,7 +498,7 @@ const searchResults = computed((): SearchResult[] => {
       }
     })
   })
-  
+
   return results.slice(0, 10) // Limit results
 })
 
@@ -565,7 +523,6 @@ const getCategoryIcon = (categoryName: string) => {
 
 const formatKeyboardShortcut = (keys: string): string[] => {
   return keys.split('+').map(key => {
-    // Format special keys
     const keyMap: Record<string, string> = {
       'Ctrl': '⌃',
       'Shift': '⇧',
@@ -608,59 +565,57 @@ const highlightShortcut = (keys: string): void => {
   }, 2000)
 }
 
-const testShortcut = async (): Promise<void> => {
+const testShortcut = async(): Promise<void> => {
   isTestingShortcut.value = true
-  
-  // Simulate testing a random shortcut
-  const allShortcuts = Object.entries(shortcutCategories).flatMap(([, shortcuts]) => 
+
+  const allShortcuts = Object.entries(shortcutCategories).flatMap(([, shortcuts]) =>
     Object.keys(shortcuts)
   )
   const randomShortcut = allShortcuts[Math.floor(Math.random() * allShortcuts.length)]
-  
+
   highlightShortcut(randomShortcut)
   console.log('[Shortcuts] Testing shortcut:', randomShortcut)
-  
+
   setTimeout(() => {
     isTestingShortcut.value = false
   }, 2000)
 }
 
-const testSpecificShortcut = async (keys: string): Promise<void> => {
+const testSpecificShortcut = async(keys: string): Promise<void> => {
   isTestingShortcut.value = true
   highlightShortcut(keys)
-  
+
   console.log('[Shortcuts] Testing specific shortcut:', keys)
-  
-  // Simulate shortcut execution
+
   setTimeout(() => {
     isTestingShortcut.value = false
   }, 1000)
 }
 
-const copyShortcut = async (keys: string, description: string): Promise<void> => {
+const copyShortcut = async(keys: string, description: string): Promise<void> => {
   try {
     const text = `${keys}: ${description}`
     await navigator.clipboard.writeText(text)
     console.log('[Shortcuts] Copied shortcut:', text)
-  } catch (err) {
+  } catch(err) {
     console.error('[Shortcuts] Failed to copy shortcut:', err)
   }
 }
 
-const copyCategory = async (categoryName: string, shortcuts: Record<string, ShortcutInfo>): Promise<void> => {
+const copyCategory = async(categoryName: string, shortcuts: Record<string, ShortcutInfo>): Promise<void> => {
   try {
     const text = Object.entries(shortcuts)
       .map(([keys, shortcut]) => `${keys}: ${shortcut.description}`)
       .join('\n')
-    
+
     await navigator.clipboard.writeText(`${categoryName}:\n${text}`)
     console.log('[Shortcuts] Copied category:', categoryName)
-  } catch (err) {
+  } catch(err) {
     console.error('[Shortcuts] Failed to copy category:', err)
   }
 }
 
-const exportShortcuts = async (): Promise<void> => {
+const exportShortcuts = async(): Promise<void> => {
   try {
     const exportData = {
       shortcuts: shortcutCategories,
@@ -670,11 +625,11 @@ const exportShortcuts = async (): Promise<void> => {
       platform: navigator.platform,
       userAgent: navigator.userAgent
     }
-    
+
     const text = JSON.stringify(exportData, null, 2)
     await navigator.clipboard.writeText(text)
     console.log('[Shortcuts] All shortcuts exported to clipboard')
-  } catch (err) {
+  } catch(err) {
     console.error('[Shortcuts] Failed to export shortcuts:', err)
   }
 }
@@ -692,7 +647,6 @@ const logShortcuts = (): void => {
 }
 
 const printShortcutGuide = (): void => {
-  // Create a printable version
   const printContent = Object.entries(shortcutCategories)
     .map(([category, shortcuts]) => {
       const shortcutList = Object.entries(shortcuts)
@@ -701,7 +655,7 @@ const printShortcutGuide = (): void => {
       return `${category}:\n${shortcutList}`
     })
     .join('\n\n')
-  
+
   const printWindow = window.open('', '_blank')
   if (printWindow) {
     printWindow.document.write(`

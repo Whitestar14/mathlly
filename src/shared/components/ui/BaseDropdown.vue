@@ -3,22 +3,18 @@
     <DropdownMenuTrigger as-child>
       <button
         :class="getTriggerClasses"
-        :disabled="disabled"
-      >
-        <component 
-          :is="icon" 
-          v-if="icon" 
-          class="h-4 w-4 flex-shrink-0"
-        />
+        :disabled="disabled">
+        <component
+          :is="icon"
+          v-if="icon"
+          class="h-4 w-4 flex-shrink-0" />
         <span
           v-if="label"
-          class="truncate font-medium"
-        >{{ label }}</span>
-        <slot name="trigger" />
-        <ChevronDownIcon 
+          class="truncate font-medium">{{ label }}</span>
+        <slot name="trigger"></slot>
+        <ChevronDownIcon
           class="h-4 w-4 flex-shrink-0 transition-transform duration-200"
-          :class="{ 'rotate-180': open }"
-        />
+          :class="{ 'rotate-180': open }" />
       </button>
     </DropdownMenuTrigger>
 
@@ -36,28 +32,22 @@
         :align="align"
         :align-offset="alignOffset"
         @open-auto-focus="handleOpenAutoFocus"
-        @close-auto-focus="handleCloseAutoFocus"
-      >
-        <!-- Header section -->
+        @close-auto-focus="handleCloseAutoFocus">
+
         <div
           v-if="$slots.header"
-          class="px-2 py-2 border-b border-border/50 mb-2"
-        >
-          <slot name="header" />
+          class="px-2 py-2 border-b border-border/50 mb-2">
+          <slot name="header"></slot>
         </div>
 
-        <!-- Content section -->
-        <slot 
+        <slot
           :close="closeDropdown"
-          :items="items"
-        />
+          :items="items"></slot>
 
-        <!-- Footer section -->
         <div
           v-if="$slots.footer"
-          class="px-2 py-2"
-        >
-          <slot name="footer" />
+          class="px-2 py-2">
+          <slot name="footer"></slot>
         </div>
       </DropdownMenuContent>
     </DropdownMenuPortal>
@@ -65,14 +55,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed } from 'vue'
 import {
   DropdownMenuRoot,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuPortal,
-} from 'radix-vue';
-import { ChevronDownIcon } from 'lucide-vue-next';
+  DropdownMenuPortal
+} from 'radix-vue'
+import { ChevronDownIcon } from 'lucide-vue-next'
 
 const props = defineProps({
   label: {
@@ -98,7 +88,7 @@ const props = defineProps({
   side: {
     type: String,
     default: 'bottom',
-    validator: (val) => ['top', 'right', 'bottom', 'left'].includes(val)
+    validator: val => ['top', 'right', 'bottom', 'left'].includes(val)
   },
   sideOffset: {
     type: Number,
@@ -107,7 +97,7 @@ const props = defineProps({
   align: {
     type: String,
     default: 'center',
-    validator: (val) => ['start', 'center', 'end'].includes(val)
+    validator: val => ['start', 'center', 'end'].includes(val)
   },
   alignOffset: {
     type: Number,
@@ -125,50 +115,50 @@ const props = defineProps({
     type: Boolean,
     default: true
   }
-});
+})
 
-const emit = defineEmits(['open', 'close', 'item-select']);
+const emit = defineEmits(['open', 'close', 'item-select'])
 
-const open = ref(false);
+const open = ref(false)
 
 const getTriggerClasses = computed(() => {
   const baseClasses = [
     'inline-flex items-center justify-center gap-2 font-medium transition-all duration-150',
     { 'w-full': props.fullWidth }
-  ];
+  ]
 
   if (!props.useDefaultStyling && props.triggerClass) {
-    return [...baseClasses, props.triggerClass];
+    return [...baseClasses, props.triggerClass]
   }
-  
+
   const defaultClasses = [
     'bg-background/90 hover:bg-background text-foreground border border-border/50 shadow-sm hover:shadow-md',
     'rounded-lg px-3 py-2 text-sm',
     'hover:scale-[1.02] active:scale-[0.98] disabled:hover:scale-100',
     'focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary/50',
     'disabled:opacity-50 disabled:cursor-not-allowed'
-  ];
+  ]
 
-  return [...baseClasses, ...defaultClasses, props.triggerClass];
-});
+  return [...baseClasses, ...defaultClasses, props.triggerClass]
+})
 
 const closeDropdown = () => {
-  open.value = false;
-};
+  open.value = false
+}
 
-const handleOpenAutoFocus = (event) => {
-  open.value = true;
-  emit('open', event);
-};
+const handleOpenAutoFocus = event => {
+  open.value = true
+  emit('open', event)
+}
 
-const handleCloseAutoFocus = (event) => {
-  open.value = false;
-  emit('close', event);
-};
+const handleCloseAutoFocus = event => {
+  open.value = false
+  emit('close', event)
+}
 
 defineExpose({
   close: closeDropdown
-});
+})
 </script>
 
 <style scoped>
@@ -218,8 +208,8 @@ defineExpose({
   padding: 1px;
   background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: xor;
   -webkit-mask-composite: xor;
+  mask-composite: xor;
   pointer-events: none;
 }
 

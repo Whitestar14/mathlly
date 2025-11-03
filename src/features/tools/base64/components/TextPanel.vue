@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps, defineEmits } from 'vue'
 import TextAreaField from './TextAreaField.vue'
 
 defineProps({
@@ -24,7 +23,6 @@ function updateValue(v: string) {
   <div class="space-y-3">
     <TextAreaField
       :model-value="modelValue"
-      @update:model-value="updateValue"
       :label="label"
       :placeholder="placeholder"
       :stats="stats"
@@ -32,13 +30,13 @@ function updateValue(v: string) {
       :validation-error="validationError"
       :show-paste-button="showPasteButton"
       :read-only="readOnly"
+      @update:model-value="updateValue"
       @input="$emit('input')"
       @drop="$emit('drop', $event)"
-      @paste="$emit('paste')"
-    >
-    <template #actions>
-      <slot name="actions" />
-    </template>
+      @paste="$emit('paste')">
+      <template #actions>
+        <slot name="actions"></slot>
+      </template>
     </TextAreaField>
   </div>
 </template>

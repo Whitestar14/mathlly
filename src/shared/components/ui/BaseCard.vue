@@ -9,59 +9,51 @@ defineProps({
 <template>
   <component
     :is="as || 'div'"
-    v-bind="$attrs"
     class="rounded-lg border bg-card border-border overflow-hidden border-collapse"
-  >
-    <!-- Header -->
+    v-bind="$attrs">
+
     <div
       v-if="title || subtitle || $slots.head || $slots.header"
-      class="px-4 py-2 bg-muted/50 dark:bg-muted/40 border-b border-border"
-    >
+      class="px-4 py-2 bg-muted/50 dark:bg-muted/40 border-b border-border">
       <div class="flex items-center justify-between gap-4">
-        <!-- Left side: title/subtitle OR custom head slot -->
+
         <div class="flex items-center gap-3 min-w-0">
-          <!-- If head slot provided, render it instead of title/subtitle -->
+
           <slot name="head">
             <div v-if="title || subtitle">
               <h3
                 v-if="title"
-                class="text-sm font-medium leading-6 truncate"
-              >
+                class="text-sm font-medium leading-6 truncate">
                 {{ title }}
               </h3>
               <p
                 v-if="subtitle"
-                class="text-xs text-muted-foreground mt-1 truncate"
-              >
+                class="text-xs text-muted-foreground mt-1 truncate">
                 {{ subtitle }}
               </p>
             </div>
           </slot>
         </div>
 
-        <!-- Right side: header actions -->
         <div class="flex items-center gap-2 shrink-0">
-          <slot name="header" />
+          <slot name="header"></slot>
         </div>
       </div>
     </div>
 
-    <!-- Body -->
     <div class="p-3 md:p-6 bg-card">
-      <slot />
+      <slot></slot>
     </div>
 
-    <!-- Footer -->
     <div
       v-if="$slots.footer || $slots.actions"
-      class="px-3 py-2 border-t border-border bg-muted/25 dark:bg-muted/20"
-    >
+      class="px-3 py-2 border-t border-border bg-muted/25 dark:bg-muted/20">
       <div class="flex items-center justify-between">
         <div>
-          <slot name="footer" />
+          <slot name="footer"></slot>
         </div>
         <div class="flex items-center gap-2">
-          <slot name="actions" />
+          <slot name="actions"></slot>
         </div>
       </div>
     </div>

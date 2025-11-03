@@ -1,6 +1,6 @@
 declare module 'virtual:pwa-register/vue' {
   import type { Ref } from 'vue'
-  
+
   export interface RegisterSWOptions {
     immediate?: boolean
     onNeedRefresh?: () => void

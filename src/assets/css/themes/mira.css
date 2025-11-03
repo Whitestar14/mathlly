@@ -1,0 +1,111 @@
+@layer base {
+  [data-theme-pack='mira'] {
+    --color-background: 100% 0 0;
+    --color-foreground: 15% 0.004 285.82;
+    --color-card: 100% 0 0;
+    --color-card-foreground: 15% 0.004 285.82;
+    --color-popover: 100% 0 0;
+    --color-popover-foreground: 15% 0.004 285.82;
+    --color-primary: 25% 0.015 285.82;
+    --color-primary-foreground: 98% 0 0;
+    --color-secondary: 95.9% 0.004 285.82;
+    --color-secondary-foreground: 25% 0.015 285.82;
+    --color-muted: 95.9% 0.004 285.82;
+    --color-muted-foreground: 52.1% 0.004 285.82;
+    --color-accent: 30% 0.015 285.82;
+    --color-accent-foreground: 20% 0.02 285.82;
+    --color-destructive: 62.8% 0.257 29.23;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 90% 0.004 285.82;
+    --color-input: 100% 0 0;
+    --color-ring: 25% 0.015 285.82;
+    --backdrop: 0% 0 0;
+    --backdrop-light: 98% 0 0;
+    --backdrop-surface: 100% 0 0;
+
+    --color-panel: 100% 0 0;
+
+    --logo-bg-fill: 100% 0 0;
+    --logo-stroke-stop-color: 0% 0 0;
+    --logo-fg-stop-color: 7.5% 0.004 285.82;
+    --color-highlight: 70% 0.01 285.82;
+    --syntax-tag: 0.28 0.08 285;
+    --syntax-func: 0.32 0.1 285;
+    --syntax-string: 0.38 0.12 285;
+    --syntax-regexp: 0.34 0.08 285;
+    --syntax-markup: 0.3 0.08 285;
+    --syntax-keyword: 0.26 0.1 285;
+    --syntax-special: 0.4 0.08 285;
+    --syntax-comment: 0.55 0.05 285;
+    --syntax-constant: 0.34 0.12 285;
+    --syntax-operator: 0.3 0.08 285;
+
+    --syntax-paren-0: 0.28 0.08 285;
+    --syntax-paren-1: 0.32 0.08 285;
+    --syntax-paren-2: 0.36 0.08 285;
+    --syntax-paren-3: 0.4 0.08 285;
+    --syntax-paren-4: 0.44 0.08 285;
+    --syntax-paren-5: 0.48 0.08 285;
+  }
+
+  [data-theme-pack='mira'].dark {
+    --color-background: 15% 0.004 285.82;
+    --color-foreground: 98% 0 0;
+    --color-card: 15% 0.004 285.82;
+    --color-card-foreground: 98% 0 0;
+    --color-popover: 15% 0.004 285.82;
+    --color-popover-foreground: 98% 0 0;
+    --color-primary: 85% 0 0;
+    --color-primary-foreground: 25% 0.015 285.82;
+    --color-secondary: 25% 0.004 285.82;
+    --color-secondary-foreground: 98% 0 0;
+    --color-muted: 25% 0.004 285.82;
+    --color-muted-foreground: 65.1% 0.004 285.82;
+    --color-accent: 85% 0 0;
+    --color-accent-foreground: 98% 0 0;
+    --color-destructive: 37.8% 0.257 29.23;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 25% 0.004 285.82;
+    --color-input: 15% 0.004 285.82;
+    --color-ring: 98% 0 0;
+    --backdrop: 0% 0 0;
+    --backdrop-light: 15% 0.005 270;
+    --backdrop-surface: 20% 0.01 270;
+
+    --color-panel: 15% 0.004 285.82;
+
+    --logo-bg-fill: 15% 0.004 285.82;
+    --logo-stroke-stop-color: 98% 0 0;
+    --logo-fg-stop-color: 98% 0 0;
+    --color-highlight: 85% 0 0;
+    --syntax-tag: 0.75 0.08 285;
+    --syntax-func: 0.8 0.06 285;
+    --syntax-string: 0.7 0.08 285;
+    --syntax-regexp: 0.75 0.08 285;
+    --syntax-markup: 0.75 0.08 285;
+    --syntax-keyword: 0.85 0.04 285;
+    --syntax-special: 0.65 0.08 285;
+    --syntax-comment: 0.55 0.06 285;
+    --syntax-constant: 0.8 0.06 285;
+    --syntax-operator: 0.75 0.08 285;
+    --syntax-paren-0: 0.8 0.06 285;
+    --syntax-paren-1: 0.75 0.08 285;
+    --syntax-paren-2: 0.7 0.08 285;
+    --syntax-paren-3: 0.65 0.08 285;
+    --syntax-paren-4: 0.6 0.08 285;
+    --syntax-paren-5: 0.55 0.06 285;
+  }
+
+  [data-theme-pack='mira']::selection {
+    background-color: oklch(var(--color-highlight) / 0.35);
+  }
+  [data-theme-pack='mira']::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.35);
+  }
+  [data-theme-pack='mira'].dark::selection {
+    background-color: oklch(var(--color-highlight) / 0.3);
+  }
+  [data-theme-pack='mira'].dark::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.3);
+  }
+}

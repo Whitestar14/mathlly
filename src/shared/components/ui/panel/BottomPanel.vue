@@ -1,69 +1,59 @@
 <template>
   <div
     v-show="isOpen"
-    class="fixed inset-x-0 z-20"
-  >
+    class="fixed inset-x-0 z-20">
     <div
       ref="panelRef"
       class="bg-panel fixed inset-x-0 bottom-0 overflow-hidden"
       :class="mobilePanelClasses"
-      :style="mobilePanelStyle"
-    >
-      <!-- Expand/Minimize Button -->
+      :style="mobilePanelStyle">
+
       <BaseButton
         v-if="!(maxHeightRatio === 1)"
         v-tippy="{ content: isExpanded ? 'Minimize Panel' : 'Expand Panel' }"
         variant="ghost"
         size="icon"
-        class="absolute right-14 top-3.5 p-1.5 rounded-full"
+        class="absolute right-14 top-3 p-1.5 rounded-full"
         aria-label="Toggle panel expansion"
-        @click="$emit('toggle')"
-      >
+        @click="$emit('toggle')">
         <Maximize2
           v-if="!isExpanded"
-          class="w-4 h-4"
-        />
+          class="w-4 h-4" />
         <Minimize2
           v-else
-          class="w-4 h-4"
-        />
+          class="w-4 h-4" />
       </BaseButton>
 
-      <!-- Draggable Handle - Hide when expanded -->
       <div
         ref="handleRef"
         class="w-full absolute h-6 flex items-center justify-center touch-manipulation"
         :class="handleClasses"
-        aria-label="Drag handle to resize panel"
-      >
-        <div class="w-10 h-1 pb-1 rounded-full bg-muted" />
+        aria-label="Drag handle to resize panel">
+        <div class="w-10 h-1 pb-1 rounded-full bg-muted"></div>
       </div>
 
       <div
         class="h-full"
-        :class="mainClass"
-      >
+        :class="mainClass">
         <PanelContent
           :title="title"
           :show-header="showHeader"
           :show-footer="showFooter"
           :content-class="contentClass"
-          @close="$emit('close')"
-        >
+          @close="$emit('close')">
           <template #default>
-            <slot />
+            <slot></slot>
           </template>
           <template #sticky>
-            <slot name="sticky" />
+            <slot name="sticky"></slot>
           </template>
           <template #header-actions>
-            <slot name="header-actions" />
+            <slot name="header-actions"></slot>
           </template>
           <template
             v-if="$slots.footer"
-            #footer
-          >
-            <slot name="footer" />
+            #footer>
+            <slot name="footer"></slot>
           </template>
         </PanelContent>
       </div>
@@ -113,7 +103,7 @@ const props = withDefaults(defineProps<Props>(), {
   translateY: 0,
   isDragging: false,
   maxHeightRatio: 0.8,
-  animationEnabled: false,
+  animationEnabled: false
 })
 
 defineEmits<Emits>()
@@ -134,15 +124,15 @@ const updateRefs = (): void => {
 }
 
 const mobilePanelClasses: ComputedRef<string[]> = computed(() => [
-  'overflow-hidden', // Add overflow hidden to prevent layout issues
-  props.isExpanded || props.maxHeightRatio === 1 ? 'rounded-none' : 
-  props.animationEnabled ? 'transition-[rounded] duration-300 rounded-t-xl' : 'rounded-t-xl'
+  'overflow-hidden',
+  props.isExpanded || props.maxHeightRatio === 1 ? 'rounded-none' :
+    props.animationEnabled ? 'transition-[rounded] duration-300 rounded-t-xl' : 'rounded-t-xl'
 ])
 
 const mobilePanelStyle: ComputedRef<Record<string, string>> = computed(() => ({
   height: `${props.panelHeight}px`,
   transform: `translateY(${props.translateY}px)`,
-  transition: props.isDragging ? '' : props.animationEnabled ? 'transform 0.3s ease-out, height 0.3s ease-out' : '',
+  transition: props.isDragging ? '' : props.animationEnabled ? 'transform 0.3s ease-out, height 0.3s ease-out' : ''
 }))
 
 const handleClasses: ComputedRef<(string | Record<string, boolean>)[]> = computed(() => [

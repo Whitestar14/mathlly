@@ -1,0 +1,127 @@
+@layer base {
+  [data-theme-pack='ayu'] {
+    --color-background: 0.988 0.002 248;
+    --color-foreground: 0.49 0.01 248;
+    --color-card: 0.991 0 0;
+    --color-card-foreground: 15% 0.004 285.82;
+    --color-popover: 0.991 0 0;
+    --color-popover-foreground: 15% 0.004 285.82;
+
+    --color-primary: 0.803 0.159 70;
+    --color-primary-foreground: 0.988 0.002 248;
+
+    --color-secondary: 0.967 0.002 248;
+    --color-secondary-foreground: 51% 0.004 285.82;
+
+    --color-muted: 95.9% 0.004 285.82;
+    --color-muted-foreground: 52.1% 0.004 285.82;
+    --color-accent: 0.65 0.16 244;
+    --color-accent-foreground: 15% 0.004 285.82;
+    --color-destructive: 0.636 0.186 24;
+    --color-destructive-foreground: 98% 0 0;
+    --color-border: 0.977 0.002 248;
+    --color-input: 0.991 0 0;
+    --color-ring: 0.772 0.157 69;
+    --backdrop: 0% 0 0;
+    --backdrop-light: 98% 0 0;
+    --backdrop-surface: 0.983 0.002 248;
+
+    --color-panel: 0.983 0.002 248;
+    --logo-bg-fill: 0.991 0 0;
+    --logo-stroke-stop-color: 0.748 0.16 53;
+    --logo-fg-stop-color: 0.748 0.16 53;
+    --color-highlight: 0.507 0.203 260;
+
+    --syntax-tag: 0.739 0.125 226;
+    --syntax-func: 0.824 0.141 70;
+    --syntax-string: 0.825 0.175 126;
+    --syntax-regexp: 0.865 0.088 171;
+    --syntax-markup: 0.865 0.088 171;
+    --syntax-keyword: 0.758 0.163 52;
+    --syntax-special: 0.805 0.101 75;
+    --syntax-comment: 0.771 0.017 245;
+    --syntax-constant: 0.797 0.131 306;
+    --syntax-operator: 0.758 0.127 47;
+
+    --syntax-paren-0: 0.5 0.2 260;
+    --syntax-paren-1: 0.55 0.16 140;
+    --syntax-paren-2: 0.6 0.18 300;
+    --syntax-paren-3: 0.6 0.15 30;
+    --syntax-paren-4: 0.65 0.18 340;
+    --syntax-paren-5: 0.55 0.12 200;
+  }
+
+  [data-theme-pack='ayu'][data-variant-bordered='true'] {
+    --color-border: 0.9 0.006 223;
+  }
+
+  [data-theme-pack='ayu'].dark {
+    --color-background: 0.173 0.015 267;
+    --color-foreground: 0.798 0.01 94;
+    --color-card: 0.186 0.016 262;
+    --color-card-foreground: 98% 0 0;
+    --color-popover: 0.186 0.016 262;
+    --color-popover-foreground: 98% 0 0;
+    --color-primary: 0.797 0.13 82;
+    --color-primary-foreground: 0.163 0.014 264;
+    --color-secondary: 25% 0.019 266;
+    --color-secondary-foreground: 93% 0 0;
+    --color-muted: 25% 0.019 266;
+    --color-muted-foreground: 65% 0.004 285.82;
+    --color-accent: 0.7 0.18 252;
+    --color-accent-foreground: 98% 0 0;
+    --color-destructive: 0.626 0.164 23;
+    --color-destructive-foreground: 95% 0 0;
+    --color-border: 0.195 0.016 262;
+    --color-input: 0.186 0.016 262;
+    --color-ring: 0.882 0.124 84;
+    --backdrop: 0% 0 0;
+    --backdrop-light: 10% 0.01 190;
+    --backdrop-surface: 0.186 0.016 262;
+
+    --color-panel: 0.183 0.014 264;
+
+    --logo-bg-fill: 0.173 0.015 267;
+    --logo-stroke-stop-color: 98% 0 0;
+    --logo-fg-stop-color: 98% 0 0;
+    --color-highlight: 0.692 0.167 252;
+
+    --syntax-tag: 0.725 0.1 223;
+    --syntax-func: 0.824 0.141 70;
+    --syntax-string: 0.708 0.179 126;
+    --syntax-regexp: 0.729 0.119 168;
+    --syntax-markup: 0.699 0.157 22;
+    --syntax-keyword: 0.748 0.16 53;
+    --syntax-special: 0.815 0.092 75;
+    --syntax-comment: 0.582 0.008 261;
+    --syntax-constant: 0.797 0.131 306;
+    --syntax-operator: 0.758 0.127 47;
+
+    --syntax-paren-0: 0.652 0.126 306;
+    --syntax-paren-1: 0.708 0.179 126;
+    --syntax-paren-2: 0.758 0.127 47;
+    --syntax-paren-3: 0.725 0.1 223;
+    --syntax-paren-4: 0.729 0.119 168;
+    --syntax-paren-5: 0.815 0.092 75;
+  }
+
+  [data-theme-pack='ayu'].dark[data-variant-bordered='true'] {
+    --color-border: 0.25 0.02 262;
+  }
+
+  [data-theme-pack='ayu']::selection {
+    background-color: oklch(var(--color-highlight) / 0.15);
+  }
+
+  [data-theme-pack='ayu']::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.15);
+  }
+
+  [data-theme-pack='ayu'].dark::selection {
+    background-color: oklch(var(--color-highlight) / 0.3);
+  }
+
+  [data-theme-pack='ayu'].dark::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.3);
+  }
+}

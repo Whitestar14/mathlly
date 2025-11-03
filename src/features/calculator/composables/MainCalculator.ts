@@ -1,59 +1,61 @@
-import { computed, nextTick, watch, shallowRef, type Ref, type ComputedRef } from 'vue'
-import { useKeyboard } from '@composables/ui/useKeyboard'
-import { useEventListener, useMemoize, useThrottleFn } from '@vueuse/core'
+import {
+  computed,
+  nextTick,
+  watch,
+  shallowRef,
+  onMounted,
+  onUnmounted,
+  type ComputedRef,
+  type Ref
+} from 'vue'
+import { useKeyboardStore } from '@stores/keyboard'
+import { useMemoize, useThrottleFn } from '@vueuse/core'
 import { useDisplayFormatter } from '@calculator/services/display/DisplayFormatter'
 import { CalculatorUtils } from '@calculator/utils/constants/CalculatorUtils'
 import { useCalculatorOptions } from './useCalculatorOptions'
 import type { Calculator } from '@calculator/services/factory/CalculatorFactory'
+import type { CalculatorResult } from '@calculator/services/factory/CalculatorFactory'
 import { isProgrammerCalculator } from '@calculator/services/factory/CalculatorFactory'
-
-import type { 
-  CalculatorState, 
+import type {
+  CalculatorState,
   Base,
   CalculatorMode
 } from './useCalculatorState'
-
-import type { 
-  UseMemoryUIReturn
-} from './useMemoryUI'
-
-interface CalculatorResult {
-  input: string
-  error?: string
-  result?: string
-  expression?: string
-  displayValues?: Record<string, any>
-}
+import type { UseMemoryUIReturn } from './useMemoryUI'
 
 interface HistoryService {
-  addToHistory: (expression: string, result: string) => void
+  addToHistory: (
+    expression: string,
+    result: string,
+    mode: CalculatorMode,
+    base?: string,
+    baseValues?: Record<string, string>
+  ) => Promise<void>;
 }
 
 interface ControllerOptions {
-  state: CalculatorState
-  calculator: Ref<Calculator>
-  updateState: (updates: Partial<CalculatorState>) => void
-  setAnimation: (result: string) => void
-  updateDisplayValues: (values: Record<string, any>) => void
-  setActiveBase: (base: Base) => void
-  historyService: HistoryService
-  memoryService: UseMemoryUIReturn
-  toggleActivity: () => void
+  state: CalculatorState;
+  calculator: Ref<Calculator>;
+  updateState: (updates: Partial<CalculatorState>) => void;
+  setAnimation: (result: string) => void;
+  updateDisplayValues: (values: Record<string, any>) => void;
+  setActiveBase: (base: Base) => void;
+  historyService: HistoryService;
+  memoryService: UseMemoryUIReturn;
+  toggleActivity: () => void;
 }
 
 interface ControllerReturn {
-  input: ComputedRef<string>
-  preview: ComputedRef<string>
-  animatedResult: ComputedRef<string>
-  handleButtonClick: (btn: string) => void
-  handleClear: () => void
-  handleBaseChange: (newBase: Base) => void
+  input: ComputedRef<string>;
+  preview: ComputedRef<string>;
+  animatedResult: ComputedRef<string>;
+  handleButtonClick: (btn: string) => void;
+  handleBaseChange: (newBase: Base) => void;
 }
 
-/**
- * Provides unified calculator functionality for MainCalculator component
- */
-export function CalculatorController(options: ControllerOptions): ControllerReturn {
+export function CalculatorController(
+  options: ControllerOptions
+): ControllerReturn {
   const {
     state,
     calculator,
@@ -67,14 +69,10 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
   } = options
 
   const calculatorOptions = useCalculatorOptions()
-  
+  const keyboard = useKeyboardStore()
   const displayFormatter = useDisplayFormatter()
-
   const displayRefresh = useThrottleFn(updateDisplayFn, 100)
 
-  /**
-   * Handle button clicks with performance optimizations
-   */
   const handleButtonClick = (btn: string): void => {
     try {
       if (['MC', 'MR', 'M+', 'M-', 'MS'].includes(btn)) {
@@ -85,71 +83,58 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
           currentInput: state.input,
           activeBase: state.activeBase
         })
-
-        updateState({
-          input: result.input,
-          error: result.error || ""
-        })
-
+        updateState({ input: result.input, error: result.error || '' })
         if (result.displayValues) {
           nextTick(() => updateDisplayValues(result.displayValues!))
         }
-        
         return
       }
-      
+
       const result = calculator.value.handleButtonClick(btn)
+      updateState({ input: result.input, error: result.error || '' })
 
-      updateState({
-        input: result.input,
-        error: result.error || ""
-      })
-
-      if (btn === "=" && state.mode === "Programmer") {
+      if (btn === '=' && state.mode === 'Programmer') {
         if (result.displayValues) {
           updateDisplayValues(result.displayValues)
           setAnimation(result.result!)
         }
-      } else if (state.mode === "Programmer") {
+      } else if (state.mode === 'Programmer') {
         nextTick(() => displayRefresh())
       }
 
-      if (btn === "=" && state.mode !== "Programmer" && result.result) {
-        historyService.addToHistory(result.expression!, result.result)
+      if (btn === '=' && state.mode !== 'Programmer' && result.result) {
+        historyService.addToHistory(result.expression!, result.result, state.mode)
         setAnimation(result.result)
       }
-    } catch (err) {
-      console.error("Calculator operation error:", err)
-      updateState({
-        input: "Error",
-        error: "Operation failed"
-      })
+
+      if (btn === '=' && state.mode === 'Programmer' && result.result && isProgrammerCalculator(calculator.value)) {
+        const baseValues = Object.entries(calculator.value.states).reduce((acc, [base, state]) => {
+          acc[base] = state.display
+          return acc
+        }, {} as Record<string, string>)
+
+        historyService.addToHistory(
+          result.expression!,
+          result.result,
+          state.mode,
+          state.activeBase,
+          baseValues
+        )
+        setAnimation(result.result)
+      }
+    } catch(err) {
+      console.error('Calculator operation error:', err)
+      updateState({ input: 'Error', error: 'Operation failed' })
     }
   }
 
-  /**
-   * Handle clear button - simplified
-   */
-  const handleClear = (): void => {
-    const result = calculator.value.handleButtonClick('AC')
-    updateState({
-      input: result.input,
-      error: ''
-    })
-
-    if (state.mode === 'Programmer') {
-      displayRefresh()
-    }
-  }
-
-  /**
-   * Handle base change for programmer mode - optimized
-   */
   const handleBaseChange = (newBase: Base): void => {
-    if (state.mode === 'Programmer' && isProgrammerCalculator(calculator.value)) {
+    if (
+      state.mode === 'Programmer' &&
+      isProgrammerCalculator(calculator.value)
+    ) {
       const result = calculator.value.handleBaseChange(newBase)
       setActiveBase(newBase)
-      
       updateState({
         input: result.input,
         error: result.error || '',
@@ -158,27 +143,24 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     }
   }
 
-  /**
-   * Update programmer display values - extracted for throttling
-   */
   function updateDisplayFn(): void {
-    if (state.mode === 'Programmer' && state.input !== 'Error' && isProgrammerCalculator(calculator.value)) {
+    if (
+      state.mode === 'Programmer' &&
+      state.input !== 'Error' &&
+      isProgrammerCalculator(calculator.value)
+    ) {
       try {
         const updatedValues = calculator.value.updateDisplayValues(state.input)
         updateDisplayValues(updatedValues)
-      } catch (error) {
+      } catch(error) {
         console.error('Error updating display values:', error)
       }
     }
   }
 
-  /**
-   * Memoized preview calculation function with improved caching
-   */
   const calculatePreview = useMemoize(
     (input: string, mode: string, activeBase: string): string => {
       if (input === 'Error' || !input) return ''
-      
       try {
         if (mode === 'Programmer') {
           const result = calculator.value.evaluateExpression(input, activeBase)
@@ -193,85 +175,123 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     }
   )
 
-  /**
-   * Get formatting options from settings
-   */
   const getFormattingOptions = () => {
     return {
       base: state.activeBase,
       mode: state.mode,
-      precision: calculatorOptions.options.value.precision,
-      useThousandsSeparator: calculatorOptions.options.value.useThousandsSeparator,
-      notationMode: calculatorOptions.options.value.notationMode,
-      useFractions: calculatorOptions.options.value.useFractions,
-      formatBinary: calculatorOptions.options.value.formatBinary,
-      formatHexadecimal: calculatorOptions.options.value.formatHexadecimal,
-      formatOctal: calculatorOptions.options.value.formatOctal,
+      precision: calculatorOptions.precision.value,
+      useThousandsSeparator:
+        calculatorOptions.useThousandsSeparator.value,
+      notationMode: calculatorOptions.notationMode.value,
+      useFractions: calculatorOptions.useFractions.value,
+      formatProgrammerNumbers: calculatorOptions.formatProgrammerNumbers.value
     }
   }
 
-  /**
-   * Format text for display with centralized formatting logic
-   */
   const formatDisplayText = computed(() => {
     const options = getFormattingOptions()
-    
     return (value: string | number): string => {
       if (!value && value !== 0) return '0'
       if (value === 'Error') return value
-      
       try {
         return displayFormatter.format(value, options)
-      } catch (err) {
+      } catch(err) {
         console.error('Error formatting display text:', err)
         return String(value)
       }
     }
   })
 
-  /**
-   * Computed preview value with proper formatting
-   */
   const preview: ComputedRef<string> = computed(() => {
-    const rawPreview = calculatePreview(state.input, state.mode, state.activeBase)
+    const rawPreview = calculatePreview(
+      state.input,
+      state.mode,
+      state.activeBase
+    )
     if (!rawPreview) return ''
-    
     return formatDisplayText.value(rawPreview)
   })
 
-  /**
-   * Computed formatted input based on settings
-   */
   const input: ComputedRef<string> = computed(() => {
     return formatDisplayText.value(state.input || '0')
   })
 
-  // Use proper CalculatorMode type
   const mode = shallowRef<CalculatorMode>(state.mode)
   const activeBase = shallowRef<Base>(state.activeBase)
 
-  /**
-   * Set up keyboard handlers
-   */
-  const { setContext, clearContext } = useKeyboard('calculator', {
-    clear: handleClear,
-    calculate: () => handleButtonClick('='),
-    backspace: () => handleButtonClick('backspace'),
-    input: (value: string) => {
-      if (mode.value === 'Programmer') {
-        // Allow operators and valid digits for the current base
-        if (CalculatorUtils.isOperator(value) || 
-            value === '(' || 
-            value === ')' ||
-            CalculatorUtils.isValidForBase(value, activeBase.value)) {
-          handleButtonClick(value)
-        }
-      } else {
-        handleButtonClick(value)
+  const numpadMap: Record<string, string> = {
+    NumpadMultiply: '*',
+    NumpadDivide: '/',
+    NumpadAdd: '+',
+    NumpadSubtract: '-',
+    NumpadDecimal: '.'
+  }
+
+  function normalizeInput(e: KeyboardEvent): string {
+    const raw = numpadMap[e.code] ?? e.key
+
+    if (raw === '*') return '×'
+    if (raw === '/') return '÷'
+
+    return raw
+  }
+
+  function calculatorInputProxy(e: KeyboardEvent) {
+    const v = normalizeInput(e)
+
+    if (v === '=') {
+      e.preventDefault()
+      handleButtonClick('=')
+      return
+    }
+
+    if (state.mode === 'Programmer') {
+      if (
+        CalculatorUtils.isOperator(v) ||
+        v === '(' ||
+        v === ')' ||
+        CalculatorUtils.isValidForBase(v, state.activeBase)
+      ) {
+        e.preventDefault()
+        handleButtonClick(v)
       }
-    },
-    setBase: handleBaseChange,
-    toggleActivity
+    } else {
+      if (
+        /^[0-9]$/.test(v) ||
+        CalculatorUtils.isOperator(v) ||
+        v === '(' ||
+        v === ')' ||
+        v === '.'
+      ) {
+        e.preventDefault()
+        handleButtonClick(v)
+      }
+    }
+  }
+
+  onMounted(() => {
+    keyboard.pushContext('calculator')
+
+    keyboard.attachAllForContext('calculator', {
+      Enter: () => handleButtonClick('='),
+      Escape: () => handleButtonClick('C'),
+      Backspace: () => handleButtonClick('backspace'),
+      'Ctrl+Shift+A': () => toggleActivity()
+    })
+
+    keyboard.attachAllForContext('calculator.programmer', {
+      'Ctrl+1': () => handleBaseChange('HEX'),
+      'Ctrl+2': () => handleBaseChange('DEC'),
+      'Ctrl+3': () => handleBaseChange('OCT'),
+      'Ctrl+4': () => handleBaseChange('BIN')
+    })
+
+    keyboard.setInputProxy('calculator', calculatorInputProxy)
+  })
+
+  onUnmounted(() => {
+    keyboard.clearInputProxy('calculator')
+    keyboard.popContext('calculator')
   })
 
   watch(
@@ -279,9 +299,9 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     (newMode: CalculatorMode) => {
       mode.value = newMode
       if (newMode === 'Programmer') {
-        setContext('programmer')
+        keyboard.pushContext('calculator.programmer')
       } else {
-        clearContext('programmer')
+        keyboard.popContext('calculator.programmer')
       }
     },
     { immediate: true }
@@ -297,38 +317,13 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
   /**
    * Clear preview cache when formatting options change
    */
-  watch(() => getFormattingOptions(), () => {
-    calculatePreview.clear?.()
-  }, { deep: true })
-
-  /**
-   * Handle keyboard shortcuts for base changes - throttled for performance
-   */
-  const handleKeyboardShortcuts = useThrottleFn((e: KeyboardEvent) => {
-    if (mode.value !== 'Programmer') return
-
-    const shortcuts: Record<string, () => void> = {
-      'ctrl+1': () => handleBaseChange('HEX'),
-      'ctrl+2': () => handleBaseChange('DEC'),
-      'ctrl+3': () => handleBaseChange('OCT'),
-      'ctrl+4': () => handleBaseChange('BIN')
-    }
-
-    const combo = [
-      e.ctrlKey && 'ctrl',
-      e.altKey && 'alt',
-      e.shiftKey && 'shift',
-      e.key.toLowerCase()
-    ].filter(Boolean).join('+')
-
-    const action = shortcuts[combo]
-    if (action) {
-      e.preventDefault()
-      action()
-    }
-  }, 100)
-
-  useEventListener('keydown', handleKeyboardShortcuts)
+  watch(
+    () => getFormattingOptions(),
+    () => {
+      calculatePreview.clear?.()
+    },
+    { deep: true }
+  )
 
   /**
    * Computed animated result for display animations
@@ -343,13 +338,8 @@ export function CalculatorController(options: ControllerOptions): ControllerRetu
     preview,
     animatedResult,
     handleButtonClick,
-    handleClear,
     handleBaseChange
   }
 }
 
-export type {
-  ControllerOptions,
-  ControllerReturn,
-  CalculatorResult
-}
+export type { ControllerOptions, ControllerReturn, CalculatorResult }

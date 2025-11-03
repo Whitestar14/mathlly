@@ -17,15 +17,14 @@ export const settingsManifest: SettingsManifestItem[] = [
       'home',
       'calculator page',
       'last visited',
-      'boot',
-    ],
+      'boot'
+    ]
   },
   {
     id: 'themes',
     title: 'Themes & Preferences',
     icon: 'PaletteIcon',
     keywords: [
-      'color theme',
       'appearance',
       'light mode',
       'dark mode',
@@ -39,15 +38,10 @@ export const settingsManifest: SettingsManifestItem[] = [
       'normal',
       'medium',
       'large',
-      'theme pack',
-      'classic',
-      'mira',
-      'vercel',
-      'shadcn',
       'border radius',
       'sharp',
-      'rounded',
-    ],
+      'rounded'
+    ]
   },
   {
     id: 'advanced',
@@ -62,7 +56,35 @@ export const settingsManifest: SettingsManifestItem[] = [
       'issues',
       'problems',
       'data',
-      'storage',
-    ],
+      'storage'
+    ]
   },
-];
+  {
+    id: 'keyboard',
+    title: 'Keyboard Shortcuts',
+    icon: 'KeyboardIcon',
+    keywords: [
+      'shortcuts',
+      'keyboard',
+      'hotkeys',
+      'keybindings',
+      'keys',
+      'bindings'
+    ]
+  },
+  {
+    id: 'experimental',
+    title: 'Experimental Features',
+    icon: 'FlaskConicalIcon',
+    keywords: [
+      'beta',
+      'experimental',
+      'command palette',
+      'cmd+k',
+      'ctrl+k',
+      'shortcuts',
+      'navigation',
+      'early access'
+    ]
+  }
+]

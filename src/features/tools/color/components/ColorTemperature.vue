@@ -1,4 +1,4 @@
-<!-- src/features/tools/color/components/ColorTemperature.vue -->
+
 <template>
   <div class="space-y-4">
     <p class="text-sm text-muted-foreground">
@@ -9,17 +9,15 @@
         size="sm"
         variant="outline"
         class="flex-1 bg-transparent"
-        @click="makeWarmer(currentColor)"
-      >
-        <Sun class="h-4 w-4 mr-2" /> Warmer
+        @click="makeWarmer(currentColor)">
+        <Sun class="size-4" /> Warmer
       </BaseButton>
       <BaseButton
         size="sm"
         variant="outline"
         class="flex-1 bg-transparent"
-        @click="makeCooler(currentColor)"
-      >
-        <Moon class="h-4 w-4 mr-2" /> Cooler
+        @click="makeCooler(currentColor)">
+        <Moon class="size-4" /> Cooler
       </BaseButton>
     </div>
   </div>

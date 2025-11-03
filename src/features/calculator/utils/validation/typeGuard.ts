@@ -32,9 +32,9 @@ export function toBase(base: string, fallback: Base = 'DEC'): Base {
  * Type guard to check if an object has calculator-like properties
  */
 export function hasCalculatorInterface(obj: any): obj is { input: string; currentExpression: string } {
-  return obj && 
-         typeof obj === 'object' && 
-         typeof obj.input === 'string' && 
+  return obj &&
+         typeof obj === 'object' &&
+         typeof obj.input === 'string' &&
          typeof obj.currentExpression === 'string'
 }
 
@@ -42,10 +42,10 @@ export function hasCalculatorInterface(obj: any): obj is { input: string; curren
  * Type guard to check if a calculator has programmer-specific methods
  */
 export function isProgrammerCalculatorLike(obj: any): boolean {
-  return obj && 
-         typeof obj === 'object' && 
-         'handleBaseChange' in obj && 
-         'updateDisplayValues' in obj && 
+  return obj &&
+         typeof obj === 'object' &&
+         'handleBaseChange' in obj &&
+         'updateDisplayValues' in obj &&
          'states' in obj
 }
 

@@ -1,5 +1,7 @@
 <template>
-  <BasePage title="Feedback">
+  <BasePage
+    title="Feedback"
+    :breadcrumbs="[ { label: 'Feedback' } ]">
     <div class="space-y-8 max-w-4xl mx-auto">
       <section class="space-y-6">
         <h2 class="text-lg font-medium tracking-tight text-foreground">
@@ -18,12 +20,10 @@
             <a
               href="https://github.com/Whitestar14/mathlly/issues/new?template=bug_report.md"
               target="_blank"
-              rel="noopener noreferrer"
-            >
+              rel="noopener noreferrer">
               <BaseButton
                 variant="primary"
-                class="w-full sm:w-auto"
-              >
+                class="w-full sm:w-auto">
                 Report Bug
               </BaseButton>
             </a>
@@ -42,12 +42,10 @@
               <a
                 href="https://github.com/Whitestar14/mathlly-app/issues/new?template=feature_request.md"
                 target="_blank"
-                rel="noopener noreferrer"
-              >
+                rel="noopener noreferrer">
                 <BaseButton
                   variant="primary"
-                  class="w-full sm:w-auto"
-                >
+                  class="w-full sm:w-auto">
                   Request Feature
                 </BaseButton>
               </a>
@@ -70,8 +68,7 @@
                 'Check if a similar issue already exists'
               ]"
               :key="index"
-              class="flex items-start group"
-            >
+              class="flex items-start group">
               <CheckCircleIcon class="h-4 w-4 text-primary mt-1 mr-3 shrink-0 opacity-75 group-hover:opacity-100 transition-opacity" />
               <span class="text-sm text-muted-foreground">{{ guideline }}</span>
             </li>
@@ -83,7 +80,6 @@
 </template>
 
 <script setup lang="ts">
-import { CheckCircleIcon } from 'lucide-vue-next';
+import { CheckCircleIcon } from 'lucide-vue-next'
 import { BasePage, BaseButton } from '@components/ui'
 </script>
-

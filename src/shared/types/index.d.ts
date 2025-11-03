@@ -55,7 +55,7 @@ declare module 'animejs/lib/anime.min.js' {
   interface Anime {
     (params: AnimeParams): AnimeInstance
     timeline(params?: AnimeTimelineParams): AnimeTimeline
-    stagger(value: number | string, options?: { 
+    stagger(value: number | string, options?: {
       grid?: [number, number]
       from?: string | number
       axis?: 'x' | 'y'

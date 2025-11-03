@@ -1,4 +1,4 @@
-// src/features/tools/color/composables/useColorTemperature.ts
+
 import { adjustTemperature } from '@color/lib/color'
 import type { RGB } from '@color/lib/color'
 

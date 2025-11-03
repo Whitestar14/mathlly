@@ -1,0 +1,18 @@
+/* styles/base/typography.css */
+@layer base {
+  /* Headings & paragraph defaults */
+  p { @apply text-[0.875rem]; }
+
+  h1, h2, h3, h4, h5, h6 { @apply font-medium text-foreground; }
+
+  /* Keyboard glyphs */
+  kbd {
+    @apply inline bg-muted font-mono text-muted-foreground px-2 py-0.5 rounded-md text-nowrap;
+  }
+
+  /* Text size utilities (semantic helpers) */
+  .ts-small   { font-size: 0.875rem; }  /* 14px */
+  .ts-normal  { font-size: 0.975rem; }
+  .ts-medium  { font-size: 1rem; }      /* 16px */
+  .ts-large   { font-size: 1.125rem; }  /* 18px */
+}

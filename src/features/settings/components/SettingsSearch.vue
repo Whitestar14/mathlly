@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SearchIcon } from 'lucide-vue-next';
+import { SearchIcon, XIcon } from 'lucide-vue-next'
 import { BaseInput } from '@components/ui'
 
 interface Props {
@@ -10,8 +10,12 @@ interface Emits {
   (e: 'update:modelValue', value: string): void;
 }
 
-defineProps<Props>();
-defineEmits<Emits>();
+defineProps<Props>()
+const emit = defineEmits<Emits>()
+
+const clearSearch = () => {
+  emit('update:modelValue', '')
+}
 </script>
 
 <template>
@@ -23,8 +27,17 @@ defineEmits<Emits>();
         :icon="SearchIcon"
         :autofocus="true"
         aria-label="Search settings"
-        @update:model-value="$emit('update:modelValue', $event)"
-      />
+        @update:model-value="$emit('update:modelValue', $event as string)">
+        <template v-if="modelValue.trim()" #suffix>
+          <button
+            type="button"
+            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-0.5 rounded-sm hover:bg-muted/50"
+            aria-label="Clear search"
+            @click="clearSearch">
+            <XIcon class="size-4" />
+          </button>
+        </template>
+      </BaseInput>
     </div>
   </div>
 </template>

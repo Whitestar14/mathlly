@@ -1,4 +1,4 @@
-<!-- src/features/tools/color/components/ColorFormats.vue -->
+
 <template>
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div class="space-y-2">
@@ -6,13 +6,11 @@
       <div class="flex items-center gap-2">
         <BaseInput
           :value="formats.hex"
-          readonly
-        />
+          readonly />
         <BaseButton
           size="sm"
           variant="outline"
-          @click="copy(formats.hex, 'HEX')"
-        >
+          @click="copy(formats.hex, 'HEX')">
           <Copy class="h-4 w-4" />
         </BaseButton>
       </div>
@@ -23,13 +21,11 @@
       <div class="flex items-center gap-2">
         <BaseInput
           :value="`rgb(${formats.rgb.r}, ${formats.rgb.g}, ${formats.rgb.b})`"
-          readonly
-        />
+          readonly />
         <BaseButton
           size="sm"
           variant="outline"
-          @click="copy(`rgb(${formats.rgb.r}, ${formats.rgb.g}, ${formats.rgb.b})`, 'RGB')"
-        >
+          @click="copy(`rgb(${formats.rgb.r}, ${formats.rgb.g}, ${formats.rgb.b})`, 'RGB')">
           <Copy class="h-4 w-4" />
         </BaseButton>
       </div>
@@ -40,13 +36,11 @@
       <div class="flex items-center gap-2">
         <BaseInput
           :value="`hsl(${Math.round(formats.hsl.h)}, ${Math.round(formats.hsl.s)}%, ${Math.round(formats.hsl.l)}%)`"
-          readonly
-        />
+          readonly />
         <BaseButton
           size="sm"
           variant="outline"
-          @click="copy(`hsl(${Math.round(formats.hsl.h)}, ${Math.round(formats.hsl.s)}%, ${Math.round(formats.hsl.l)}%)`, 'HSL')"
-        >
+          @click="copy(`hsl(${Math.round(formats.hsl.h)}, ${Math.round(formats.hsl.s)}%, ${Math.round(formats.hsl.l)}%)`, 'HSL')">
           <Copy class="h-4 w-4" />
         </BaseButton>
       </div>
@@ -57,13 +51,11 @@
       <div class="flex items-center gap-2">
         <BaseInput
           :value="`oklch(${(formats.oklch.l / 100).toFixed(3)} ${(formats.oklch.c / 100).toFixed(3)} ${Math.round(formats.oklch.h)})`"
-          readonly
-        />
+          readonly />
         <BaseButton
           size="sm"
           variant="outline"
-          @click="copy(`oklch(${(formats.oklch.l / 100).toFixed(3)} ${(formats.oklch.c / 100).toFixed(3)} ${Math.round(formats.oklch.h)})`, 'OKLCH')"
-        >
+          @click="copy(`oklch(${(formats.oklch.l / 100).toFixed(3)} ${(formats.oklch.c / 100).toFixed(3)} ${Math.round(formats.oklch.h)})`, 'OKLCH')">
           <Copy class="h-4 w-4" />
         </BaseButton>
       </div>
@@ -80,7 +72,7 @@ import { useToast } from '@composables/ui/useToast'
 defineProps<{ formats: ColorFormats }>()
 const { toast } = useToast()
 
-const copy = async (text: string, label: string) => {
+const copy = async(text: string, label: string) => {
   await navigator.clipboard.writeText(text)
   toast({ title: 'Copied!', description: `${label} value copied to clipboard` })
 }

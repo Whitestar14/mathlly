@@ -1,28 +1,26 @@
 import { computed } from 'vue'
-import { createToolOptions } from '@composables/ui/useToolOptions'
+import { useToolOptions } from '@composables/ui/useToolOptions'
 import { CalculatorOptions } from '../types/calculator'
 
-// Default calculator options
 const DEFAULT_CALCULATOR_OPTIONS: CalculatorOptions = {
   defaultMode: 'Standard',
   precision: 4,
   useFractions: false,
   syntaxHighlighting: true,
   useThousandsSeparator: true,
-  formatBinary: true,
-  formatHexadecimal: true,
-  formatOctal: true,
+  formatProgrammerNumbers: true,
   angleUnit: 'degrees',
   notationMode: 'standard',
-  hyperbolicMode: false
+  hyperbolicMode: false,
+  hapticFeedback: false
 }
 
 export function useCalculatorOptions() {
-  const { options, isLoading } = createToolOptions<CalculatorOptions>(
+  const { options, isLoading } = useToolOptions<CalculatorOptions>(
     'calculator',
     'Calculator',
     DEFAULT_CALCULATOR_OPTIONS,
-    (options) => [
+    options => [
       {
         id: 'defaultMode',
         label: 'Default Calculator Mode',
@@ -34,6 +32,14 @@ export function useCalculatorOptions() {
           { value: 'Scientific', label: 'Scientific' },
           { value: 'Programmer', label: 'Programmer' }
         ],
+        section: 'General'
+      },
+      {
+        id: 'hapticFeedback',
+        label: 'Haptic Feedback',
+        description: 'Vibrate on button press (mobile devices only)',
+        type: 'toggle',
+        value: options,
         section: 'General'
       },
       {
@@ -73,25 +79,9 @@ export function useCalculatorOptions() {
         section: 'Number Formatting'
       },
       {
-        id: 'formatBinary',
-        label: 'Format Binary Numbers',
-        description: 'Format binary numbers for better readability',
-        type: 'toggle',
-        value: options,
-        section: 'Number Formatting'
-      },
-      {
-        id: 'formatHexadecimal',
-        label: 'Format Hexadecimal Numbers',
-        description: 'Format hexadecimal numbers for better readability',
-        type: 'toggle',
-        value: options,
-        section: 'Number Formatting'
-      },
-      {
-        id: 'formatOctal',
-        label: 'Format Octal Numbers',
-        description: 'Format octal numbers for better readability',
+        id: 'formatProgrammerNumbers',
+        label: 'Format Programmer Numbers',
+        description: 'Group digits in binary, hexadecimal, and octal numbers for better readability',
         type: 'toggle',
         value: options,
         section: 'Number Formatting'
@@ -133,71 +123,65 @@ export function useCalculatorOptions() {
     ]
   )
 
-  // Computed display modes for UI
   const angleDisplayMode = computed(() => {
     const mapping = {
       'degrees': 'DEG',
-      'radians': 'RAD', 
+      'radians': 'RAD',
       'gradians': 'GRAD'
-    };
-    return mapping[options.value.angleUnit] || 'DEG';
-  });
+    }
+    return mapping[options.value.angleUnit] || 'DEG'
+  })
 
   const notationDisplayMode = computed(() => {
     const mapping = {
       'standard': 'F-E',
       'scientific': 'SCI',
       'engineering': 'ENG'
-    };
-    return mapping[options.value.notationMode] || 'F-E';
-  });
+    }
+    return mapping[options.value.notationMode] || 'F-E'
+  })
 
-function cycleOption<K extends keyof CalculatorOptions>(
-  key: K,
-  values: CalculatorOptions[K][]
-) {
-  const current = options.value[key];
-  const index = values.indexOf(current);
-  options.value[key] = values[(index + 1) % values.length];
-}
+  function cycleOption<K extends keyof CalculatorOptions>(
+    key: K,
+    values: CalculatorOptions[K][]
+  ) {
+    const current = options.value[key]
+    const index = values.indexOf(current)
+    options.value[key] = values[(index + 1) % values.length]
+  }
 
-const cycleNotationMode = () =>
-  cycleOption('notationMode', ['standard', 'scientific', 'engineering']);
+  const cycleNotationMode = () =>
+    cycleOption('notationMode', ['standard', 'scientific', 'engineering'])
 
-const cycleAngleMode = () =>
-  cycleOption('angleUnit', ['degrees', 'radians', 'gradians']);
+  const cycleAngleMode = () =>
+    cycleOption('angleUnit', ['degrees', 'radians', 'gradians'])
 
   const toggleHyperbolicMode = () => {
-    options.value.hyperbolicMode = !options.value.hyperbolicMode;
-  };
+    options.value.hyperbolicMode = !options.value.hyperbolicMode
+  }
 
   return {
-    // The entire options object
+
     options,
-    
-    // Individual options (for convenience)
+
     defaultMode: computed(() => options.value.defaultMode),
     precision: computed(() => options.value.precision),
     useFractions: computed(() => options.value.useFractions),
     syntaxHighlighting: computed(() => options.value.syntaxHighlighting),
     useThousandsSeparator: computed(() => options.value.useThousandsSeparator),
-    formatBinary: computed(() => options.value.formatBinary),
-    formatHexadecimal: computed(() => options.value.formatHexadecimal),
-    formatOctal: computed(() => options.value.formatOctal),
+    formatProgrammerNumbers: computed(() => options.value.formatProgrammerNumbers),
     angleUnit: computed(() => options.value.angleUnit),
     notationMode: computed(() => options.value.notationMode),
     hyperbolicMode: computed(() => options.value.hyperbolicMode),
-    
-    // Display modes for UI
+    hapticFeedback: computed(() => options.value.hapticFeedback),
+
     angleDisplayMode,
     notationDisplayMode,
-    
-    // Helper methods
+
     cycleAngleMode,
     cycleNotationMode,
     toggleHyperbolicMode,
-    
-    // Store state
-    isLoading,
+
+    isLoading
   }
 }

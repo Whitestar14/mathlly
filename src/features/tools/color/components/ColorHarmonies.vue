@@ -3,8 +3,7 @@
     <div
       :class="active === 'monochromatic'
         ? 'grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2'
-        : 'flex flex-wrap gap-2'"
-    >
+        : 'flex flex-wrap gap-2'">
       <button
         v-for="(c, i) in activeColors"
         :key="i"
@@ -13,8 +12,7 @@
         :style="{ backgroundColor: rgbToHex(c) }"
         :aria-label="`${active} color ${i+1}`"
         @click="onSelect(c)"
-        @dblclick="copyHex(c)"
-      />
+        @dblclick="copyHex(c)"></button>
     </div>
   </div>
 </template>
@@ -34,7 +32,7 @@ const props = defineProps<{
 
 const harmonies = useColorHarmonies(() => props.current)
 const { copy } = useClipboard()
-const { toast } = useToast()
+const { info } = useToast()
 
 const activeColors = computed(() => {
   switch (props.active) {
@@ -46,9 +44,9 @@ const activeColors = computed(() => {
   }
 })
 
-const copyHex = async (c: RGB) => {
+const copyHex = async(c: RGB) => {
   const hex = rgbToHex(c)
   await copy(hex)
-  toast({ title: 'Copied!', description: `${hex} copied to clipboard` })
+  info(`${hex} copied to clipboard`, { title: 'Copied!' })
 }
 </script>

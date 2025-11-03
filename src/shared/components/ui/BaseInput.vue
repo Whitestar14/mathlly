@@ -3,56 +3,17 @@
     <slot name="prefix">
       <div
         v-if="$slots.icon || icon"
-        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
-      >
+        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
         <slot name="icon">
           <component
             :is="icon"
             v-if="icon"
-            class="h-4 w-4"
-          />
+            class="h-4 w-4" />
         </slot>
       </div>
     </slot>
-    
-    <div
-      v-if="dropdown && options && options.length"
-      class="flex items-center"
-    >
-      <SelectBar
-        class="max-w-20 rounded-e-none"
-        :is-dropdown="true"
-        :model-value="dropdownValue"
-        :options="options"
-        :label="dropdownLabel"
-        :placeholder="dropdownPlaceholder"
-        @update:model-value="$emit('update:dropdownValue', $event)"
-      />
-      <input
-        :id="id"
-        ref="inputRef"
-        :type="type"
-        :value="modelValue"
-        :placeholder="placeholder"
-        :disabled="disabled"
-        :aria-label="ariaLabel || placeholder"
-        :aria-invalid="!!error"
-        :aria-describedby="error ? `${id}-error` : undefined"
-        :class="[
-          'w-full rounded-lg rounded-s-none border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
-          error ? 'border-destructive' : 'border-border',
-          $slots.icon || icon ? 'pl-10' : 'pl-4',
-          $slots.suffix ? 'pr-10' : 'pr-4',
-          'py-1'
-        ]"
-        v-bind="$attrs"
-        @input="$emit('update:modelValue', $event.target.value)"
-        @blur="$emit('blur', $event)"
-        @focus="$emit('focus', $event)"
-      >
-    </div>
+
     <input
-      v-else
       :id="id"
       ref="inputRef"
       :type="type"
@@ -70,26 +31,23 @@
         'py-2'
       ]"
       v-bind="$attrs"
-      @input="$emit('update:modelValue', $event.target.value)"
+      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
       @blur="$emit('blur', $event)"
-      @focus="$emit('focus', $event)"
-    >
-    
-    <slot name="suffix" />
-    
+      @focus="handleFocus" />
+
+    <slot name="suffix"></slot>
+
     <div
       v-if="error"
       :id="`${id}-error`"
-      class="mt-1 text-sm text-destructive"
-    >
+      class="mt-1 text-sm text-destructive">
       {{ error }}
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted } from 'vue';
-import SelectBar from '@components/ui/SelectBar.vue'
+<script setup lang="ts">
+import { ref, onMounted, nextTick } from 'vue'
 
 const props = defineProps({
   modelValue: {
@@ -128,42 +86,37 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  dropdown: {
+  autoSelect: {
     type: Boolean,
-    default: false
-  },
-  options: {
-    type: Array,
-    default: () => []
-  },
-  dropdownValue: {
-    type: [String, Number],
-    default: ''
-  },
-  dropdownLabel: {
-    type: String,
-    default: ''
-  },
-  dropdownPlaceholder: {
-    type: String,
-    default: 'Select'
+    default: true
   }
-});
+})
 
-defineEmits(['update:modelValue', 'blur', 'focus', 'update:dropdownValue']);
+const emit = defineEmits<{
+  'update:modelValue': [value: string | number],
+  'blur': [event: FocusEvent],
+  'focus': [event: FocusEvent]
+}>()
 
-const inputRef = ref(null);
+const inputRef = ref<HTMLInputElement | null>(null)
+
+const handleFocus = (event: FocusEvent) => {
+  emit('focus', event)
+  if (props.autoSelect) {
+    nextTick(() => inputRef.value?.select())
+  }
+}
 
 onMounted(() => {
   if (props.autofocus && inputRef.value) {
-    inputRef.value.focus();
+    inputRef.value.focus()
   }
-});
+})
 
 defineExpose({
   focus: () => inputRef.value?.focus(),
   blur: () => inputRef.value?.blur(),
   select: () => inputRef.value?.select(),
   input: inputRef
-});
+})
 </script>

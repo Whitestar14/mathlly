@@ -1,10 +1,10 @@
-// src/features/tools/color/composables/useColorHarmonies.ts
+
 import { computed } from 'vue'
 import {
   generateComplementary,
   generateTriadic,
   generateAnalogous,
-  generateMonochromatic,
+  generateMonochromatic
 } from '@color/lib/color'
 import type { RGB } from '@color/lib/color'
 
