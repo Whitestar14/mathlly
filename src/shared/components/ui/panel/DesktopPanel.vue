@@ -2,42 +2,37 @@
   <div
     v-show="true"
     class="relative md:flex h-full flex-col flex-auto overflow-hidden hidden transition-[width] duration-300 ease-in-out bg-background border-border"
-    :class="panelClasses"
-  >
-    <!-- Panel Content with Transition -->
+    :class="panelClasses">
+
     <Transition name="slide-out">
       <div
         v-if="isOpen"
         class="flex flex-col w-full absolute inset-y-0 right-0 transition-opacity duration-300 max-h-[100vh]"
-        :class="['opacity-100', mainClass]"
-      >
+        :class="['opacity-100', mainClass]">
         <PanelContent
           :title="title"
           :show-header="showHeader"
           :show-footer="showFooter"
           :content-class="contentClass"
-          @close="$emit('close')"
-        >
+          @close="$emit('close')">
           <template #default>
-            <slot />
+            <slot></slot>
           </template>
           <template #sticky>
-            <slot name="sticky" />
+            <slot name="sticky"></slot>
           </template>
           <template #header-actions>
-            <slot name="header-actions" />
+            <slot name="header-actions"></slot>
           </template>
           <template
             v-if="$slots.footer"
-            #footer
-          >
-            <slot name="footer" />
+            #footer>
+            <slot name="footer"></slot>
           </template>
         </PanelContent>
       </div>
     </Transition>
 
-    <!-- Toggle button (always visible, positioned based on panel state) -->
     <BaseButton
       v-tippy="{
         content: isOpen ? 'Hide Panel' : 'Show Panel',
@@ -47,14 +42,12 @@
       size="icon"
       class="shadow-sm absolute bottom-0 -translate-y-1/3 pointer-events-auto z-10"
       :class="toggleButtonClasses"
-      @click="$emit('toggle')"
-    >
+      @click="$emit('toggle')">
       <ArrowRightToLine
         class="h-4 w-4 text-foreground transition-transform duration-300"
-        :class="{ 
-          'rotate-180': position === 'left' ? isOpen : !isOpen 
-        }"
-      />
+        :class="{
+          'rotate-180': position === 'left' ? isOpen : !isOpen
+        }" />
     </BaseButton>
   </div>
 </template>
@@ -87,20 +80,20 @@ const props = withDefaults(defineProps<Props>(), {
   showHeader: true,
   showFooter: true,
   contentClass: '',
-  mainClass: '',
+  mainClass: ''
 })
 
 defineEmits<Emits>()
 
 const panelClasses: ComputedRef<string[]> = computed(() => [
   props.isOpen ? 'w-64' : 'w-10',
-  props.position === 'left' ? 'border-l' : 'border-r',
+  props.position === 'left' ? 'border-l' : 'border-r'
 ])
 
 const toggleButtonClasses: ComputedRef<string[]> = computed(() => [
-  props.position === 'left' 
-    ? (props.isOpen ? 'right-30 translate-x-1/4' : 'left-1/2 -translate-x-1/2')
-    : (props.isOpen ? 'left-30 -translate-x-1/4' : 'left-1/2 -translate-x-1/2')
+  props.position === 'left' ?
+    (props.isOpen ? 'right-30 translate-x-1/4' : 'left-1/2 -translate-x-1/2') :
+    (props.isOpen ? 'left-30 -translate-x-1/4' : 'left-1/2 -translate-x-1/2')
 ])
 </script>
 

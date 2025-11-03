@@ -1,50 +1,43 @@
 <template>
   <Teleport to="body">
-    <!-- Floating Trigger Button -->
-     <div class="fixed bottom-0 right-0 z-50">
-    <div 
-    v-if="settings.experimental?.commandPaletteEnabled && !isOpen">
-      <button
-          class="bg-background/95 backdrop-blur-xl rounded-t-2xl border border-border/50 border-b-0 shadow-2xl px-4 py-2 flex items-center gap-2 hover:bg-background/95 transition-colors"
-          @click="openPalette"
-          @touchstart="openPalette"
-          aria-label="Open command palette"
-        >
-            <SearchIcon class="h-5 w-5" />
-          </button>
-    </div>
-  </div>
 
-    <!-- Command Palette Modal -->
+    <div class="fixed bottom-0 right-0 z-50">
+      <div
+        v-if="settings.experimental?.commandPaletteEnabled && !isOpen">
+        <button
+          class="bg-background/95 backdrop-blur-xl rounded-t-2xl border border-border/50 border-b-0 shadow-2xl px-4 py-2 flex items-center gap-2 hover:bg-background/95 transition-colors"
+          aria-label="Open command palette"
+          @click="openPalette"
+          @touchstart="openPalette">
+          <SearchIcon class="h-5 w-5" />
+        </button>
+      </div>
+    </div>
+
     <Transition
       enter-active-class="transition duration-200 ease-out"
       enter-from-class="opacity-0 scale-95"
       enter-to-class="opacity-100 scale-100"
       leave-active-class="transition duration-150 ease-in"
       leave-from-class="opacity-100 scale-100"
-      leave-to-class="opacity-0 scale-95"
-    >
+      leave-to-class="opacity-0 scale-95">
       <div
         v-if="isOpen && settings.experimental?.commandPaletteEnabled"
         class="fixed inset-0 z-50 flex items-start justify-center pt-16"
-        @keydown="handleKeydown"
-      >
-        <!-- Backdrop -->
+        @keydown="handleKeydown">
+
         <div
           class="fixed inset-0 bg-black/50 backdrop-blur-sm"
-          @click="close"
-        />
+          @click="close"></div>
 
-        <!-- Command Palette -->
         <div
           ref="paletteRef"
           class="relative w-full max-w-lg mx-4 bg-background border border-border rounded-xl shadow-2xl overflow-hidden max-h-[85vh] flex flex-col"
           role="dialog"
           aria-modal="true"
           aria-label="Command palette"
-          @click.stop
-        >
-          <!-- Header -->
+          @click.stop>
+
           <div class="flex items-center justify-between p-4 pb-3 border-b border-border">
             <h2 class="text-lg font-semibold text-foreground">
               Command Palette
@@ -53,13 +46,11 @@
               variant="ghost"
               size="icon"
               :aria-label="'Close command palette'"
-              @click="close"
-            >
+              @click="close">
               <XIcon class="h-4 w-4" />
             </BaseButton>
           </div>
 
-          <!-- Search Input -->
           <div class="flex items-center px-4 py-3 border-b border-border flex-shrink-0">
             <SearchIcon class="h-5 w-5 text-muted-foreground mr-3 flex-shrink-0" />
             <input
@@ -74,38 +65,33 @@
                 boxShadow: 'none',
                 WebkitBoxShadow: 'none'
               }"
-              @input="handleSearch"
-              @focus="handleInputFocus"
               autocomplete="off"
               autocorrect="off"
               autocapitalize="off"
               spellcheck="false"
               inputmode="search"
-            />
+              @input="handleSearch"
+              @focus="handleInputFocus" />
           </div>
 
-          <!-- Results -->
-          <div class="flex-1 overflow-y-auto min-h-0" ref="resultsRef">
-            <!-- Recent Commands (when no search) -->
+          <div ref="resultsRef" class="flex-1 overflow-y-auto min-h-0">
+
             <div v-if="!searchQuery.trim() && recentCommands.length > 0" class="px-4 py-2 border-b border-border/50">
               <div class="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2">Recent</div>
               <div
                 v-for="commandId in recentCommands.slice(0, 3)"
                 :key="`recent-${commandId}`"
                 class="px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground cursor-pointer rounded hover:bg-muted/50 transition-colors"
-                @click="executeRecentCommand(commandId)"
-              >
+                @click="executeRecentCommand(commandId)">
                 {{ getCommandById(commandId)?.title }}
               </div>
             </div>
 
-            <!-- No Results -->
             <div v-if="filteredCommands.length === 0" class="px-4 py-8 text-center">
               <p class="text-muted-foreground mb-2">No commands found</p>
               <p class="text-sm text-muted-foreground">{{ searchQuery.trim() ? 'Try adjusting your search' : 'Start typing to search...' }}</p>
             </div>
 
-            <!-- Command Results -->
             <div v-else>
               <div
                 v-for="(command, index) in filteredCommands"
@@ -114,16 +100,14 @@
                   'px-4 py-3 cursor-pointer hover:bg-muted/50 transition-colors select-none',
                   index === selectedIndex ? 'bg-muted' : ''
                 ]"
-                @click="executeCommand(command)"
-                @mouseenter="selectedIndex = index"
                 role="option"
                 :aria-selected="index === selectedIndex"
-              >
+                @click="executeCommand(command)"
+                @mouseenter="selectedIndex = index">
                 <div class="flex items-center gap-3">
                   <component
                     :is="command.icon"
-                    class="h-4 w-4 text-muted-foreground flex-shrink-0"
-                  />
+                    class="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   <div class="flex-1 min-w-0">
                     <div class="font-medium text-foreground">{{ command.title }}</div>
                     <div class="text-sm text-muted-foreground">{{ command.description }}</div>
@@ -132,8 +116,7 @@
                     <kbd
                       v-for="key in command.shortcut.split('+')"
                       :key="key"
-                      class="px-2 py-1 text-xs bg-muted rounded border border-border text-muted-foreground"
-                    >
+                      class="px-2 py-1 text-xs bg-muted rounded border border-border text-muted-foreground">
                       {{ key }}
                     </kbd>
                   </div>
@@ -142,7 +125,6 @@
             </div>
           </div>
 
-          <!-- Footer with hints -->
           <div class="px-4 py-2 border-t border-border/50 flex-shrink-0">
             <div class="flex items-center justify-between text-xs text-muted-foreground">
               <div class="flex items-center gap-4">
@@ -197,18 +179,14 @@ const resultsRef = ref<HTMLElement>()
 
 const isOpen = ref(false)
 
-// Recent commands storage
 const recentCommands = useLocalStorage<string[]>('command-palette-recent', [])
 
-// Settings store for experimental features
 const settings = useSettingsStore()
 
-// Router instance
 const router = useRouter()
 
-// Built-in commands
 const availableCommands = computed((): Command[] => [
-  // Navigation
+
   {
     id: 'calculator',
     title: 'Open Calculator',
@@ -283,7 +261,6 @@ const close = () => {
 const executeCommand = (command: typeof availableCommands.value[0]) => {
   command.action()
 
-  // Add to recent commands
   const recentIndex = recentCommands.value.indexOf(command.id)
   if (recentIndex > -1) {
     recentCommands.value.splice(recentIndex, 1)
@@ -306,14 +283,12 @@ const handleSearch = () => {
 }
 
 const handleInputFocus = () => {
-  // Scroll to top when focusing input on mobile
   if (resultsRef.value) {
     resultsRef.value.scrollTop = 0
   }
 }
 
 const handleKeydown = (event: KeyboardEvent) => {
-  // Don't handle if input is focused and user is typing
   if (event.target === searchInputRef.value && event.key.length === 1 && !event.ctrlKey && !event.metaKey) {
     return
   }
@@ -373,7 +348,6 @@ const openPalette = () => {
   }
 }
 
-// Global keyboard shortcut (only when feature is enabled)
 onMounted(() => {
   useEventListener('keydown', (event: KeyboardEvent) => {
     if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
@@ -384,10 +358,8 @@ onMounted(() => {
     }
   })
 
-  // Handle mobile viewport adjustments
   useEventListener('resize', () => {
     if (isOpen.value && window.innerHeight < 600) {
-      // Adjust position for small screens
       if (paletteRef.value) {
         paletteRef.value.style.maxHeight = `${window.innerHeight - 32}px`
       }

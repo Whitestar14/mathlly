@@ -33,10 +33,9 @@ function updateValue(v: string) {
       @update:model-value="updateValue"
       @input="$emit('input')"
       @drop="$emit('drop', $event)"
-      @paste="$emit('paste')"
-    >
+      @paste="$emit('paste')">
       <template #actions>
-        <slot name="actions" />
+        <slot name="actions"></slot>
       </template>
     </TextAreaField>
   </div>

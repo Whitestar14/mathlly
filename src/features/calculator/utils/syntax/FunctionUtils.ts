@@ -24,7 +24,7 @@ export class FunctionUtils {
     return this.SCIENTIFIC_FUNCTIONS.some(func => {
       const substr = text.substr(index, func.length)
       const nextChar = text[index + func.length]
-      // Make sure it's a complete function name (followed by '(' or end of string or space)
+
       return substr === func && this.isValidFunctionTerminator(nextChar)
     })
   }
@@ -33,17 +33,15 @@ export class FunctionUtils {
    * Extract function name from current position
    */
   static extractFunction(text: string, index: number): string {
-    // Check functions in order of length (longest first) to avoid partial matches
     for (const func of this.SCIENTIFIC_FUNCTIONS) {
       const substr = text.substr(index, func.length)
       const nextChar = text[index + func.length]
-      
+
       if (substr === func && this.isValidFunctionTerminator(nextChar)) {
         return func
       }
     }
-    
-    // Fallback to single character if no function found
+
     return text[index]
   }
 
@@ -58,7 +56,6 @@ export class FunctionUtils {
    * Get function display name from internal name using mappings
    */
   static getFunctionDisplayName(internalName: string): string {
-    // Reverse lookup in function mappings
     const mappings = CalculatorConstants.FUNCTION_MAPPINGS
     for (const [display, internal] of Object.entries(mappings)) {
       if (internal === internalName) {

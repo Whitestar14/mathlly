@@ -2,8 +2,7 @@
   <ErrorFallback
     v-if="hasError"
     :error="error"
-    :is-global-error="true"
-  />
+    :is-global-error="true" />
   <Suspense v-else>
     <AppProvider />
 
@@ -32,7 +31,7 @@ import router from '@router/router'
 const settings = useSettingsStore()
 useTheme()
 
-const AppProvider = defineAsyncComponent(() => (async () => {
+const AppProvider = defineAsyncComponent(() => (async() => {
   const start = Date.now()
   const mod = await import('@app/providers/AppProvider.vue')
 
@@ -41,7 +40,7 @@ const AppProvider = defineAsyncComponent(() => (async () => {
       router.isReady(),
       settings.loadSettings()
     ])
-  } catch (e) {
+  } catch(e) {
     console.warn('router.isReady() failed or timed out', e)
   }
 

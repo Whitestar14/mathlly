@@ -1,83 +1,72 @@
 <template>
   <div class="flex flex-col h-full">
-    <!-- Header -->
+
     <div class="flex items-center justify-between mb-4">
       <div class="flex items-center">
         <span class="text-xs text-muted-foreground dark:text-muted-foreground">{{ logs.length }}</span>
       </div>
-      
+
       <div class="flex items-center gap-2">
         <BaseButton
           variant="ghost"
           size="sm"
           :disabled="logs.length === 0"
-          @click="clearLogs"
-        >
+          @click="clearLogs">
           <TrashIcon class="h-3 w-3" />
         </BaseButton>
-        
+
         <BaseButton
           :variant="isCapturing ? 'destructive' : 'outline'"
           size="sm"
-          @click="toggleCapture"
-        >
+          @click="toggleCapture">
           <div class="flex items-center gap-1.5">
-            <div 
+            <div
               v-if="isCapturing"
-              class="w-1.5 h-1.5 bg-background rounded-full animate-pulse"
-            />
+              class="w-1.5 h-1.5 bg-background rounded-full animate-pulse"></div>
             <PlayIcon
               v-else
-              class="h-3 w-3"
-            />
+              class="h-3 w-3" />
             {{ isCapturing ? 'Stop' : 'Start' }}
           </div>
         </BaseButton>
       </div>
     </div>
 
-    <!-- Console Display -->
-    <div 
+    <div
       ref="logContainer"
-      class="flex-1 bg-background dark:bg-background border border-border dark:border-border rounded-lg overflow-hidden"
-    >
+      class="flex-1 bg-background dark:bg-background border border-border dark:border-border rounded-lg overflow-hidden">
       <div class="h-full overflow-y-auto p-3 font-mono text-xs">
-        <!-- Log entries -->
+
         <div
           v-for="(log, index) in logs"
           :key="index"
-          class="flex items-start gap-2 py-1 hover:bg-muted dark:hover:bg-background/50 -mx-1 px-1 rounded group"
-        >
+          class="flex items-start gap-2 py-1 hover:bg-muted dark:hover:bg-background/50 -mx-1 px-1 rounded group">
           <span class="text-muted-foreground dark:text-muted-foreground text-xs shrink-0 w-16">
             {{ formatTime(log.timestamp) }}
           </span>
-          
-          <span 
+
+          <span
             class="shrink-0 w-12 text-xs font-medium uppercase"
-            :class="getLevelColor(log.level)"
-          >
+            :class="getLevelColor(log.level)">
             {{ log.level }}
           </span>
-          
+
           <span class="flex-1 text-foreground dark:text-foreground leading-relaxed">
             {{ log.message }}
           </span>
-          
+
           <BaseButton
             variant="ghost"
             size="icon"
             class="opacity-0 group-hover:opacity-100 h-6 w-6"
-            @click="copyLog(log)"
-          >
+            @click="copyLog(log)">
             <CopyIcon class="h-3 w-3" />
           </BaseButton>
         </div>
-        
-        <!-- Empty state -->
+
         <div
           v-if="logs.length === 0"
-          class="flex flex-col items-center justify-center h-full text-muted-foreground dark:text-muted-foreground"
-        >
+          class="flex flex-col items-center justify-center h-full text-muted-foreground dark:text-muted-foreground">
           <TerminalIcon class="h-8 w-8 mb-3 opacity-40" />
           <p class="text-sm">
             {{ isCapturing ? 'Console is ready' : 'Start capturing to see logs' }}
@@ -86,7 +75,6 @@
       </div>
     </div>
 
-    <!-- Test Controls -->
     <div class="sticky bottom-0 bg-background dark:bg-muted mt-4 p-2 border-t border-border dark:border-border">
       <div class="flex items-center justify-between">
         <div class="flex gap-1">
@@ -98,12 +86,11 @@
             class="text-xs"
             :class="getLevelButtonStyle(level)"
             :disabled="!isCapturing"
-            @click="testLog(level)"
-          >
+            @click="testLog(level)">
             {{ level }}
           </BaseButton>
         </div>
-        
+
         <div class="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground">
           <span v-if="logs.length > 0">{{ getStats() }}</span>
           <BaseButton
@@ -111,8 +98,7 @@
             variant="link"
             size="sm"
             class="text-xs h-auto p-0"
-            @click="scrollToBottom"
-          >
+            @click="scrollToBottom">
             Latest ↓
           </BaseButton>
         </div>
@@ -140,7 +126,6 @@ const logContainer = ref<HTMLElement>()
 
 const logLevels: LogLevel[] = ['log', 'info', 'warn', 'error']
 
-// Store original console methods
 const originalMethods = {
   log: console.log,
   info: console.info,
@@ -150,30 +135,28 @@ const originalMethods = {
 
 const addLog = (level: LogLevel, ...args: any[]) => {
   if (!isCapturing.value) return
-  
-  const message = args.map(arg => 
+
+  const message = args.map(arg =>
     typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
   ).join(' ')
-  
+
   logs.value.push({
     timestamp: new Date().toISOString(),
     level,
     message
   })
-  
-  // Keep last 50 logs
+
   if (logs.value.length > 50) {
     logs.value.shift()
   }
-  
+
   nextTick(scrollToBottom)
 }
 
 const toggleCapture = () => {
   isCapturing.value = !isCapturing.value
-  
+
   if (isCapturing.value) {
-    // Override console methods
     console.log = (...args) => {
       originalMethods.log(...args)
       addLog('log', ...args)
@@ -191,7 +174,6 @@ const toggleCapture = () => {
       addLog('error', ...args)
     }
   } else {
-    // Restore original methods
     Object.assign(console, originalMethods)
   }
 }
@@ -242,19 +224,19 @@ const getStats = () => {
     acc[log.level] = (acc[log.level] || 0) + 1
     return acc
   }, {} as Record<LogLevel, number>)
-  
+
   return Object.entries(counts)
     .filter(([, count]) => count > 0)
     .map(([level, count]) => `${count} ${level}`)
     .join(', ')
 }
 
-const copyLog = async (log: LogEntry) => {
+const copyLog = async(log: LogEntry) => {
   try {
     const text = `[${formatTime(log.timestamp)}] ${log.level.toUpperCase()}: ${log.message}`
     await navigator.clipboard.writeText(text)
     console.log('Copied to clipboard')
-  } catch (err) {
+  } catch(err) {
     console.error('Copy failed:', err)
   }
 }
@@ -266,10 +248,10 @@ const testLog = (level: LogLevel) => {
     warn: 'Warning: something needs attention',
     error: 'Error: something went wrong'
   }
-  
-  console[level](messages[level], { 
-    timestamp: Date.now(), 
-    random: Math.floor(Math.random() * 1000) 
+
+  console[level](messages[level], {
+    timestamp: Date.now(),
+    random: Math.floor(Math.random() * 1000)
   })
 }
 

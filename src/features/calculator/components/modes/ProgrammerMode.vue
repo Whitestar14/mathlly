@@ -3,32 +3,26 @@
     <div class="flex flex-0 justify-between items-center">
       <SegmentedControl
         v-model="viewMode"
-        :options="viewOptions"
-      />
-  
-      <!-- Cyclic toggle for bit width -->
+        :options="viewOptions" />
+
       <button
         v-if="viewMode === 'bits'"
         :value="bitWidthLabel"
         class="calc-btn calc-function-btn"
-        @click="cycleBitWidth"
-      >
+        @click="cycleBitWidth">
         {{ bitWidthLabel }}
       </button>
     </div>
 
-    <!-- View mode content with transition -->
     <Transition
       name="scale"
-      mode="out-in"
-    >
-      <!-- Keypad view -->
+      mode="out-in">
+
       <div
         v-if="viewMode === 'keypad'"
         key="keypad"
-        class="flex h-full w-full flex-1 flex-col gap-1"
-      >
-        <!-- Memory -->
+        class="flex h-full w-full flex-1 flex-col gap-1">
+
         <div class="grid grid-cols-5 gap-1">
           <CalculatorButton
             v-for="op in memoryOperations"
@@ -36,15 +30,13 @@
             :value="op"
             variant="memory"
             :disabled="(op === 'MC' || op === 'MR') && !hasMemory"
-            @click="emit('button-click', op)"
-          >
+            @click="emit('button-click', op)">
             {{ op }}
           </CalculatorButton>
         </div>
 
-        <!-- Main grid: HEX letters + keypad -->
         <div class="grid grid-cols-5 gap-1 h-full">
-          <!-- HEX column -->
+
           <div class="flex flex-col gap-1">
             <CalculatorButton
               v-for="letter in hexLetters"
@@ -52,13 +44,11 @@
               :value="letter"
               variant="function"
               :disabled="!isDigitEnabled(letter)"
-              @click="emit('button-click', letter)"
-            >
+              @click="emit('button-click', letter)">
               {{ letter }}
             </CalculatorButton>
           </div>
 
-          <!-- 4-col main keypad -->
           <div class="col-span-4 grid grid-cols-4 gap-1 h-full">
             <CalculatorButton
               v-for="btn in programmerFirstRow"
@@ -67,8 +57,7 @@
               :icon="btn.icon"
               :variant="btn.variant"
               :disabled="shouldDisable(btn)"
-              @click="emit('button-click', btn.value)"
-            />
+              @click="emit('button-click', btn.value)" />
             <CalculatorButton
               v-for="btn in programmerSecondRow"
               :key="btn.value"
@@ -76,8 +65,7 @@
               class="h-full"
               :variant="btn.variant"
               :disabled="shouldDisable(btn)"
-              @click="emit('button-click', btn.value)"
-            />
+              @click="emit('button-click', btn.value)" />
             <CalculatorButton
               v-for="btn in numberRows.flat()"
               :key="btn.value + (btn.variant || '')"
@@ -85,23 +73,19 @@
               :variant="btn.variant"
               class="h-full"
               :disabled="!isDigitEnabled(btn.value) || shouldDisable(btn)"
-              @click="emit('button-click', btn.value)"
-            />
+              @click="emit('button-click', btn.value)" />
           </div>
         </div>
       </div>
 
-      <!-- Bits view -->
       <div
         v-else-if="viewMode === 'bits'"
         key="bits"
-        class="flex h-full w-full flex-1 flex-col gap-1"
-      >
+        class="flex h-full w-full flex-1 flex-col gap-1">
         <BitToggleGrid
           :value="currentDecimalValue"
           :bit-width="bitWidth"
-          @bit-toggle="handleBitToggle"
-        />
+          @bit-toggle="handleBitToggle" />
       </div>
     </Transition>
   </div>
@@ -134,7 +118,6 @@ const emit = defineEmits<{
   (e: 'clear'): void
 }>()
 
-// Inject dependencies
 const calculator = inject<Ref<Calculator>>('calculator')!
 const updateState = inject<(updates: Partial<CalculatorState>) => void>('updateState')!
 const updateDisplayValues = inject<(values: Record<string, any>) => void>('updateDisplayValues')!
@@ -143,7 +126,7 @@ const viewMode = ref<ViewMode>('keypad')
 
 const viewOptions = computed<Array<{ value: ViewMode; label: string; icon: Component }>>(() => [
   { value: 'keypad', label: 'Keypad', icon: Grid3x3 },
-  { value: 'bits', label: 'Bits', icon: Binary },
+  { value: 'bits', label: 'Bits', icon: Binary }
 ])
 const bitWidth = ref<BitWidthValue>(64)
 
@@ -174,7 +157,6 @@ const currentDecimalValue = computed(() => {
   }
 })
 
-// Handle bit toggle internally
 const handleBitToggle = (bitPosition: number): void => {
   if (!isProgrammerCalculator(calculator.value)) return
 
@@ -186,16 +168,14 @@ const handleBitToggle = (bitPosition: number): void => {
       bitWidth.value
     )
 
-    // Update calculator state
     calculator.value.updateAllStates(newValue)
     const newInput = calculator.value.states.DEC.input
 
     updateState({ input: newInput })
 
-    // Update all base displays
     const updatedValues = calculator.value.updateDisplayValues(newInput)
     updateDisplayValues(updatedValues)
-  } catch (err) {
+  } catch(err) {
     console.error('Bit toggle error:', err)
     updateState({ error: 'Bit toggle failed' })
   }
@@ -203,9 +183,9 @@ const handleBitToggle = (bitPosition: number): void => {
 
 const isMaxLengthReached = computed(() => props.inputLength >= props.maxLength)
 const alwaysEnabled = new Set([
-  'C', 'CE', 'backspace', '=', 
+  'C', 'CE', 'backspace', '=',
   'MC', 'MR', 'M+', 'M-', 'MS'
-]);
+])
 
 const shouldDisable = (btn: { value: string; variant?: string; checkMaxLength?: boolean }) => {
   if (alwaysEnabled.has(btn.value)) return false
@@ -216,7 +196,7 @@ const shouldDisable = (btn: { value: string; variant?: string; checkMaxLength?: 
 const isDigitEnabled = (button: string) => {
   const v = button.toUpperCase()
   if (['×', '-', '+', '=', '±'].includes(button)) {
-    return true;
+    return true
   }
   switch (props.activeBase) {
     case 'HEX': return /^[0-9A-F]$/.test(v)

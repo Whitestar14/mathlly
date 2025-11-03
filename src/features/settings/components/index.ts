@@ -6,4 +6,4 @@ export { default as SettingsSearch } from './SettingsSearch.vue'
 export { default as StartupSection } from './StartupSection.vue'
 export { default as ThemePackSelector } from './ThemePackSelector.vue'
 export { default as UnsavedChangesModal } from './UnsavedChangesModal.vue'
-export { default as ExperimentalSection } from './ExperimentalSection.vue';
+export { default as ExperimentalSection } from './ExperimentalSection.vue'

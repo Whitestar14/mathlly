@@ -1,7 +1,7 @@
-// src/features/tools/color/composables/adjustments.ts
-import { filterBrightness, filterSaturate, filterHueRotate, filterContrast } from "culori"
-import { RGB } from "./types"
-import { toCuloriRgb, fromCuloriRgb } from "./converters"
+
+import { filterBrightness, filterSaturate, filterHueRotate, filterContrast } from 'culori'
+import { RGB } from './types'
+import { toCuloriRgb, fromCuloriRgb } from './converters'
 
 export function adjustBrightness(rgb: RGB, amount: number): RGB {
   return fromCuloriRgb(filterBrightness(amount)(toCuloriRgb(rgb)))

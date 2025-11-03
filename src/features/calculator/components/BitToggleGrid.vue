@@ -3,18 +3,15 @@
     <div
       v-for="rowIndex in rowCount"
       :key="rowIndex"
-      class="bit-row grid grid-cols-16 gap-1 w-full h-full"
-    >
+      class="bit-row grid grid-cols-16 gap-1 w-full h-full">
       <div
         v-for="colIndex in 16"
         :key="`cell-${rowIndex}-${colIndex}`"
-        class="flex flex-col items-center"
-      >
+        class="flex flex-col items-center">
         <div class="h-3 flex items-end">
           <span
             v-if="shouldShowLabel(rowIndex, 16 - colIndex)"
-            class="text-[10px] text-muted-foreground"
-          >
+            class="text-[10px] text-muted-foreground">
             {{ getBitLabel(rowIndex, 16 - colIndex) }}
           </span>
         </div>
@@ -29,55 +26,47 @@
           "
           :disabled="!isActiveBit(getBitPosition(rowIndex, 16 - colIndex))"
           class="bit-btn font-mono"
-          @click="onToggle(getBitPosition(rowIndex, 16 - colIndex))"
-        />
+          @click="onToggle(getBitPosition(rowIndex, 16 - colIndex))" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import CalculatorButton from '@calculator/components/CalculatorButton.vue';
+import { computed } from 'vue'
+import CalculatorButton from '@calculator/components/CalculatorButton.vue'
 import {
   decimalToBits,
-  type BitWidth,
-} from '@calculator/utils/core/BitManipulation';
+  type BitWidth
+} from '@calculator/utils/core/BitManipulation'
 
 interface Props {
   value: number;
   bitWidth: BitWidth;
 }
-const props = defineProps<Props>();
-const emit = defineEmits<{ (e: 'bit-toggle', bitPosition: number): void }>();
+const props = defineProps<Props>()
+const emit = defineEmits<{ (e: 'bit-toggle', bitPosition: number): void }>()
 
-// Always render 64 bits (4 rows × 16 cols)
-const rowCount = computed(() => 64 / 16);
+const rowCount = computed(() => 64 / 16)
 
-// Display from full 64-bit backing — no masking here
-const fullBits = computed(() => decimalToBits(props.value, 64).bits);
+const fullBits = computed(() => decimalToBits(props.value, 64).bits)
 
-// Absolute bit position (0-based, LSB = 0), with rowIndex starting at 1
 const getBitPosition = (rowIndex: number, col: number) =>
-  (rowCount.value - rowIndex) * 16 + col;
+  (rowCount.value - rowIndex) * 16 + col
 
-// Labels every 4 bits from 0 upward
 const shouldShowLabel = (rowIndex: number, col: number) =>
-  getBitPosition(rowIndex, col) % 4 === 0;
+  getBitPosition(rowIndex, col) % 4 === 0
 const getBitLabel = (rowIndex: number, col: number) =>
-  String(getBitPosition(rowIndex, col));
+  String(getBitPosition(rowIndex, col))
 
-// Disable outside active width
-const isActiveBit = (pos: number) => pos < props.bitWidth;
+const isActiveBit = (pos: number) => pos < props.bitWidth
 
-// Display always reflects backing state
-const getDisplayBit = (pos: number) => fullBits.value[pos];
+const getDisplayBit = (pos: number) => fullBits.value[pos]
 
-// Strict toggle guard
 const onToggle = (pos: number) => {
-  if (!isActiveBit(pos)) return;
-  emit('bit-toggle', pos);
-};
+  if (!isActiveBit(pos)) return
+  emit('bit-toggle', pos)
+}
 </script>
 
 <style scoped>

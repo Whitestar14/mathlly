@@ -19,8 +19,7 @@
           :max="16"
           :step="1"
           class="w-full"
-          @update:model-value="(v: number) => extractionColorCount = v"
-        />
+          @update:model-value="(v: number) => extractionColorCount = v" />
         <span class="text-xs text-muted-foreground w-10">{{ extractionColorCount }}</span>
       </div>
     </div>
@@ -29,20 +28,17 @@
       v-if="!selectedImage"
       class="border-2 border-dashed border-border rounded-lg p-8 text-center transition-colors hover:border-primary/50"
       @dragover.prevent
-      @drop.prevent="handleDrop"
-    >
+      @drop.prevent="handleDrop">
       <input
         ref="fileInputRef"
         type="file"
         accept="image/png,image/jpeg,image/webp"
         class="hidden"
-        @change="handleFileSelect"
-      >
+        @change="handleFileSelect" />
       <Upload class="h-8 w-8 mx-auto text-muted-foreground mb-2" />
       <button
         class="text-primary hover:underline"
-        @click="fileInputRef?.click()"
-      >
+        @click="fileInputRef?.click()">
         Click to upload
       </button>
       or drag and drop
@@ -53,33 +49,28 @@
 
     <div
       v-else-if="isProcessing"
-      class="flex items-center justify-center py-8"
-    >
+      class="flex items-center justify-center py-8">
       <Loader2 class="h-6 w-6 animate-spin mr-2" />
       Extracting colors...
     </div>
 
     <div
       v-else
-      class="space-y-4"
-    >
+      class="space-y-4">
       <div class="relative inline-block">
         <img
           :src="selectedImage"
-          class="max-h-48 rounded border"
-        >
+          class="max-h-48 rounded border" />
         <button
           class="absolute top-2 right-2 bg-background rounded-full p-1 shadow hover:bg-muted transition-colors"
-          @click="clearImage"
-        >
+          @click="clearImage">
           <X class="h-4 w-4" />
         </button>
       </div>
 
       <div
         v-if="extractedColors.length > 0"
-        class="space-y-2"
-      >
+        class="space-y-2">
         <div class="flex items-center justify-between">
           <p class="text-sm">
             {{ extractedColors.length }} colors extracted
@@ -88,8 +79,7 @@
             v-tippy="{ content: 'Export colors as JSON' }"
             variant="outline"
             size="sm"
-            @click="exportColors"
-          >
+            @click="exportColors">
             <Download class="h-4 w-4 mr-1" />
             Export
           </BaseButton>
@@ -100,8 +90,7 @@
             :key="index"
             v-tippy="{ content: `${rgbToHex(color)}` }"
             :color="color"
-            @click="handleColorClick"
-          />
+            @click="handleColorClick" />
         </div>
       </div>
     </div>
@@ -201,8 +190,8 @@ const clearImage = () => {
 }
 
 const { copy } = useClipboard()
- 
-const handleColorClick = async (color: RGB) => {
+
+const handleColorClick = async(color: RGB) => {
   await copy(rgbToHex(color))
   props.updateColor(color)
   useToast().info('Color has been copied to clipboard!', { title: 'Copied!' })

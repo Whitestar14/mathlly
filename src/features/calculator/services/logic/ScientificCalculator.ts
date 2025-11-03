@@ -1,10 +1,10 @@
-// ScientificCalculator.ts
-import { ICalculator } from "@calculator/utils/core/ICalculator.ts"
-import { ScientificOperations } from "@calculator/utils/operations/ScientificOperations.ts"
-import { ScientificCalculations } from "@calculator/utils/calculations/ScientificCalculations"
-import { CalculatorConstants } from "@calculator/utils/constants/CalculatorConstants.ts"
-import { CalculatorUtils } from "@calculator/utils/constants/CalculatorUtils"
-import type { CalculatorResult } from "@calculator/services/factory/CalculatorFactory"
+
+import { ICalculator } from '@calculator/utils/core/ICalculator.ts'
+import { ScientificOperations } from '@calculator/utils/operations/ScientificOperations.ts'
+import { ScientificCalculations } from '@calculator/utils/calculations/ScientificCalculations'
+import { CalculatorConstants } from '@calculator/utils/constants/CalculatorConstants.ts'
+import { CalculatorUtils } from '@calculator/utils/constants/CalculatorUtils'
+import type { CalculatorResult } from '@calculator/services/factory/CalculatorFactory'
 
 export class ScientificCalculator extends ICalculator {
   MAX_INPUT_LENGTH: number
@@ -25,7 +25,7 @@ export class ScientificCalculator extends ICalculator {
   evaluateExpression(expr: string): any {
     try {
       return this.calculations.evaluateExpression(expr)
-    } catch (err: any) {
+    } catch(err: any) {
       throw new Error(
         CalculatorUtils.formatError(err, CalculatorConstants.ERROR_MESSAGES.INVALID_EXPRESSION)
       )
@@ -35,7 +35,7 @@ export class ScientificCalculator extends ICalculator {
   handleEquals(): CalculatorResult {
     try {
       const openCount = this.operations.getParenthesesCount()
-      const finalExpr = openCount > 0 ? this.input + ")".repeat(openCount) : this.input
+      const finalExpr = openCount > 0 ? this.input + ')'.repeat(openCount) : this.input
 
       this.currentExpression = finalExpr
       const result = this.evaluateExpression(finalExpr)
@@ -50,14 +50,14 @@ export class ScientificCalculator extends ICalculator {
         result: formattedResult,
         error: this.error
       })
-    } catch (err: any) {
+    } catch(err: any) {
       return this.createErrorResponse(err, this.input)
     }
   }
 
   processButton(btn: string): CalculatorResult {
     try {
-      this.error = ""
+      this.error = ''
 
       if (CalculatorConstants.REGEX.PARENTHESIS.test(btn)) {
         return this.operations.handleParenthesis(btn)
@@ -65,10 +65,10 @@ export class ScientificCalculator extends ICalculator {
       if (CalculatorConstants.REGEX.CONSTANT.test(btn)) {
         return this.operations.handleConstant(btn)
       }
-      if (btn === "=") {
+      if (btn === '=') {
         return this.handleEquals()
       }
-      if (btn === "backspace") {
+      if (btn === 'backspace') {
         return this.operations.handleBackspace()
       }
       if (
@@ -80,13 +80,13 @@ export class ScientificCalculator extends ICalculator {
       if (CalculatorConstants.BUTTON_TYPES.OPERATORS.includes(btn as any)) {
         return this.operations.handleOperator(btn)
       }
-      if (btn === "%") {
+      if (btn === '%') {
         return this.operations.handlePercentage()
       }
-      if (btn === "±") {
+      if (btn === '±') {
         return this.operations.handleToggleSign()
       }
-      if (btn === ",") {
+      if (btn === ',') {
         return this.operations.handleComma()
       }
       if (CalculatorConstants.REGEX.NUMBER.test(btn)) {
@@ -95,7 +95,7 @@ export class ScientificCalculator extends ICalculator {
 
       console.warn(`Unexpected button input in ScientificCalculator: "${btn}"`)
       return { input: this.input, error: this.error }
-    } catch (err) {
+    } catch(err) {
       return this.createErrorResponse(err as Error, this.input)
     }
   }
@@ -105,11 +105,11 @@ export class ScientificCalculator extends ICalculator {
       return super.handleButtonClick(btn)
     }
 
-    if (["AC", "C"].includes(btn)) {
+    if (['AC', 'C'].includes(btn)) {
       return this.handleClear()
     }
 
-    if (btn === "CE") {
+    if (btn === 'CE') {
       return this.operations.handleClearEntry()
     }
 

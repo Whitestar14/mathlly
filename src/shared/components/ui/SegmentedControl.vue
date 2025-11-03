@@ -1,33 +1,28 @@
 <template>
-  <!-- Single idle state hint -->
+
   <div
     v-if="options.length === 1"
     class="inline-flex items-center gap-2 rounded-lg border border-dashed border-border/60 px-3 py-1.5 text-sm text-muted-foreground transition-all duration-200 hover:border-border/80"
-    aria-label="Segmented control (single option)"
-  >
+    aria-label="Segmented control (single option)">
     <component
       :is="options[0].icon"
       v-if="options[0].icon"
-      class="h-4 w-4 transition-transform duration-200 hover:scale-105"
-    />
+      class="h-4 w-4 transition-transform duration-200 hover:scale-105" />
     <span>{{ options[0].label }}</span>
     <Ellipsis class="h-3 w-3 opacity-40 ml-1 transition-opacity duration-200" />
   </div>
 
-  <!-- Normal segmented control -->
   <div
     v-else
     class="inline-flex items-center gap-0.5 rounded-lg border border-border bg-background p-1 shadow-sm transition-all duration-200"
     :class="{'w-full gap-1': disableOverflow }"
     role="radiogroup"
     aria-label="Segmented control"
-    @keydown="onKeydown"
-  >
-    <!-- Visible deck with enhanced animations -->
+    @keydown="onKeydown">
+
     <template
-      v-for="(opt, _) in visibleDeck"
-      :key="opt.value"
-    >
+      v-for="(opt, ) in visibleDeck"
+      :key="opt.value">
       <button
         :aria-checked="modelValue === opt.value"
         role="radio"
@@ -40,19 +35,16 @@
             ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/20'
             : 'bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-foreground'
         ]"
-        @click="select(opt.value)"
-      >
-        <component 
-          :is="opt.icon" 
-          v-if="opt.icon" 
+        @click="select(opt.value)">
+        <component
+          :is="opt.icon"
+          v-if="opt.icon"
           class="h-4 w-4 transition-all duration-200"
-          :class="modelValue === opt.value ? 'text-accent' : 'group-hover:scale-105'"
-        />
+          :class="modelValue === opt.value ? 'text-accent' : 'group-hover:scale-105'" />
         <span class="truncate transition-colors duration-200">{{ opt.label }}</span>
       </button>
     </template>
 
-    <!-- Enhanced overflow popover -->
     <BasePopover v-if="overflowOptions.length > 0">
       <template #trigger>
         <button
@@ -60,8 +52,7 @@
           class="inline-flex items-center gap-1 px-2 py-1.5 text-sm rounded-md transition-all duration-200 bg-transparent text-muted-foreground hover:bg-muted/40 hover:text-accent-foreground hover:scale-[1.02] active:scale-[0.98] group"
           aria-haspopup="menu"
           aria-expanded="false"
-          :aria-label="overflowLabel"
-        >
+          :aria-label="overflowLabel">
           <Ellipsis class="h-4 w-4 transition-transform duration-200 group-hover:rotate-12" />
           <span class="sr-only">{{ overflowLabel }}</span>
         </button>
@@ -74,8 +65,7 @@
           :label="opt.label"
           :icon="opt.icon"
           class-name="px-3 py-2 text-left text-sm rounded-md hover:bg-muted/30"
-          @click="select(opt.value)"
-        />
+          @click="select(opt.value)" />
       </div>
     </BasePopover>
   </div>
@@ -108,14 +98,13 @@ const emit = defineEmits<{
 const maxVisible = computed(() => props.maxVisible ?? 3)
 const overflowLabel = computed(() => props.overflowLabel ?? 'More options')
 
-// Deck state for MCR promotion; kept in sync with options
 const visibleDeck = ref<SegmentedOption[]>(
   props.disableOverflow ? props.options : props.options.slice(0, maxVisible.value)
 )
 
 const visibleValueMap = computed(() => {
-    return new Set(visibleDeck.value.map(o => o.value));
-});
+  return new Set(visibleDeck.value.map(o => o.value))
+})
 
 const overflowOptions = computed(() => {
   if (props.disableOverflow) return []
@@ -142,19 +131,18 @@ function promoteToVisibleDeck(value: string) {
 
 watch(
   () => props.options,
-  (opts) => {
+  opts => {
     if (props.disableOverflow) {
       visibleDeck.value = opts
       return
     }
-    
+
     const preserved = visibleDeck.value.map(v => opts.find(o => o.value === v.value)).filter((o): o is SegmentedOption => o !== undefined)
     const fill = opts.filter(o => !preserved.some(v => v.value === o.value)).slice(0, Math.max(0, maxVisible.value - preserved.length))
     visibleDeck.value = [...preserved, ...fill].slice(0, maxVisible.value)
   },
   { deep: true, immediate: true }
 )
-
 
 function select(value: string) {
   emit('update:modelValue', value)

@@ -1,7 +1,6 @@
 <template>
-  <div 
-    class="min-h-screen flex transition-colors duration-300"
-  >
+  <div
+    class="min-h-screen flex transition-colors duration-300">
     <AppSetup />
   </div>
 </template>
@@ -43,7 +42,7 @@ function useBodyClasses(classes: Ref<Record<string, boolean>>) {
 
 const globalClasses = computed(() => ({
   'animation-disabled': settings.appearance.animationDisabled,
-  [`border-style-${settings.appearance.borderRadius}`]: true,
+  [`border-style-${settings.appearance.borderRadius}`]: true
 }))
 
 useBodyClasses(globalClasses)

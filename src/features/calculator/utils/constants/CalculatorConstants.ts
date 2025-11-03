@@ -57,16 +57,16 @@ export const REGEX = {
  * Error messages for calculator operations
  */
 export const ERROR_MESSAGES = {
-  OVERFLOW: "Overflow: Evaluated result exceeding max limit",
-  DIVISION_BY_ZERO: "Division by zero is not allowed",
-  INVALID_EXPRESSION: "Invalid expression format",
-  MAX_INPUT_LENGTH: "Maximum input length reached",
-  NEGATIVE_SQUARE_ROOT: "Cannot calculate square root of negative number",
-  OPERATION_ERROR: "Operation error",
-  INVALID_BASE: "Invalid base for conversion",
-  DOMAIN_ERROR: "Domain error: Invalid input for function",
-  INVALID_ANGLE: "Invalid angle value",
-  INVALID_LOGARITHM: "Cannot calculate logarithm of non-positive number"
+  OVERFLOW: 'Overflow: Evaluated result exceeding max limit',
+  DIVISION_BY_ZERO: 'Division by zero is not allowed',
+  INVALID_EXPRESSION: 'Invalid expression format',
+  MAX_INPUT_LENGTH: 'Maximum input length reached',
+  NEGATIVE_SQUARE_ROOT: 'Cannot calculate square root of negative number',
+  OPERATION_ERROR: 'Operation error',
+  INVALID_BASE: 'Invalid base for conversion',
+  DOMAIN_ERROR: 'Domain error: Invalid input for function',
+  INVALID_ANGLE: 'Invalid angle value',
+  INVALID_LOGARITHM: 'Cannot calculate logarithm of non-positive number'
 } as const
 
 /**
@@ -84,13 +84,13 @@ export const FUNCTION_MAPPINGS = {
   'tanh⁻¹': 'atanh',
   'csch⁻¹': 'acsch',
   'sech⁻¹': 'asech',
-  'coth⁻¹': 'acoth',  
+  'coth⁻¹': 'acoth',
   'log₂': 'log2',
   'exp': 'exp',
   '10ˣ': '10^x',
   '2ˣ': '2^x',
   'eˣ': 'e^x',
-  'ln': 'ln',    
+  'ln': 'ln',
   '²√x': '√',
   '³√x': '∛',
   'ʸ√x': 'y√x',
@@ -113,18 +113,18 @@ export const CalculatorConstants = {
   /**
    * Maximum value (63-bit signed integer limit)
    */
-  MAX_VALUE: bignumber("9223372036854775807"),
-  
+  MAX_VALUE: bignumber('9223372036854775807'),
+
   /**
    * Minimum value (63-bit signed integer limit)
    */
-  MIN_VALUE: bignumber("-9223372036854775808"),
-  
+  MIN_VALUE: bignumber('-9223372036854775808'),
+
   /**
    * Numeric bases
    */
   BASES,
-  
+
   /**
    * Input length limits
    */
@@ -133,7 +133,7 @@ export const CalculatorConstants = {
     SCIENTIFIC: 120,
     PROGRAMMER: 69
   } as const,
-  
+
   /**
    * Bit widths for programmer mode
    */
@@ -142,17 +142,17 @@ export const CalculatorConstants = {
     DWORD: 32,
     QWORD: 64
   } as const,
-  
+
   /**
    * Button categories
    */
   BUTTON_TYPES,
-  
+
   /**
    * Regular expressions
    */
   REGEX,
-  
+
   /**
    * Error messages
    */
@@ -164,7 +164,6 @@ export const CalculatorConstants = {
   FUNCTION_MAPPINGS
 } as const
 
-// Type definitions
 export type BaseType = keyof typeof BASES
 export type OperatorType = typeof BUTTON_TYPES.OPERATORS[number]
 export type FunctionType = typeof BUTTON_TYPES.FUNCTIONS[number]

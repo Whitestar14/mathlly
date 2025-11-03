@@ -11,15 +11,14 @@ interface Emits {
   (e: 'cancel'): void;
 }
 
-defineProps<Props>();
-defineEmits<Emits>();
+defineProps<Props>()
+defineEmits<Emits>()
 </script>
 
 <template>
   <BaseModal
     :open="open"
-    @update:open="$emit('update:open', $event)"
-  >
+    @update:open="$emit('update:open', $event)">
     <template #title>
       Unsaved Changes
     </template>
@@ -31,14 +30,12 @@ defineEmits<Emits>();
     <div class="flex justify-end space-x-3">
       <BaseButton
         variant="outline"
-        @click="$emit('cancel')"
-      >
+        @click="$emit('cancel')">
         Stay on Page
       </BaseButton>
       <BaseButton
         variant="destructive"
-        @click="$emit('confirm')"
-      >
+        @click="$emit('confirm')">
         Discard Changes
       </BaseButton>
     </div>

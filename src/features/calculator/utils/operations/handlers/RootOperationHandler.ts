@@ -19,15 +19,15 @@ export class RootOperationHandler {
    */
   handleSquareRootOperation(): CalculatorResult {
     try {
-      const currentInput = this.calculator.input;
-      
+      const currentInput = this.calculator.input
+
       if (currentInput === '0' || currentInput === 'Error') {
-        this.calculator.input = "√("
+        this.calculator.input = '√('
         this.parenthesesTracker.open(1)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
-        
+
         if (isLastCharOperator) {
           const newInput = `${currentInput}√(`
           this.calculator.input = newInput
@@ -35,11 +35,11 @@ export class RootOperationHandler {
           this.parenthesesTracker.open(parenPosition)
         } else {
           const openParenCount = ParenthesesTracker.getOpenParenthesesCount(currentInput)
-          
+
           if (openParenCount > 0) {
             const lastOpenParen = currentInput.lastIndexOf('(')
             const contentAfterLastParen = currentInput.slice(lastOpenParen + 1).trim()
-            
+
             if (!contentAfterLastParen || CalculatorUtils.isOperator(contentAfterLastParen.slice(-1))) {
               const newInput = `${currentInput}√(`
               this.calculator.input = newInput
@@ -59,10 +59,10 @@ export class RootOperationHandler {
           }
         }
       }
-      
+
       return this.createResponse()
-    } catch (err: any) {
-      return this.createResponse(CalculatorUtils.formatError(err, "Square root operation failed"));
+    } catch(err: any) {
+      return this.createResponse(CalculatorUtils.formatError(err, 'Square root operation failed'))
     }
   }
 
@@ -72,14 +72,14 @@ export class RootOperationHandler {
   handleCubeRootOperation(): CalculatorResult {
     try {
       const currentInput = this.calculator.input
-      
+
       if (currentInput === '0' || currentInput === 'Error') {
-        this.calculator.input = "∛("
+        this.calculator.input = '∛('
         this.parenthesesTracker.open(2)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
-        
+
         if (isLastCharOperator) {
           this.calculator.input = `${currentInput}∛(`
           this.parenthesesTracker.open(currentInput.length + 2)
@@ -88,10 +88,10 @@ export class RootOperationHandler {
           this.parenthesesTracker.open(currentInput.length + 4)
         }
       }
-      
+
       return this.createResponse()
-    } catch (err: any) {
-      return this.createResponse(CalculatorUtils.formatError(err, "Cube root operation failed"));
+    } catch(err: any) {
+      return this.createResponse(CalculatorUtils.formatError(err, 'Cube root operation failed'))
     }
   }
 
@@ -100,42 +100,42 @@ export class RootOperationHandler {
    */
   handleNthRootOperation(): CalculatorResult {
     try {
-      const currentInput = this.calculator.input;
-      
+      const currentInput = this.calculator.input
+
       if (currentInput === '0' || currentInput === 'Error') {
-        this.calculator.input = "nthroot(";
-        this.parenthesesTracker.open(8);
+        this.calculator.input = 'nthroot('
+        this.parenthesesTracker.open(8)
       } else {
-        const lastChar = currentInput.trim().slice(-1);
-        const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '(';
-        
+        const lastChar = currentInput.trim().slice(-1)
+        const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
+
         if (isLastCharOperator) {
-          this.calculator.input = `${currentInput}nthroot(`;
-          this.parenthesesTracker.open(currentInput.length + 8);
+          this.calculator.input = `${currentInput}nthroot(`
+          this.parenthesesTracker.open(currentInput.length + 8)
         } else {
-          const openParenCount = ParenthesesTracker.getOpenParenthesesCount(currentInput);
-          
+          const openParenCount = ParenthesesTracker.getOpenParenthesesCount(currentInput)
+
           if (openParenCount > 0) {
-            const lastOpenParen = currentInput.lastIndexOf('(');
-            const contentAfterLastParen = currentInput.slice(lastOpenParen + 1).trim();
-            
+            const lastOpenParen = currentInput.lastIndexOf('(')
+            const contentAfterLastParen = currentInput.slice(lastOpenParen + 1).trim()
+
             if (!contentAfterLastParen || CalculatorUtils.isOperator(contentAfterLastParen.slice(-1))) {
-              this.calculator.input = `${currentInput}nthroot(`;
-              this.parenthesesTracker.open(currentInput.length + 8);
+              this.calculator.input = `${currentInput}nthroot(`
+              this.parenthesesTracker.open(currentInput.length + 8)
             } else {
-              this.calculator.input = `${currentInput} × nthroot(`;
-              this.parenthesesTracker.open(currentInput.length + 10);
+              this.calculator.input = `${currentInput} × nthroot(`
+              this.parenthesesTracker.open(currentInput.length + 10)
             }
           } else {
-            this.calculator.input = `${currentInput} × nthroot(`;
-            this.parenthesesTracker.open(currentInput.length + 10);
+            this.calculator.input = `${currentInput} × nthroot(`
+            this.parenthesesTracker.open(currentInput.length + 10)
           }
         }
       }
-      
-      return this.createResponse();
-        } catch (err: any) {
-      return this.createResponse(CalculatorUtils.formatError(err, "Nth root operation failed"));
+
+      return this.createResponse()
+    } catch(err: any) {
+      return this.createResponse(CalculatorUtils.formatError(err, 'Nth root operation failed'))
     }
   }
 
@@ -144,46 +144,45 @@ export class RootOperationHandler {
    */
   handleReciprocalOperation(): CalculatorResult {
     try {
-      const currentInput = this.calculator.input;
-      
+      const currentInput = this.calculator.input
+
       if (currentInput === '0' || currentInput === 'Error') {
-        this.calculator.input = "1/(";
-        this.parenthesesTracker.open(1);
+        this.calculator.input = '1/('
+        this.parenthesesTracker.open(1)
       } else {
-        const lastChar = currentInput.trim().slice(-1);
-        const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '(';
-        
+        const lastChar = currentInput.trim().slice(-1)
+        const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
+
         if (isLastCharOperator) {
-          this.calculator.input += "1/(";
-          this.parenthesesTracker.open(currentInput.length + 1);
+          this.calculator.input += '1/('
+          this.parenthesesTracker.open(currentInput.length + 1)
         } else {
-          const lastPart = ParenthesesTracker.getLastExpressionPart(currentInput);
+          const lastPart = ParenthesesTracker.getLastExpressionPart(currentInput)
           if (lastPart) {
-            const lastPartIndex = currentInput.lastIndexOf(lastPart);
-            // Don't wrap if the part is already a reciprocal expression
+            const lastPartIndex = currentInput.lastIndexOf(lastPart)
+
             if (lastPart.startsWith('1/(') && lastPart.endsWith(')')) {
-              return this.createResponse();
+              return this.createResponse()
             }
-            this.calculator.input = 
-              currentInput.substring(0, lastPartIndex) + 
-              `1/(${lastPart})`;
+            this.calculator.input =
+              currentInput.substring(0, lastPartIndex) +
+              `1/(${lastPart})`
           } else {
-            this.calculator.input = `1/(${currentInput})`;
+            this.calculator.input = `1/(${currentInput})`
           }
         }
       }
-      
-      return this.createResponse();
-    } catch (err: any) {
-      return this.createResponse(CalculatorUtils.formatError(err, "Reciprocal operation failed"));
+
+      return this.createResponse()
+    } catch(err: any) {
+      return this.createResponse(CalculatorUtils.formatError(err, 'Reciprocal operation failed'))
     }
   }
 
-  private createResponse(error: string = ""): CalculatorResult {
+  private createResponse(error: string = ''): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: this.calculator.input,
       error: error
-    });
+    })
   }
 }
-

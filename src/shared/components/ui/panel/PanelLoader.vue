@@ -2,15 +2,13 @@
   <Suspense>
     <component
       :is="component"
-      v-bind="componentProps"
-    />
+      v-bind="componentProps" />
     <template #fallback>
       <div
         v-if="isOpen"
         class="fixed top-0 h-screen hidden md:flex z-20 bg-panel border-border transition-[width] duration-300"
         :class="sideClasses"
-        :style="inlineSize"
-      />
+        :style="inlineSize"></div>
     </template>
   </Suspense>
 </template>
@@ -27,7 +25,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  componentProps: () => ({}),
+  widthRem: 16,
+  componentProps: () => ({})
 })
 
 const sideClasses = computed(() =>

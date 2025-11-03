@@ -1,10 +1,8 @@
-import type { Ref } from 'vue';
-import { useDraggable } from '@utils/misc/draggable';
+import type { Ref } from 'vue'
+import { useDraggable } from '@utils/misc/draggable'
 
-// Create a type based on the return type of useDraggable
-export type DraggableReturn = ReturnType<typeof useDraggable>;
+export type DraggableReturn = ReturnType<typeof useDraggable>
 
-// --- Configuration Types ---
 export interface PanelOptions {
   storageKey?: string;
   defaultDesktopState?: boolean;
@@ -25,7 +23,6 @@ export interface ToggleOptions {
   isMobile?: boolean;
 }
 
-// --- Composable API Types ---
 export interface PanelAPI {
   isOpen: Ref<boolean>;
   isMobile: Ref<boolean>;
@@ -53,7 +50,6 @@ export interface LightweightPanelAPI {
   toggle: (options?: ToggleOptions) => void;
 }
 
-// --- Context Provider Types ---
 export interface PanelContextState {
   panels: Record<string, PanelAPI>;
   options: Record<string, PanelOptions>;

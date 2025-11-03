@@ -1,10 +1,10 @@
-import { StandardOperations } from "../operations/StandardOperations.ts"
-import { ParenthesesTracker } from "../core/ParenthesesTracker.ts"
+import { StandardOperations } from '../operations/StandardOperations.ts'
+import { ParenthesesTracker } from '../core/ParenthesesTracker.ts'
 import { CalculatorUtils } from '../constants/CalculatorUtils'
 import { ScientificFunctionHandler } from './handlers/ScientificFunctionHandler'
 import { ScientificConstantHandler } from './handlers/ScientificConstantHandler'
 import { ScientificParenthesesHandler } from './handlers/ScientificParenthesesHandler'
-import { CalculatorResult } from "@features/calculator/services/factory/CalculatorFactory.ts"
+import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory.ts'
 
 /**
  * Handles scientific calculator operations
@@ -24,15 +24,11 @@ export class ScientificOperations extends StandardOperations {
   constructor(calculator: any) {
     super(calculator)
     this.parenthesesTracker = new ParenthesesTracker()
-    
-    // Initialize specialized handlers for scientific operations
+
     this.functionHandler = new ScientificFunctionHandler(calculator, this.parenthesesTracker)
     this.constantHandler = new ScientificConstantHandler(calculator)
     this.parenthesesHandler = new ScientificParenthesesHandler(calculator, this.parenthesesTracker)
   }
-
-  // ===== SCIENTIFIC-SPECIFIC OPERATIONS =====
-  // These are the operations that make scientific mode different from standard mode
 
   /**
    * Handle scientific function operations (sin, cos, log, sqrt, etc.)
@@ -41,8 +37,8 @@ export class ScientificOperations extends StandardOperations {
   handleScientificFunction(func: string): CalculatorResult {
     try {
       return this.functionHandler.handle(func)
-    } catch (err: any) {
-      return this.createResponse(CalculatorUtils.formatError(err, "Scientific function failed"));
+    } catch(err: any) {
+      return this.createResponse(CalculatorUtils.formatError(err, 'Scientific function failed'))
     }
   }
 
@@ -53,8 +49,8 @@ export class ScientificOperations extends StandardOperations {
   handleConstant(constant: string): CalculatorResult {
     try {
       return this.constantHandler.handle(constant)
-    } catch (err: any) {
-      return this.createResponse(CalculatorUtils.formatError(err, "Constant input failed"));
+    } catch(err: any) {
+      return this.createResponse(CalculatorUtils.formatError(err, 'Constant input failed'))
     }
   }
 
@@ -65,13 +61,10 @@ export class ScientificOperations extends StandardOperations {
   handleParenthesis(parenthesis: string): CalculatorResult {
     try {
       return this.parenthesesHandler.handle(parenthesis)
-    } catch (err: any) {
-      return this.createResponse(CalculatorUtils.formatError(err, "Parentheses operation failed"));
+    } catch(err: any) {
+      return this.createResponse(CalculatorUtils.formatError(err, 'Parentheses operation failed'))
     }
   }
-
-  // ===== ENHANCED BASIC OPERATIONS =====
-  // These extend StandardOperations with scientific-specific enhancements
 
   /**
    * Enhanced backspace handling for scientific expressions
@@ -79,42 +72,37 @@ export class ScientificOperations extends StandardOperations {
    */
   handleBackspace(): CalculatorResult {
     try {
-      const currentInput = this.calculator.input;
-      
-      // Handle basic error states with standard logic
-      if (currentInput === "0" || currentInput === "Error") {
-        return super.handleBackspace();
+      const currentInput = this.calculator.input
+
+      if (currentInput === '0' || currentInput === 'Error') {
+        return super.handleBackspace()
       }
-      
-      // Handle scientific-specific backspace (functions, parentheses tracking)
-      const specialBackspace = CalculatorUtils.handleSpecialBackspace(currentInput);
+
+      const specialBackspace = CalculatorUtils.handleSpecialBackspace(currentInput)
       if (specialBackspace.handled) {
-        this.calculator.input = specialBackspace.input;
-        
-        // Update parentheses tracker if a function was removed
+        this.calculator.input = specialBackspace.input
+
         if (specialBackspace.input.length < currentInput.length - 1) {
           if (this.parenthesesTracker.getOpenCount() > 0) {
-            this.parenthesesTracker.close(specialBackspace.input.length);
+            this.parenthesesTracker.close(specialBackspace.input.length)
           }
         }
-        
-        return this.createResponse();
+
+        return this.createResponse()
       }
-      
-      // Handle parentheses tracking for scientific expressions
-      const lastChar = currentInput.slice(-1);
+
+      const lastChar = currentInput.slice(-1)
       if (lastChar === '(') {
         if (this.parenthesesTracker.getOpenCount() > 0) {
-          this.parenthesesTracker.close(currentInput.length - 1);
+          this.parenthesesTracker.close(currentInput.length - 1)
         }
       } else if (lastChar === ')') {
-        this.parenthesesTracker.open(currentInput.length - 1);
+        this.parenthesesTracker.open(currentInput.length - 1)
       }
-      
-      // Delegate to standard backspace for basic functionality
-      return super.handleBackspace();
-    } catch (err: any) {
-      return this.createResponse(CalculatorUtils.formatError(err, "Backspace failed"));
+
+      return super.handleBackspace()
+    } catch(err: any) {
+      return this.createResponse(CalculatorUtils.formatError(err, 'Backspace failed'))
     }
   }
 
@@ -125,41 +113,34 @@ export class ScientificOperations extends StandardOperations {
   handleClearEntry(): CalculatorResult {
     try {
       const input = this.calculator.input
-      
-      if (input !== "0" && input !== "Error") {
-        // Find the index of the last opening parenthesis
-        const lastOpenIndex = input.lastIndexOf("(");
-        // Find the index of the last closing parenthesis
-        const lastCloseIndex = input.lastIndexOf(")");
-        
+
+      if (input !== '0' && input !== 'Error') {
+        const lastOpenIndex = input.lastIndexOf('(')
+
+        const lastCloseIndex = input.lastIndexOf(')')
+
         if (lastOpenIndex > lastCloseIndex) {
-          // We're inside parentheses. Clear the content back to the opening parenthesis
-          this.calculator.input = input.substring(0, lastOpenIndex + 1);
+          this.calculator.input = input.substring(0, lastOpenIndex + 1)
         } else {
-          // No open parentheses at the end, so delegate to the standard clear entry logic
-          return super.handleClearEntry();
+          return super.handleClearEntry()
         }
       } else {
-        this.calculator.input = "0";
-        this.resetParentheses();
+        this.calculator.input = '0'
+        this.resetParentheses()
       }
-      
-      return this.createResponse();
-    } catch (err: any) {
-      return this.createResponse(CalculatorUtils.formatError(err, "Clear entry failed"));
+
+      return this.createResponse()
+    } catch(err: any) {
+      return this.createResponse(CalculatorUtils.formatError(err, 'Clear entry failed'))
     }
   }
-
-  // ===== BASIC OPERATIONS DELEGATION =====
-  // These operations are handled entirely by StandardOperations
-  // We don't override them unless we need scientific-specific behavior
 
   /**
    * Handle numeric input - delegates to StandardOperations
    * StandardOperations already handles numbers, decimals, and comma properly
    */
   handleNumber(num: string): CalculatorResult {
-    return super.handleNumber(num);
+    return super.handleNumber(num)
   }
 
   /**
@@ -167,32 +148,29 @@ export class ScientificOperations extends StandardOperations {
    * StandardOperations already handles +, -, ×, ÷ properly
    */
   handleOperator(op: string): CalculatorResult {
-    return super.handleOperator(op);
+    return super.handleOperator(op)
   }
 
   /**
    * Handle percentage - delegates to StandardOperations
    */
   handlePercentage(): CalculatorResult {
-    return super.handlePercentage();
+    return super.handlePercentage()
   }
 
   /**
    * Handle sign toggle - delegates to StandardOperations
    */
   handleToggleSign(): CalculatorResult {
-    return super.handleToggleSign();
+    return super.handleToggleSign()
   }
 
   /**
    * Handle comma for function arguments - delegates to StandardOperations
    */
   handleComma(): CalculatorResult {
-    return super.handleComma();
+    return super.handleComma()
   }
-
-  // ===== SCIENTIFIC MODE UTILITIES =====
-  // These are utilities specific to scientific mode
 
   /**
    * Get the current count of unclosed parentheses
@@ -212,10 +190,10 @@ export class ScientificOperations extends StandardOperations {
    * Create a standardized response
    * Uses the same format as StandardOperations for consistency
    */
-  createResponse(error: string = ""): CalculatorResult {
+  createResponse(error: string = ''): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: this.calculator.input,
       error: error
-    });
+    })
   }
 }

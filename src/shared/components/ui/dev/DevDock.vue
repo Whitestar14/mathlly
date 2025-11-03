@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Mobile Version -->
+
     <MobileDevDock
       v-if="isMobile"
       :tools="tools"
@@ -10,10 +10,8 @@
       :is-expanded="isExpanded"
       @toggle-expanded="toggleExpanded"
       @toggle-panel="togglePanel"
-      @set-active-mobile-panel-index="setActiveMobilePanelIndex"
-    />
-    
-    <!-- Desktop Version -->
+      @set-active-mobile-panel-index="setActiveMobilePanelIndex" />
+
     <DesktopDevDock
       v-else
       :tools="tools"
@@ -27,8 +25,7 @@
       @set-current-panel="setCurrentDesktopPanel"
       @navigate-panel="navigatePanel"
       @close-all="closeAll"
-      @close-current-panel="closeCurrentPanel"
-    />
+      @close-current-panel="closeCurrentPanel" />
   </div>
 </template>
 
@@ -50,7 +47,6 @@ const storageStore = useAppStorageStore()
 const PANEL_KEYS = ['pwa', 'version', 'performance', 'console', 'state', 'shortcuts'] as const
 type PanelKey = typeof PANEL_KEYS[number]
 
-// Update the ActivePanels interface to be more explicit
 interface ActivePanels extends Record<string, boolean> {
   pwa: boolean
   version: boolean
@@ -68,16 +64,14 @@ interface Tool {
   title: string
 }
 
-// Responsive
 const { width } = useWindowSize()
 const isMobile = computed(() => width.value < 768)
 
-// Persistent state
 const isExpanded = ref(storageStore.get('devDock', 'expanded', false))
 const isDockOpen = ref(storageStore.get('devDock', 'open', false))
 
-watch(isExpanded, (val) => storageStore.set('devDock', 'expanded', val))
-watch(isDockOpen, (val) => storageStore.set('devDock', 'open', val))
+watch(isExpanded, val => storageStore.set('devDock', 'expanded', val))
+watch(isDockOpen, val => storageStore.set('devDock', 'open', val))
 
 const defaultPanels: ActivePanels = {
   pwa: false,
@@ -93,17 +87,14 @@ const activePanels = ref<ActivePanels>(
     defaultPanels) as ActivePanels
 )
 
-watch(activePanels, (val) => storageStore.set('devDock', 'panels', val), { deep: true })
+watch(activePanels, val => storageStore.set('devDock', 'panels', val), { deep: true })
 
-// Desktop panel management - use string instead of keyof
 const currentDesktopPanel = ref<string | null>(storageStore.get('devDock', 'currentPanel', null))
 
-watch(currentDesktopPanel, (val) => storageStore.set('devDock', 'currentPanel', val))
+watch(currentDesktopPanel, val => storageStore.set('devDock', 'currentPanel', val))
 
-// Mobile-specific state
 const activeMobilePanelIndex = ref(0)
 
-// Tool definitions - ensure keys are strings
 const tools: Tool[] = [
   {
     key: 'pwa',
@@ -149,79 +140,64 @@ const tools: Tool[] = [
   }
 ]
 
-// Computed properties - ensure string array
 const activePanelKeys = computed((): string[] => {
   return Object.keys(activePanels.value).filter(key =>
     activePanels.value[key as keyof ActivePanels]
   )
 })
 
-// Watch for changes in active panels to manage current desktop panel
-watch(activePanelKeys, async (newKeys: string[]) => {
+watch(activePanelKeys, async(newKeys: string[]) => {
   if (!isMobile.value) {
-    // If current panel was closed, switch to first available
     if (currentDesktopPanel.value && !newKeys.includes(currentDesktopPanel.value)) {
       currentDesktopPanel.value = newKeys.length > 0 ? newKeys[0] : null
     }
-    
-    // If no current panel but panels are active, set to first
+
     if (!currentDesktopPanel.value && newKeys.length > 0) {
       currentDesktopPanel.value = newKeys[0]
     }
-    
-    // If no panels active, clear current and collapse
+
     if (newKeys.length === 0) {
       currentDesktopPanel.value = null
       isExpanded.value = false
     } else {
-      // Ensure expansion when panels are active
       await nextTick()
       isExpanded.value = true
     }
   }
 }, { immediate: true })
 
-// Helper function to validate panel keys
 const isValidPanelKey = (key: string): key is PanelKey => {
   return PANEL_KEYS.includes(key as PanelKey)
 }
 
-// Methods - Update parameter types to accept string
 const toggleDock = (): void => {
   isDockOpen.value = !isDockOpen.value
 }
 
-const togglePanel = async (panel: string): Promise<void> => {
-  // Validate that the panel key exists
+const togglePanel = async(panel: string): Promise<void> => {
   if (!isValidPanelKey(panel)) {
     console.warn(`Invalid panel key: ${panel}`)
     return
   }
-  
+
   const wasActive = activePanels.value[panel]
   activePanels.value[panel] = !wasActive
-  
-  // Wait for reactivity to update
+
   await nextTick()
-  
-  // Auto-expand when opening a panel
+
   if (activePanels.value[panel]) {
     if (isMobile.value) {
-      // On mobile, switch to the newly opened panel
       const newIndex = activePanelKeys.value.indexOf(panel)
       if (newIndex !== -1) {
         activeMobilePanelIndex.value = newIndex
       }
     } else {
-      // On desktop, set as current panel and ensure expansion
       currentDesktopPanel.value = panel
     }
-    
-    // Always expand when opening a panel
+
     isExpanded.value = true
   }
-  
-  // Adjust mobile panel index if needed
+
   if (isMobile.value && activeMobilePanelIndex.value >= activePanelKeys.value.length) {
     activeMobilePanelIndex.value = Math.max(0, activePanelKeys.value.length - 1)
   }
@@ -229,22 +205,22 @@ const togglePanel = async (panel: string): Promise<void> => {
 
 const setCurrentDesktopPanel = (panel: string): void => {
   if (isMobile.value) return
-  
+
   if (!isValidPanelKey(panel)) {
     console.warn(`Invalid panel key: ${panel}`)
     return
   }
-  
+
   currentDesktopPanel.value = panel
   isExpanded.value = true // Ensure expansion when switching panels
 }
 
 const navigatePanel = (direction: number): void => {
   if (isMobile.value || activePanelKeys.value.length <= 1 || !currentDesktopPanel.value) return
-  
+
   const currentIndex = activePanelKeys.value.indexOf(currentDesktopPanel.value)
   const newIndex = currentIndex + direction
-  
+
   if (newIndex >= 0 && newIndex < activePanelKeys.value.length) {
     currentDesktopPanel.value = activePanelKeys.value[newIndex]
   }
@@ -273,11 +249,9 @@ const closeAll = (): void => {
   isDockOpen.value = false
 }
 
-// Keyboard shortcuts (desktop only)
 useEventListener('keydown', (e: KeyboardEvent) => {
-  // Only in development, desktop, and when Ctrl+Shift is pressed
   if (isMobile.value || !e.ctrlKey || !e.shiftKey) return
-  
+
   switch (e.key.toLowerCase()) {
     case 'd':
       e.preventDefault()

@@ -3,12 +3,12 @@ import { ref, computed } from 'vue'
 import { watchDebounced } from '@vueuse/core'
 
 export type StorageNamespace =
-  | 'meta'
-  | 'pwa'
-  | 'onboarding'
-  | 'devDock'
-  | 'router'
-  | 'panels'
+  | 'meta' |
+  'pwa' |
+  'onboarding' |
+  'devDock' |
+  'router' |
+  'panels'
 
 export interface AppDataBlob {
   meta?: { hasVisitedBefore?: boolean }
@@ -48,7 +48,6 @@ type NamespaceMap = {
 }
 
 export const useAppStorageStore = defineStore('appStorage', () => {
-  // --- Internal state
   const blob = ref<AppDataBlob>({} as AppDataBlob)
   const _initialized = ref(false)
 
@@ -56,12 +55,11 @@ export const useAppStorageStore = defineStore('appStorage', () => {
   const VERSION_KEY = 'app:storage-version'
   const STORAGE_VERSION = '0.0.2'
 
-  // --- Private helpers
   function _loadBlob(): void {
     try {
       const stored = localStorage.getItem(BLOB_KEY)
       blob.value = stored ? JSON.parse(stored) : {}
-    } catch (err) {
+    } catch(err) {
       console.warn('Failed to load storage blob:', err)
       blob.value = {}
     }
@@ -70,7 +68,7 @@ export const useAppStorageStore = defineStore('appStorage', () => {
   function _saveBlob(): void {
     try {
       localStorage.setItem(BLOB_KEY, JSON.stringify(blob.value))
-    } catch (err) {
+    } catch(err) {
       console.warn('Failed to save storage blob:', err)
     }
   }
@@ -82,7 +80,6 @@ export const useAppStorageStore = defineStore('appStorage', () => {
     }
   }
 
-  // --- Public getters
   const meta = computed(() => blob.value.meta ?? {})
   const pwa = computed(() => blob.value.pwa ?? {})
   const onboarding = computed(() => blob.value.onboarding ?? {})
@@ -90,10 +87,9 @@ export const useAppStorageStore = defineStore('appStorage', () => {
   const router = computed(() => blob.value.router ?? {})
   const panels = computed(() => blob.value.panels ?? {})
 
-  // --- Actions
   function initialize(): void {
-    ensureStorageVersion();
-    _ensureLoaded();
+    ensureStorageVersion()
+    _ensureLoaded()
   }
 
   function get<
@@ -123,7 +119,7 @@ export const useAppStorageStore = defineStore('appStorage', () => {
   ): void {
     _ensureLoaded()
     if (!blob.value[namespace]) blob.value[namespace] = {} as any
-    ;(blob.value[namespace] as any)[key] = value
+    ; (blob.value[namespace] as any)[key] = value
     _saveBlob()
   }
 
@@ -164,7 +160,6 @@ export const useAppStorageStore = defineStore('appStorage', () => {
     _saveBlob()
   }
 
-  // --- Top-level fast boot keys
   function getTopLevel(key: TopLevelKeys): string | null {
     return localStorage.getItem(key)
   }
@@ -182,19 +177,17 @@ export const useAppStorageStore = defineStore('appStorage', () => {
 
   function debugDump(): void {
     console.debug('AppStorage Dump:', JSON.stringify(blob.value, null, 2))
-    console.log("Blob Key:", BLOB_KEY)
+    console.log('Blob Key:', BLOB_KEY)
   }
 
-  // --- Cross-tab sync
   if (typeof window !== 'undefined') {
-    window.addEventListener('storage', (e) => {
+    window.addEventListener('storage', e => {
       if (e.key === BLOB_KEY) {
         _loadBlob()
       }
     })
   }
 
-  // --- Debounced persistence (reactive -> localStorage)
   watchDebounced(
     () => blob.value,
     () => {
@@ -222,6 +215,6 @@ export const useAppStorageStore = defineStore('appStorage', () => {
     getTopLevel,
     setTopLevel,
     ensureStorageVersion,
-    debugDump,
+    debugDump
   }
 })

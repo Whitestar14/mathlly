@@ -1,41 +1,35 @@
 <template>
   <div
     class="flex flex-col flex-grow transition-[padding] duration-300"
-    :class="mainContentClasses"
-  >
-    <!-- Route loading indicator -->
+    :class="mainContentClasses">
+
     <div
       v-show="showRouteLoading"
-      class="fixed left-0 top-0 h-0.5 w-full z-[100]"
-    >
-      <div class="h-full w-full bg-primary animate-[loading_1.2s_ease-in-out_infinite]" />
+      class="fixed left-0 top-0 h-0.5 w-full z-[100]">
+      <div class="h-full w-full bg-primary animate-[loading_1.2s_ease-in-out_infinite]"></div>
     </div>
-    <app-header
+    <AppHeader
       :is-sidebar-open="unref(sidebarPanel.isOpen)"
       :is-menubar-open="unref(menuPanel.isOpen)"
       @toggle-sidebar="sidebarPanel.toggle()"
       @toggle-menubar="menuPanel.toggle()"
-      @open-shortcut-modal="openShortcutModal"
-    />
+      @open-shortcut-modal="openShortcutModal" />
 
     <PanelLoader
       :component="SidebarMenu"
       :component-props="{ isMobile: device.isMobile, onSidebarClose: sidebarPanel.close }"
       side="left"
       :is-open="unref(sidebarPanel.isOpen)"
-      :width-rem="16"
-    />
+      :width-rem="16" />
 
     <RouterView v-slot="{ Component }">
       <Transition
         name="fade"
-        mode="out-in"
-      >
+        mode="out-in">
         <component
           :is="Component"
           :settings="settings"
-          :is-mobile="device.isMobile"
-        />
+          :is-mobile="device.isMobile" />
       </Transition>
     </RouterView>
 
@@ -43,14 +37,12 @@
       :component="MainMenu"
       side="right"
       :is-open="unref(menuPanel.isOpen)"
-      :width-rem="16"
-    />
+      :width-rem="16" />
 
     <Toast :is-mobile="device.isMobile" />
     <ModalProvider />
     <ShortcutGuide v-model:show="isShortcutModalOpen" />
 
-    <!-- Command Palette (completely self-contained) -->
     <CommandPalette />
   </div>
 </template>
@@ -75,10 +67,12 @@ import { RouterView } from 'vue-router'
 import { isRouteLoading } from '@router/router'
 import { useTimeoutFn } from '@vueuse/core'
 
-// Note for future maintainers: the order of these imports are important
-// because of the lazy loading of the components, ModalProvider must be imported after the other components
-// imported lazily along with ShortcutGuide.vue. Do NOT MOVE THESE COMPONENTS AROUND.
-// or the MainCalculator.vue panel loader will break!
+/**
+ *  Note for future maintainers: the order of these imports are important
+    because of the lazy loading of the components, ModalProvider must be imported after the other components
+    imported lazily along with ShortcutGuide.vue. Do NOT MOVE THESE COMPONENTS AROUND.
+    or the MainCalculator.vue panel loader will break!
+ */
 const SidebarMenu = defineAsyncComponent(() => import('../sidebar/SidebarMenu.vue'))
 const MainMenu = defineAsyncComponent(() => import('../sidebar/MainMenu.vue'))
 const Toast = defineAsyncComponent(() => import('@components/ui/BaseToast.vue'))
@@ -100,7 +94,7 @@ onMounted(() => {
     'Ctrl+L': () => sidebarPanel.toggle(),
     'Ctrl+M': () => menuPanel.toggle(),
     'Ctrl+Space': () => openShortcutModal(),
-    'Ctrl+Shift+K': () => toggleTheme(),
+    'Ctrl+Shift+K': () => toggleTheme()
   })
   keyboard.pushContext('global')
 })
@@ -127,7 +121,7 @@ const showRouteLoading = ref(false)
 let cancelShow: (() => void) | null = null
 let cancelHide: (() => void) | null = null
 
-watch(isRouteLoading, (loading) => {
+watch(isRouteLoading, loading => {
   if (loading) {
     cancelHide?.()
     const { stop } = useTimeoutFn(() => (showRouteLoading.value = true), 120)

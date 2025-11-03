@@ -1,23 +1,22 @@
 <script setup lang="ts">
-import { ref, type Ref, watch, toRef } from 'vue';
-import { usePills } from '@composables/ui/usePills';
-import { PillIndicator as Indicator } from '@components/ui';
+import { ref, type Ref, watch, toRef } from 'vue'
+import { usePills } from '@composables/ui/usePills'
+import { PillIndicator as Indicator } from '@components/ui'
 
-// Props follow v-model convention so the component can be used with v-model:currentTab
 const props = defineProps<{
   tabs: Array<{ value: string; label: string }>;
-  position?: 'bottom' |'left' | 'right' | 'top';
+  position?: 'bottom' | 'left' | 'right' | 'top';
   modelValue?: string | null;
-}>();
+}>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: string): void;
   (e: 'tab-change', value: string, element: HTMLElement | null): void;
-}>();
+}>()
 
-const tabElements: Ref<HTMLElement[] | null> = ref(null);
+const tabElements: Ref<HTMLElement[] | null> = ref(null)
 
-const defaultTab = (props.tabs && props.tabs[0] && props.tabs[0].value) || '';
+const defaultTab = (props.tabs && props.tabs[0] && props.tabs[0].value) || ''
 
 const { indicatorStyle, handleNavigation, initializePills, currentPill } = usePills({
   position: props.position ?? 'bottom',
@@ -25,26 +24,26 @@ const { indicatorStyle, handleNavigation, initializePills, currentPill } = usePi
   defaultPill: props.modelValue ?? defaultTab,
   containerRef: tabElements as any,
   onNavigate: (tabValue: string) => {
-    const el = (tabElements?.value as any)?.find?.((el: HTMLElement) => el?.dataset?.path === tabValue) ?? null;
-    emit('tab-change', tabValue, el);
-    emit('update:modelValue', tabValue);
+    const el = (tabElements?.value as any)?.find?.((el: HTMLElement) => el?.dataset?.path === tabValue) ?? null
+    emit('tab-change', tabValue, el)
+    emit('update:modelValue', tabValue)
   }
-});
+})
 
-const externalValue = toRef(props, 'modelValue');
-watch(externalValue, (v) => {
+const externalValue = toRef(props, 'modelValue')
+watch(externalValue, v => {
   if (v && v !== currentPill.value) {
-    initializePills(v as string, tabElements as any);
+    initializePills(v as string, tabElements as any)
   }
-});
+})
 
-defineExpose({ initializePills });
+defineExpose({ initializePills })
 
-const handleTabClick = async (tabValue: string, element: HTMLElement | null) => {
-  await handleNavigation(tabValue, element);
-  emit('tab-change', tabValue, element);
-  emit('update:modelValue', tabValue);
-};
+const handleTabClick = async(tabValue: string, element: HTMLElement | null) => {
+  await handleNavigation(tabValue, element)
+  emit('tab-change', tabValue, element)
+  emit('update:modelValue', tabValue)
+}
 </script>
 
 <template>
@@ -66,16 +65,14 @@ const handleTabClick = async (tabValue: string, element: HTMLElement | null) => 
               : 'text-muted-foreground dark:text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground',
           ]"
           @click="handleTabClick(tab.value, $event.target as HTMLElement)"
-          @keydown.enter.prevent="handleTabClick(tab.value, $event.target as HTMLElement)"
-        >
+          @keydown.enter.prevent="handleTabClick(tab.value, $event.target as HTMLElement)">
           {{ tab.label }}
         </div>
       </div>
     </div>
 
-    <!-- Right-side actions slot -->
     <div class="flex items-center gap-2 px-4">
-      <slot name="actions" />
+      <slot name="actions"></slot>
     </div>
   </div>
 </template>

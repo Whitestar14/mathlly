@@ -81,6 +81,6 @@ export function useColorHistory(): UseColorHistoryReturn {
     addToHistory,
     undo,
     redo,
-    clearHistory,
+    clearHistory
   }
 }

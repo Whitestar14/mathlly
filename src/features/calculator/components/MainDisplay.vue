@@ -1,31 +1,27 @@
 <template>
   <div class="flex-grow h-full relative overflow-hidden">
     <div class="text-right text-xl font-bold font-mono text-foreground">
-      <!-- Result container with hardware acceleration -->
+
       <div
         ref="resultContainer"
         class="absolute w-full will-change-transform"
         aria-atomic="true"
-        :class="{ 'opacity-100': isAnimating, 'opacity-0': !isAnimating }"
-      >
+        :class="{ 'opacity-100': isAnimating, 'opacity-0': !isAnimating }">
         <div :class="displayClass">
           {{ animatedResult }}
         </div>
       </div>
 
-      <!-- Input container with hardware acceleration -->
       <div
         ref="inputContainer"
         class="absolute grid grid-rows-[1.5fr_1fr] w-full h-full will-change-transform"
-        :class="{ 'opacity-0': isAnimating, 'opacity-100': !isAnimating }"
-      >
-        <!-- Display container -->
+        :class="{ 'opacity-0': isAnimating, 'opacity-100': !isAnimating }">
+
         <div
           ref="displayContainer"
           :class="displayClass"
           aria-live="polite"
-          aria-atomic="true"
-        >
+          aria-atomic="true">
           <template v-if="syntaxHighlightingEnabled">
             <span
               v-for="(token, index) in formattedTokens"
@@ -36,8 +32,7 @@
                 displayClass,
               ]"
               :data-token-type="token.type"
-              :data-parent-level="token.parentLevel"
-            >
+              :data-parent-level="token.parentLevel">
               {{ token.content }}
             </span>
           </template>
@@ -46,22 +41,19 @@
           </template>
         </div>
 
-        <!-- Preview/Error container -->
         <div
           v-if="preview && !error"
           ref="previewContainer"
           class="font-medium text-foreground/75 overflow-x-auto whitespace-nowrap scrollbar-hide"
           aria-live="polite"
-          aria-atomic="true"
-        >
+          aria-atomic="true">
           {{ preview }}
         </div>
         <div
           v-else-if="error"
           class="font-medium text-destructive overflow-x-auto whitespace-nowrap scrollbar-hide"
           aria-live="assertive"
-          aria-atomic="true"
-        >
+          aria-atomic="true">
           {{ error }}
         </div>
       </div>
@@ -70,13 +62,12 @@
 </template>
 
 <script setup lang="ts">
-import { inject, computed, onMounted, watch, onUnmounted, shallowRef, type Ref, type ComputedRef } from "vue"
+import { inject, computed, onMounted, watch, onUnmounted, shallowRef, type Ref, type ComputedRef } from 'vue'
 import { useElementSize, useScroll, useThrottleFn } from '@vueuse/core'
 import { useAnimation, type SlideAnimationControls } from '@composables/ui/useAnimation'
 import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptions'
 import { SyntaxHighlighter } from '@calculator/services/display/SyntaxHighlighter'
 
-// Define interfaces for props and emits
 interface Props {
   input?: string
   preview?: string
@@ -104,61 +95,52 @@ interface Calculator {
   }
 }
 
-// Define props with defaults
 const props = withDefaults(defineProps<Props>(), {
-  input: "",
-  preview: "",
-  error: "",
+  input: '',
+  preview: '',
+  error: '',
   isAnimating: false,
-  animatedResult: "",
-  activeBase: "DEC",
-  mode: "Standard"
+  animatedResult: '',
+  activeBase: 'DEC',
+  mode: 'Standard'
 })
 
-// Define emits
 const emit = defineEmits<{
   'scroll-update': [payload: ScrollUpdatePayload]
 }>()
 
-// Use calculator options instead of settings store
 const calculatorOptions = useCalculatorOptions()
 
-// DOM refs - use shallowRef for better performance with DOM elements
 const displayContainer: Ref<HTMLElement | null> = shallowRef(null)
 const resultContainer: Ref<HTMLElement | null> = shallowRef(null)
 const inputContainer: Ref<HTMLElement | null> = shallowRef(null)
 const previewContainer: Ref<HTMLElement | null> = shallowRef(null)
 
-// Animation service - created once and reused
 const animationService: SlideAnimationControls = (() => {
   const { createSlideAnimation } = useAnimation()
   return createSlideAnimation()
 })()
 
-// Inject calculator with proper typing
 const calculator = inject<Ref<Calculator>>('calculator')
 const parenthesesTracker = computed(() => calculator?.value?.operations?.parenthesesTracker)
 
-// Use VueUse for better performance
 const { width } = useElementSize(displayContainer)
 const { x: scrollLeft, arrivedState } = useScroll(displayContainer, {
   throttle: 16,
   onScroll: useThrottleFn(updateScrollState, 100)
 })
 
-// Use calculator options for syntax highlighting
-const syntaxHighlightingEnabled: ComputedRef<boolean> = computed(() => 
+const syntaxHighlightingEnabled: ComputedRef<boolean> = computed(() =>
   calculatorOptions.syntaxHighlighting.value
 )
 
 const getParenthesesLevelClass = (token: Token): string => {
   if (!['open', 'close', 'ghost', 'parenthesis'].includes(token.type)) return ''
-  
+
   if (token.type === 'ghost') return 'paren-ghost'
   return `paren-level-${Math.min(token.parentLevel || 0, 5)}`
 }
 
-// Enhanced token class to handle spaces and ghost parentheses
 const getTokenClass = (token: Token): string => {
   const baseClasses: Record<string, string> = {
     'number': 'syntax-string',
@@ -173,22 +155,20 @@ const getTokenClass = (token: Token): string => {
     'space': '',
     'text': 'syntax-keyword'
   }
-  
+
   let baseClass = baseClasses[token.type] || 'syntax-text'
-  
-  // Add mode-specific enhancements
+
   if (props.mode === 'Programmer' && token.type === 'number') {
     baseClass += ` syntax-number-${props.activeBase.toLowerCase()}`
   }
-  
+
   return baseClass
 }
 
-// Reactive font size calculation
 const getFontSizeClass = computed(() => {
   const length = props.input.length
   const { mode, activeBase } = props
-  
+
   if (mode === 'Standard') {
     if (length > 70) return 'text-xl'
     if (length > 50) return 'text-2xl'
@@ -204,13 +184,12 @@ const getFontSizeClass = computed(() => {
   }
 })
 
-// Reactive formatted tokens
 const formattedTokens: ComputedRef<Token[]> = computed(() => {
   if (!syntaxHighlightingEnabled.value) return []
-  
+
   return SyntaxHighlighter.format(
-    props.input, 
-    parenthesesTracker?.value, 
+    props.input,
+    parenthesesTracker?.value,
     true,
     {
       base: props.activeBase,
@@ -220,7 +199,6 @@ const formattedTokens: ComputedRef<Token[]> = computed(() => {
   )
 })
 
-// Simplified display class
 const displayClass: ComputedRef<string[]> = computed(() => [
   'mb-1 overflow-x-auto whitespace-nowrap scrollbar-hide',
   getFontSizeClass.value,
@@ -276,12 +254,10 @@ watch(() => props.isAnimating, (newValue: boolean) => {
   }
 }, { flush: 'post' })
 
-// Watch for calculator options changes and clear syntax highlighter cache
 watch(() => calculatorOptions.options.value, () => {
   SyntaxHighlighter.clearCache()
 }, { deep: true })
 
-// Clear cache when mode or base changes
 watch([() => props.mode, () => props.activeBase], () => {
   SyntaxHighlighter.clearCache()
 })
@@ -292,8 +268,8 @@ onUnmounted(() => {
 })
 
 defineExpose({
-  scrollToEnd, 
-  scrollToPrevious, 
+  scrollToEnd,
+  scrollToPrevious,
   scrollToNext
 })
 </script>

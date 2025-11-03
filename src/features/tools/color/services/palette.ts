@@ -1,4 +1,4 @@
-// @services/storage/palettes.ts
+
 import { toRaw } from 'vue'
 import db from '@services/storage/db'
 import type { RGB } from '@color/lib/color'
@@ -10,10 +10,9 @@ export interface PaletteEntity {
   createdAt: number
 }
 
-// --- utils ---
 function isValidRgb(c: any): c is RGB {
-  return c && Number.isInteger(c.r) && Number.isInteger(c.g) && Number.isInteger(c.b)
-    && c.r >= 0 && c.r <= 255 && c.g >= 0 && c.g <= 255 && c.b >= 0 && c.b <= 255
+  return c && Number.isInteger(c.r) && Number.isInteger(c.g) && Number.isInteger(c.b) &&
+    c.r >= 0 && c.r <= 255 && c.g >= 0 && c.g <= 255 && c.b >= 0 && c.b <= 255
 }
 
 export function sanitizeColor(c: RGB): RGB {
@@ -28,7 +27,7 @@ export function sanitizePalette(p: Partial<PaletteEntity>): PaletteEntity {
     id: String(raw.id ?? ''),
     name: String(raw.name ?? ''),
     colors,
-    createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : Date.now(),
+    createdAt: typeof raw.createdAt === 'number' ? raw.createdAt : Date.now()
   }
 }
 
@@ -36,7 +35,6 @@ export function generateId() {
   return (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`)
 }
 
-// --- service ---
 export async function ensureDefaultPalette(): Promise<void> {
   try {
     const defaultPaletteData = sanitizePalette({
@@ -47,17 +45,17 @@ export async function ensureDefaultPalette(): Promise<void> {
         { r: 245, g: 158, b: 11 },
         { r: 34, g: 197, b: 94 },
         { r: 59, g: 130, b: 246 },
-        { r: 147, g: 51, b: 234 },
+        { r: 147, g: 51, b: 234 }
       ],
-      createdAt: Date.now(),
-    });
+      createdAt: Date.now()
+    })
 
-    await db.table('palettes').put(defaultPaletteData);
-  } catch (error) {
+    await db.table('palettes').put(defaultPaletteData)
+  } catch(error) {
     if (error instanceof Error && error.message.includes('Key already exists')) {
-      return;
+      return
     }
-    throw error;
+    throw error
   }
 }
 
@@ -67,7 +65,6 @@ export async function fetchPalettes(): Promise<PaletteEntity[]> {
 }
 
 export async function nameExists(name: string, excludeId?: string): Promise<boolean> {
-  // Use case-insensitive check; Dexie doesn't have equalsIgnoreCase on filter, so normalize
   const all = await db.table('palettes').toArray() as PaletteEntity[]
   const target = name.toLowerCase()
   return all.some(p => p.id !== excludeId && p.name.toLowerCase() === target)
@@ -78,7 +75,7 @@ export async function createPalette(name: string, initialColor: RGB): Promise<Pa
     id: generateId(),
     name,
     colors: [sanitizeColor(initialColor)],
-    createdAt: Date.now(),
+    createdAt: Date.now()
   })
   await db.table('palettes').add(palette)
   return palette
@@ -99,7 +96,7 @@ export async function addColor(id: string, color: RGB): Promise<PaletteEntity | 
     id: p.id,
     name: p.name,
     colors: [...p.colors.map(sanitizeColor), sanitizeColor(color)],
-    createdAt: p.createdAt,
+    createdAt: p.createdAt
   })
   await db.table('palettes').put(next)
   return next
@@ -112,7 +109,7 @@ export async function removeColor(id: string, index: number): Promise<PaletteEnt
     id: p.id,
     name: p.name,
     colors: p.colors.filter((_, i) => i !== index).map(sanitizeColor),
-    createdAt: p.createdAt,
+    createdAt: p.createdAt
   })
   await db.table('palettes').put(next)
   return next
@@ -160,14 +157,12 @@ export async function importPaletteFromJSON(text: string, maxNameLength: number)
   const colors = (data.colors as any[]).filter(isValidRgb).map(sanitizeColor)
   if (colors.length === 0) throw new Error('No valid colors')
 
-  // Deduplicate name
   let finalName = name
   let suffix = 1
   while (await nameExists(finalName)) {
     finalName = `${name} (${suffix++})`
   }
 
-  // Deduplicate id
   let finalId = typeof data.id === 'string' ? data.id : generateId()
   while (await db.table('palettes').where('id').equals(finalId).count()) {
     finalId = generateId()
@@ -177,7 +172,7 @@ export async function importPaletteFromJSON(text: string, maxNameLength: number)
     id: finalId,
     name: finalName,
     colors,
-    createdAt: typeof data.createdAt === 'number' ? data.createdAt : Date.now(),
+    createdAt: typeof data.createdAt === 'number' ? data.createdAt : Date.now()
   })
   await db.table('palettes').add(imported)
   return imported

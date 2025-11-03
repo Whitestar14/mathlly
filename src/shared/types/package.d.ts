@@ -5,7 +5,7 @@ declare module '../../package.json' {
     private: boolean
     [key: string]: any
   }
-  
+
   const pkg: PackageJson
   export = pkg
 }

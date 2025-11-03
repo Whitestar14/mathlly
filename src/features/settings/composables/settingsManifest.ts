@@ -17,8 +17,8 @@ export const settingsManifest: SettingsManifestItem[] = [
       'home',
       'calculator page',
       'last visited',
-      'boot',
-    ],
+      'boot'
+    ]
   },
   {
     id: 'themes',
@@ -40,8 +40,8 @@ export const settingsManifest: SettingsManifestItem[] = [
       'large',
       'border radius',
       'sharp',
-      'rounded',
-    ],
+      'rounded'
+    ]
   },
   {
     id: 'advanced',
@@ -56,8 +56,8 @@ export const settingsManifest: SettingsManifestItem[] = [
       'issues',
       'problems',
       'data',
-      'storage',
-    ],
+      'storage'
+    ]
   },
   {
     id: 'keyboard',
@@ -69,8 +69,8 @@ export const settingsManifest: SettingsManifestItem[] = [
       'hotkeys',
       'keybindings',
       'keys',
-      'bindings',
-    ],
+      'bindings'
+    ]
   },
   {
     id: 'experimental',
@@ -84,7 +84,7 @@ export const settingsManifest: SettingsManifestItem[] = [
       'ctrl+k',
       'shortcuts',
       'navigation',
-      'early access',
-    ],
-  },
-];
+      'early access'
+    ]
+  }
+]

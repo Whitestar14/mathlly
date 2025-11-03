@@ -28,7 +28,7 @@ function exportHarmonyColors(harmonyType: string, baseColor: RGB, colors: RGB[])
     harmonyType,
     baseColor: rgbToHex(baseColor),
     colors: colors.map(rgbToHex),
-    count: colors.length,
+    count: colors.length
   }
   const filename = `harmony-${harmonyType}-${Date.now()}.json`
   exportJSON(data, filename, { type: 'color-harmony' })
@@ -56,7 +56,7 @@ function exportGradientColors(start: RGB & { a?: number }, end: RGB & { a?: numb
       const a = color.a ?? 1
       return a !== 1 ? `rgba(${color.r}, ${color.g}, ${color.b}, ${a})` : rgbToHex(color)
     }),
-    count: colors.length,
+    count: colors.length
   }
   const filename = `gradient-${gradientType}-${Date.now()}.json`
   exportJSON(data, filename, { type: 'color-gradient' })
@@ -72,6 +72,6 @@ export function useColorExport() {
   return {
     exportJSON,
     exportHarmonyColors,
-    exportGradientColors,
+    exportGradientColors
   }
 }

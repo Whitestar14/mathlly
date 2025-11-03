@@ -23,11 +23,10 @@ export interface ToolConfig<T extends Record<string, any> = Record<string, any>>
 }
 
 export const useToolSettingsStore = defineStore('toolSettings', () => {
-  // Current tool context from route
   const route = useRoute()
   const currentToolId = computed(() => {
     const path = route.path
-    
+
     if (path === '/calculator' || path.startsWith('/calculator/')) {
       return 'calculator'
     }
@@ -35,14 +34,13 @@ export const useToolSettingsStore = defineStore('toolSettings', () => {
       const toolName = path.split('/tools/')[1]?.split('/')[0]
       return toolName || null
     }
-    
+
     return null
   })
 
-  // Registry management
   const toolRegistry = ref(new Map<string, ToolConfig>())
   const isLoading = ref(false)
-  
+
   const registerTool = (config: ToolConfig) => {
     toolRegistry.value.set(config.toolId, markRaw(config))
   }
@@ -51,23 +49,20 @@ export const useToolSettingsStore = defineStore('toolSettings', () => {
     return toolRegistry.value.get(toolId) || null
   }
 
-  // Current tool configuration
   const currentToolConfig = computed(() => {
     const toolId = currentToolId.value
     return toolId ? getToolConfig(toolId) : null
   })
 
   return {
-    // Registry
+
     registerTool,
     getToolConfig,
-    
-    // Current tool
+
     currentToolId,
     currentToolConfig,
     isLoading,
-    
-    // Computed helpers
+
     hasCurrentTool: computed(() => !!currentToolId.value),
     hasCurrentToolOptions: computed(() => !!currentToolConfig.value?.options.length)
   }

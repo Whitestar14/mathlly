@@ -9,8 +9,7 @@
         :label="dropdownLabel"
         :placeholder="dropdownPlaceholder"
         :is-dropdown="true"
-        @update:model-value="$emit('update:dropdownValue', $event)"
-      />
+        @update:model-value="$emit('update:dropdownValue', $event)" />
       <input
         :id="id"
         ref="inputRef"
@@ -29,23 +28,21 @@
         :aria-describedby="error ? `${id}-error` : undefined"
         @input="(e: Event) => { $emit('update:modelValue', (e.target as HTMLInputElement).value); $emit('input', e) }"
         @focus="handleFocus"
-        @blur="$emit('blur', $event)"
-      >
+        @blur="$emit('blur', $event)" />
     </div>
 
     <div
       v-if="error"
       :id="`${id}-error`"
-      class="absolute -bottom-3 left-0 text-xs text-destructive"
-    >
+      class="absolute -bottom-3 left-0 text-xs text-destructive">
       {{ error }}
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick } from 'vue';
-import SelectBar from '@components/ui/SelectBar.vue';
+import { ref, computed, nextTick } from 'vue'
+import SelectBar from '@components/ui/SelectBar.vue'
 
 const props = defineProps({
   modelValue: {
@@ -104,7 +101,7 @@ const props = defineProps({
     type: Boolean,
     default: true
   }
-});
+})
 
 const emit = defineEmits<{
   'update:modelValue': [value: string | number];
@@ -112,21 +109,24 @@ const emit = defineEmits<{
   'focus': [event: FocusEvent];
   'blur': [event: FocusEvent];
   'input': [event: Event];
-}>();
+}>()
 
-const inputRef = ref<HTMLInputElement | null>(null);
+const inputRef = ref<HTMLInputElement | null>(null)
 
 const handleFocus = (event: FocusEvent) => {
-  emit('focus', event);
-  if (props.autoSelect) {
-    nextTick(() => inputRef.value?.select());
+  emit('focus', event)
+  if (props.autofocus) {
+    nextTick(() => inputRef.value?.focus())
   }
-};
+  if (props.autoSelect) {
+    nextTick(() => inputRef.value?.select())
+  }
+}
 
 defineExpose({
   focus: () => inputRef.value?.focus(),
   blur: () => inputRef.value?.blur(),
   select: () => inputRef.value?.select(),
   input: computed(() => inputRef.value)
-});
+})
 </script>

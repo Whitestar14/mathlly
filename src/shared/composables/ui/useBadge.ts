@@ -1,9 +1,9 @@
 /**
  * Available badge variant types for type safety
  */
-export type BadgeVariant = 
-  | 'default' | 'soon' | 'new' | 'custom' | 'accent' | 'special' 
-  | 'beta' | 'alpha' | 'warning' | 'success' | 'info';
+export type BadgeVariant =
+  | 'default' | 'soon' | 'new' | 'custom' | 'accent' | 'special' |
+  'beta' | 'alpha' | 'warning' | 'success' | 'info'
 
 /**
  * Standard badge styling with your original sophisticated colors
@@ -19,5 +19,5 @@ export const BADGE_VARIANTS: Record<BadgeVariant, string> = {
   alpha: 'bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800/30',
   warning: 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800/30',
   success: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/30',
-  info: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/30',
-};
+  info: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/30'
+}

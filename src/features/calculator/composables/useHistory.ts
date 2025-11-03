@@ -19,7 +19,7 @@ const isLoading: Ref<boolean> = ref(false)
 const historyMap: Record<CalculatorMode, Ref<HistoryItem[]>> = {
   Standard: ref([]),
   Scientific: ref([]),
-  Programmer: ref([]),
+  Programmer: ref([])
 }
 
 export interface UseHistoryReturn {
@@ -38,16 +38,16 @@ export interface UseHistoryReturn {
 }
 
 export function useHistory(): UseHistoryReturn {
-  const loadHistory = async (mode: CalculatorMode): Promise<boolean> => {
+  const loadHistory = async(mode: CalculatorMode): Promise<boolean> => {
     if (isLoading.value) return false
     isLoading.value = true
     try {
       const items = await db.history
-      .where('mode')
-      .equals(mode)
-      .reverse()
-      .limit(MAX_HISTORY_ITEMS)
-      .sortBy('timestamp')
+        .where('mode')
+        .equals(mode)
+        .reverse()
+        .limit(MAX_HISTORY_ITEMS)
+        .sortBy('timestamp')
 
       historyMap[mode].value = items.map(item => ({
         id: item.id,
@@ -56,10 +56,10 @@ export function useHistory(): UseHistoryReturn {
         timestamp: item.timestamp,
         mode: item.mode as CalculatorMode,
         base: item.base,
-        baseValues: item.baseValues,
+        baseValues: item.baseValues
       }))
       return true
-    } catch (err) {
+    } catch(err) {
       console.error('Error loading history:', err)
       historyMap[mode].value = []
       return false
@@ -69,7 +69,7 @@ export function useHistory(): UseHistoryReturn {
   }
 
   const addToHistory = useDebounceFn(
-    async (
+    async(
       expression: string,
       result: string,
       mode: CalculatorMode,
@@ -94,49 +94,49 @@ export function useHistory(): UseHistoryReturn {
           timestamp,
           mode,
           base,
-          baseValues,
+          baseValues
         })
 
         historyMap[mode].value = [
           { id, expression, result, timestamp, mode, base, baseValues },
-          ...list,
+          ...list
         ].slice(0, MAX_HISTORY_ITEMS)
 
         if (!isLoading.value) loadHistory(mode)
-      } catch (err) {
+      } catch(err) {
         console.error('Error adding to history:', err)
       }
     },
     300
   )
 
-  const deleteItem = async (id: number, mode: CalculatorMode): Promise<boolean> => {
+  const deleteItem = async(id: number, mode: CalculatorMode): Promise<boolean> => {
     try {
       await db.history.delete(id)
       historyMap[mode].value = historyMap[mode].value.filter(item => item.id !== id)
       return true
-    } catch (err) {
+    } catch(err) {
       console.error('Error deleting history item:', err)
       await loadHistory(mode)
       return false
     }
   }
 
-  const clearAll = async (mode: CalculatorMode): Promise<boolean> => {
+  const clearAll = async(mode: CalculatorMode): Promise<boolean> => {
     try {
       const items = await db.history.where('mode').equals(mode).toArray()
       const ids = items.map(i => i.id!).filter(Boolean)
       if (ids.length) await db.history.bulkDelete(ids)
       historyMap[mode].value = []
       return true
-    } catch (err) {
+    } catch(err) {
       console.error('Error clearing history:', err)
       return false
     }
   }
 
   onMounted(() => {
-    ;(['Standard', 'Scientific', 'Programmer'] as CalculatorMode[]).forEach(m => {
+    (['Standard', 'Scientific', 'Programmer'] as CalculatorMode[]).forEach(m => {
       if (historyMap[m].value.length === 0) loadHistory(m)
     })
   })
@@ -147,6 +147,6 @@ export function useHistory(): UseHistoryReturn {
     addToHistory,
     deleteItem,
     clearAll,
-    loadHistory,
+    loadHistory
   }
 }

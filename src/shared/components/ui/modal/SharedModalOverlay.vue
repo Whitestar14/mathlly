@@ -5,8 +5,7 @@
         v-if="hasOpenModals"
         class="fixed inset-0 bg-backdrop/50 backdrop-blur-sm"
         :style="{ zIndex: overlayZ }"
-        @click="closeTop"
-      />
+        @click="closeTop"></div>
     </Transition>
   </Teleport>
 </template>

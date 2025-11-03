@@ -1,27 +1,24 @@
-<!-- src/features/tools/color/components/CurrentColorCard.vue -->
 <template>
   <BaseCard title="Current color">
     <template #header>
       <div class="flex items-center gap-2">
-        <BaseButton 
-          v-tippy="{ content: 'Undo (Ctrl+Z)' }" 
-          variant="outline" 
+        <BaseButton
+          v-tippy="{ content: 'Undo (Ctrl+Z)' }"
+          variant="outline"
           size="icon"
           :disabled="!canUndo"
           aria-label="Undo last color change"
-          @click="props.onUndo"
-        >
+          @click="props.onUndo">
           <Undo class="h-4 w-4" />
         </BaseButton>
-     
+
         <BaseButton
           v-tippy="tooltipText"
           variant="outline"
           size="icon"
           :disabled="!canAddToPalette || colorExistsInPalette"
           aria-label="Add to palette"
-          @click="props.onAddToPalette"
-        >
+          @click="props.onAddToPalette">
           <Plus class="h-4 w-4" />
         </BaseButton>
 
@@ -30,43 +27,38 @@
           variant="outline"
           size="icon"
           aria-label="Open adjustments"
-          @click="openAdjustments"
-        >
+          @click="openAdjustments">
           <Settings2 class="h-4 w-4" />
         </BaseButton>
 
         <BaseButton
           variant="ghost"
           size="sm"
-          @click="genRandomColor"
-        >
+          @click="genRandomColor">
           <Shuffle class="h-4 w-4" /> <span class="hidden md:inline">Random</span>
         </BaseButton>
       </div>
     </template>
 
     <div class="flex flex-col lg:flex-row gap-6 mb-3">
-      <!-- Preview -->
+
       <div
         ref="previewEl"
         class="relative group w-full min-h-32 lg:h-auto flex-1 rounded-lg border border-border cursor-pointer overflow-hidden"
-        @click="handlePreviewClick"
-      >
-        <!-- Checkered background pattern (more visible) -->
+        @click="handlePreviewClick">
+
         <div
           class="absolute inset-0"
           :style="{
             backgroundImage: ` linear-gradient(45deg, #f0f0f0 25%, transparent 25%), linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #f0f0f0 75%), linear-gradient(-45deg, transparent 75%, #f0f0f0 75%) `,
             backgroundSize: '10px 10px',
             backgroundPosition: '0 0, 0 5px, 5px -5px, -5px 0px'
-          }"
-        />
-        <!-- Semi-transparent color overlay -->
+          }"></div>
+
         <div
           class="absolute inset-0"
-          :style="{ backgroundColor: rgbaText }"
-        />
-        <!-- Content overlay -->
+          :style="{ backgroundColor: rgbaText }"></div>
+
         <div class="absolute inset-0 flex flex-col items-center justify-center text-secondary bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
           <Copy class="h-6 w-6 mb-1" />
           <span class="text-xs font-medium">{{ rgbaText }}</span>
@@ -82,13 +74,11 @@
             height: r.size + 'px',
             marginTop: -(r.size / 2) + 'px',
             marginLeft: -(r.size / 2) + 'px',
-          }"
-        />
+          }"></span>
       </div>
 
-      <!-- Controls -->
       <div class="flex-1 space-y-4">
-        <!-- RGBA sliders -->
+
         <div class="space-y-4">
           <div class="flex items-center justify-between mb-2">
             <BaseLabel class="text-sm font-medium">
@@ -101,24 +91,20 @@
               :aria-label="isRgbLocked ? 'Unlock RGB sliders' : 'Lock RGB sliders'"
               :disabled="isAllBlack"
               :class="{ 'text-foreground/90': isRgbLocked }"
-              @click="isRgbLocked = !isRgbLocked"
-            >
+              @click="isRgbLocked = !isRgbLocked">
               <Lock
                 v-if="isRgbLocked"
-                class="h-4 w-4"
-              />
+                class="h-4 w-4" />
               <Unlock
                 v-else
-                class="h-4 w-4"
-              />
+                class="h-4 w-4" />
             </BaseButton>
           </div>
 
           <div
             v-for="k in rgbaKeys"
             :key="k"
-            class="space-y-2"
-          >
+            class="space-y-2">
             <BaseLabel>{{ labelMap[k] }}: {{ displayValue(k) }}</BaseLabel>
             <BaseSlider
               :model-value="[getValue(k)]"
@@ -126,12 +112,10 @@
               :max="k === 'a' ? 100 : 255"
               :step="1"
               class="w-full"
-              @update:model-value="onSliderUpdate(k, $event)"
-            />
+              @update:model-value="onSliderUpdate(k, $event)" />
           </div>
         </div>
 
-        <!-- Unified dropdown + input + picker -->
         <div class="flex gap-2 items-center">
           <InputGroup
             id="color-input"
@@ -146,8 +130,7 @@
             @focus="onFocus"
             @blur="onBlur"
             @input="onTyping"
-            @keydown.enter="onEnter"
-          />
+            @keydown.enter="onEnter" />
           <BaseColorPicker v-model="rgbaProxy" />
         </div>
       </div>
@@ -156,12 +139,10 @@
     <BaseAccordion
       default-value="format"
       :multiple="false"
-      :collapsible="true"
-    >
+      :collapsible="true">
       <AccordionItem
         id="formats"
-        title="Formats & Info"
-      >
+        title="Formats & Info">
         <FormatsInfoCard :formats="localFormats" />
       </AccordionItem>
     </BaseAccordion>
@@ -180,14 +161,13 @@ import { useToast } from '@composables/ui/useToast'
 import { useRipple } from '@composables/ui/useRipple'
 import { useKeyboardStore } from '@stores/keyboard'
 import { clamp255 } from '@color/lib/color'
-import type { RGBA, RGB, ColorFormats } from '@color/lib/color'
+import type { RGBA, RGB } from '@color/lib/color'
 import { formatRgbaPretty } from '@color/lib/utils'
 import type { PaletteEntity } from '@color/services/palette'
 import { useColorInput } from '@color/composables/useColorInput'
 
 const props = defineProps<{
   current: RGBA
-  formats: ColorFormats
   updateColor: (c: RGBA) => void
   selectedPaletteId: string
   palettes: PaletteEntity[]
@@ -202,35 +182,34 @@ const { copy } = useClipboard()
 const { info } = useToast()
 const panel = usePanel('adjustments')
 
-// Keyboard bindings (registered locally)
 const keyboard = useKeyboardStore()
 onMounted(() => {
   try {
     keyboard.attachAllForContext('tools.color', {
       'Ctrl+R': () => genRandomColor(),
-      'Ctrl+Shift+C': async () => {
+      'Ctrl+Shift+C': async() => {
         await copy(rgbaText.value)
         info(`${rgbaText.value} copied to clipboard`, { title: 'Copied!' })
       },
       'Ctrl+P': () => props.onAddToPalette(),
       'Ctrl+Z': () => props.onUndo()
     })
-  } catch (e) {}
+  } catch(e) {
+    console.error('Failed to attach keyboard context', e)
+  }
 })
 
-// Sliders
 const rgbaKeys = ['r', 'g', 'b', 'a'] as const
 type RgbaKey = typeof rgbaKeys[number]
 const labelMap: Record<RgbaKey, string> = { r: 'Red', g: 'Green', b: 'Blue', a: 'Alpha' }
 const getValue = (k: RgbaKey) => k === 'a' ? Math.round((props.current.a ?? 1) * 100) : props.current[k]
 const displayValue = (k: RgbaKey) => k === 'a' ? `${Math.round((props.current.a ?? 1) * 100)}%` : props.current[k]
 
-// Set RGBA single-channel with clamping
 const setRgba = (k: RgbaKey, v: number) => {
   const next: RGBA =
-    k === 'a'
-      ? { ...props.current, a: Math.max(0, Math.min(1, v / 100)) }
-      : { ...props.current, [k]: Math.max(0, Math.min(255, Math.round(v))) } as RGBA
+    k === 'a' ?
+      { ...props.current, a: Math.max(0, Math.min(1, v / 100)) } :
+      { ...props.current, [k]: Math.max(0, Math.min(255, Math.round(v))) } as RGBA
 
   if (
     next.r !== props.current.r ||
@@ -242,11 +221,9 @@ const setRgba = (k: RgbaKey, v: number) => {
   }
 }
 
-// Lock state
 const isRgbLocked = ref(false)
 const isAllBlack = computed(() => props.current.r === 0 && props.current.g === 0 && props.current.b === 0)
 
-// Fixed proportional adjustment (predictable, hue-preserving)
 const adjustRgbProportional = (key: RgbaKey, newValue: number) => {
   if (key === 'a') {
     setRgba('a', newValue)
@@ -254,7 +231,7 @@ const adjustRgbProportional = (key: RgbaKey, newValue: number) => {
   }
 
   const currentValue = props.current[key]
-  // If the driven channel is 0, scaling is undefined. Set only that channel and return.
+
   if (currentValue === 0) {
     const next: RGBA = { ...props.current, [key]: Math.max(0, Math.min(255, Math.round(newValue))) } as RGBA
     props.updateColor(next)
@@ -262,18 +239,17 @@ const adjustRgbProportional = (key: RgbaKey, newValue: number) => {
   }
 
   const factor = newValue / currentValue
-  
+
   const next: RGBA = {
     r: clamp255(props.current.r * factor),
     g: clamp255(props.current.g * factor),
     b: clamp255(props.current.b * factor),
-    a: props.current.a ?? 1,
+    a: props.current.a ?? 1
   }
 
   props.updateColor(next)
 }
 
-// Slider handler
 const onSliderUpdate = (k: RgbaKey, arr: number[]) => {
   const v = arr[0]
   if (isRgbLocked.value && (k === 'r' || k === 'g' || k === 'b')) {
@@ -283,42 +259,35 @@ const onSliderUpdate = (k: RgbaKey, arr: number[]) => {
   }
 }
 
-// Use the composable for input logic
 const { selectedFormat, colorInput, inputError, localFormats, placeholderForFormat, formatOptions, onFocus, onBlur, onEnter, onTyping } = useColorInput(computed(() => props.current), props.updateColor)
 
-// Picker proxy
 const rgbaProxy = computed<RGBA>({
   get: () => ({ r: props.current.r, g: props.current.g, b: props.current.b, a: props.current.a ?? 1 }),
-  set: (val) => {
+  set: val => {
     if (val.r !== props.current.r || val.g !== props.current.g || val.b !== props.current.b || (val.a ?? 1) !== (props.current.a ?? 1)) {
       props.updateColor({ r: val.r, g: val.g, b: val.b, a: val.a ?? 1 })
     }
-  },
+  }
 })
 
-// Preview text (not tied to input formatting)
 const rgbaText = computed(() => formatRgbaPretty(props.current))
 
-// Preview copy
-const handlePreviewClick = async (e: MouseEvent) => {
+const handlePreviewClick = async(e: MouseEvent) => {
   if (!previewEl.value) return
   triggerRipple(e, previewEl.value)
   await copy(rgbaText.value)
   info(`${rgbaText.value} copied to clipboard`, { title: 'Copied!' })
 }
 
-// Random color (preserve alpha)
 const genRandomColor = () => {
   const rnd: RGB = { r: Math.round(Math.random() * 255), g: Math.round(Math.random() * 255), b: Math.round(Math.random() * 255) }
   props.updateColor({ r: rnd.r, g: rnd.g, b: rnd.b, a: props.current.a ?? 1 })
 }
 
-// Open adjustments drawer panel
 function openAdjustments() {
   panel.toggle()
 }
 
-// Computed properties for palette integration
 const activePalette = computed(() => props.palettes.find(p => p.id === props.selectedPaletteId) ?? null)
 const canAddToPalette = computed(() => !!activePalette.value)
 const colorExistsInPalette = computed(() => {

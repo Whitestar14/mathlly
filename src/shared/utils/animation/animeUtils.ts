@@ -2,7 +2,6 @@
  * Utility functions for anime.js animations
  */
 
-// Define interfaces for anime.js utilities
 export interface AnimeInstance {
   (config: any): any;
   timeline: (options?: any) => any;
@@ -21,14 +20,14 @@ export interface AnimeUtils {
  * * @returns An object containing utility functions for anime.js.
  */
 export function createAnimeUtils(): AnimeUtils {
-  let animeInstance: AnimeInstance | null = null;
+  let animeInstance: AnimeInstance | null = null
   import('animejs/lib/anime.min.js')
     .then(module => {
-      animeInstance = module.default;
+      animeInstance = module.default
     })
     .catch(error => {
-      console.error('Failed to load anime.js:', error);
-    });
+      console.error('Failed to load anime.js:', error)
+    })
 
   /**
    * Get the anime.js instance.
@@ -36,10 +35,10 @@ export function createAnimeUtils(): AnimeUtils {
    */
   const getAnime = (): AnimeInstance => {
     if (!animeInstance) {
-      throw new Error('Anime.js is not yet loaded.');
+      throw new Error('Anime.js is not yet loaded.')
     }
-    return animeInstance;
-  };
+    return animeInstance
+  }
 
   /**
    * Create an anime.js timeline.
@@ -47,9 +46,9 @@ export function createAnimeUtils(): AnimeUtils {
    * @returns The anime.js timeline.
    */
   const createTimeline = (options: any = {}): any => {
-    const anime = getAnime();
-    return anime.timeline(options);
-  };
+    const anime = getAnime()
+    return anime.timeline(options)
+  }
 
   /**
    * Animate elements with anime.js.
@@ -58,16 +57,16 @@ export function createAnimeUtils(): AnimeUtils {
    * @returns The anime.js animation instance.
    */
   const animateElements = (elements: any, properties: any): any => {
-    const anime = getAnime();
+    const anime = getAnime()
     return anime({
       targets: elements,
       ...properties
-    });
-  };
+    })
+  }
 
   return {
     getAnime,
     createTimeline,
     animateElements
-  };
+  }
 }

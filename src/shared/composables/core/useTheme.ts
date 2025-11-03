@@ -1,5 +1,5 @@
-import { computed, watch, ref, type ComputedRef, type Ref } from 'vue'
-import { useDark, usePreferredDark, type RemovableRef } from '@vueuse/core'
+import { computed, watch, type ComputedRef } from 'vue'
+import { useDark, usePreferredDark, useStorage, type RemovableRef } from '@vueuse/core'
 import {
   THEME_OPTIONS,
   themeOptions,
@@ -9,10 +9,9 @@ import {
   themePackOptions,
   DEFAULT_THEME_PACK,
   type ThemeOption,
-  type ThemePackOption,
+  type ThemePackOption
 } from './themeConfig'
 
-// Visual config type (existing)
 export interface ThemeVisualConfig {
   colors: {
     primary: string
@@ -28,8 +27,8 @@ export interface ThemeVisualConfig {
 
 export interface UseThemeReturn {
   isDark: RemovableRef<boolean>
-  selectedTheme: Ref<ThemeOption>
-  selectedThemePack: Ref<ThemePackOption>
+  selectedTheme: ReturnType<typeof useStorage<ThemeOption>>
+  selectedThemePack: ReturnType<typeof useStorage<ThemePackOption>>
   isSystemTheme: ComputedRef<boolean>
   toggleTheme: () => void
   setTheme: (newTheme: ThemeOption) => void
@@ -38,52 +37,39 @@ export interface UseThemeReturn {
   themeOptions: typeof themeOptions
   themePackOptions: typeof themePackOptions
   themePackConfigs: typeof themePackConfigs
-
-  // Generic variants targeting the current pack
-  themeVariants: Ref<Partial<Record<ThemePackOption, Record<string, boolean>>>>
+  themeVariants: ReturnType<typeof useStorage<Partial<Record<ThemePackOption, Record<string, boolean>>>>>
   getThemeVariant: (key: string) => boolean
   setThemeVariant: (key: string, value: boolean) => void
 }
 
-const themeVariants = ref<Partial<Record<ThemePackOption, Record<string, boolean>>>>({})
+const K = {
+  THEME: 'app:theme',
+  PACK: 'app:theme-pack',
+  VARIANTS: 'app:theme-variants'
+} as const
 
 function resolveEffective(selected: ThemeOption, prefersDark: boolean): 'light' | 'dark' {
-  if (selected === THEME_OPTIONS.SYSTEM) return prefersDark ? 'dark' : 'light'
-  return selected as 'light' | 'dark'
+  return selected === THEME_OPTIONS.SYSTEM ? (prefersDark ? 'dark' : 'light') : (selected as 'light' | 'dark')
 }
 
-/**
- * Apply only the mode (light/dark) related UI, without touching pack/variants.
- * Important: This prevents variant toggles from flipping the mode.
- */
-function applyMode(theme: ThemeOption, prefersDark: boolean, isDarkRef: RemovableRef<boolean>): 'light' | 'dark' {
-  const effective = resolveEffective(theme, prefersDark)
-  isDarkRef.value = effective === 'dark'
-  document.documentElement.style.colorScheme = effective
-  return effective
+function applyMode(mode: 'light' | 'dark', isDarkRef: RemovableRef<boolean>): void {
+  isDarkRef.value = mode === 'dark'
+  document.documentElement.style.colorScheme = mode
 }
 
-/**
- * Apply only the pack and its variants as data attributes.
- */
-function applyPack(themePack: ThemePackOption, variants: Record<string, boolean> = {}): void {
+function applyPack(pack: ThemePackOption, variants: Record<string, boolean> = {}): void {
   const html = document.documentElement
-  html.setAttribute('data-theme-pack', themePack)
+  html.setAttribute('data-theme-pack', pack)
 
-  // Clear previous variant attrs
   Array.from(html.attributes)
-    .filter(attr => attr.name.startsWith('data-variant-'))
-    .forEach(attr => html.removeAttribute(attr.name))
+    .filter(a => a.name.startsWith('data-variant-'))
+    .forEach(a => html.removeAttribute(a.name))
 
-  // Apply current variants
-  Object.entries(variants).forEach(([key, value]) => {
-    html.setAttribute(`data-variant-${key}`, value.toString())
-  })
+  for (const [key, val] of Object.entries(variants)) {
+    html.setAttribute(`data-variant-${key}`, String(val))
+  }
 }
 
-/**
- * Update meta theme-color and Apple status bar based on current pack and mode.
- */
 function updateThemeElements(color: string, isDark: boolean): void {
   let themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement | null
   if (!themeColorMeta) {
@@ -103,160 +89,95 @@ function updateThemeElements(color: string, isDark: boolean): void {
 }
 
 /**
- * Apply everything coherently (mode + pack + meta), used on true theme changes.
+ * Single authoritative commit for DOM + meta updates.
+ * Idempotent and safe to call from init, watches, or storage events.
  */
-function applyAll(theme: ThemeOption, pack: ThemePackOption, prefersDark: boolean, isDarkRef: RemovableRef<boolean>) {
-  const effective = applyMode(theme, prefersDark, isDarkRef)
-  const variants = themeVariants.value[pack] ?? {}
+function commitTheme(
+  theme: ThemeOption,
+  pack: ThemePackOption,
+  variantsByPack: Partial<Record<ThemePackOption, Record<string, boolean>>>,
+  prefersDark: boolean,
+  isDarkRef: RemovableRef<boolean>
+): void {
+  const mode = resolveEffective(theme, prefersDark)
+  applyMode(mode, isDarkRef)
+  const variants = variantsByPack[pack] ?? {}
   applyPack(pack, variants)
-  const color = getThemeColor(pack, effective === 'dark')
-  updateThemeElements(color, effective === 'dark')
+  const color = getThemeColor(pack, mode === 'dark')
+  updateThemeElements(color, mode === 'dark')
 }
 
 export function useTheme(): UseThemeReturn {
   const isDark = useDark()
   const prefersDark = usePreferredDark()
 
-  const selectedTheme = ref<ThemeOption>(THEME_OPTIONS.SYSTEM)
-  const selectedThemePack = ref<ThemePackOption>(DEFAULT_THEME_PACK)
+  const selectedTheme = useStorage<ThemeOption>(K.THEME, THEME_OPTIONS.SYSTEM)
+  const selectedThemePack = useStorage<ThemePackOption>(K.PACK, DEFAULT_THEME_PACK)
+  const themeVariants = useStorage<Partial<Record<ThemePackOption, Record<string, boolean>>>>(K.VARIANTS, {})
 
-  // Load persisted variants
-  try {
-    const cachedVariants = JSON.parse(localStorage.getItem('app:theme-variants') || '{}')
-    if (cachedVariants && typeof cachedVariants === 'object') {
-      themeVariants.value = cachedVariants
-    }
-  } catch {}
+  commitTheme(selectedTheme.value, selectedThemePack.value, themeVariants.value, prefersDark.value, isDark)
 
-  // Initial apply using both mode and pack
-  try {
-    const cachedTheme = (localStorage.getItem('app:theme') as ThemeOption) || THEME_OPTIONS.SYSTEM
-    const cachedPack = (localStorage.getItem('app:theme-pack') as ThemePackOption) || DEFAULT_THEME_PACK
-    selectedTheme.value = cachedTheme
-    selectedThemePack.value = cachedPack
-    applyAll(selectedTheme.value, selectedThemePack.value, prefersDark.value, isDark)
-  } catch {}
+  watch([selectedTheme, selectedThemePack, prefersDark], () => {
+    commitTheme(selectedTheme.value, selectedThemePack.value, themeVariants.value, prefersDark.value, isDark)
+  })
 
-  // Persist variants and apply ONLY pack when variants change
-  watch(themeVariants, (newVariants) => {
-    try { localStorage.setItem('app:theme-variants', JSON.stringify(newVariants)) } catch {}
-    const pack = selectedThemePack.value
-    const variants = themeVariants.value[pack] ?? {}
-    applyPack(pack, variants)
-    // Do NOT touch mode or meta color here to avoid flipping light/dark
-    const effective = resolveEffective(selectedTheme.value, prefersDark.value)
-    const color = getThemeColor(pack, effective === 'dark')
-    updateThemeElements(color, effective === 'dark')
+  watch(themeVariants, () => {
+    commitTheme(selectedTheme.value, selectedThemePack.value, themeVariants.value, prefersDark.value, isDark)
   }, { deep: true })
 
-  // Theme option changes (light/dark/system) → apply mode + pack coherently
-  watch(selectedTheme, (newTheme) => {
-    try { localStorage.setItem('app:theme', newTheme) } catch {}
-
-    // Keep pack synced from storage if needed
-    const currentPack = (localStorage.getItem('app:theme-pack') as ThemePackOption) || DEFAULT_THEME_PACK
-    if (selectedThemePack.value !== currentPack) {
-      selectedThemePack.value = currentPack
-    }
-
-    applyAll(newTheme, selectedThemePack.value, prefersDark.value, isDark)
-  })
-
-  // Pack changes → apply mode + new pack coherently
-  watch(selectedThemePack, (newPack) => {
-    try { localStorage.setItem('app:theme-pack', newPack) } catch {}
-
-    const currentTheme = (localStorage.getItem('app:theme') as ThemeOption) || THEME_OPTIONS.SYSTEM
-    if (selectedTheme.value !== currentTheme) {
-      selectedTheme.value = currentTheme
-    }
-
-    applyAll(selectedTheme.value, newPack, prefersDark.value, isDark)
-  })
-
-  // System preference changes → only matters when using system
-  watch(prefersDark, () => {
-    if (selectedTheme.value === THEME_OPTIONS.SYSTEM) {
-      applyAll(selectedTheme.value, selectedThemePack.value, prefersDark.value, isDark)
-    }
-  })
-
-  // Add storage event listener for cross-tab theme pack sync
   if (typeof window !== 'undefined') {
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'app:theme-pack') {
-        const newPack = event.newValue as ThemePackOption
-        if (newPack && selectedThemePack.value !== newPack && newPack in themePackConfigs) {
-          selectedThemePack.value = newPack
-          applyAll(selectedTheme.value, newPack, prefersDark.value, isDark)
+    window.addEventListener('storage', e => {
+      if (!e.key) return
+      if (e.key === K.THEME && e.newValue) selectedTheme.value = e.newValue as ThemeOption
+      if (e.key === K.PACK && e.newValue) selectedThemePack.value = e.newValue as ThemePackOption
+      if (e.key === K.VARIANTS) {
+        try {
+          themeVariants.value = JSON.parse(e.newValue || '{}')
+        } catch(err) {
+          console.warn('Passive variants sync error', err)
         }
       }
-      // Also sync theme variants
-      if (event.key === 'app:theme-variants') {
-        try {
-          const newVariants = JSON.parse(event.newValue || '{}')
-          if (newVariants && typeof newVariants === 'object') {
-            themeVariants.value = newVariants
-            const pack = selectedThemePack.value
-            const variants = themeVariants.value[pack] ?? {}
-            applyPack(pack, variants)
-          }
-        } catch {}
-      }
+      commitTheme(selectedTheme.value, selectedThemePack.value, themeVariants.value, prefersDark.value, isDark)
     })
   }
 
-  const isSystemTheme: ComputedRef<boolean> = computed(() => selectedTheme.value === THEME_OPTIONS.SYSTEM)
+  const isSystemTheme = computed(() => selectedTheme.value === THEME_OPTIONS.SYSTEM)
 
   const toggleTheme = (): void => {
-    let newTheme: ThemeOption
-
-    if (selectedTheme.value === THEME_OPTIONS.SYSTEM) {
-      // If system, flip relative to current effective mode
-      newTheme = isDark.value ? THEME_OPTIONS.LIGHT : THEME_OPTIONS.DARK
-    } else {
-      newTheme = selectedTheme.value === THEME_OPTIONS.DARK
-        ? THEME_OPTIONS.LIGHT
-        : THEME_OPTIONS.DARK
-    }
-
-    selectedTheme.value = newTheme
-    try { localStorage.setItem('app:theme', newTheme) } catch {}
-
-    // Apply everything coherently
-    applyAll(newTheme, selectedThemePack.value, prefersDark.value, isDark)
+    const current = selectedTheme.value
+    const next =
+      current === THEME_OPTIONS.SYSTEM ?
+        (isDark.value ? THEME_OPTIONS.LIGHT : THEME_OPTIONS.DARK) :
+        current === THEME_OPTIONS.DARK ?
+          THEME_OPTIONS.LIGHT :
+          THEME_OPTIONS.DARK
+    selectedTheme.value = next
+    commitTheme(next, selectedThemePack.value, themeVariants.value, prefersDark.value, isDark)
   }
 
   const setTheme = (newTheme: ThemeOption): void => {
     if (Object.values(THEME_OPTIONS).includes(newTheme)) {
       selectedTheme.value = newTheme
+      commitTheme(newTheme, selectedThemePack.value, themeVariants.value, prefersDark.value, isDark)
     } else {
       console.warn(`Invalid theme: ${newTheme}.`)
     }
   }
 
-  const setThemePack = (newThemePack: ThemePackOption): void => {
-    if (newThemePack in themePackConfigs) {
-      selectedThemePack.value = newThemePack
+  const setThemePack = (newPack: ThemePackOption): void => {
+    if (newPack in themePackConfigs) {
+      selectedThemePack.value = newPack
+      commitTheme(selectedTheme.value, newPack, themeVariants.value, prefersDark.value, isDark)
     } else {
-      console.warn(`Invalid theme pack: ${newThemePack}.`)
+      console.warn(`Invalid theme pack: ${newPack}.`)
     }
   }
 
-  /**
-   * Variant API: implicitly targets the current pack.
-   * This does not change theme mode; it only updates attributes + persists.
-   */
   function setThemeVariant(key: string, value: boolean) {
     const pack = selectedThemePack.value
     const existing = themeVariants.value[pack] ?? {}
-    themeVariants.value[pack] = { ...existing, [key]: value }
-    try { localStorage.setItem('app:theme-variants', JSON.stringify(themeVariants.value)) } catch {}
-    // Apply only pack/variants, keep mode intact
-    applyPack(pack, themeVariants.value[pack]!)
-    const effective = resolveEffective(selectedTheme.value, prefersDark.value)
-    const color = getThemeColor(pack, effective === 'dark')
-    updateThemeElements(color, effective === 'dark')
+    themeVariants.value = { ...themeVariants.value, [pack]: { ...existing, [key]: value } }
+    commitTheme(selectedTheme.value, pack, themeVariants.value, prefersDark.value, isDark)
   }
 
   function getThemeVariant(key: string): boolean {
@@ -276,9 +197,8 @@ export function useTheme(): UseThemeReturn {
     themeOptions,
     themePackOptions,
     themePackConfigs,
-
     themeVariants,
     setThemeVariant,
-    getThemeVariant,
+    getThemeVariant
   }
 }

@@ -4,17 +4,14 @@ import { detectFormat, parseWithFormatTolerant, parseAutoSimple, normalizeDispla
 
 export function useColorInput(
   currentColor: Ref<RGBA>,
-  onColorUpdate: (c: RGBA) => void,
+  onColorUpdate: (c: RGBA) => void
 ) {
-
-  // Internal state
   const selectedFormat = ref<InputFormat>('auto')
   const lastAutoFormat = ref<ResolvedFormat | null>('hex')
   const isEditing = ref(false)
   const colorInput = ref('')
   const inputError = ref('')
 
-  // Computed properties
   const localFormats = computed<ColorFormats>(() => convertColor(currentColor.value))
 
   const placeholderForFormat = computed(() => {
@@ -29,7 +26,6 @@ export function useColorInput(
 
   const rgbaText = computed(() => formatRgbaPretty(currentColor.value))
 
-  // Core methods
   const processInput = (raw: string) => {
     const alpha = currentColor.value.a ?? 1
 
@@ -67,7 +63,7 @@ export function useColorInput(
 
   const onBlur = () => {
     isEditing.value = false
-    // QoL: expand shorthand hex on blur
+
     if (selectedFormat.value === 'hex' && isShorthandHex(colorInput.value)) {
       colorInput.value = expandShorthandHex(colorInput.value)
     }
@@ -85,7 +81,6 @@ export function useColorInput(
     )
   }
 
-  // Watchers
   watch(
     () => currentColor.value,
     () => {
@@ -107,16 +102,14 @@ export function useColorInput(
     }
   )
 
-  // formatOptions
   const formatOptions = [
     { value: 'auto', label: 'Auto' },
     { value: 'hex', label: 'HEX' },
     { value: 'rgba', label: 'RGBA' },
     { value: 'hsla', label: 'HSLA' },
-    { value: 'oklch', label: 'OKLCH' },
+    { value: 'oklch', label: 'OKLCH' }
   ]
 
-  // Return object
   return {
     selectedFormat,
     colorInput,

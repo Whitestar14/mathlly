@@ -1,6 +1,6 @@
 <template>
   <BaseCard>
-    <!-- Head: left = controls label, right = actions -->
+
     <template #head>
       <div class="flex items-center justify-between w-full gap-3">
         <BaseLabel class="text-sm font-medium">
@@ -12,8 +12,7 @@
             { value: 'linear', label: 'Linear' },
             { value: 'radial', label: 'Radial' }
           ]"
-          class="flex-shrink-0"
-        />
+          class="flex-shrink-0" />
       </div>
     </template>
 
@@ -24,8 +23,7 @@
           size="icon"
           variant="outline"
           aria-label="Copy CSS"
-          @click="copyGradientCSS"
-        >
+          @click="copyGradientCSS">
           <Copy class="size-4" />
         </BaseButton>
         <BaseButton
@@ -33,16 +31,14 @@
           size="icon"
           variant="outline"
           aria-label="Export swatches"
-          @click="exportSwatches"
-        >
+          @click="exportSwatches">
           <Download class="size-4" />
         </BaseButton>
       </div>
     </template>
 
-    <!-- Body with preview always visible -->
     <div class="space-y-6">
-      <!-- Always visible preview section -->
+
       <div class="space-y-3">
         <div class="flex items-center justify-between">
           <BaseLabel class="text-sm font-medium">
@@ -58,9 +54,8 @@
             v-tippy="{ content: gradientCss, placement: 'top' }"
             class="w-full h-full"
             :style="{ background: gradientCss }"
-            aria-label="Gradient preview"
-          >
-            <!-- Compact swatch strip overlay -->
+            aria-label="Gradient preview">
+
             <div class="absolute bottom-2 left-2 right-2 flex gap-1 justify-center">
               <button
                 v-for="(color, index) in gradientColors"
@@ -69,28 +64,24 @@
                 :class="['w-6 h-6 rounded border border-white/50 shadow-sm cursor-pointer transition-all hover:scale-110 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50', color.a < 1 ? 'bg-checkerboard' : '']"
                 :style="{ backgroundColor: rgbaToCss(color, color.a) }"
                 :aria-label="`Stop ${index + 1}: ${rgbaToCss(color, color.a)}`"
-                @click="onStopClick(color)"
-              />
+                @click="onStopClick(color)"></button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Organized sections with accordions -->
       <BaseAccordion
         default-value=""
         :multiple="false"
-        class="space-y-0"
-      >
-        <!-- Color Controls - Primary interaction -->
+        class="space-y-0">
+
         <AccordionItem
           id="colors"
-          title="Color controls"
-        >
+          title="Color controls">
           <div class="space-y-4">
-            <!-- Start/End color pickers -->
+
             <div class="flex justify-around px-2 py-1 gap-3 md:gap-2 align-center">
-              <!-- Start color -->
+
               <div class="space-y-2">
                 <BaseLabel class="text-xs">
                   Start color
@@ -99,8 +90,7 @@
                   <Swatch
                     :color="startRgb"
                     class="flex-none w-6 h-6"
-                    @click="onStartColorSelect(startRgb)"
-                  />
+                    @click="onStartColorSelect(startRgb)" />
                   <BaseInput
                     v-model="startColorInputRef"
                     v-tippy="{ content: 'Type hex (e.g. #22c55e) or use the picker' }"
@@ -112,13 +102,11 @@
                     @focus="onStartFocus"
                     @blur="onStartBlur"
                     @keydown.enter="onStartEnter"
-                    @input="onStartTyping"
-                  />
+                    @input="onStartTyping" />
                   <BaseColorPicker v-model="startRgba" />
                 </div>
               </div>
 
-              <!-- End color -->
               <div class="space-y-2">
                 <BaseLabel class="text-xs">
                   End color
@@ -127,8 +115,7 @@
                   <Swatch
                     :color="endRgb"
                     class="flex-none w-6 h-6"
-                    @click="onEndColorSelect(endRgb)"
-                  />
+                    @click="onEndColorSelect(endRgb)" />
                   <BaseInput
                     v-model="endColorInputRef"
                     v-tippy="{ content: 'Type hex (e.g. #ef4444) or use the picker' }"
@@ -140,8 +127,7 @@
                     @focus="onEndFocus"
                     @blur="onEndBlur"
                     @keydown.enter="onEndEnter"
-                    @input="onEndTyping"
-                  />
+                    @input="onEndTyping" />
                   <BaseColorPicker v-model="endRgba" />
                 </div>
               </div>
@@ -149,13 +135,11 @@
           </div>
         </AccordionItem>
 
-        <!-- Gradient Settings - Secondary controls -->
         <AccordionItem
           id="settings"
-          title="Advanced settings"
-        >
+          title="Advanced settings">
           <div class="space-y-6 p-2">
-            <!-- Steps control -->
+
             <div class="space-y-3">
               <div class="flex items-center gap-2 justify-between">
                 <BaseLabel class="text-sm font-medium">
@@ -169,8 +153,7 @@
                   min="3"
                   max="12"
                   placeholder="3-12"
-                  aria-label="Gradient steps (3-12)"
-                />
+                  aria-label="Gradient steps (3-12)" />
               </div>
               <BaseSlider
                 :model-value="[gradientSteps]"
@@ -178,18 +161,15 @@
                 :max="MAX_STEPS"
                 :step="1"
                 class="w-full"
-                @update:model-value="(v: number[]) => setGradientSteps(v[0])"
-              />
+                @update:model-value="(v: number[]) => setGradientSteps(v[0])" />
               <p class="text-xs text-muted-foreground">
                 Controls how many color stops are generated
               </p>
             </div>
 
-            <!-- Angle control (only for linear) -->
             <div
               v-if="gradientType === 'linear'"
-              class="space-y-3"
-            >
+              class="space-y-3">
               <div class="flex items-center gap-2 justify-between">
                 <BaseLabel class="text-sm font-medium">
                   Angle
@@ -202,8 +182,7 @@
                   min="0"
                   max="360"
                   placeholder="0-360°"
-                  aria-label="Gradient angle (0-360°)"
-                />
+                  aria-label="Gradient angle (0-360°)" />
               </div>
               <BaseSlider
                 :model-value="[angle]"
@@ -211,8 +190,7 @@
                 :max="360"
                 :step="1"
                 class="w-full"
-                @update:model-value="(v: number[]) => setAngle(v[0])"
-              />
+                @update:model-value="(v: number[]) => setAngle(v[0])" />
               <p class="text-xs text-muted-foreground">
                 Direction of the gradient in degrees
               </p>
@@ -244,36 +222,29 @@ const props = defineProps<{
 const { info, error } = useToast()
 const { exportGradientColors } = useColorExport()
 
-// Bounds
 const MIN_STEPS = 3
 const MAX_STEPS = 12
 
-// Single source of truth: RGBA
 const startRgba = ref<RGBA>({ r: props.currentColor.r, g: props.currentColor.g, b: props.currentColor.b, a: props.currentColor.a ?? 1 })
 const endRgba = ref<RGBA>({ r: 255, g: 0, b: 0, a: 1 })
 
-// Derive RGB live from RGBA (swatches update instantly)
 const startRgb = computed<RGB>(() => ({ r: startRgba.value.r, g: startRgba.value.g, b: startRgba.value.b }))
 const endRgb = computed<RGB>(() => ({ r: endRgba.value.r, g: endRgba.value.g, b: endRgba.value.b }))
 
-// Use useColorInput composable for start color
-const startColorInput = useColorInput(computed(() => startRgba.value), (c) => { startRgba.value = c })
+const startColorInput = useColorInput(computed(() => startRgba.value), c => { startRgba.value = c })
 const { colorInput: startColorInputRef, inputError: startInputError, onFocus: onStartFocus, onBlur: onStartBlur, onEnter: onStartEnter, onTyping: onStartTyping } = startColorInput
 
-// Use useColorInput composable for end color
-const endColorInput = useColorInput(computed(() => endRgba.value), (c) => { endRgba.value = c })
+const endColorInput = useColorInput(computed(() => endRgba.value), c => { endRgba.value = c })
 const { colorInput: endColorInputRef, inputError: endInputError, onFocus: onEndFocus, onBlur: onEndBlur, onEnter: onEndEnter, onTyping: onEndTyping } = endColorInput
 
-// Steps and angle
 const gradientSteps = ref<number>(5)
 const angle = ref<number>(90)
 const setGradientSteps = (n: number) => { gradientSteps.value = Math.min(MAX_STEPS, Math.max(MIN_STEPS, Math.round(n))) }
 const setAngle = (n: number) => { angle.value = Math.min(360, Math.max(0, Math.round(n))) }
 
-// Watch currentColor and update startRgba when it changes
 watch(
   () => props.currentColor,
-  (newColor) => {
+  newColor => {
     startRgba.value = { r: newColor.r, g: newColor.g, b: newColor.b, a: newColor.a ?? 1 }
   },
   { deep: true }
@@ -281,7 +252,6 @@ watch(
 
 const gradientType = ref<'linear' | 'radial'>('linear')
 
-// Gradient stops
 const gradientColors = computed<(RGB & { a: number })[]>(() => {
   const start = startRgba.value
   const end = endRgba.value
@@ -308,22 +278,20 @@ const gradientCss = computed(() => {
   const stops = gradientColors.value
     .map((color, index) => `${rgbaToCss(color, color.a)} ${(index / (gradientColors.value.length - 1)) * 100}%`)
     .join(', ')
-  
+
   if (gradientType.value === 'radial') {
     return `radial-gradient(circle, ${stops})`
   }
   return `linear-gradient(${angle.value}deg, ${stops})`
 })
 
-// Export swatches to JSON
 const exportSwatches = () => {
   exportGradientColors(startRgba.value, endRgba.value, gradientSteps.value, angle.value, gradientColors.value, gradientType.value)
 }
 
 const { copy } = useClipboard()
 
-// Actions
-const copyGradientCSS = async () => {
+const copyGradientCSS = async() => {
   try {
     await copy(gradientCss.value)
     info('Gradient CSS copied to clipboard', { title: 'Copied!' })
@@ -333,7 +301,6 @@ const copyGradientCSS = async () => {
 }
 
 const onStopClick = (c: RGB & { a: number }) => {
-  // Promote clicked stop into start color and notify page
   startRgba.value = { r: c.r, g: c.g, b: c.b, a: c.a }
   props.onColorSelect({ r: c.r, g: c.g, b: c.b, a: c.a })
 }
@@ -346,7 +313,6 @@ const onEndColorSelect = (c: RGB) => {
   props.onColorSelect({ r: c.r, g: c.g, b: c.b, a: endRgba.value.a })
 }
 
-// Utils
 function rgbaToCss(c: RGB, alpha?: number) {
   const toHex = (n: number) => Math.min(255, Math.max(0, Math.round(n))).toString(16).padStart(2, '0')
   if (alpha !== undefined && alpha !== 1) return `rgba(${c.r}, ${c.g}, ${c.b}, ${alpha})`

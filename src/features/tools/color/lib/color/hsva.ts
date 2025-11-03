@@ -1,7 +1,7 @@
-// src/features/tools/color/composables/hsva.ts
-import { clamp01 } from "./converters"
-import { HSVA, RGBA } from "./types"
-import { rgbToHsv, hsvToRgb } from "./converters"
+
+import { clamp01 } from './converters'
+import { HSVA, RGBA } from './types'
+import { rgbToHsv, hsvToRgb } from './converters'
 
 export function hsvaToRgba(hsva: HSVA): RGBA {
   const rgb = hsvToRgb({ h: hsva.h, s: hsva.s * 100, v: hsva.v * 100 })
@@ -10,8 +10,8 @@ export function hsvaToRgba(hsva: HSVA): RGBA {
 
 export function hexToHsva(hex: string): HSVA | null {
   if (!hex) return null
-  let h = hex.trim().replace(/^#/, "").toLowerCase()
-  if (h.length === 3 || h.length === 4) h = h.split("").map(c => c + c).join("")
+  let h = hex.trim().replace(/^#/, '').toLowerCase()
+  if (h.length === 3 || h.length === 4) h = h.split('').map(c => c + c).join('')
   if (!(h.length === 6 || h.length === 8)) return null
   const r = parseInt(h.slice(0, 2), 16)
   const g = parseInt(h.slice(2, 4), 16)

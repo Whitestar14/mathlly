@@ -1,12 +1,11 @@
 <template>
   <BaseCard>
-    <!-- Head: segmented control for harmony type -->
+
     <template #head>
       <SegmentedControl
         v-model="tab"
         :options="tabs"
-        :max-visible="2"
-      />
+        :max-visible="2" />
     </template>
 
     <template #header>
@@ -15,19 +14,16 @@
         size="icon"
         variant="outline"
         aria-label="Export harmony colors"
-        @click="handleExport"
-      >
+        @click="handleExport">
         <Download class="size-4" />
       </BaseButton>
     </template>
 
-    <!-- Body: active harmony swatches -->
     <ColorHarmonies
       :current="current"
       :active="tab"
       :on-select="onSelect"
-      @update:active="(val: Harmonies) => (tab = val)"
-    />
+      @update:active="(val: Harmonies) => (tab = val)" />
   </BaseCard>
 </template>
 
@@ -49,7 +45,6 @@ const props = defineProps<{
   onSelect: (c: any) => void
 }>()
 
-// v-model for active harmony
 const tab = defineModel<Harmonies>('tab', { default: 'complementary' })
 
 const { exportHarmonyColors } = useColorExport()

@@ -1,4 +1,4 @@
-// src/stores/keyboard.ts
+
 import { defineStore } from 'pinia'
 import { useSettingsStore } from './settings'
 
@@ -172,7 +172,7 @@ export const useKeyboardStore = defineStore('keyboard', {
     /**
      * Global enabled state for keyboard shortcuts.
      */
-    globalEnabled: true,
+    globalEnabled: true
   }),
 
   getters: {
@@ -188,7 +188,7 @@ export const useKeyboardStore = defineStore('keyboard', {
      */
     isGloballyEnabled(state): boolean {
       return state.globalEnabled
-    },
+    }
   },
 
   actions: {
@@ -255,7 +255,7 @@ export const useKeyboardStore = defineStore('keyboard', {
         ...binding,
         preventDefault: binding.preventDefault ?? true,
         priority: binding.priority ?? 0,
-        enabled: binding.enabled ?? false,
+        enabled: binding.enabled ?? false
       }
 
       const list = this.bindingsByKey.get(entry.key) ?? []
@@ -269,7 +269,7 @@ export const useKeyboardStore = defineStore('keyboard', {
           description: entry.description,
           context: entry.context,
           priority: entry.priority!,
-          enabled: entry.enabled!,
+          enabled: entry.enabled!
         })
       }
 
@@ -405,7 +405,6 @@ export const useKeyboardStore = defineStore('keyboard', {
       const rawKey = e.key
       const code = e.code
 
-      // Resolve explicit bindings
       const candidates = this.bindingsByKey.get(canonical) ?? []
       const enabled = candidates.filter(b => b.enabled && !!b.action)
       const resolved = this.resolveByContextAndPriority(enabled)
@@ -419,7 +418,6 @@ export const useKeyboardStore = defineStore('keyboard', {
         return
       }
 
-      // Fallback: input proxies by specificity levels
       if (this.activeContexts.length > 0) {
         const levels = expandSpecificityLevels(this.activeContexts)
         for (const level of levels) {
@@ -440,17 +438,14 @@ export const useKeyboardStore = defineStore('keyboard', {
     resolveByContextAndPriority(bindings: RegisteredBinding[]): RegisteredBinding | null {
       if (bindings.length === 0) return null
       if (this.activeContexts.length === 0) {
-        // No active contexts: treat as disabled resolution
         return null
       }
 
       const levels = expandSpecificityLevels(this.activeContexts)
 
-      // Partition bindings by first matching specificity level
       for (const level of levels) {
         const candidatesAtLevel = bindings.filter(b => b.context === level)
         if (candidatesAtLevel.length > 0) {
-          // Choose highest priority among candidates at this specificity level
           let best = candidatesAtLevel[0]
           for (const b of candidatesAtLevel) {
             if ((b.priority ?? 0) > (best.priority ?? 0)) best = b
@@ -459,7 +454,6 @@ export const useKeyboardStore = defineStore('keyboard', {
         }
       }
 
-      // No context match found
       return null
     },
 
@@ -470,7 +464,6 @@ export const useKeyboardStore = defineStore('keyboard', {
     computeCollisionsForKey(key: CanonicalKey) {
       const list = this.bindingsByKey.get(key) ?? []
       if (list.length <= 1) {
-        // Remove any existing collision entry for this key
         this.collisions = this.collisions.filter(c => c.key !== key)
         return
       }
@@ -478,7 +471,6 @@ export const useKeyboardStore = defineStore('keyboard', {
       const contexts = Array.from(new Set(list.map(b => b.context)))
       const collision: Collision = { key, contexts, bindings: list.slice() }
 
-      // Replace or add collision entry for this key
       const idx = this.collisions.findIndex(c => c.key === key)
       if (idx !== -1) {
         this.collisions[idx] = collision
@@ -494,7 +486,6 @@ export const useKeyboardStore = defineStore('keyboard', {
      */
     syncEnabledFlags() {
       if (this.activeContexts.length === 0) {
-        // Disable all when nothing is active
         for (const list of this.bindingsByKey.values()) {
           for (const b of list) this._setEnabled(b.id, false)
         }
@@ -525,6 +516,6 @@ export const useKeyboardStore = defineStore('keyboard', {
       this.globalEnabled = enabled
       const settings = useSettingsStore()
       settings.updateSetting('keyboard.shortcutsEnabled', enabled)
-    },
-  },
+    }
+  }
 })

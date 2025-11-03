@@ -1,15 +1,15 @@
-import { ICalculator } from "@calculator/utils/core/ICalculator.ts"
-import { ProgrammerOperations } from "@calculator/utils/operations/ProgrammerOperations.ts"
-import { ProgrammerCalculations } from "@calculator/utils/calculations/ProgrammerCalculations.ts"
-import { CalculatorConstants, BaseType } from "@calculator/utils/constants/CalculatorConstants.ts"
-import { CalculatorUtils } from "@calculator/utils/constants/CalculatorUtils"
+import { ICalculator } from '@calculator/utils/core/ICalculator.ts'
+import { ProgrammerOperations } from '@calculator/utils/operations/ProgrammerOperations.ts'
+import { ProgrammerCalculations } from '@calculator/utils/calculations/ProgrammerCalculations.ts'
+import { CalculatorConstants, BaseType } from '@calculator/utils/constants/CalculatorConstants.ts'
+import { CalculatorUtils } from '@calculator/utils/constants/CalculatorUtils'
 import {
   BinCalculator,
   DecCalculator,
   HexCalculator,
-  OctCalculator,
-} from "@calculator/utils/core/BaseCalculator"
-import type { CalculatorResult } from "@calculator/services/factory/CalculatorFactory"
+  OctCalculator
+} from '@calculator/utils/core/BaseCalculator'
+import type { CalculatorResult } from '@calculator/services/factory/CalculatorFactory'
 
 /**
  * Calculator implementation for programmer mode with multiple base support
@@ -25,16 +25,16 @@ export class ProgrammerCalculator extends ICalculator {
     super()
     this.MAX_INPUT_LENGTH = CalculatorConstants.MAX_INPUT_LENGTH.PROGRAMMER
     this.states = {
-      DEC: { input: "0", display: "0" },
-      BIN: { input: "0", display: "0" },
-      HEX: { input: "0", display: "0" },
-      OCT: { input: "0", display: "0" },
+      DEC: { input: '0', display: '0' },
+      BIN: { input: '0', display: '0' },
+      HEX: { input: '0', display: '0' },
+      OCT: { input: '0', display: '0' }
     }
     this.calculators = {
       DEC: new DecCalculator(),
       BIN: new BinCalculator(),
       HEX: new HexCalculator(),
-      OCT: new OctCalculator(),
+      OCT: new OctCalculator()
     }
     this.calculations = new ProgrammerCalculations(this.activeBase as BaseType)
     this.operations = new ProgrammerOperations(this)
@@ -47,87 +47,87 @@ export class ProgrammerCalculator extends ICalculator {
   evaluateExpression(expr: string, base: BaseType = this.activeBase as BaseType): any {
     try {
       return this.calculations.evaluateExpression(expr, { base })
-    } catch (err: any) {
-      console.log("Error evaluating expression:", err.stack)
-      throw new Error(CalculatorUtils.formatError(err, "Invalid expression"))
+    } catch(err: any) {
+      console.log('Error evaluating expression:', err.stack)
+      throw new Error(CalculatorUtils.formatError(err, 'Invalid expression'))
     }
   }
 
   formatResult(result: any, base: BaseType = this.activeBase as BaseType): string {
-    return this.calculations.formatResult(result, { base }) || ""
+    return this.calculations.formatResult(result, { base }) || ''
   }
 
   convertToBase(value: string | number, fromBase: BaseType, toBase: BaseType): string {
-    return CalculatorUtils.convertToBase(value, fromBase, toBase) || "0"
+    return CalculatorUtils.convertToBase(value, fromBase, toBase) || '0'
   }
 
   handleButtonClick(btn: string): CalculatorResult {
-    if (["backspace", "AC", "CE"].includes(btn)) {
+    if (['backspace', 'AC', 'CE'].includes(btn)) {
       return this.normalizeResponse(this.processButton(btn))
     }
     if (this.isInputTooLong(btn)) {
       return this.createErrorResponse(
-        new Error("Maximum input length reached"),
+        new Error('Maximum input length reached'),
         this.states[this.activeBase as BaseType].input
       )
     }
     try {
       return this.normalizeResponse(this.processButton(btn))
-    } catch (err: any) {
+    } catch(err: any) {
       return this.createErrorResponse(err, this.states[this.activeBase as BaseType].input)
     }
   }
 
-processButton(btn: string): CalculatorResult {
-  const isFunctionKey = [
+  processButton(btn: string): CalculatorResult {
+    const isFunctionKey = [
       ...CalculatorConstants.BUTTON_TYPES.PROGRAMMER_OPERATORS,
-      "(", ")", "backspace", "AC", "CE", "±", "%"
+      '(', ')', 'backspace', 'AC', 'CE', '±', '%'
     ].includes(btn)
-    
-  let result: CalculatorResult
 
-  try {
-    this.error = ""
-    switch (btn) {
-      case "=": return this.handleEquals()
-      case "AC": return this.handleClear()
-      case "CE": return this.handleClearEntry()
-      case "backspace": result = this.operations.handleBackspace() as CalculatorResult; break
-      case "±": result = this.operations.handleToggleSign() as CalculatorResult; break
-      case "%": result = this.operations.handleModuloSign() as CalculatorResult; break
-      case "(": case ")": result = this.operations.handleParenthesis(btn) as CalculatorResult; break
-      case "<<": case ">>": case "+": case "-": case "×": case "÷":
-        result = this.operations.handleOperator(btn) as CalculatorResult; break
-      default:
-        result = this.operations.handleNumber(btn) as CalculatorResult
+    let result: CalculatorResult
+
+    try {
+      this.error = ''
+      switch (btn) {
+        case '=': return this.handleEquals()
+        case 'AC': return this.handleClear()
+        case 'CE': return this.handleClearEntry()
+        case 'backspace': result = this.operations.handleBackspace() as CalculatorResult; break
+        case '±': result = this.operations.handleToggleSign() as CalculatorResult; break
+        case '%': result = this.operations.handleModuloSign() as CalculatorResult; break
+        case '(': case ')': result = this.operations.handleParenthesis(btn) as CalculatorResult; break
+        case '<<': case '>>': case '+': case '-': case '×': case '÷':
+          result = this.operations.handleOperator(btn) as CalculatorResult; break
+        default:
+          result = this.operations.handleNumber(btn) as CalculatorResult
+      }
+    } catch(err: any) {
+      result = this.createErrorResponse(err, this.states[this.activeBase as BaseType].input)
     }
-  } catch (err: any) {
-    result = this.createErrorResponse(err, this.states[this.activeBase as BaseType].input)
-  }
 
-  if (isFunctionKey) {
-    const updated = this.updateDisplayValues()
-    return {
-      input: this.states[this.activeBase as BaseType].input,
-      error: this.error,
-      expression: this.currentExpression,
-      displayValues: updated,
+    if (isFunctionKey) {
+      const updated = this.updateDisplayValues()
+      return {
+        input: this.states[this.activeBase as BaseType].input,
+        error: this.error,
+        expression: this.currentExpression,
+        displayValues: updated
+      }
     }
-  }
 
-  return result
-}
+    return result
+  }
 
   handleEquals(): CalculatorResult {
     try {
       const expression = this.states[this.activeBase as BaseType].input
       const openCount = this.operations.getParenthesesCount()
-      const finalExpr = openCount > 0 ? expression + " )".repeat(openCount) : expression
+      const finalExpr = openCount > 0 ? expression + ' )'.repeat(openCount) : expression
 
       this.currentExpression = finalExpr
 
       const result = this.evaluateExpression(finalExpr)
-      if (!result && result !== 0) throw new Error("Invalid expression")
+      if (!result && result !== 0) throw new Error('Invalid expression')
 
       const formattedResult = this.formatResult(result)
 
@@ -140,7 +140,7 @@ processButton(btn: string): CalculatorResult {
         result: formattedResult,
         displayValues: { ...this.states }
       }
-    } catch (err: any) {
+    } catch(err: any) {
       return this.createErrorResponse(err, this.states[this.activeBase as BaseType].input)
     }
   }
@@ -162,9 +162,8 @@ processButton(btn: string): CalculatorResult {
         })
       }
       return this.states
-    } catch (err: any) {
-      // Do not return CalculatorResult here; let caller wrap errors if needed
-      // Preserve previous states on error
+    } catch(err: any) {
+      console.warn('[ProgrammerCalculator]: UpdateDisplayValues threw an unexpected error, returning states', err)
       return this.states
     }
   }
@@ -197,13 +196,13 @@ processButton(btn: string): CalculatorResult {
         error: this.error,
         displayValues: this.states
       }
-    } catch (err: any) {
+    } catch(err: any) {
       return this.createErrorResponse(err, this.states[this.activeBase as BaseType].input)
     }
   }
 
   private isValidBaseType(base: string): base is BaseType {
-    return ["DEC", "BIN", "HEX", "OCT"].includes(base)
+    return ['DEC', 'BIN', 'HEX', 'OCT'].includes(base)
   }
 
   updateAllStates(value: string | number): void {
@@ -215,22 +214,22 @@ processButton(btn: string): CalculatorResult {
           display: converted
         }
       })
-    } catch (err) {
-      console.error("Error updating states:", err)
+    } catch(err) {
+      console.error('Error updating states:', err)
       throw err
     }
   }
 
   handleClear(): CalculatorResult {
     super.handleClear()
-    ;(Object.keys(this.states) as BaseType[]).forEach(base => {
-      this.states[base] = { input: "0", display: "0" }
+    ; (Object.keys(this.states) as BaseType[]).forEach(base => {
+      this.states[base] = { input: '0', display: '0' }
     })
     this.operations.resetParentheses()
 
     return {
-      input: "0",
-      error: "",
+      input: '0',
+      error: '',
       displayValues: this.states
     }
   }
@@ -238,7 +237,7 @@ processButton(btn: string): CalculatorResult {
   handleClearEntry(): CalculatorResult {
     const input = this.states[this.activeBase as BaseType].input
 
-    if (input === "0" || input === "Error") {
+    if (input === '0' || input === 'Error') {
       return this.handleClear()
     }
 
@@ -246,37 +245,37 @@ processButton(btn: string): CalculatorResult {
 
     if (operatorRegex.test(input)) {
       const newInput = input
-        .replace(/\s*[+\-×÷%]\s*$/, "")
-        .replace(/\s*<<\s*$/, "")
-        .replace(/\s*>>\s*$/, "")
+        .replace(/\s*[+\-×÷%]\s*$/, '')
+        .replace(/\s*<<\s*$/, '')
+        .replace(/\s*>>\s*$/, '')
         .trim()
-      this.states[this.activeBase as BaseType].input = newInput || "0"
+      this.states[this.activeBase as BaseType].input = newInput || '0'
     } else {
       const match = input.match(/(.*[+\-×÷%]|.*<<|.*>>)\s*(.*)$/)
       if (match) {
         this.states[this.activeBase as BaseType].input = match[1]
       } else {
-        this.states[this.activeBase as BaseType].input = "0"
+        this.states[this.activeBase as BaseType].input = '0'
       }
     }
 
     if (!this.states[this.activeBase as BaseType].input.trim()) {
-      this.states[this.activeBase as BaseType].input = "0"
+      this.states[this.activeBase as BaseType].input = '0'
     }
 
     return {
       input: this.states[this.activeBase as BaseType].input,
-      error: "",
+      error: '',
       displayValues: this.states
     }
   }
 
   isInputTooLong(btn: string): boolean {
     const excludedButtons = [
-      "=", "AC", "backspace",
+      '=', 'AC', 'backspace',
       ...CalculatorConstants.BUTTON_TYPES.MEMORY,
       ...CalculatorConstants.BUTTON_TYPES.PROGRAMMER_OPERATORS,
-      "CE", "±", "%"
+      'CE', '±', '%'
     ]
 
     if (excludedButtons.includes(btn)) {

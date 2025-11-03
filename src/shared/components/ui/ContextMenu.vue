@@ -1,28 +1,27 @@
 <template>
   <ContextMenuRoot>
     <ContextMenuTrigger as-child>
-      <slot name="trigger" />
+      <slot name="trigger"></slot>
     </ContextMenuTrigger>
     <ContextMenuPortal>
       <ContextMenuContent
         class="z-20 min-w-[180px] bg-popover rounded-lg overflow-hidden border border-border p-1 shadow-md context-menu-content"
         :side-offset="sideOffset"
         :align="align"
-        :animation-duration="animationDuration"
-      >
-        <slot />
+        :animation-duration="animationDuration">
+        <slot></slot>
       </ContextMenuContent>
     </ContextMenuPortal>
   </ContextMenuRoot>
 </template>
-  
+
 <script setup>
 import {
   ContextMenuRoot,
   ContextMenuTrigger,
   ContextMenuContent,
-  ContextMenuPortal,
-} from "radix-vue";
+  ContextMenuPortal
+} from 'radix-vue'
 
 defineProps({
   sideOffset: {
@@ -37,9 +36,9 @@ defineProps({
     type: Number,
     default: 300
   }
-});
+})
 </script>
-  
+
 <style>
 .context-menu-item,
 .context-menu-item-danger {

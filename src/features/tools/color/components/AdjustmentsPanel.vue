@@ -1,4 +1,4 @@
-<!-- src/features/tools/color/components/AdjustmentsPanel.vue -->
+
 <template>
   <BasePanel
     id="adjustments"
@@ -6,65 +6,52 @@
     type="drawer"
     position="left"
     :max-height-ratio="1"
-    :default-desktop-state="false"
-  >
-    <!-- Accordion Layout -->
+    :default-desktop-state="false">
+
     <div class="p-3">
       <BaseAccordion
         default-value="basic-adjustments"
         :multiple="false"
         :collapsible="true"
-        class="w-full"
-      >
-        <!-- Basic Adjustments Section -->
+        class="w-full">
+
         <AccordionItem
           id="basic-adjustments"
-          title="Basic Adjustments"
-        >
+          title="Basic Adjustments">
           <ColorAdjustments
             :current-color="currentColor"
             :update-color="updateColor"
-            :auto-apply="autoApply"
-          />
+            :auto-apply="autoApply" />
         </AccordionItem>
 
-        <!-- Temperature Section -->
         <AccordionItem
           id="temperature"
-          title="Temperature"
-        >
+          title="Temperature">
           <ColorTemperature
             :current-color="currentColor"
-            :update-color="updateColor"
-          />
+            :update-color="updateColor" />
         </AccordionItem>
 
-        <!-- Color Mixing Section -->
         <AccordionItem
           id="color-mixing"
-          title="Color Mixing"
-        >
+          title="Color Mixing">
           <ColorMixing
             :current-color="currentColor"
-            :update-color="updateColor"
-          />
+            :update-color="updateColor" />
         </AccordionItem>
 
-        <!-- Image Color Extractor Section -->
         <AccordionItem
           v-if="showImageExtractor"
           id="image-extractor"
-          title="Image Color Extractor"
-        >
+          title="Image Color Extractor">
           <ImageColorExtractor
-            :update-color="updateColor"
-          />
+            :update-color="updateColor" />
         </AccordionItem>
       </BaseAccordion>
     </div>
   </BasePanel>
 </template>
-  
+
 <script setup lang="ts">
 import { BasePanel, BaseAccordion, AccordionItem } from '@components/ui'
 import { onMounted } from 'vue'
@@ -78,10 +65,9 @@ import { usePanel } from '@composables/ui/usePanel'
 
 defineProps<{ currentColor: RGB, updateColor: (c: RGB) => void, showImageExtractor: boolean, autoApply: boolean }>()
 
-// local panel keyboard toggle
 const panel = usePanel('adjustments')
 const keyboard = useKeyboardStore()
 onMounted(() => {
-    keyboard.attachAllForContext('tools.color', { 'Ctrl+A': () => panel.toggle() })
+  keyboard.attachAllForContext('tools.color', { 'Ctrl+A': () => panel.toggle() })
 })
 </script>

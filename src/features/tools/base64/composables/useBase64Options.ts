@@ -1,7 +1,6 @@
 import { computed } from 'vue'
 import { useToolOptions } from '@composables/ui/useToolOptions'
 
-// Base64-specific option types
 export interface Base64Options {
   autoProcess: boolean
   preserveWhitespace: boolean
@@ -14,7 +13,6 @@ export interface Base64Options {
   compressionLevel: 'none' | 'low' | 'medium' | 'high'
 }
 
-// Default Base64 options
 const DEFAULT_BASE64_OPTIONS: Base64Options = {
   autoProcess: true,
   preserveWhitespace: false,
@@ -32,7 +30,7 @@ export function useBase64Options() {
     'base64',
     'Base64 Encoder/Decoder',
     DEFAULT_BASE64_OPTIONS,
-    (options) => [
+    options => [
       {
         id: 'preserveMode',
         label: 'Preserve Mode Inputs',
@@ -123,10 +121,9 @@ export function useBase64Options() {
   )
 
   return {
-    // The entire options object
+
     options,
-    
-    // Individual options (for convenience)
+
     autoProcess: computed(() => options.value.autoProcess),
     preserveWhitespace: computed(() => options.value.preserveWhitespace),
     preserveMode: computed(() => options.value.preserveMode),
@@ -136,8 +133,7 @@ export function useBase64Options() {
     validateInput: computed(() => options.value.validateInput),
     showCharacterCount: computed(() => options.value.showCharacterCount),
     compressionLevel: computed(() => options.value.compressionLevel),
-    
-    // Store state
+
     isLoading
   }
 }

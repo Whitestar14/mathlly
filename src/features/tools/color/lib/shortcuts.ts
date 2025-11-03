@@ -7,5 +7,5 @@ export const colorManifest: KeyBinding[] = [
 
   { key: 'Ctrl+Shift+C', description: 'Copy Current Color', context: 'tools.color', enabled: false, priority: 5 },
   { key: 'Ctrl+P', description: 'Add Color to Palette', context: 'tools.color', enabled: false, priority: 5 },
-  { key: 'Ctrl+Z', description: 'Undo Last Color Change', context: 'tools.color', enabled: false, priority: 5 },
+  { key: 'Ctrl+Z', description: 'Undo Last Color Change', context: 'tools.color', enabled: false, priority: 5 }
 ]

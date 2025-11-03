@@ -4,10 +4,9 @@
     id="experimental"
     title="Experimental"
     icon="FlaskConical"
-    :default-open="false"
-  >
+    :default-open="false">
     <div class="space-y-6">
-      <!-- Warning Notice -->
+
       <div class="px-3 py-2 rounded-md bg-amber-500/10 border border-amber-500/20">
         <div class="flex items-center gap-2 mb-1">
           <AlertTriangleIcon class="size-4 text-amber-600" />
@@ -20,14 +19,12 @@
         </p>
       </div>
 
-      <!-- Command Palette -->
       <div class="flex items-center justify-between py-2">
         <div class="max-w-[80%]">
           <div class="flex items-center gap-2">
             <label
               for="commandPaletteEnabled"
-              class="text-sm font-medium text-foreground"
-            >
+              class="text-sm font-medium text-foreground">
               Command Palette
             </label>
             <CircleHelp
@@ -39,8 +36,7 @@
                   return true;
                 },
               }"
-              class="size-4 cursor-help text-muted-foreground"
-            />
+              class="size-4 cursor-help text-muted-foreground" />
           </div>
           <p class="text-xs text-muted-foreground">
             Quick navigation with keyboard shortcuts
@@ -49,14 +45,12 @@
         <ToggleBar v-model="localSettings.experimental.commandPaletteEnabled" />
       </div>
 
-      <!-- DevDock -->
       <div class="flex items-center justify-between py-2">
         <div class="max-w-[80%]">
           <div class="flex items-center gap-2">
             <label
               for="devDockEnabled"
-              class="text-sm font-medium text-foreground"
-            >
+              class="text-sm font-medium text-foreground">
               Developer Tools (DevDock)
             </label>
             <CircleHelp
@@ -68,8 +62,7 @@
                   return true;
                 },
               }"
-              class="size-4 cursor-help text-muted-foreground"
-            />
+              class="size-4 cursor-help text-muted-foreground" />
           </div>
           <p class="text-xs text-muted-foreground">
             Advanced debugging and development tools
@@ -78,7 +71,6 @@
         <ToggleBar v-model="localSettings.experimental.devDockEnabled" />
       </div>
 
-      <!-- Additional Info -->
       <div class="px-3 py-2 rounded-md bg-muted/40 border border-border/40">
         <p class="text-xs text-muted-foreground">
           Experimental features help us test new functionality before making them available to all users.
@@ -109,6 +101,6 @@ const emit = defineEmits<Emits>()
 
 const localSettings = computed({
   get: () => props.settings,
-  set: (value) => emit('update:settings', value),
+  set: value => emit('update:settings', value)
 })
 </script>

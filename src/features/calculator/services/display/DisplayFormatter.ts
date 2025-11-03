@@ -1,6 +1,5 @@
 import { CacheManager } from '@utils/cache/CacheManager'
 
-// Define interfaces for formatting options
 interface FormattingOptions {
   base?: string
   mode?: string
@@ -17,7 +16,6 @@ interface ProgrammerFormattingOptions {
  * Composable for formatting display values
  */
 export function useDisplayFormatter() {
-  // Cache names
   const CACHE_NAMES = {
     FORMAT: 'display-format',
     DISPLAY: 'display-preview',
@@ -28,40 +26,36 @@ export function useDisplayFormatter() {
    * Format a value based on calculator mode and options
    */
   function format(value: string | number, options: FormattingOptions = {}): string {
-    if (!value && value !== 0) return "0"
+    if (!value && value !== 0) return '0'
     if (value === 'Error') return value
 
-    // Generate cache key
     const cacheKey = generateCacheKey(value, options)
-    
-    // Get the format cache
+
     const formatCache = CacheManager.getCache<string>(CACHE_NAMES.FORMAT, 100)
-    
-    // Check cache first
+
     if (formatCache.has(cacheKey)) {
       return formatCache.get(cacheKey)!
     }
 
     const {
-      base = "DEC",
-      mode = "Standard",
+      base = 'DEC',
+      mode = 'Standard',
       useThousandsSeparator = true,
-      formatProgrammerNumbers = false,
+      formatProgrammerNumbers = false
     } = options
 
     let result: string
-    if (mode === "Programmer") {
+    if (mode === 'Programmer') {
       result = formatProgrammer(value, base, {
         useThousandsSeparator,
-        formatProgrammerNumbers,
+        formatProgrammerNumbers
       })
     } else {
       result = formatStandard(value, useThousandsSeparator)
     }
 
-    // Cache the result
     formatCache.set(cacheKey, result)
-    
+
     return result
   }
 
@@ -70,10 +64,10 @@ export function useDisplayFormatter() {
    */
   function generateCacheKey(value: string | number, options: FormattingOptions): string {
     const {
-      base = "DEC",
-      mode = "Standard",
+      base = 'DEC',
+      mode = 'Standard',
       useThousandsSeparator = true,
-      formatProgrammerNumbers = false,
+      formatProgrammerNumbers = false
     } = options
 
     return `${value}-${base}-${mode}-${useThousandsSeparator}-${formatProgrammerNumbers}`
@@ -83,36 +77,34 @@ export function useDisplayFormatter() {
    * Format a value for Programmer mode
    */
   function formatProgrammer(
-    value: string | number, 
-    base: string, 
+    value: string | number,
+    base: string,
     options: ProgrammerFormattingOptions
   ): string {
-    // Split preserving shift operators
     const parts = String(value).split(/(\s*<<\s*|\s*>>\s*|\s*[+\-×÷()%]\s*)/g)
 
     const formattedParts = parts
-      .map((part) => {
+      .map(part => {
         part = part.trim()
-        if (!part) return ""
+        if (!part) return ''
 
-        // Return operators as is
-        if (["+", "-", "×", "÷", "(", ")", "<<", ">>", "%"].includes(part)) return part
+        if (['+', '-', '×', '÷', '(', ')', '<<', '>>', '%'].includes(part)) return part
 
         switch (base) {
-          case "BIN":
+          case 'BIN':
             return formatBinaryNumber(part, options.formatProgrammerNumbers)
-          case "HEX":
+          case 'HEX':
             return formatHexNumber(part, options.formatProgrammerNumbers)
-          case "OCT":
+          case 'OCT':
             return formatOctNumber(part, options.formatProgrammerNumbers)
           default:
             return formatDecimalNumber(part, options.useThousandsSeparator)
         }
       })
-      .join(" ")
-      .replace(/\s+/g, " ")
+      .join(' ')
+      .replace(/\s+/g, ' ')
       .trim()
-    
+
     return formattedParts
   }
 
@@ -120,18 +112,18 @@ export function useDisplayFormatter() {
    * Format a binary number with optional grouping
    */
   function formatBinaryNumber(value: string, useFormatting: boolean): string {
-    if (!value || value === "NaN") return "0"
+    if (!value || value === 'NaN') return '0'
 
     let binString = value
 
     const padding = 4 - (binString.length % 4)
     if (padding < 4) {
-      binString = "0".repeat(padding) + binString
+      binString = '0'.repeat(padding) + binString
     }
 
     if (useFormatting) {
-      const chunks = binString.match(/.{1,4}/g) || ["0"]
-      return chunks.join(" ")
+      const chunks = binString.match(/.{1,4}/g) || ['0']
+      return chunks.join(' ')
     }
     return binString
   }
@@ -142,8 +134,8 @@ export function useDisplayFormatter() {
   function formatHexNumber(value: string, useFormatting: boolean): string {
     const hexValue = String(value).toUpperCase()
     if (!useFormatting) return hexValue
-    // Group hex digits in pairs
-    return hexValue.replace(/\B(?=(\w{2})+(?!\w))/g, " ")
+
+    return hexValue.replace(/\B(?=(\w{2})+(?!\w))/g, ' ')
   }
 
   /**
@@ -151,8 +143,8 @@ export function useDisplayFormatter() {
    */
   function formatOctNumber(value: string, useFormatting: boolean): string {
     if (!useFormatting) return value
-    // Group octal digits in threes
-    return value.replace(/\B(?=(\d{3})+(?!\d))/g, " ")
+
+    return value.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
   }
 
   /**
@@ -161,9 +153,9 @@ export function useDisplayFormatter() {
   function formatDecimalNumber(value: string | number, useFormatting: boolean): string {
     if (!useFormatting) return String(value)
 
-    const parts = String(value).split(".")
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-    return parts.join(".")
+    const parts = String(value).split('.')
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+    return parts.join('.')
   }
 
   /**
@@ -177,15 +169,12 @@ export function useDisplayFormatter() {
    * Format a display value for preview
    */
   function formatDisplayValue(value: string | number, base: string): string {
-    if (!value && value !== 0) return "0"
+    if (!value && value !== 0) return '0'
 
-    // Generate cache key
     const cacheKey = `${value}-${base}`
-    
-    // Get the display cache
+
     const displayCache = CacheManager.getCache<string>(CACHE_NAMES.DISPLAY, 50)
-    
-    // Check cache first
+
     if (displayCache.has(cacheKey)) {
       return displayCache.get(cacheKey)!
     }
@@ -194,20 +183,19 @@ export function useDisplayFormatter() {
       BIN: 12,
       OCT: 8,
       DEC: 8,
-      HEX: 6,
+      HEX: 6
     }
 
     let result = String(value)
-      .replace(/^(0x|0o|0b)/, "")
+      .replace(/^(0x|0o|0b)/, '')
       .toUpperCase()
 
     if (result.length > MAX_PREVIEW_LENGTHS[base]) {
-      result = result.slice(0, MAX_PREVIEW_LENGTHS[base]) + "…"
+      result = result.slice(0, MAX_PREVIEW_LENGTHS[base]) + '…'
     }
 
-    // Cache the result
     displayCache.set(cacheKey, result)
-    
+
     return result
   }
 
@@ -231,5 +219,4 @@ export function useDisplayFormatter() {
   }
 }
 
-// Export types for external use
 export type { FormattingOptions, ProgrammerFormattingOptions }

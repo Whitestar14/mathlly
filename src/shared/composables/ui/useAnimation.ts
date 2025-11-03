@@ -2,7 +2,6 @@ import { shallowRef, type Ref } from 'vue'
 import { TransitionPresets } from '@vueuse/core'
 import { createAnimeUtils, type AnimeUtils } from '@utils/animation/animeUtils'
 
-// Define interfaces for animation options
 interface BaseAnimationOptions {
   enterDuration?: number
   enterEasing?: string
@@ -39,7 +38,6 @@ interface SlideAnimationOptions {
   resultTranslateY?: [string | number, string | number]
 }
 
-// Define animation handler interfaces
 interface AnimationHandlers {
   onBeforeEnter: (el: Element) => void
   onEnter: (el: Element, done: () => void) => void
@@ -70,8 +68,7 @@ interface UseAnimationReturn {
  */
 export function useAnimation(): UseAnimationReturn {
   const isInitialAnimation: Ref<boolean> = shallowRef(true)
-  
-  // Get anime.js utilities
+
   const { getAnime, animateElements }: AnimeUtils = createAnimeUtils()
 
   /**
@@ -89,12 +86,12 @@ export function useAnimation(): UseAnimationReturn {
       enterDuration = 300,
       enterEasing = 'easeOutCubic',
       leaveDuration = 300,
-      leaveEasing = 'easeOutCubic',
+      leaveEasing = 'easeOutCubic'
     } = options
 
     return {
       durations: { enter: enterDuration, leave: leaveDuration },
-      easings: { enter: enterEasing, leave: leaveEasing },
+      easings: { enter: enterEasing, leave: leaveEasing }
     }
   }
 
@@ -109,7 +106,7 @@ export function useAnimation(): UseAnimationReturn {
       enterTransform = [-20, 0],
       enterAxis = 'y',
       leaveTransform = [0, 80],
-      leaveAxis = 'x',
+      leaveAxis = 'x'
     } = options
 
     const baseHandlers = createAnimationHandlers(options)
@@ -126,7 +123,7 @@ export function useAnimation(): UseAnimationReturn {
     const onEnter = (el: Element, done: () => void): void => {
       const anime = getAnime()
       const element = el as HTMLElement
-      
+
       if (isInitialAnimation.value) {
         anime({
           targets: el,
@@ -137,7 +134,7 @@ export function useAnimation(): UseAnimationReturn {
           complete: () => {
             done()
             element.style.opacity = ''
-          },
+          }
         })
       } else {
         const animProps: any = {
@@ -149,7 +146,7 @@ export function useAnimation(): UseAnimationReturn {
             done()
             element.style.opacity = ''
             element.style.transform = ''
-          },
+          }
         }
 
         animProps[`translate${enterAxis.toUpperCase()}`] = enterTransform
@@ -159,13 +156,13 @@ export function useAnimation(): UseAnimationReturn {
 
     const onLeave = (el: Element, done: () => void): void => {
       const anime = getAnime()
-      
+
       const animProps: any = {
         targets: el,
         opacity: [1, 0],
         duration: baseHandlers.durations.leave,
         easing: baseHandlers.easings.leave,
-        complete: done,
+        complete: done
       }
 
       animProps[`translate${leaveAxis.toUpperCase()}`] = leaveTransform
@@ -182,7 +179,7 @@ export function useAnimation(): UseAnimationReturn {
     const {
       moveEasing = 'easeInOutQuad',
       moveDuration = 300,
-      moveDelay = 150,
+      moveDelay = 150
     } = options
 
     const { onBeforeEnter, onEnter } = createStaggeredAnimation(options)
@@ -190,13 +187,13 @@ export function useAnimation(): UseAnimationReturn {
     const onLeave = (el: Element, done: () => void): void => {
       const anime = getAnime()
       const element = el as HTMLElement
-      const { 
-        leaveAxis = 'x', 
-        leaveTransform = [0, 80], 
-        leaveDuration = 300, 
-        leaveEasing = 'easeOutCubic' 
+      const {
+        leaveAxis = 'x',
+        leaveTransform = [0, 80],
+        leaveDuration = 300,
+        leaveEasing = 'easeOutCubic'
       } = options
-      
+
       const height = element.offsetHeight
       const marginBottom = parseInt(window.getComputedStyle(element).marginBottom, 10) || 0
       const totalHeight = height + marginBottom
@@ -216,14 +213,14 @@ export function useAnimation(): UseAnimationReturn {
       if (elementsBelow.length > 0) {
         anime({
           targets: elementsBelow,
-          translateY: [`0px`, `-${totalHeight}px`],
+          translateY: ['0px', `-${totalHeight}px`],
           duration: moveDuration,
           easing: moveEasing,
           delay: moveDelay,
           complete: () => {
             elementsBelow.forEach(el => { el.style.transform = '' })
             done()
-          },
+          }
         })
       } else {
         setTimeout(done, leaveDuration)
@@ -238,7 +235,7 @@ export function useAnimation(): UseAnimationReturn {
    */
   const createFadeAnimation = (options: FadeAnimationOptions = {}): AnimationHandlers => {
     const { duration = 300 } = options
-    
+
     const onBeforeEnter = (el: Element): void => {
       const element = el as HTMLElement
       element.style.opacity = '0'
@@ -247,7 +244,7 @@ export function useAnimation(): UseAnimationReturn {
     const onEnter = (el: Element, done: () => void): void => {
       const anime = getAnime()
       const element = el as HTMLElement
-      
+
       anime({
         targets: el,
         opacity: [0, 1],
@@ -256,19 +253,19 @@ export function useAnimation(): UseAnimationReturn {
         complete: () => {
           done()
           element.style.opacity = ''
-        },
+        }
       })
     }
 
     const onLeave = (el: Element, done: () => void): void => {
       const anime = getAnime()
-      
+
       anime({
         targets: el,
         opacity: [1, 0],
         duration,
         easing: TransitionPresets.easeOutCubic.toString(),
-        complete: done,
+        complete: done
       })
     }
 
@@ -285,32 +282,32 @@ export function useAnimation(): UseAnimationReturn {
       inputOpacityRange = [1, 0],
       resultOpacityRange = [0, 1],
       inputTranslateY = [0, '-100%'],
-      resultTranslateY = ['100%', 0],
+      resultTranslateY = ['100%', 0]
     } = options
 
     const animateSlide = (
-      resultContainer: HTMLElement | null, 
+      resultContainer: HTMLElement | null,
       inputContainer: HTMLElement | null
     ): void => {
       if (!resultContainer || !inputContainer) return
-      
+
       const anime = getAnime()
 
-      anime.set(resultContainer, { 
-        translateY: resultTranslateY[0], 
-        opacity: resultOpacityRange[0] 
+      anime.set(resultContainer, {
+        translateY: resultTranslateY[0],
+        opacity: resultOpacityRange[0]
       })
-      
-      anime.set(inputContainer, { 
-        translateY: inputTranslateY[0], 
-        opacity: inputOpacityRange[0] 
+
+      anime.set(inputContainer, {
+        translateY: inputTranslateY[0],
+        opacity: inputOpacityRange[0]
       })
 
       const timeline = anime.timeline({
         easing,
         duration
       })
-      
+
       timeline
         .add({
           targets: inputContainer,
@@ -327,11 +324,11 @@ export function useAnimation(): UseAnimationReturn {
     }
 
     const resetPositions = (
-      resultContainer: HTMLElement | null, 
+      resultContainer: HTMLElement | null,
       inputContainer: HTMLElement | null
     ): void => {
       if (!resultContainer || !inputContainer) return
-      
+
       const anime = getAnime()
 
       anime.set(resultContainer, {
@@ -357,7 +354,6 @@ export function useAnimation(): UseAnimationReturn {
   }
 }
 
-// Export types for external use
 export type {
   BaseAnimationOptions,
   StaggeredAnimationOptions,

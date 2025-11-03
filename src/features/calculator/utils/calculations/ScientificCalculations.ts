@@ -1,4 +1,4 @@
-// ScientificCalculations.ts
+
 import { unref } from 'vue'
 import { CalculatorUtils } from '../constants/CalculatorUtils'
 import { CalculatorConstants } from '../constants/CalculatorConstants'
@@ -33,9 +33,9 @@ export class ScientificCalculations extends StandardCalculations {
 
       return super.evaluateExpression(convertedExpr, {
         mode: 'scientific',
-        ...options,
+        ...options
       })
-    } catch (err: any) {
+    } catch(err: any) {
       if (err.message?.includes(CalculatorConstants.ERROR_MESSAGES.DOMAIN_ERROR)) {
         throw err
       }
@@ -56,10 +56,10 @@ export class ScientificCalculations extends StandardCalculations {
    */
   private normalizeAngle(mode: string): 'RAD' | 'DEG' | 'GRAD' {
     switch (mode) {
-      case 'radians':  return 'RAD'
-      case 'degrees':  return 'DEG'
+      case 'radians': return 'RAD'
+      case 'degrees': return 'DEG'
       case 'gradians': return 'GRAD'
-      default:         return 'DEG'
+      default: return 'DEG'
     }
   }
 }

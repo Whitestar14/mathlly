@@ -34,4 +34,3 @@ export function isOKLCH(x: any): x is OKLCH {
 export function isLAB(x: any): x is LAB {
   return 'l' in x && 'a' in x && 'b' in x && !('c' in x)
 }
-

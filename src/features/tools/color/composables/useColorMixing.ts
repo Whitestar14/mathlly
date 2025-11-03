@@ -1,4 +1,4 @@
-// src/features/tools/color/composables/useColorMixing.ts
+
 import { ref } from 'vue'
 import { mixColors, convertColor } from '@color/lib/color'
 import type { RGB } from '@color/lib/color'
@@ -11,7 +11,7 @@ export function useColorMixing(onUpdate: (c: RGB) => void) {
 
   const setMixHex = (hex: string) => {
     if (!HEX6.test(hex)) return false
-    
+
     mixColor.value = convertColor(hex).rgb
     return true
   }
@@ -22,5 +22,5 @@ export function useColorMixing(onUpdate: (c: RGB) => void) {
     onUpdate(mixColors(base, mixColor.value, mixRatio.value / 100))
   }
 
-  return { mixColor, mixRatio, setMixHex, setMixRatio, applyMix, }
+  return { mixColor, mixRatio, setMixHex, setMixRatio, applyMix }
 }

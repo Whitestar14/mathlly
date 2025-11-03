@@ -20,9 +20,9 @@ function extractBitsFromBigInt(value: bigint, width: BitWidth): boolean[] {
 }
 
 export function decimalToBits(value: number, width: BitWidth): BitArray {
-  return width === 64
-    ? { bits: extractBitsFromBigInt(BigInt(value), width), width }
-    : { bits: extractBitsFromNumber(value, width), width }
+  return width === 64 ?
+    { bits: extractBitsFromBigInt(BigInt(value), width), width } :
+    { bits: extractBitsFromNumber(value, width), width }
 }
 
 export function bitsToDecimal(bits: boolean[], width: BitWidth, opts?: { signed?: boolean }): number {
@@ -38,7 +38,6 @@ export function bitsToDecimal(bits: boolean[], width: BitWidth, opts?: { signed?
     if (width === 16) v &= 0xFFFF
     if (width === 32) v >>>= 0
     if (signed && bits[width - 1]) {
-      // interpret two's complement
       if (width === 16) v = (v << 16) >> 16
       else v = v >> 0
     }

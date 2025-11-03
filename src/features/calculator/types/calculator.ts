@@ -1,4 +1,4 @@
-// Calculator-specific option types
+
 export interface CalculatorOptions {
   defaultMode: 'Standard' | 'Scientific' | 'Programmer';
   precision: number;

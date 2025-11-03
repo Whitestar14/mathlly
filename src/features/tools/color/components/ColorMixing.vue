@@ -1,4 +1,4 @@
-<!-- src/features/tools/color/components/ColorMixing.vue -->
+
 <template>
   <div class="space-y-4">
     <div class="space-y-2">
@@ -8,14 +8,12 @@
       <div class="flex items-center gap-2">
         <div
           class="w-8 h-8 rounded border border-border"
-          :style="{ backgroundColor: mixHex }"
-        />
+          :style="{ backgroundColor: mixHex }"></div>
         <BaseInput
           :value="mixHex"
           placeholder="#ffffff"
           class="flex-1"
-          @input="onMixHex"
-        />
+          @input="onMixHex" />
       </div>
     </div>
 
@@ -28,8 +26,7 @@
         :min="0"
         :max="100"
         :step="1"
-        @update:model-value="(v: number[]) => setMixRatio(v[0])"
-      />
+        @update:model-value="(v: number[]) => setMixRatio(v[0])" />
     </div>
 
     <div class="pt-2">
@@ -37,8 +34,7 @@
         size="sm"
         class="w-full"
         variant="outline"
-        @click="applyMix(currentColor)"
-      >
+        @click="applyMix(currentColor)">
         <Blend class="h-4 w-4 mr-2" /> Mix colors
       </BaseButton>
     </div>

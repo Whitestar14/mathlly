@@ -18,10 +18,10 @@ defineLoadGoogleFonts()
 
 function defineLoadGoogleFonts() {
   if (process.env.NODE_ENV === 'production') {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap';
-    document.head.appendChild(link);
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = 'https://fonts.googleapis.com/css2?family=Geist+Mono:wght@100..900&family=Geist:wght@100..900&display=swap'
+    document.head.appendChild(link)
   }
 }
 
@@ -30,7 +30,6 @@ const pinia = createPinia()
 
 app.use(MotionPlugin).use(pinia).use(router)
 
-// Configure VueTippy
 const tippyProps = {
   placement: 'top',
   theme: 'custom',
@@ -40,7 +39,7 @@ const tippyProps = {
   onShow() {
     const device = useDeviceStore()
     return !device.isMobile
-  },
+  }
 }
 
 app.use(VueTippy, { defaultProps: tippyProps })

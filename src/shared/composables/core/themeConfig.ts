@@ -1,16 +1,16 @@
 export const THEME_OPTIONS = {
   LIGHT: 'light',
   DARK: 'dark',
-  SYSTEM: 'system',
-} as const;
+  SYSTEM: 'system'
+} as const
 
-export type ThemeOption = typeof THEME_OPTIONS[keyof typeof THEME_OPTIONS];
+export type ThemeOption = typeof THEME_OPTIONS[keyof typeof THEME_OPTIONS]
 
 export const themeOptions = [
   { value: 'light', label: 'Light' },
   { value: 'dark', label: 'Dark' },
-  { value: 'system', label: 'System' },
-] as const;
+  { value: 'system', label: 'System' }
+] as const
 
 const PRESETS = {
   vibrant: {
@@ -21,7 +21,7 @@ const PRESETS = {
     selectedBorder: 'border-indigo-500 dark:border-indigo-400',
     selectedBg: 'bg-indigo-50/50 dark:bg-indigo-950/30',
     selectedText: 'text-indigo-700 dark:text-indigo-300',
-    hoverBg: 'hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20',
+    hoverBg: 'hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20'
   },
   neutral: {
     primary: 'bg-zinc-700 dark:bg-zinc-400',
@@ -31,7 +31,7 @@ const PRESETS = {
     selectedBorder: 'border-zinc-500 dark:border-zinc-400',
     selectedBg: 'bg-zinc-50/50 dark:bg-zinc-900/30',
     selectedText: 'text-zinc-700 dark:text-zinc-300',
-    hoverBg: 'hover:bg-zinc-50/30 dark:hover:bg-zinc-900/20',
+    hoverBg: 'hover:bg-zinc-50/30 dark:hover:bg-zinc-900/20'
   },
   ayu: {
     primary: 'bg-amber-500 dark:bg-amber-400',
@@ -41,7 +41,7 @@ const PRESETS = {
     selectedBorder: 'border-amber-500 dark:border-amber-400',
     selectedBg: 'bg-amber-50/50 dark:bg-slate-900/30',
     selectedText: 'text-amber-700 dark:text-amber-300',
-    hoverBg: 'hover:bg-amber-50/30 dark:hover:bg-slate-900/20',
+    hoverBg: 'hover:bg-amber-50/30 dark:hover:bg-slate-900/20'
   },
   siena: {
     primary: 'bg-amber-700 dark:bg-amber-600',
@@ -51,7 +51,7 @@ const PRESETS = {
     selectedBorder: 'border-amber-600 dark:border-amber-500',
     selectedBg: 'bg-amber-50/50 dark:bg-stone-900/30',
     selectedText: 'text-amber-800 dark:text-amber-300',
-    hoverBg: 'hover:bg-amber-50/30 dark:hover:bg-stone-900/20',
+    hoverBg: 'hover:bg-amber-50/30 dark:hover:bg-stone-900/20'
   },
   monaco: {
     primary: 'bg-sky-600 dark:bg-sky-500',
@@ -61,11 +61,11 @@ const PRESETS = {
     selectedBorder: 'border-sky-500 dark:border-sky-400',
     selectedBg: 'bg-sky-50/50 dark:bg-slate-900/30',
     selectedText: 'text-sky-700 dark:text-sky-300',
-    hoverBg: 'hover:bg-sky-50/30 dark:hover:bg-slate-900/20',
-  },
-} as const;
+    hoverBg: 'hover:bg-sky-50/30 dark:hover:bg-slate-900/20'
+  }
+} as const
 
-type PresetName = keyof typeof PRESETS;
+type PresetName = keyof typeof PRESETS
 
 function createPack<Id extends string>(id: Id, opts: {
   name: string;
@@ -77,9 +77,9 @@ function createPack<Id extends string>(id: Id, opts: {
   visual?: any;
   variants?: string[];
 }) {
-  const visualColors = opts.visual ? opts.visual : PRESETS[opts.preset ?? 'neutral'];
-  const preview = opts.preview ?? { light: opts.pwaColors?.light ?? '#ffffff', dark: opts.pwaColors?.dark ?? '#000000' };
-  const pwaColors = opts.pwaColors ?? preview;
+  const visualColors = opts.visual ? opts.visual : PRESETS[opts.preset ?? 'neutral']
+  const preview = opts.preview ?? { light: opts.pwaColors?.light ?? '#ffffff', dark: opts.pwaColors?.dark ?? '#000000' }
+  const pwaColors = opts.pwaColors ?? preview
 
   return {
     id,
@@ -90,7 +90,7 @@ function createPack<Id extends string>(id: Id, opts: {
     pwaColors,
     default: !!opts.default,
     variants: opts.variants ?? []
-  } as const;
+  } as const
 }
 
 const THEME_PACK_LIST = [
@@ -100,7 +100,7 @@ const THEME_PACK_LIST = [
     preset: 'vibrant',
     preview: { light: '#4f46e5', dark: '#818cf8' },
     pwaColors: { light: '#5a00ff', dark: '#6e89ff' },
-    default: false,
+    default: false
   }),
   createPack('mira', {
     name: 'Mira',
@@ -108,7 +108,7 @@ const THEME_PACK_LIST = [
     preset: 'neutral',
     preview: { light: '#18181b', dark: '#fafafa' },
     pwaColors: { light: '#18181b', dark: '#fafafa' },
-    default: true,
+    default: true
   }),
   createPack('siena', {
     name: 'Siena',
@@ -116,7 +116,7 @@ const THEME_PACK_LIST = [
     preset: 'siena',
     preview: { light: '#C19A6B', dark: '#8B6F47' },
     pwaColors: { light: '#ede3dc', dark: '#8B6F47' },
-    default: false,
+    default: false
   }),
   createPack('ayu', {
     name: 'Ayu',
@@ -133,36 +133,30 @@ const THEME_PACK_LIST = [
     preset: 'monaco',
     preview: { light: '#007ACC', dark: '#569CD6' },
     pwaColors: { light: '#007ACC', dark: '#569CD6' },
-    default: false,
-  }),
-] as const;
+    default: false
+  })
+] as const
 
-// Derive a union type of pack ids from the list so consumers get a single source-of-truth type.
-export type ThemePackOption = (typeof THEME_PACK_LIST)[number]['id'];
+export type ThemePackOption = (typeof THEME_PACK_LIST)[number]['id']
 
-// Public lightweight mapping used by UI components (name/description/preview/default).
 export const themePackConfigs: Record<ThemePackOption, { id: ThemePackOption; name: string; description?: string; preview?: { light: string; dark: string }; default?: boolean, variants?: string[] }> = Object.fromEntries(
-  THEME_PACK_LIST.map((p) => [p.id, { id: p.id, name: p.name, description: (p as any).description, preview: (p as any).preview, default: (p as any).default, variants: (p as any).variants }])
-) as Record<ThemePackOption, any>;
+  THEME_PACK_LIST.map(p => [p.id, { id: p.id, name: p.name, description: (p as any).description, preview: (p as any).preview, default: (p as any).default, variants: (p as any).variants }])
+) as Record<ThemePackOption, any>
 
-// Export an array suitable for select controls
-export const themePackOptions = THEME_PACK_LIST.map((p) => ({ value: p.id as ThemePackOption, label: p.name }));
+export const themePackOptions = THEME_PACK_LIST.map(p => ({ value: p.id as ThemePackOption, label: p.name }))
 
-// Map to hold runtime-registered packs (visuals/pwaColors)
-const RUNTIME_PACKS: Record<string, any> = {};
+const RUNTIME_PACKS: Record<string, any> = {}
 
-// Helpers for accessing visuals and PWA colors
 export function getThemeVisualConfig(packKey: ThemePackOption) {
-  if ((RUNTIME_PACKS as any)[packKey]) return (RUNTIME_PACKS as any)[packKey].visual;
-  return (THEME_PACK_LIST as any).find((p: any) => p.id === packKey)?.visual;
+  if ((RUNTIME_PACKS as any)[packKey]) return (RUNTIME_PACKS as any)[packKey].visual
+  return (THEME_PACK_LIST as any).find((p: any) => p.id === packKey)?.visual
 }
 
 export function getThemeColor(packKey: ThemePackOption, darkMode: boolean) {
-  if ((RUNTIME_PACKS as any)[packKey]) return (RUNTIME_PACKS as any)[packKey].pwaColors?.[darkMode ? 'dark' : 'light'];
-  return (THEME_PACK_LIST as any).find((p: any) => p.id === packKey)?.pwaColors?.[darkMode ? 'dark' : 'light'];
+  if ((RUNTIME_PACKS as any)[packKey]) return (RUNTIME_PACKS as any)[packKey].pwaColors?.[darkMode ? 'dark' : 'light']
+  return (THEME_PACK_LIST as any).find((p: any) => p.id === packKey)?.pwaColors?.[darkMode ? 'dark' : 'light']
 }
 
-// Optional runtime registration helper if someone wants to add packs dynamically (rare). This mutates the public exports so consumers can pick up runtime additions.
 export function registerThemePack<Id extends string>(id: Id, def: {
   name: string;
   description?: string;
@@ -174,14 +168,11 @@ export function registerThemePack<Id extends string>(id: Id, def: {
   variants?: string[];
 }) {
   const visual = def.visual ?? PRESETS[def.preset ?? 'neutral'];
-  // store runtime visuals & pwaColors for helper lookup
+
   (RUNTIME_PACKS as any)[id] = { visual, pwaColors: def.pwaColors };
 
-  // Add to the public helpers so runtime consumers can iterate
   (themePackConfigs as any)[id] = { id, name: def.name, description: def.description, preview: def.preview, default: !!def.default };
-  (themePackOptions as any).push({ value: id as any, label: def.name });
-  // Note: runtime packs are not reflected in the compile-time ThemePackOption type.
+  (themePackOptions as any).push({ value: id as any, label: def.name })
 }
 
-// Default pack (first pack marked default in the single source-of-truth)
-export const DEFAULT_THEME_PACK: ThemePackOption = (THEME_PACK_LIST.find((p) => (p as any).default)?.id as ThemePackOption) ?? (THEME_PACK_LIST[0].id as ThemePackOption);
+export const DEFAULT_THEME_PACK: ThemePackOption = (THEME_PACK_LIST.find(p => (p as any).default)?.id as ThemePackOption) ?? (THEME_PACK_LIST[0].id as ThemePackOption)

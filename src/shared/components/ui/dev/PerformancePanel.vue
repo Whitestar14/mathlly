@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-4">
-    <!-- Metrics Grid -->
+
     <div class="grid grid-cols-2 gap-3">
-      <!-- Memory Usage -->
+
       <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
         <div class="flex items-center justify-between mb-1">
           <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Memory</span>
@@ -10,8 +10,7 @@
             variant="ghost"
             size="icon"
             class="h-5 w-5"
-            @click="copyMetric('memory', `${memoryUsage}MB`)"
-          >
+            @click="copyMetric('memory', `${memoryUsage}MB`)">
             <CopyIcon class="h-2.5 w-2.5" />
           </BaseButton>
         </div>
@@ -20,28 +19,24 @@
           <span class="text-xs text-muted-foreground dark:text-muted-foreground">MB</span>
         </div>
         <div class="mt-1 h-1 bg-muted dark:bg-muted rounded-full overflow-hidden">
-          <div 
+          <div
             class="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500"
-            :style="{ width: `${Math.min((memoryUsage / 100) * 100, 100)}%` }"
-          />
+            :style="{ width: `${Math.min((memoryUsage / 100) * 100, 100)}%` }"></div>
         </div>
       </div>
 
-      <!-- FPS -->
       <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
         <div class="flex items-center justify-between mb-1">
           <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">FPS</span>
           <div class="flex items-center gap-1">
-            <div 
+            <div
               class="w-2 h-2 rounded-full"
-              :class="getFPSIndicatorColor(fps)"
-            />
+              :class="getFPSIndicatorColor(fps)"></div>
             <BaseButton
               variant="ghost"
               size="icon"
               class="h-5 w-5"
-              @click="copyMetric('fps', fps.toString())"
-            >
+              @click="copyMetric('fps', fps.toString())">
               <CopyIcon class="h-2.5 w-2.5" />
             </BaseButton>
           </div>
@@ -51,15 +46,13 @@
           <span class="text-xs text-muted-foreground dark:text-muted-foreground">fps</span>
         </div>
         <div class="mt-1 h-1 bg-muted dark:bg-muted rounded-full overflow-hidden">
-          <div 
+          <div
             class="h-full transition-all duration-500"
             :class="getFPSBarColor(fps)"
-            :style="{ width: `${Math.min((fps / 60) * 100, 100)}%` }"
-          />
+            :style="{ width: `${Math.min((fps / 60) * 100, 100)}%` }"></div>
         </div>
       </div>
 
-      <!-- Load Time -->
       <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
         <div class="flex items-center justify-between mb-1">
           <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">Load Time</span>
@@ -67,8 +60,7 @@
             variant="ghost"
             size="icon"
             class="h-5 w-5"
-            @click="copyMetric('loadTime', `${loadTime}ms`)"
-          >
+            @click="copyMetric('loadTime', `${loadTime}ms`)">
             <CopyIcon class="h-2.5 w-2.5" />
           </BaseButton>
         </div>
@@ -80,12 +72,10 @@
           <BaseBadge
             :variant="getLoadTimeVariant(loadTime)"
             :text="getLoadTimeLabel(loadTime)"
-            size="sm"
-          />
+            size="sm" />
         </div>
       </div>
 
-      <!-- DOM Nodes -->
       <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
         <div class="flex items-center justify-between mb-1">
           <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">DOM Nodes</span>
@@ -93,8 +83,7 @@
             variant="ghost"
             size="icon"
             class="h-5 w-5"
-            @click="copyMetric('domNodes', domNodes.toString())"
-          >
+            @click="copyMetric('domNodes', domNodes.toString())">
             <CopyIcon class="h-2.5 w-2.5" />
           </BaseButton>
         </div>
@@ -106,46 +95,39 @@
           <BaseBadge
             :variant="getDOMNodesVariant(domNodes)"
             :text="getDOMNodesLabel(domNodes)"
-            size="sm"
-          />
+            size="sm" />
         </div>
       </div>
     </div>
-    
-    <!-- Performance Chart -->
+
     <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <div class="flex items-center justify-between mb-3">
         <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">FPS History</span>
         <div class="flex items-center gap-1">
           <div
             v-if="isMonitoring"
-            class="w-2 h-2 bg-green-500 rounded-full animate-pulse"
-          />
+            class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
           <span class="text-xs text-muted-foreground dark:text-muted-foreground">{{ fpsHistory.length }}/{{ maxHistoryPoints }}</span>
         </div>
       </div>
-      
+
       <div class="h-16 bg-muted dark:bg-background rounded-md flex items-end justify-between p-2 gap-0.5">
         <div
           v-for="(point, index) in fpsHistory"
           :key="index"
           class="flex-1 bg-gradient-to-t from-indigo-500 to-indigo-400 rounded-sm transition-all duration-300"
           :style="{ height: `${Math.max((point / 60) * 100, 2)}%` }"
-          :title="`${point} FPS`"
-        />
-        
-        <!-- Empty state -->
+          :title="`${point} FPS`"></div>
+
         <div
           v-if="fpsHistory.length === 0"
-          class="flex flex-col items-center justify-center w-full h-full text-muted-foreground dark:text-muted-foreground"
-        >
+          class="flex flex-col items-center justify-center w-full h-full text-muted-foreground dark:text-muted-foreground">
           <ActivityIcon class="h-6 w-6 mb-1 opacity-50" />
           <span class="text-xs">No data yet</span>
         </div>
       </div>
     </div>
 
-    <!-- Additional Metrics -->
     <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-3">
       <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-2">System Info</span>
       <div class="grid grid-cols-2 gap-3 text-xs">
@@ -167,8 +149,7 @@
         </div>
       </div>
     </div>
-    
-    <!-- Actions -->
+
     <div class="space-y-2">
       <div class="flex gap-2">
         <BaseButton
@@ -176,62 +157,54 @@
           size="sm"
           class="flex-1 text-xs"
           :disabled="isLoading"
-          @click="measurePerformance"
-        >
+          @click="measurePerformance">
           <ActivityIcon class="h-3 w-3 mr-1.5" />
           {{ isLoading ? 'Measuring...' : 'Measure' }}
         </BaseButton>
-        
+
         <BaseButton
           variant="outline"
           size="sm"
           class="flex-1 text-xs"
-          @click="toggleMonitoring"
-        >
+          @click="toggleMonitoring">
           <div class="flex items-center">
-            <div 
+            <div
               v-if="isMonitoring"
-              class="w-2 h-2 bg-destructive rounded-full mr-1.5 animate-pulse"
-            />
+              class="w-2 h-2 bg-destructive rounded-full mr-1.5 animate-pulse"></div>
             <PlayIcon
               v-else
-              class="h-3 w-3 mr-1.5"
-            />
+              class="h-3 w-3 mr-1.5" />
             {{ isMonitoring ? 'Stop' : 'Monitor' }}
           </div>
         </BaseButton>
       </div>
-      
+
       <BaseButton
         variant="destructive"
         size="sm"
         class="w-full text-xs"
-        @click="clearMetrics"
-      >
+        @click="clearMetrics">
         <TrashIcon class="h-3 w-3 mr-1.5" />
         Clear All Data
       </BaseButton>
     </div>
 
-    <!-- Export Actions -->
     <div class="pt-3 border-t border-border dark:border-border">
       <div class="flex gap-2">
         <BaseButton
           variant="ghost"
           size="sm"
           class="text-xs flex-1"
-          @click="copyAllMetrics"
-        >
+          @click="copyAllMetrics">
           <CopyIcon class="h-3 w-3 mr-1.5" />
           Copy All
         </BaseButton>
-        
+
         <BaseButton
           variant="ghost"
           size="sm"
           class="text-xs flex-1"
-          @click="logPerformanceData"
-        >
+          @click="logPerformanceData">
           <TerminalIcon class="h-3 w-3 mr-1.5" />
           Log Data
         </BaseButton>
@@ -245,7 +218,7 @@ import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRafFn } from '@vueuse/core'
 import { CopyIcon, ActivityIcon, PlayIcon, TrashIcon, TerminalIcon } from 'lucide-vue-next'
 import { BaseButton, BaseBadge } from '@components/ui'
-import type { BadgeVariant } from '@composables/ui/useBadge';
+import type { BadgeVariant } from '@composables/ui/useBadge'
 
 const memoryUsage = ref(0)
 const fps = ref(0)
@@ -262,27 +235,25 @@ let lastTime = performance.now()
 const { pause, resume } = useRafFn(() => {
   frameCount++
   const currentTime = performance.now()
-  
+
   if (currentTime - lastTime >= 1000) {
     const currentFPS = Math.round((frameCount * 1000) / (currentTime - lastTime))
     fps.value = currentFPS
-    
-    // Add to history
+
     if (isMonitoring.value) {
       fpsHistory.value.push(currentFPS)
       if (fpsHistory.value.length > maxHistoryPoints) {
         fpsHistory.value.shift()
       }
     }
-    
+
     frameCount = 0
     lastTime = currentTime
-    
+
     updateMetrics()
   }
 })
 
-// Computed properties for additional metrics
 const viewportSize = computed(() => `${window.innerWidth}×${window.innerHeight}`)
 const devicePixelRatio = computed(() => window.devicePixelRatio || 1)
 const hardwareConcurrency = computed(() => navigator.hardwareConcurrency || 'Unknown')
@@ -295,31 +266,27 @@ const connectionType = computed(() => {
 })
 
 const updateMetrics = (): void => {
-  // Memory usage (if available)
   if ('memory' in performance) {
     const memory = (performance as any).memory
     memoryUsage.value = Math.round(memory.usedJSHeapSize / 1024 / 1024)
   }
-  
-  // DOM nodes count
+
   domNodes.value = document.querySelectorAll('*').length
-  
-  // Load time
+
   const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming
   if (navigation) {
     loadTime.value = Math.round(navigation.loadEventEnd - navigation.fetchStart)
   }
 }
 
-const measurePerformance = async (): Promise<void> => {
+const measurePerformance = async(): Promise<void> => {
   isLoading.value = true
-  
+
   try {
-    // Simulate measurement delay
     await new Promise(resolve => setTimeout(resolve, 500))
     updateMetrics()
     console.log('[Performance] Metrics updated')
-  } catch (error) {
+  } catch(error) {
     console.error('[Performance] Measurement failed:', error)
   } finally {
     isLoading.value = false
@@ -328,7 +295,7 @@ const measurePerformance = async (): Promise<void> => {
 
 const toggleMonitoring = (): void => {
   isMonitoring.value = !isMonitoring.value
-  
+
   if (isMonitoring.value) {
     fpsHistory.value = []
     resume()
@@ -360,7 +327,6 @@ const getFPSBarColor = (fps: number): string => {
   return 'bg-gradient-to-r from-red-500 to-red-600'
 }
 
-// Fix return type to BadgeVariant
 const getLoadTimeVariant = (time: number): BadgeVariant => {
   if (time <= 1000) return 'success'
   if (time <= 3000) return 'warning'
@@ -373,7 +339,6 @@ const getLoadTimeLabel = (time: number): string => {
   return 'Slow'
 }
 
-// Fix return type to BadgeVariant
 const getDOMNodesVariant = (nodes: number): BadgeVariant => {
   if (nodes <= 1000) return 'success'
   if (nodes <= 5000) return 'warning'
@@ -386,16 +351,16 @@ const getDOMNodesLabel = (nodes: number): string => {
   return 'Critical'
 }
 
-const copyMetric = async (name: string, value: string): Promise<void> => {
+const copyMetric = async(name: string, value: string): Promise<void> => {
   try {
     await navigator.clipboard.writeText(value)
     console.log(`[Performance] Copied ${name}: ${value}`)
-  } catch (err) {
+  } catch(err) {
     console.error('[Performance] Failed to copy:', err)
   }
 }
 
-const copyAllMetrics = async (): Promise<void> => {
+const copyAllMetrics = async(): Promise<void> => {
   const metrics = {
     memory: `${memoryUsage.value}MB`,
     fps: fps.value,
@@ -408,11 +373,11 @@ const copyAllMetrics = async (): Promise<void> => {
     fpsHistory: fpsHistory.value,
     timestamp: new Date().toISOString()
   }
-  
+
   try {
     await navigator.clipboard.writeText(JSON.stringify(metrics, null, 2))
     console.log('[Performance] All metrics copied to clipboard')
-  } catch (err) {
+  } catch(err) {
     console.error('[Performance] Failed to copy all metrics:', err)
   }
 }

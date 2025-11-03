@@ -8,7 +8,6 @@ export function useCalculatorSession() {
     'Scientific': ''
   })
 
-  // Load all inputs from session storage on initialization
   const loadAllInputs = () => {
     const modes: CalculatorMode[] = ['Standard', 'Programmer', 'Scientific']
     modes.forEach(mode => {
@@ -20,7 +19,6 @@ export function useCalculatorSession() {
     })
   }
 
-  // Save input for specific mode
   const saveInput = (mode: CalculatorMode, input: string) => {
     if (input && input !== '0' && input !== 'Error') {
       sessionInputs.value[mode] = input
@@ -28,12 +26,10 @@ export function useCalculatorSession() {
     }
   }
 
-  // Get input for specific mode
   const getInput = (mode: CalculatorMode): string => {
     return sessionInputs.value[mode] || ''
   }
 
-  // Initialize
   loadAllInputs()
 
   return {

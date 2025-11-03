@@ -6,29 +6,23 @@ import {
   BookOpenIcon, ExternalLinkIcon, SmartphoneIcon
 } from 'lucide-vue-next'
 
-// Assume these imports are correct and available in the environment
 import { usePWA } from '@composables/core/usePWA'
 import { usePWAInstallPrompt } from '@composables/core/usePWAInstallPrompt'
 import { useWindowSize } from '@vueuse/core'
 import { BaseButton } from '@components/ui'
 
-// --- Install prompt integration ---
 const { canInstall, dismissedInstall, isInstalled, promptInstall, dismissInstall } = usePWAInstallPrompt()
 
-// --- Update integration ---
 const {
   needRefresh, latestVersion, updateFeatures,
-  shouldShowUpdate, updateApp, dismissUpdate, currentVersion,
+  shouldShowUpdate, updateApp, dismissUpdate, currentVersion
 } = usePWA()
 
-// Responsive
 const { width } = useWindowSize()
 
-// Local state
 const showDetails: Ref<boolean> = ref(false)
 const isUpdating: Ref<boolean> = ref(false)
 
-// Computed
 const hasReleaseNotes: ComputedRef<boolean> = computed(() => {
   return Boolean(
     latestVersion.value &&
@@ -56,7 +50,7 @@ const getPreviewCount = (): number => (isMobile.value ? 1 : 2)
 
 const getPreviewFeatures = (): string[] => {
   const count = getPreviewCount()
-  return updateFeatures.value.slice(0, count).map((feature) => {
+  return updateFeatures.value.slice(0, count).map(feature => {
     if (isMobile.value && feature.length > 25) return `${feature.substring(0, 25)}...`
     if (!isMobile.value && feature.length > 30) return `${feature.substring(0, 30)}...`
     return feature
@@ -80,9 +74,9 @@ const formatVersion = (version: string): string => {
 
 const getUpdateDescription = (): string => {
   if (isServiceWorkerUpdate.value) {
-    return isMobile.value
-      ? 'App update ready - improved performance'
-      : 'App update ready - improved offline functionality and performance'
+    return isMobile.value ?
+      'App update ready - improved performance' :
+      'App update ready - improved offline functionality and performance'
   }
   if (latestVersion.value && currentVersion.value && latestVersion.value !== currentVersion.value) {
     if (currentVersion.value.includes('beta') && !latestVersion.value.includes('beta')) {
@@ -99,12 +93,12 @@ const getUpdateDescription = (): string => {
 
 const toggleDetails = (): void => { showDetails.value = !showDetails.value }
 
-const handleUpdate = async (): Promise<void> => {
+const handleUpdate = async(): Promise<void> => {
   if (isUpdating.value) return
   isUpdating.value = true
   try {
     await updateApp()
-  } catch (error) {
+  } catch(error) {
     console.error('Failed to update:', error)
   } finally {
     isUpdating.value = false
@@ -112,36 +106,32 @@ const handleUpdate = async (): Promise<void> => {
 }
 
 const openReleaseNotes = (): void => {
-  // Mock URL for example purposes
-  const url = `https://github.com/Whitestar14/mathlly-app/releases/tag/v${latestVersion.value}`;
-  window.open(url, '_blank', 'noopener,noreferrer');
-};
+  const url = `https://github.com/Whitestar14/mathlly-app/releases/tag/v${latestVersion.value}`
+  window.open(url, '_blank', 'noopener,noreferrer')
+}
 </script>
 
 <template>
-  <!-- 1. Update Card (shown when an update is available) -->
+
   <Transition
     enter-active-class="transform transition duration-500 ease-out"
     enter-from-class="translate-y-full opacity-0 scale-95"
     enter-to-class="translate-y-0 opacity-100 scale-100"
     leave-active-class="transform transition duration-300 ease-in"
     leave-from-class="translate-y-0 opacity-100 scale-100"
-    leave-to-class="translate-y-full opacity-0 scale-95"
-  >
+    leave-to-class="translate-y-full opacity-0 scale-95">
     <div
       v-if="shouldShowUpdate"
-      class="fixed bottom-3 left-3 right-3 z-50 sm:bottom-6 sm:right-6 sm:left-auto sm:w-full sm:max-w-sm"
-    >
-      <!-- Main Card -->
+      class="fixed bottom-3 left-3 right-3 z-50 sm:bottom-6 sm:right-6 sm:left-auto sm:w-full sm:max-w-sm">
+
       <div
-        class="bg-card border border-border rounded-lg shadow-lg overflow-hidden"
-      >
-        <!-- Header Section -->
+        class="bg-card border border-border rounded-lg shadow-lg overflow-hidden">
+
         <div class="p-4">
           <div class="flex items-start gap-3">
             <div class="flex-shrink-0 mt-0.5">
               <div class="bg-primary/10 p-2 rounded-lg">
-                <!-- Simplified icon: Only show RefreshCwIcon for updates -->
+
                 <RefreshCwIcon class="h-4 w-4 text-primary" />
               </div>
             </div>
@@ -157,78 +147,64 @@ const openReleaseNotes = (): void => {
                     v-if="updateFeatures.length > 0"
                     variant="ghost"
                     size="icon"
-                    @click="toggleDetails"
-                  >
+                    @click="toggleDetails">
                     <ChevronDownIcon
                       class="h-4 w-4 transition-transform duration-200"
-                      :class="{ 'rotate-180': showDetails }"
-                    />
+                      :class="{ 'rotate-180': showDetails }" />
                   </BaseButton>
                   <BaseButton
                     variant="ghost"
                     size="icon"
-                    @click="dismissUpdate"
-                  >
+                    @click="dismissUpdate">
                     <XIcon class="h-4 w-4" />
                   </BaseButton>
                 </div>
               </div>
 
-              <!-- Version progression -->
               <div class="flex items-center gap-2 mb-3 overflow-hidden">
                 <span
                   v-if="currentVersion && !isServiceWorkerUpdate"
-                  class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-muted text-muted-foreground border border-border flex-shrink-0"
-                >
+                  class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-muted text-muted-foreground border border-border flex-shrink-0">
                   {{ formatVersion(currentVersion) }}
                 </span>
                 <ArrowRightIcon
                   v-if=" currentVersion && displayLatestVersion && !isServiceWorkerUpdate "
-                  class="h-3 w-3 text-muted-foreground flex-shrink-0"
-                />
+                  class="h-3 w-3 text-muted-foreground flex-shrink-0" />
                 <span
                   v-if="displayLatestVersion"
-                  class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-primary/10 text-primary border border-primary/20 flex-shrink-0"
-                >
-                  <span class="w-1.5 h-1.5 bg-primary rounded-full mr-1.5 animate-pulse" />
+                  class="inline-flex items-center px-2 py-1 text-xs font-medium rounded-md bg-primary/10 text-primary border border-primary/20 flex-shrink-0">
+                  <span class="w-1.5 h-1.5 bg-primary rounded-full mr-1.5 animate-pulse"></span>
                   {{ formatVersion(displayLatestVersion) }}
                 </span>
               </div>
 
-              <!-- Body copy -->
               <p class="text-xs text-muted-foreground leading-relaxed mb-3">
                 {{ getUpdateDescription() }}
               </p>
 
-              <!-- Quick Feature Preview with Fade Transition -->
               <div
                 v-if="updateFeatures.length > 0"
-                class="space-y-2"
-              >
+                class="space-y-2">
                 <Transition
                   enter-active-class="transition duration-150 ease-out"
                   enter-from-class="opacity-0"
                   enter-to-class="opacity-100"
                   leave-active-class="transition duration-150 ease-in"
                   leave-from-class="opacity-100"
-                  leave-to-class="opacity-0"
-                >
+                  leave-to-class="opacity-0">
                   <div
                     v-if="!showDetails"
-                    class="flex flex-wrap gap-1"
-                  >
+                    class="flex flex-wrap gap-1">
                     <span
                       v-for="(feature, index) in getPreviewFeatures()"
                       :key="index"
-                      class="inline-flex items-center px-2 py-1 text-xs rounded-md bg-secondary text-secondary-foreground"
-                    >
+                      class="inline-flex items-center px-2 py-1 text-xs rounded-md bg-secondary text-secondary-foreground">
                       <SparklesIcon class="h-2.5 w-2.5 mr-1 flex-shrink-0" />
                       <span class="truncate">{{ feature }}</span>
                     </span>
                     <span
                       v-if="updateFeatures.length > getPreviewCount()"
-                      class="inline-flex items-center px-2 py-1 text-xs rounded-md bg-muted text-muted-foreground"
-                    >
+                      class="inline-flex items-center px-2 py-1 text-xs rounded-md bg-muted text-muted-foreground">
                       +{{ updateFeatures.length - getPreviewCount() }}
                     </span>
                   </div>
@@ -238,46 +214,40 @@ const openReleaseNotes = (): void => {
           </div>
         </div>
 
-        <!-- Expandable Details (Height Transition) -->
         <Transition
           enter-active-class="transition-all duration-500 ease-out"
           enter-from-class="max-h-0 opacity-0"
           enter-to-class="max-h-64 opacity-100"
           leave-active-class="transition-all duration-300 ease-in"
           leave-from-class="max-h-64 opacity-100"
-          leave-to-class="max-h-0 opacity-0"
-        >
+          leave-to-class="max-h-0 opacity-0">
           <div
             v-if="showDetails"
-            class="overflow-hidden"
-          >
-            <div class="border-t border-border" />
+            class="overflow-hidden">
+            <div class="border-t border-border"></div>
             <div class="p-4">
               <div class="max-h-40 overflow-y-auto">
                 <h4 class="text-xs font-medium text-card-foreground mb-3 flex items-center">
-                  <div class="w-1 h-1 bg-primary rounded-full mr-2" />
+                  <div class="w-1 h-1 bg-primary rounded-full mr-2"></div>
                   {{ isServiceWorkerUpdate ? 'Service Worker Updates' : `What's new in ${formatVersion(displayLatestVersion)}` }}
                 </h4>
                 <div class="space-y-2">
                   <div
                     v-for="(feature, index) in updateFeatures"
                     :key="index"
-                    class="flex items-start gap-2"
-                  >
+                    class="flex items-start gap-2">
                     <CheckIcon class="h-3 w-3 text-primary mt-0.5 flex-shrink-0" />
                     <span class="text-xs text-muted-foreground leading-relaxed">{{ feature }}</span>
                   </div>
                 </div>
                 <div
                   v-if="hasReleaseNotes"
-                  class="mt-4 pt-3 border-t border-border"
-                >
+                  class="mt-4 pt-3 border-t border-border">
                   <BaseButton
                     variant="link"
                     size="sm"
                     class="text-xs p-0 h-auto"
-                    @click="openReleaseNotes"
-                  >
+                    @click="openReleaseNotes">
                     <BookOpenIcon class="h-3 w-3" />
                     <span class="hidden sm:inline">View full release notes</span>
                     <span class="sm:hidden">Release notes</span>
@@ -289,14 +259,12 @@ const openReleaseNotes = (): void => {
           </div>
         </Transition>
 
-        <!-- Action Bar (Update) -->
         <div class="border-t border-border bg-muted/30 p-3">
           <div class="flex gap-2 justify-end">
             <BaseButton
               variant="outline"
               size="sm"
-              @click="dismissUpdate"
-            >
+              @click="dismissUpdate">
               Later
             </BaseButton>
             <BaseButton
@@ -304,12 +272,10 @@ const openReleaseNotes = (): void => {
               size="sm"
               :disabled="isUpdating"
               :loading="isUpdating"
-              @click="handleUpdate"
-            >
+              @click="handleUpdate">
               <DownloadIcon
                 v-if="!isUpdating"
-                class="h-4 w-4"
-              />
+                class="h-4 w-4" />
               {{ isUpdating ? 'Updating...' : isServiceWorkerUpdate ? 'Update App' : 'Update Now' }}
             </BaseButton>
           </div>
@@ -318,19 +284,16 @@ const openReleaseNotes = (): void => {
     </div>
   </Transition>
 
-  <!-- 2. Install Card (shown only when no update is available AND install conditions met) -->
   <Transition
     enter-active-class="transform transition duration-500 ease-out"
     enter-from-class="translate-y-full opacity-0 scale-95"
     enter-to-class="translate-y-0 opacity-100 scale-100"
     leave-active-class="transform transition duration-300 ease-in"
     leave-from-class="translate-y-0 opacity-100 scale-100"
-    leave-to-class="translate-y-full opacity-0 scale-95"
-  >
+    leave-to-class="translate-y-full opacity-0 scale-95">
     <div
       v-if="!shouldShowUpdate && canInstall && !isInstalled && !dismissedInstall"
-      class="fixed bottom-3 left-3 right-3 z-50 sm:bottom-6 sm:right-6 sm:left-auto sm:w-full sm:max-w-sm"
-    >
+      class="fixed bottom-3 left-3 right-3 z-50 sm:bottom-6 sm:right-6 sm:left-auto sm:w-full sm:max-w-sm">
       <div class="bg-card border border-border rounded-lg shadow-lg overflow-hidden">
         <div class="p-4">
           <div class="flex items-start gap-3">
@@ -349,8 +312,7 @@ const openReleaseNotes = (): void => {
                   <BaseButton
                     variant="ghost"
                     size="icon"
-                    @click="dismissInstall"
-                  >
+                    @click="dismissInstall">
                     <XIcon class="h-4 w-4" />
                   </BaseButton>
                 </div>
@@ -362,22 +324,19 @@ const openReleaseNotes = (): void => {
             </div>
           </div>
         </div>
-        
-        <!-- Action Bar (Install) -->
+
         <div class="border-t border-border bg-muted/30 p-3">
           <div class="flex gap-2 justify-end">
             <BaseButton
               variant="outline"
               size="sm"
-              @click="dismissInstall"
-            >
+              @click="dismissInstall">
               No thanks
             </BaseButton>
             <BaseButton
               variant="primary"
               size="sm"
-              @click="promptInstall"
-            >
+              @click="promptInstall">
               Install
             </BaseButton>
           </div>

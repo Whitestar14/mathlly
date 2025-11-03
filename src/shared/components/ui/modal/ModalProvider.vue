@@ -12,4 +12,3 @@ import SharedModalOverlay from './SharedModalOverlay.vue'
   z-index: var(--active-modal-z, 40);
 }
 </style>
-

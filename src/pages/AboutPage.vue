@@ -2,9 +2,8 @@
   <BasePage
     title="About"
     :breadcrumbs="[ { label: 'Info', path: '/' }, { label: 'About' } ]"
-    :show-footer="true"
-  >
-    <!-- Team & Vision Section -->
+    :show-footer="true">
+
     <section class="mb-16 pattern-grid overflow-hidden bg-gradient-to-b from-primary/5 to-background">
       <div class="container mx-auto px-4 pt-20 pb-16 md:py-24 relative">
         <h2 class="text-5xl md:text-6xl lg:text-7xl font-mono font-bold tracking-tight text-foreground">
@@ -15,13 +14,12 @@
         </h2>
 
         <p class="text-base md:text-lg text-muted-foreground max-w-lg self-center md:self-start">
-          Started as a developer's side project, Prism has grown into a community-driven platform 
+          Started as a developer's side project, Prism has grown into a community-driven platform
           that pushes the boundaries of development tools.
         </p>
       </div>
     </section>
 
-    <!-- Core Values -->
     <section class="space-y-8 mb-16">
       <h3 class="text-2xl font-medium tracking-tight text-foreground">
         Core Values
@@ -32,12 +30,10 @@
           :key="coreValue.title"
           :icon="coreValue.icon"
           :title="coreValue.title"
-          :description="coreValue.description"
-        />
+          :description="coreValue.description" />
       </div>
     </section>
 
-    <!-- Development Process -->
     <section class="space-y-6 mb-16">
       <h3 class="text-2xl font-medium tracking-tight text-foreground">
         Development Process
@@ -47,13 +43,11 @@
           <div
             v-for="(phase, index) in devProcess"
             :key="index"
-            class="space-y-3"
-          >
+            class="space-y-3">
             <div class="flex items-center gap-2">
               <component
                 :is="phase.icon"
-                class="h-5 w-5 text-primary"
-              />
+                class="h-5 w-5 text-primary" />
               <h4 class="font-medium text-foreground">
                 {{ phase.title }}
               </h4>
@@ -66,7 +60,6 @@
       </div>
     </section>
 
-    <!-- Contributing Section -->
     <section class="space-y-6">
       <h3 class="text-2xl font-medium tracking-tight text-foreground">
         Contributing
@@ -74,21 +67,19 @@
       <div class="bg-background rounded-lg border border-border p-6">
         <div class="space-y-4">
           <p class="text-sm text-muted-foreground leading-relaxed">
-            Prism is open source and welcomes contributions from developers worldwide. Whether you're fixing bugs, 
+            Prism is open source and welcomes contributions from developers worldwide. Whether you're fixing bugs,
             adding features, or improving documentation, your help makes Prism better for everyone.
           </p>
           <div class="flex flex-col sm:flex-row gap-2 sm:gap-4">
             <BaseButton
               variant="primary"
-              @click="goToGithub"
-            >
+              @click="goToGithub">
               <GithubIcon class="h-4 w-4" />
               View on GitHub
             </BaseButton>
             <BaseButton
               variant="outline"
-              @click="goToContributing"
-            >
+              @click="goToContributing">
               <BookOpenIcon class="h-4 w-4" />
               Contributing Guide
             </BaseButton>
@@ -100,14 +91,14 @@
 </template>
 
 <script setup lang="ts">
-import { 
-  GithubIcon, 
-  BookOpenIcon, 
-  UsersIcon, 
-  RocketIcon, 
+import {
+  GithubIcon,
+  BookOpenIcon,
+  UsersIcon,
+  RocketIcon,
   TestTubeIcon,
   type LucideIcon
-} from "lucide-vue-next";
+} from 'lucide-vue-next'
 import { BasePage, BaseButton } from '@components/ui'
 import { FeatureCard } from '@components/layout'
 
@@ -139,7 +130,7 @@ const coreValues: CoreValue[] = [
     icon: 'Sparkles',
     description: 'Pushing boundaries with cutting-edge features while maintaining simplicity and usability.'
   }
-];
+]
 
 const devProcess: DevPhase[] = [
   {
@@ -157,13 +148,13 @@ const devProcess: DevPhase[] = [
     icon: RocketIcon,
     description: 'Regular updates and improvements keep Prism cutting edge.'
   }
-];
+]
 
 const goToGithub = (): void => {
-  window.open('https://github.com/Whitestar14/mathlly', '_blank');
-};
+  window.open('https://github.com/Whitestar14/mathlly', '_blank')
+}
 
 const goToContributing = (): void => {
-  window.open('https://github.com/Whitestar14/mathlly/blob/main/CONTRIBUTING.md', '_blank');
-};
+  window.open('https://github.com/Whitestar14/mathlly/blob/main/CONTRIBUTING.md', '_blank')
+}
 </script>

@@ -2,7 +2,6 @@ import { computed } from 'vue'
 import { useToolOptions } from '@composables/ui/useToolOptions'
 import { CalculatorOptions } from '../types/calculator'
 
-// Default calculator options
 const DEFAULT_CALCULATOR_OPTIONS: CalculatorOptions = {
   defaultMode: 'Standard',
   precision: 4,
@@ -13,7 +12,7 @@ const DEFAULT_CALCULATOR_OPTIONS: CalculatorOptions = {
   angleUnit: 'degrees',
   notationMode: 'standard',
   hyperbolicMode: false,
-  hapticFeedback: false,
+  hapticFeedback: false
 }
 
 export function useCalculatorOptions() {
@@ -21,7 +20,7 @@ export function useCalculatorOptions() {
     'calculator',
     'Calculator',
     DEFAULT_CALCULATOR_OPTIONS,
-    (options) => [
+    options => [
       {
         id: 'defaultMode',
         label: 'Default Calculator Mode',
@@ -120,53 +119,51 @@ export function useCalculatorOptions() {
         type: 'toggle',
         value: options,
         section: 'Scientific'
-      },
+      }
     ]
   )
 
-  // Computed display modes for UI
   const angleDisplayMode = computed(() => {
     const mapping = {
       'degrees': 'DEG',
-      'radians': 'RAD', 
+      'radians': 'RAD',
       'gradians': 'GRAD'
-    };
-    return mapping[options.value.angleUnit] || 'DEG';
-  });
+    }
+    return mapping[options.value.angleUnit] || 'DEG'
+  })
 
   const notationDisplayMode = computed(() => {
     const mapping = {
       'standard': 'F-E',
       'scientific': 'SCI',
       'engineering': 'ENG'
-    };
-    return mapping[options.value.notationMode] || 'F-E';
-  });
+    }
+    return mapping[options.value.notationMode] || 'F-E'
+  })
 
-function cycleOption<K extends keyof CalculatorOptions>(
-  key: K,
-  values: CalculatorOptions[K][]
-) {
-  const current = options.value[key];
-  const index = values.indexOf(current);
-  options.value[key] = values[(index + 1) % values.length];
-}
+  function cycleOption<K extends keyof CalculatorOptions>(
+    key: K,
+    values: CalculatorOptions[K][]
+  ) {
+    const current = options.value[key]
+    const index = values.indexOf(current)
+    options.value[key] = values[(index + 1) % values.length]
+  }
 
-const cycleNotationMode = () =>
-  cycleOption('notationMode', ['standard', 'scientific', 'engineering']);
+  const cycleNotationMode = () =>
+    cycleOption('notationMode', ['standard', 'scientific', 'engineering'])
 
-const cycleAngleMode = () =>
-  cycleOption('angleUnit', ['degrees', 'radians', 'gradians']);
+  const cycleAngleMode = () =>
+    cycleOption('angleUnit', ['degrees', 'radians', 'gradians'])
 
   const toggleHyperbolicMode = () => {
-    options.value.hyperbolicMode = !options.value.hyperbolicMode;
-  };
+    options.value.hyperbolicMode = !options.value.hyperbolicMode
+  }
 
   return {
-    // The entire options object
+
     options,
-    
-    // Individual options (for convenience)
+
     defaultMode: computed(() => options.value.defaultMode),
     precision: computed(() => options.value.precision),
     useFractions: computed(() => options.value.useFractions),
@@ -177,17 +174,14 @@ const cycleAngleMode = () =>
     notationMode: computed(() => options.value.notationMode),
     hyperbolicMode: computed(() => options.value.hyperbolicMode),
     hapticFeedback: computed(() => options.value.hapticFeedback),
-    
-    // Display modes for UI
+
     angleDisplayMode,
     notationDisplayMode,
-    
-    // Helper methods
+
     cycleAngleMode,
     cycleNotationMode,
     toggleHyperbolicMode,
-    
-    // Store state
-    isLoading,
+
+    isLoading
   }
 }

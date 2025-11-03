@@ -1,11 +1,11 @@
-import { onUnmounted } from 'vue';
-import { usePanelContext } from './panelContext';
+import { onUnmounted } from 'vue'
+import { usePanelContext } from './panelContext'
 import {
   PanelOptions,
   PanelAPI,
   LightweightPanelAPI,
-  ToggleOptions,
-} from './types';
+  ToggleOptions
+} from './types'
 
 /**
  * Hook to interact with a specific panel instance managed by the context.
@@ -16,44 +16,44 @@ import {
  */
 export function usePanel(id: string, options: PanelOptions = {}): PanelAPI | LightweightPanelAPI | Record<string, never> {
   if (!id) {
-    console.warn("usePanel() requires an id");
-    return {};
+    console.warn('usePanel() requires an id')
+    return {}
   }
 
-  const { state, actions } = usePanelContext();
-  const hasRegistrationOptions = Object.keys(options).length > 0;
+  const { state, actions } = usePanelContext()
+  const hasRegistrationOptions = Object.keys(options).length > 0
 
   if (state.panels[id]) {
-    return state.panels[id];
+    return state.panels[id]
   }
 
   if (hasRegistrationOptions) {
-    const panel = actions.registerPanel(id, options)!;
+    const panel = actions.registerPanel(id, options)!
 
     onUnmounted(() => {
-      actions.unregisterPanel(id);
-    });
+      actions.unregisterPanel(id)
+    })
 
-    return panel;
+    return panel
   }
 
   const lightweightPanel: LightweightPanelAPI = {
     get isOpen(): boolean {
-      return actions.provide(id, "isOpen", false);
+      return actions.provide(id, 'isOpen', false)
     },
     get isMobile(): boolean {
-      return state.isMobile;
+      return state.isMobile
     },
     get panels(): Record<string, PanelAPI> {
-      return state.panels;
+      return state.panels
     },
     get options(): PanelOptions | undefined {
-      return state.options[id];
+      return state.options[id]
     },
     open: (): void => actions.openPanel(id),
     close: (): void => actions.closePanel(id),
-    toggle: (options?: ToggleOptions): void => actions.togglePanel(id, options),
-  };
+    toggle: (options?: ToggleOptions): void => actions.togglePanel(id, options)
+  }
 
-  return lightweightPanel;
+  return lightweightPanel
 }

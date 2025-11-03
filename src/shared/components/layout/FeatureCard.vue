@@ -4,8 +4,7 @@
       <div class="p-2 bg-primary/10 rounded-xl">
         <component
           :is="getFeatureIcon(icon)"
-          class="h-6 w-6 text-primary"
-        />
+          class="h-6 w-6 text-primary" />
       </div>
       <h4 class="font-medium text-lg text-card-foreground">
         {{ title }}
@@ -18,9 +17,9 @@
 </template>
 
 <script setup>
-import {  
-  BinaryIcon, 
-  FunctionSquareIcon, 
+import {
+  BinaryIcon,
+  FunctionSquareIcon,
   CalculatorIcon,
   EyeIcon,
   HistoryIcon,
@@ -33,7 +32,7 @@ import {
   LayersIcon,
   ZapIcon,
   WorkflowIcon
-} from "lucide-vue-next";
+} from 'lucide-vue-next'
 
 defineProps({
   icon: {
@@ -48,10 +47,9 @@ defineProps({
     type: String,
     required: true
   }
-});
+})
 
-// Map feature icon names to actual components
-const getFeatureIcon = (iconName) => {
+const getFeatureIcon = iconName => {
   const iconMap = {
     'Calculator': CalculatorIcon,
     'Eye': EyeIcon,
@@ -67,8 +65,8 @@ const getFeatureIcon = (iconName) => {
     'Layers': LayersIcon,
     'Zap': ZapIcon,
     'Workflow': WorkflowIcon
-  };
-  
-  return iconMap[iconName] || CalculatorIcon;
-};
+  }
+
+  return iconMap[iconName] || CalculatorIcon
+}
 </script>

@@ -15,7 +15,7 @@ type ParseState = 'valid' | 'partial' | 'invalid'
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
 const clampInt = (v: number, min: number, max: number) => Math.round(clamp(v, min, max))
-// Limit alpha precision to prevent ballooning like 0.50196078…
+
 const roundAlpha = (a: number) => Number(clamp(a, 0, 1).toFixed(3))
 
 /**

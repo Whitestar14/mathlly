@@ -27,7 +27,6 @@ export class ExpressionEvaluator {
    * Create a new expression evaluator
    */
   constructor() {
-    // Initialize cache through CacheManager
     CacheManager.getCache(ExpressionEvaluator.CACHE_NAME, 100)
   }
 
@@ -38,15 +37,12 @@ export class ExpressionEvaluator {
     const cacheKey = this.getCacheKey(expr, options)
     const cache = CacheManager.getCache(ExpressionEvaluator.CACHE_NAME)
 
-    // Check cache first
     if (cache.has(cacheKey)) {
       return cache.get(cacheKey)
     }
 
-    // Perform actual evaluation
     const result = this.performEvaluation(expr, options)
 
-    // Cache result using CacheManager
     cache.set(cacheKey, result)
 
     return result
@@ -56,7 +52,6 @@ export class ExpressionEvaluator {
    * Generate cache key from expression and options
    */
   getCacheKey(expr: string, options: Record<string, any>): string {
-    // Include mode and base in cache key for better cache separation
     const mode = options.mode || 'standard'
     const base = options.base || 'DEC'
     return `${mode}:${base}:${expr}|${JSON.stringify(options)}`
@@ -70,36 +65,29 @@ export class ExpressionEvaluator {
       base,
       mode = 'standard',
       maxValue = CalculatorConstants.MAX_VALUE,
-      minValue = CalculatorConstants.MIN_VALUE,
+      minValue = CalculatorConstants.MIN_VALUE
     } = options
 
     if (!expr || expr.trim() === '') return bignumber(0)
 
-    // Check for division by zero before sanitization
     if (expr.includes('÷ 0') || expr.includes('/ 0')) {
       throw new Error(CalculatorConstants.ERROR_MESSAGES.DIVISION_BY_ZERO)
     }
 
-    // Sanitize expression based on mode
     let sanitizedExpr: string
     if (base && base !== 'DEC') {
-      // Programmer mode with base conversion
       sanitizedExpr = this.convertToDecimal(CalculatorUtils.sanitizeExpression(expr), base)
     } else {
-      // Standard/Scientific mode
       sanitizedExpr = CalculatorUtils.sanitizeExpression(expr)
     }
 
-    // Evaluate using mathjs
     try {
       const result = evaluate(sanitizedExpr)
 
-      // Validate result based on mode
       this.validateEvaluationResult(result, maxValue, minValue, mode)
 
       return result
-    } catch (err) {
-      // Use CalculatorUtils.formatError for consistent error handling
+    } catch(err) {
       throw new Error(CalculatorUtils.formatError(err as Error))
     }
   }
@@ -107,7 +95,7 @@ export class ExpressionEvaluator {
   /**
    * Validate evaluation result based on calculator mode
    */
-   validateEvaluationResult(result: any, maxValue: any, minValue: any, mode: string): void {
+  validateEvaluationResult(result: any, maxValue: any, minValue: any, mode: string): void {
     if (!isFinite(result)) {
       if (isNaN(result)) {
         throw new Error(CalculatorConstants.ERROR_MESSAGES.DOMAIN_ERROR)
@@ -116,17 +104,13 @@ export class ExpressionEvaluator {
       }
     }
 
-    // Check bounds - convert BigNumber to regular number for comparison if needed
     const numericResult = typeof result === 'object' && result.toNumber ? result.toNumber() : result
     const maxVal = typeof maxValue === 'object' && maxValue.toNumber ? maxValue.toNumber() : maxValue
     const minVal = typeof minValue === 'object' && minValue.toNumber ? minValue.toNumber() : minValue
 
-    // Apply mode-specific validation
     if (mode === 'programmer') {
-      // For programmer mode, check for integer overflow in 64-bit range
       if (!Number.isInteger(numericResult) && Math.abs(numericResult) > 1e-10) {
-        // Allow small floating point errors but not actual decimals
-        console.warn('Non-integer result in programmer mode:', numericResult);
+        console.warn('Non-integer result in programmer mode:', numericResult)
       }
     }
 
@@ -140,18 +124,16 @@ export class ExpressionEvaluator {
    */
   convertToDecimal(expr: string, fromBase: string): string {
     const bases = CalculatorConstants.BASES
-    // Split expression keeping operators intact
+
     const parts = expr.split(/(\s*<<\s*|\s*>>\s*|\s*%\s*|\s*[+\-*/()]\s*)/)
     return parts
-      .map((part) => {
+      .map(part => {
         part = part.trim()
         if (!part) return ''
-        // Keep operators as is
+
         if (/^(<<|>>|[+\-*/%()]|\s+)$/.test(part)) return part
 
-        // Convert numbers to decimal
         try {
-          // Use CalculatorUtils.isValidForBase to check validity
           if (CalculatorUtils.isValidForBase(part, fromBase as any)) {
             const decimal = parseInt(part, (bases as any)[fromBase])
             return isNaN(decimal) ? part : decimal.toString(10)

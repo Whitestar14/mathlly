@@ -4,25 +4,22 @@
     :modal="true"
     :prevent-scroll="true"
     :trap-focus="true"
-    :disable-outside-pointer-events="true"
-  >
+    :disable-outside-pointer-events="true">
     <template #trigger>
       <BaseButton
         variant="outline"
         size="sm px-2 py-1 h-8"
-        class="flex items-center gap-2"
-      >
+        class="flex items-center gap-2">
         <div
           class="w-4 h-4 rounded border border-border"
-          :style="{ backgroundColor: rgbaCss }"
-        />
+          :style="{ backgroundColor: rgbaCss }"></div>
         <Palette class="w-4 h-4" />
       </BaseButton>
     </template>
 
     <template #default>
       <div :class="isMobile ? 'p-3 w-full max-w-sm space-y-4 bg-card/80 rounded-lg' : 'p-4 w-72 space-y-4 bg-card rounded-lg'">
-        <!-- SV panel -->
+
         <div
           ref="svEl"
           :class="isMobile ? 'relative w-full h-48 rounded-md cursor-crosshair select-none overflow-hidden touch-none' : 'relative w-full h-36 rounded-md cursor-crosshair select-none overflow-hidden touch-none'"
@@ -31,47 +28,39 @@
           @pointermove="onSvPointerMove"
           @pointerup="onSvPointerUp"
           @pointerleave="onSvPointerUp"
-          @pointercancel="onSvPointerUp"
-        >
-          <!-- Make overlays match the rounded corners -->
-          <div class="absolute inset-0 rounded-md bg-gradient-to-r from-white to-transparent" />
-          <div class="absolute inset-0 rounded-md bg-gradient-to-t from-black to-transparent" />
+          @pointercancel="onSvPointerUp">
 
-          <!-- Crosshair knob -->
+          <div class="absolute inset-0 rounded-md bg-gradient-to-r from-white to-transparent"></div>
+          <div class="absolute inset-0 rounded-md bg-gradient-to-t from-black to-transparent"></div>
+
           <div
             class="absolute w-3 h-3 rounded-full border-2 border-white shadow pointer-events-none"
             :style="{
               left: `${hsva.s * 100}%`,
               top: `${(1 - hsva.v) * 100}%`,
               transform: 'translate(-50%, -50%)'
-            }"
-          />
+            }"></div>
         </div>
 
-        <!-- Hue slider -->
         <div class="relative w-full">
           <div
             class="absolute inset-0 h-1.5 rounded-full"
-            style="background: linear-gradient(to right, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%));"
-          />
+            style="background: linear-gradient(to right, hsl(0, 100%, 50%), hsl(60, 100%, 50%), hsl(120, 100%, 50%), hsl(180, 100%, 50%), hsl(240, 100%, 50%), hsl(300, 100%, 50%), hsl(360, 100%, 50%));"></div>
           <SliderRoot
             v-model="hueSliderValue"
             class="relative flex items-center w-full"
             :min="0"
             :max="360"
-            :step="1"
-          >
+            :step="1">
             <SliderTrack class="relative h-1.5 w-full grow overflow-hidden rounded-full bg-transparent">
               <SliderRange class="absolute h-full bg-transparent" />
             </SliderTrack>
             <SliderThumb
               class="size-5 cursor-pointer transition-all duration-100 rounded-full border border-primary bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 touch-none"
-              :class="isMobile ? 'size-6' : ''"
-            />
+              :class="isMobile ? 'size-6' : ''" />
           </SliderRoot>
         </div>
 
-        <!-- Alpha slider -->
         <div class="bg-checkerboard rounded-md p-2">
           <BaseSlider
             :model-value="[Math.round(hsva.a * 100)]"
@@ -79,22 +68,18 @@
             :max="100"
             :step="1"
             class="w-full"
-            @update:model-value="onAlphaUpdate"
-          />
+            @update:model-value="onAlphaUpdate" />
         </div>
 
-        <!-- Preview + Hex input -->
         <div class="flex items-center gap-2">
           <div
             class="w-8 h-8 rounded border border-border"
-            :style="{ backgroundColor: rgbaCss }"
-          />
+            :style="{ backgroundColor: rgbaCss }"></div>
           <BaseInput
             v-model="hexInput"
             class="flex-1"
             placeholder="#RRGGBB or #RRGGBBAA"
-            @input="onHexType"
-          />
+            @input="onHexType" />
         </div>
       </div>
     </template>
@@ -124,23 +109,18 @@ const isMobile = computed(() => device.isMobile)
 
 const open = ref(false)
 
-// Two-way binding for RGBA with VueUse
 const rgbaModel = useVModel(props, 'modelValue', emit)
 
-// Internal HSVA source of truth
 const hsva = reactive({ h: 0, s: 1, v: 1, a: 1 })
 
-// Hex typing (preserve hue when hex is grayscale)
 const hexInput = ref('#000000')
 
-// Initialize HSVA from incoming model, preserving hue on grayscale
 watch(
   () => rgbaModel.value,
-  (rgbaVal) => {
+  rgbaVal => {
     const hex = rgbaToHex(rgbaVal, true)
     const parsed = hexToHsva(hex)
     if (parsed) {
-      // If saturation is zero (grayscale), preserve existing hue
       const preserveH = hsva.h
       Object.assign(hsva, {
         h: parsed.s === 0 ? preserveH : parsed.h,
@@ -154,7 +134,6 @@ watch(
   { immediate: true, deep: true }
 )
 
-// Emit RGBA when HSVA changes (no hex→HSVA roundtrip here)
 const rgba = computed(() => hsvaToRgba(hsva))
 const rgbaCss = computed(() => `rgba(${rgba.value.r}, ${rgba.value.g}, ${rgba.value.b}, ${rgba.value.a})`)
 watch(
@@ -166,7 +145,6 @@ watch(
   { deep: true }
 )
 
-// Sliders
 const hueSliderValue = computed({
   get: () => [hsva.h],
   set: (value: number[]) => {
@@ -187,7 +165,6 @@ function onHexType() {
   }
 }
 
-// SV panel logic with proper clamping and touch-friendly pointer handling
 const svEl = ref<HTMLElement | null>(null)
 const { width, height } = useElementBounding(svEl)
 let svDragging = false
@@ -205,7 +182,7 @@ function onSvPointerUp(e: PointerEvent) {
   svDragging = false
   try {
     (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId)
-  } catch (err) {
+  } catch(err) {
     console.error(err)
   }
 }
@@ -214,24 +191,19 @@ function updateSvFromEvent(e: PointerEvent) {
   if (!svEl.value) return
   const rect = svEl.value.getBoundingClientRect()
 
-  // Local coordinates clamped to element bounds
   const localX = Math.max(0, Math.min(e.clientX - rect.left, rect.width))
   const localY = Math.max(0, Math.min(e.clientY - rect.top, rect.height))
 
-  // Fallback to reactive bounding if rect is zero during initial mount
   const w = rect.width || width.value || 1
   const h = rect.height || height.value || 1
 
-  // Normalize to [0,1]
   const s = Math.max(0, Math.min(localX / w, 1))
   const v = Math.max(0, Math.min(1 - localY / h, 1))
 
-  // Update without touching hue
   hsva.s = s
   hsva.v = v
 }
 
-// Utils
 function clamp(n: number, min: number, max: number) {
   return Math.min(max, Math.max(min, n))
 }

@@ -2,14 +2,12 @@
   <PopoverRoot
     :open="isControlled ? modelValue : internalOpen"
     :modal="modal"
-    @update:open="handleUpdate"
-  >
-    <!-- Trigger -->
+    @update:open="handleUpdate">
+
     <PopoverTrigger as-child>
-      <slot name="trigger" />
+      <slot name="trigger"></slot>
     </PopoverTrigger>
 
-    <!-- Portal + Content -->
     <PopoverPortal>
       <PopoverContent
         class="z-30 min-w-[180px] bg-popover rounded-lg overflow-hidden border border-border p-1 shadow-md popover-content"
@@ -19,9 +17,8 @@
         :avoid-collisions="true"
         :trap-focus="trapFocus"
         :disable-outside-pointer-events="disableOutsidePointerEvents"
-        :prevent-scroll="preventScroll"
-      >
-        <slot />
+        :prevent-scroll="preventScroll">
+        <slot></slot>
       </PopoverContent>
     </PopoverPortal>
   </PopoverRoot>
@@ -33,7 +30,7 @@ import {
   PopoverRoot,
   PopoverTrigger,
   PopoverContent,
-  PopoverPortal,
+  PopoverPortal
 } from 'radix-vue'
 
 const props = defineProps({
@@ -41,33 +38,31 @@ const props = defineProps({
   sideOffset: { type: Number, default: 6 },
   align: {
     type: String as () => 'start' | 'center' | 'end',
-    default: 'start',
+    default: 'start'
   },
   side: {
     type: String as () => 'top' | 'right' | 'bottom' | 'left',
-    default: 'bottom',
+    default: 'bottom'
   },
   animationDuration: { type: Number, default: 200 },
-  // Radix Popover advanced behaviors
+
   modal: { type: Boolean, default: false },
   trapFocus: { type: Boolean, default: true },
   disableOutsidePointerEvents: { type: Boolean, default: true },
-  preventScroll: { type: Boolean, default: true },
+  preventScroll: { type: Boolean, default: true }
 })
 
 const emit = defineEmits<{
   (e: 'update:modelValue', v: boolean): void
 }>()
 
-// Controlled if parent provides a boolean; uncontrolled otherwise
 const isControlled = computed(() => typeof props.modelValue === 'boolean')
 
-// Internal open state always exists; it mirrors modelValue when controlled
 const internalOpen = ref<boolean>(false)
 
 watch(
   () => props.modelValue,
-  (v) => {
+  v => {
     if (isControlled.value && typeof v === 'boolean') {
       internalOpen.value = v
     }

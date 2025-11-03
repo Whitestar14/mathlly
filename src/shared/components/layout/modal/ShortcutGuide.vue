@@ -1,8 +1,7 @@
 <template>
   <BaseModal
     :open="show"
-    @update:open="handleModalUpdate"
-  >
+    @update:open="handleModalUpdate">
     <template #title>
       <div class="flex items-center">
         <div>
@@ -18,15 +17,13 @@
 
     <div
       v-if="!isGloballyEnabled"
-      class="bg-muted/50 border-l-4 border-destructive p-3 mb-4"
-    >
+      class="bg-muted/50 border-l-4 border-destructive p-3 mb-4">
       <div class="flex items-center gap-2">
         <AlertTriangle class="size-4 text-destructive" />
         <span class="text-sm text-muted-foreground">Keyboard shortcuts are currently disabled. Enable them in Settings to use these shortcuts.</span>
         <RouterLink
           to="/settings"
-          class="text-sm underline text-primary"
-        >
+          class="text-sm underline text-primary">
           Go to Settings
         </RouterLink>
       </div>
@@ -36,8 +33,7 @@
       <BaseTabs
         ref="tabsRef"
         v-model:model-value="currentTab"
-        :tabs="tabs"
-      />
+        :tabs="tabs" />
       <div class="relative overflow-hidden h-[260px] overflow-y-auto">
         <TransitionGroup
           enter-active-class="transition-transform duration-200 ease-out"
@@ -45,18 +41,15 @@
           enter-to-class="opacity-100 translate-x-0"
           leave-active-class="transition-transform duration-200 ease-in"
           leave-from-class="opacity-100 translate-x-0"
-          leave-to-class="opacity-0 -translate-x-4"
-        >
+          leave-to-class="opacity-0 -translate-x-4">
           <div
             v-for="(subgroups, top) in grouped"
             v-show="currentTab === top"
             :key="top"
-            class="p-4 space-y-4"
-          >
+            class="p-4 space-y-4">
             <div
               v-for="(items, subgroup) in subgroups"
-              :key="subgroup"
-            >
+              :key="subgroup">
               <div class="text-xs font-medium text-muted-foreground mb-2">
                 {{ subgroupLabel(top, subgroup) }}
               </div>
@@ -66,8 +59,7 @@
                 :class="[
                   'flex items-center justify-between px-3 py-2 rounded-lg transition-colors',
                   item.enabled ? 'hover:bg-muted/50' : 'opacity-60'
-                ]"
-              >
+                ]">
                 <span class="text-sm text-foreground">
                   {{ item.description }}
                 </span>
@@ -76,19 +68,16 @@
                     <div
                       v-for="(part, idx) in item.key.split('+')"
                       :key="idx"
-                      class="inline-flex items-center gap-1.5"
-                    >
+                      class="inline-flex items-center gap-1.5">
                       <kbd class="px-2 py-1 text-xs font-medium bg-background text-primary rounded-md border border-border shadow-sm">{{ part }}</kbd>
                       <span
                         v-if="idx < item.key.split('+').length - 1"
-                        class="text-muted-foreground"
-                      >+</span>
+                        class="text-muted-foreground">+</span>
                     </div>
                   </template>
                   <kbd
                     v-else
-                    class="px-2 py-1 text-xs font-medium bg-background text-primary rounded-md border border-border shadow-sm"
-                  >{{ item.key }}</kbd>
+                    class="px-2 py-1 text-xs font-medium bg-background text-primary rounded-md border border-border shadow-sm">{{ item.key }}</kbd>
                 </div>
               </div>
             </div>
@@ -98,8 +87,7 @@
 
       <div
         v-if="collisions.length"
-        class="p-4 border-t border-border mt-2"
-      >
+        class="p-4 border-t border-border mt-2">
         <div class="text-xs font-medium text-destructive mb-2">
           Conflicts detected
         </div>
@@ -107,8 +95,7 @@
           <div
             v-for="c in collisions"
             :key="c.key + c.contexts.join(',')"
-            class="rounded-lg bg-muted p-3"
-          >
+            class="rounded-lg bg-muted p-3">
             <div class="text-xs text-muted-foreground mb-1">
               {{ c.contexts.join(', ') }} — {{ c.key }}
             </div>
@@ -116,8 +103,7 @@
               <li
                 v-for="b in c.bindings"
                 :key="b.id"
-                class="flex items-center justify-between"
-              >
+                class="flex items-center justify-between">
                 <span class="text-sm">{{ b.description }}</span>
                 <span class="text-xs text-muted-foreground">priority {{ b.priority ?? 0 }}</span>
               </li>

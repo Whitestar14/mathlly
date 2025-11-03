@@ -1,8 +1,8 @@
 <template>
   <div class="space-y-4">
-    <!-- Version Cards -->
+
     <div class="space-y-3">
-      <!-- App Version -->
+
       <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-4">
         <div class="flex items-center justify-between mb-2">
           <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide">App Version</span>
@@ -10,8 +10,7 @@
             type="custom"
             :text="versionStore.versionInfo.full"
             :show-notch="true"
-            class="font-mono"
-          />
+            class="font-mono" />
         </div>
         <div class="flex items-center gap-2">
           <span class="text-sm text-foreground dark:text-foreground font-mono">{{ versionStore.versionInfo.full }}</span>
@@ -19,14 +18,12 @@
             variant="ghost"
             size="icon"
             class="h-6 w-6"
-            @click="copyToClipboard(versionStore.versionInfo.full)"
-          >
+            @click="copyToClipboard(versionStore.versionInfo.full)">
             <CopyIcon class="h-3 w-3" />
           </BaseButton>
         </div>
       </div>
 
-      <!-- Build Info -->
       <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-4">
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -38,13 +35,11 @@
             <BaseBadge
               :variant="isDev ? 'warning' : 'success'"
               :text="isDev ? 'Development' : 'Production'"
-              size="sm"
-            />
+              size="sm" />
           </div>
         </div>
       </div>
 
-      <!-- Framework Info -->
       <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-4">
         <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-2">Framework</span>
         <div class="flex items-center justify-between">
@@ -58,7 +53,6 @@
         </div>
       </div>
 
-      <!-- System Info -->
       <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-4">
         <div class="space-y-3">
           <div>
@@ -68,12 +62,12 @@
               <span class="text-xs text-muted-foreground dark:text-muted-foreground font-mono">{{ browserInfo.version }}</span>
             </div>
           </div>
-          
+
           <div>
             <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Platform</span>
             <span class="text-sm text-foreground dark:text-foreground">{{ platformInfo }}</span>
           </div>
-          
+
           <div>
             <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-1">Screen</span>
             <span class="text-sm text-foreground dark:text-foreground font-mono">{{ screenInfo }}</span>
@@ -81,7 +75,6 @@
         </div>
       </div>
 
-      <!-- Performance Info -->
       <div class="bg-background dark:bg-background border border-border dark:border-border rounded-lg p-4">
         <span class="text-xs font-medium text-muted-foreground dark:text-muted-foreground uppercase tracking-wide block mb-2">Performance</span>
         <div class="grid grid-cols-2 gap-3 text-xs">
@@ -97,25 +90,22 @@
       </div>
     </div>
 
-    <!-- Actions -->
     <div class="pt-3 border-t border-border dark:border-border">
       <div class="flex gap-2">
         <BaseButton
           variant="outline"
           size="sm"
           class="text-xs flex-1"
-          @click="copyAllInfo"
-        >
+          @click="copyAllInfo">
           <CopyIcon class="h-3 w-3 mr-1.5" />
           Copy All
         </BaseButton>
-        
+
         <BaseButton
           variant="outline"
           size="sm"
           class="text-xs flex-1"
-          @click="refreshInfo"
-        >
+          @click="refreshInfo">
           <RefreshCwIcon class="h-3 w-3 mr-1.5" />
           Refresh
         </BaseButton>
@@ -134,7 +124,6 @@ import { BaseButton, BaseBadge } from '@components/ui'
 const versionStore = useVersionStore()
 const isDev = import.meta.env.DEV
 
-// Reactive data
 const screenInfo = ref('')
 const memoryInfo = ref('')
 const connectionInfo = ref('')
@@ -151,7 +140,7 @@ const browserInfo = computed(() => {
   const ua = navigator.userAgent
   let name = 'Unknown'
   let version = 'Unknown'
-  
+
   if (ua.includes('Chrome')) {
     name = 'Chrome'
     const match = ua.match(/Chrome\/(\d+)/)
@@ -169,28 +158,26 @@ const browserInfo = computed(() => {
     const match = ua.match(/Edg\/(\d+)/)
     version = match ? match[1] : 'Unknown'
   }
-  
+
   return { name, version }
 })
 
 const platformInfo = computed(() => {
   const platform = navigator.platform
   const ua = navigator.userAgent
-  
+
   if (ua.includes('Win')) return 'Windows'
   if (ua.includes('Mac')) return 'macOS'
   if (ua.includes('Linux')) return 'Linux'
   if (ua.includes('Android')) return 'Android'
   if (ua.includes('iPhone') || ua.includes('iPad')) return 'iOS'
-  
+
   return platform || 'Unknown'
 })
 
 const updateDynamicInfo = () => {
-  // Screen info
   screenInfo.value = `${window.screen.width}×${window.screen.height}`
-  
-  // Memory info (if available)
+
   if ('memory' in performance) {
     const memory = (performance as any).memory
     const used = Math.round(memory.usedJSHeapSize / 1024 / 1024)
@@ -199,8 +186,7 @@ const updateDynamicInfo = () => {
   } else {
     memoryInfo.value = 'Not available'
   }
-  
-  // Connection info (if available)
+
   if ('connection' in navigator) {
     const conn = (navigator as any).connection
     connectionInfo.value = conn.effectiveType || 'Unknown'
@@ -209,16 +195,16 @@ const updateDynamicInfo = () => {
   }
 }
 
-const copyToClipboard = async (text: string) => {
+const copyToClipboard = async(text: string) => {
   try {
     await navigator.clipboard.writeText(text)
     console.log('Copied to clipboard:', text)
-  } catch (err) {
+  } catch(err) {
     console.error('Failed to copy:', err)
   }
 }
 
-const copyAllInfo = async () => {
+const copyAllInfo = async() => {
   const info = [
     `App Version: ${versionStore.versionInfo.full}`,
     `Build Date: ${buildDate.value}`,
@@ -231,7 +217,7 @@ const copyAllInfo = async () => {
     `Connection: ${connectionInfo.value}`,
     `User Agent: ${navigator.userAgent}`
   ].join('\n')
-  
+
   await copyToClipboard(info)
 }
 
