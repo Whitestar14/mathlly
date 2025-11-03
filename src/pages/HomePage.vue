@@ -356,7 +356,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, onMounted } from 'vue'
+import { ref, h, defineComponent, onMounted } from 'vue'
 import {
   Sparkles,
   ArrowRightIcon,
@@ -380,31 +380,39 @@ import { FeatureCard, WelcomeModal } from '@components/layout'
 import type { BreadcrumbItem } from '@components/ui/BasePage.vue'
 import { useAppStorageStore } from '@stores/appStorage'
 
-const CountUp = (props: { endVal: number; duration?: number; suffix?: string }) => {
-  const currentValue = ref(0)
-  const duration = props.duration ?? 2
+const CountUp = defineComponent({
+  // eslint-disable-next-line vue/match-component-file-name
+  name: 'CountUp',
+  props: {
+    endVal: { type: Number, required: true },
+    duration: { type: Number, default: 2 },
+    suffix: { type: String, default: '' }
+  },
+  setup(props) {
+    const currentValue = ref(0)
 
-  onMounted(() => {
-    const startTime = Date.now()
-    const endTime = startTime + duration * 1000
+    onMounted(() => {
+      const startTime = Date.now()
+      const endTime = startTime + props.duration * 1000
 
-    const updateValue = () => {
-      const now = Date.now()
-      if (now >= endTime) {
-        currentValue.value = props.endVal
-        return
+      const updateValue = () => {
+        const now = Date.now()
+        if (now >= endTime) {
+          currentValue.value = props.endVal
+          return
+        }
+        const elapsed = now - startTime
+        const progress = elapsed / (props.duration * 1000)
+        currentValue.value = Math.floor(progress * props.endVal)
+        requestAnimationFrame(updateValue)
       }
-      const elapsed = now - startTime
-      const progress = elapsed / (duration * 1000)
-      currentValue.value = Math.floor(progress * props.endVal)
-      requestAnimationFrame(updateValue)
-    }
 
-    updateValue()
-  })
+      updateValue()
+    })
 
-  return () => h('span', {}, `${currentValue.value}${props.suffix ?? ''}`)
-}
+    return () => h('span', {}, `${currentValue.value}${props.suffix}`)
+  }
+})
 
 const breadcrumbs: BreadcrumbItem[] = [
   { label: 'Home', path: '/' }
