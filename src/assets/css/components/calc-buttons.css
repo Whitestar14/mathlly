@@ -4,7 +4,7 @@
   /* Base calculator button */
   .calc-btn {
     @apply relative flex items-center justify-center
-           text-sm font-medium rounded-lg
+           text-base font-medium rounded-lg
            px-3 py-2 border shadow-sm
            transition-transform transition-colors duration-500 ease-out
            disabled:opacity-50 disabled:cursor-not-allowed
