@@ -29,13 +29,36 @@
       {{ error }}
     </div>
     
-    <slot name="actions"></slot>
+    <div v-if="!readOnly" class="flex gap-2 mt-2">
+      <slot name="actions">
+        <!-- Default actions for output panel -->
+        <BaseButton
+          v-if="showConvertButton"
+          variant="primary"
+          size="sm"
+          @click="$emit('convert')"
+          :disabled="!modelValue || modelValue === '0'"
+          class="flex-1">
+          <Calculator class="h-4 w-4 mr-2" />
+          Convert
+        </BaseButton>
+        <BaseButton
+          v-if="showCopyButton"
+          variant="ghost"
+          size="icon-sm"
+          @click="$emit('copy')"
+          :disabled="!modelValue || modelValue === '0'"
+          v-tippy="{ content: 'Copy result' }">
+          <Copy class="h-4 w-4" />
+        </BaseButton>
+      </slot>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { AlertCircle } from 'lucide-vue-next'
-import {BaseInput} from '@components/ui'
+import { AlertCircle, Calculator, Copy } from 'lucide-vue-next'
+import {BaseInput, BaseButton} from '@components/ui'
 import UnitSelector from './UnitSelector.vue'
 import type { ConversionUnit } from '../types/converter'
 
@@ -47,11 +70,15 @@ defineProps<{
   readOnly?: boolean
   error?: string
   placeholder?: string
+  showConvertButton?: boolean
+  showCopyButton?: boolean
 }>()
 
 defineEmits<{
   'update:modelValue': [value: string]
   'update:selectedUnit': [unitId: string]
   'input': []
+  'convert': []
+  'copy': []
 }>()
 </script>

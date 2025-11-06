@@ -37,7 +37,7 @@ export class ConversionService {
   /**
    * Convert value between units
    */
-  convert(value: number, fromUnit: string, toUnit: string, converterType: ConverterType): ConversionResult {
+  async convert(value: number, fromUnit: string, toUnit: string, converterType: ConverterType, precision?: number): Promise<ConversionResult> {
     const cacheKey = `${converterType}:${value}:${fromUnit}:${toUnit}`
     const cache = CacheManager.getCache(ConversionService.CACHE_NAME)
 
@@ -85,14 +85,16 @@ export class ConversionService {
         convertedValue = mathUnit.to(mathJsToUnit).toNumber()
       } else {
         if (config.customConverter) {
-          convertedValue = config.customConverter(value, fromUnit, toUnit)
+          // Check if converter returns Promise (async)
+          const result = config.customConverter(value, fromUnit, toUnit)
+          convertedValue = result instanceof Promise ? await result : result
         } else {
           throw new Error('No conversion method available')
         }
       }
 
-      const { precision } = useConverterOptions()
-      const formattedValue = this.formatResult(convertedValue, precision.value)
+      const actualPrecision = precision ?? useConverterOptions().precision.value
+      const formattedValue = this.formatResult(convertedValue, actualPrecision)
 
       const { getVisualization } = useConversionVisualization()
       const { enableVisualizations } = useConverterOptions()
@@ -160,13 +162,10 @@ export class ConversionService {
   /**
    * Format result with precision and thousand separators
    */
-  formatResult(value: number, precision?: number): string {
-    const { precision: optionsPrecision } = useConverterOptions()
-    const actualPrecision = precision ?? optionsPrecision.value
-
-    // Use DisplayFormatter to properly format numbers
+  formatResult(value: number, precision: number): string {
+    // precision is now required parameter
     const { formatDecimalNumber } = useDisplayFormatter()
-    const fixedValue = value.toFixed(actualPrecision)
+    const fixedValue = value.toFixed(precision)
     return formatDecimalNumber(fixedValue, true)
   }
 

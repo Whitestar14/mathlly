@@ -12,13 +12,17 @@
           <span v-if="getMultiplier(visualization)" class="font-bold font-mono">{{ getMultiplier(visualization) }}</span> {{ getRest(visualization) }}
         </span>
       </div>
+      <div v-if="showLastUpdate && lastUpdateTime" class="mt-1 text-xs text-muted-foreground/70">
+        <Clock class="h-3 w-3 inline mr-1" />
+        Rates updated: {{ lastUpdateTime }}
+      </div>
     </div>
   </Transition>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { Info, Thermometer, Ruler, Weight, Code } from 'lucide-vue-next'
+import { computed, ref, watch } from 'vue'
+import { Info, Thermometer, Ruler, Weight, Code, Clock } from 'lucide-vue-next'
 import type { ConverterType } from '../types/converter'
 import { useConverterOptions } from '@converter/composables'
 
@@ -53,6 +57,26 @@ const iconComponent = computed(() => {
       return Info
   }
 })
+
+const lastUpdateTimestamp = ref<number | null>(null)
+
+const showLastUpdate = computed(() => {
+  return props.converterType === 'currency' && props.visualizations && props.visualizations.length > 0
+})
+
+const lastUpdateTime = computed(() => {
+  if (!lastUpdateTimestamp.value) return null
+  return new Date(lastUpdateTimestamp.value).toLocaleString()
+})
+
+watch(() => props.converterType, async newType => {
+  if (newType === 'currency') {
+    const { currencyService } = await import('@converter/services/converters/currency')
+    lastUpdateTimestamp.value = currencyService.getLastUpdate()
+  } else {
+    lastUpdateTimestamp.value = null
+  }
+}, { immediate: true })
 </script>
 
 <style scoped>

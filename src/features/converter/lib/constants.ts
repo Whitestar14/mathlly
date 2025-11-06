@@ -94,8 +94,34 @@ export const ConverterConstants = {
     INVALID_VIEWPORT_DIMENSIONS: 'Viewport dimensions must be positive numbers',
     MAX_LENGTH_EXCEEDED: 'Maximum input length exceeded',
     INVALID_INPUT_FORMAT: 'Invalid number format',
-    DECIMAL_ALREADY_EXISTS: 'Decimal point already exists'
-  } as const
+    DECIMAL_ALREADY_EXISTS: 'Decimal point already exists',
+    API_ERROR: 'Failed to fetch conversion rates',
+    NETWORK_ERROR: 'Network error. Check your internet connection.',
+    RATE_LIMIT_ERROR: 'Rate limit exceeded. Please try again later.',
+    INVALID_CURRENCY: 'Invalid currency code',
+    OFFLINE_MODE: 'Using cached rates (offline mode)',
+    STALE_CACHE: 'Cached rates may be outdated'
+  } as const,
+
+  /**
+   * Cache TTL for currency exchange rates (1 hour)
+   */
+  CURRENCY_CACHE_TTL: 3600000,
+
+  /**
+   * Maximum retries for API requests
+   */
+  API_MAX_RETRIES: 3,
+
+  /**
+   * API request timeout in milliseconds
+   */
+  API_TIMEOUT: 5000,
+
+  /**
+   * Exponential backoff base delay in milliseconds
+   */
+  API_BACKOFF_DELAY: 1000
 } as const
 
 export type ErrorMessageType = keyof typeof ConverterConstants.ERROR_MESSAGES

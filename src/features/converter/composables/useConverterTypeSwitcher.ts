@@ -16,7 +16,8 @@ const availableConverterTypes: ConverterTypeOption[] = [
   { value: 'temperature', label: 'Temperature', icon: 'thermometer' },
   { value: 'length', label: 'Length', icon: 'ruler' },
   { value: 'weight', label: 'Weight & Mass', icon: 'weight' },
-  { value: 'css-units', label: 'CSS Units', icon: 'code' }
+  { value: 'css-units', label: 'CSS Units', icon: 'code' },
+  { value: 'currency', label: 'Currency', icon: 'banknote' }
 ]
 
 /**

@@ -10,8 +10,18 @@
                 :selected-unit="fromUnit" :read-only="false" :error="error" @update:model-value="setInputValue"
                 @update:selected-unit="setFromUnit" />
 
-              <ConversionPanel class="font-thin" :model-value="formattedResult" label="To" :units="availableUnits"
-                :selected-unit="toUnit" :read-only="true" @update:selected-unit="setToUnit" />
+              <ConversionPanel
+                class="font-thin"
+                :model-value="formattedResult"
+                label="To"
+                :units="availableUnits"
+                :selected-unit="toUnit"
+                :read-only="true"
+                :show-convert-button="!autoConvert"
+                :show-copy-button="true"
+                @update:selected-unit="setToUnit"
+                @convert="handleConvert"
+                @copy="handleCopy" />
 
               <!-- Flip button -->
               <div class="absolute top-[45.5%] md:top-[46.5%] md:left-1/2 left-[47%] flex justify-center">
@@ -42,14 +52,10 @@ import { ref, computed } from 'vue'
 import { ArrowDownUp } from 'lucide-vue-next'
 import { BasePage, BaseButton } from '@components/ui'
 import { ConversionPanel, ConverterNumpad } from '@converter/components'
-import {
-  useTemperatureConverter,
-  useLengthConverter,
-  useWeightConverter,
-  useCssUnitsConverter
-} from '@converter/composables'
+import { ConverterFactory } from '@converter/services/factory/ConverterFactory'
 import { VisualizationDisplay } from '@converter/components'
 import { useConverterTypeSwitcher } from '@converter/composables'
+import { useConverterOptions } from '@converter/composables'
 import { onMounted, onUnmounted } from 'vue'
 import { useKeyboardStore } from '@stores/keyboard'
 import { useClipboard } from '@vueuse/core'
@@ -60,24 +66,15 @@ defineProps<{
   isMobile?: boolean
 }>()
 
-// Initialize composables
-const temperatureConverter = useTemperatureConverter()
-const lengthConverter = useLengthConverter()
-const weightConverter = useWeightConverter()
-const cssUnitsConverter = useCssUnitsConverter()
-
 // Active converter type
 const { currentConverterType: activeConverterType } = useConverterTypeSwitcher()
 
+// Load options
+const { autoConvert } = useConverterOptions()
+
 // Computed active converter
 const activeConverter = computed(() => {
-  switch (activeConverterType.value) {
-    case 'temperature': return temperatureConverter
-    case 'length': return lengthConverter
-    case 'weight': return weightConverter
-    case 'css-units': return cssUnitsConverter
-    default: return temperatureConverter
-  }
+  return ConverterFactory.create(activeConverterType.value)
 })
 
 // Load options
@@ -127,7 +124,6 @@ const handleNumpadClick = (value: string): void => {
 
 const handleConvert = () => {
   activeConverter.value.convert()
-  toast('Converted!', { type: 'success' })
 }
 
 const handleCopy = async () => {
@@ -169,6 +165,7 @@ onMounted(() => {
     'Ctrl+2': () => switchConverterType('length'),
     'Ctrl+3': () => switchConverterType('weight'),
     'Ctrl+4': () => switchConverterType('css-units'),
+    'Ctrl+5': () => switchConverterType('currency'),
     'Escape': () => handleClear()
   })
   keyboard.pushContext('converter')
