@@ -4,7 +4,7 @@
       :model-value="modelValue"
       @update:model-value="$emit('update:model-value', $event)">
       <SelectTrigger
-        class="inline-flex items-center justify-between w-full font-medium px-2.5 py-1.5 text-sm bg-background text-foreground border border-border rounded-md hover:bg-muted/40 focus-colors transition-colors duration-200"
+        class="inline-flex text-nowrap items-center justify-between w-full font-medium px-2.5 py-1.5 text-sm bg-background text-foreground border border-border rounded-md hover:bg-muted/40 focus-colors transition-colors duration-200"
         :class="isDropdown ? 'rounded-e-none border-r-0' : ''">
         <SelectValue :placeholder="placeholder" />
         <ChevronDownIcon class="h-4 w-4 flex-shrink-0" />
@@ -24,7 +24,7 @@
             <SelectGroup>
               <SelectLabel
                 v-if="label"
-                class="px-1.5 py-1 text-xs font-medium text-muted-foreground">
+                class="px-1.5 py-1 text-nowrap text-xs font-medium text-muted-foreground">
                 {{ label }}
               </SelectLabel>
 

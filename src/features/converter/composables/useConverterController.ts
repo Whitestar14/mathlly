@@ -11,8 +11,8 @@ export interface UseConverterControllerReturn {
     availableUnits: ComputedRef<ConversionUnit[]>
     availableTypes: ConverterType[]
     convert: () => Promise<void>
-    setFromUnit: (unitId: string) => void
-    setToUnit: (unitId: string) => void
+    setFromUnit: (unitId: string) => Promise<void>
+    setToUnit: (unitId: string) => Promise<void>
     flipUnits: () => void
     setInput: (value: string) => void
     setActiveConverter: (type: ConverterType) => void
@@ -26,6 +26,11 @@ export function useConverterController(
     const options = useConverterOptions()
     const { formatDecimalNumber } = useDisplayFormatter()
 
+    const formatWithPrecision = (value: number, precision: number): string => {
+        const fixed = value.toFixed(precision)
+        return fixed.replace(/\.?0+$/, '')
+    }
+
     // Initialize converter and ensure it's imported
     const createConverter = (type: ConverterType) => {
         return ConverterFactory.create(type)
@@ -36,22 +41,34 @@ export function useConverterController(
         converter.value = createConverter(type)
         if (converter.value) {
             updateState({
-                fromUnit: state.fromUnit || converter.value.defaultFromUnit,
-                toUnit: state.toUnit || converter.value.defaultToUnit
+                fromUnit: converter.value.defaultFromUnit,
+                toUnit: converter.value.defaultToUnit
             })
         }
     }
 
-    // Watch for converter type changes
     watch(() => state.activeConverter, (newType) => {
         initializeConverter(newType)
     }, { immediate: true })
 
-    // Computed properties
+    watch(() => options.precision.value, async () => {
+        if (state.input.trim() && state.result && !state.isConverting) {
+            await convert()
+        }
+    })
+
+    watch(() => options.baseFontSize.value, (newSize) => {
+        if (converter.value && 'setBaseFontSize' in converter.value) {
+            (converter.value as any).setBaseFontSize(newSize)
+            if (state.input.trim() && state.result && !state.isConverting) {
+                convert()
+            }
+        }
+    }, { immediate: true })
+
     const availableUnits = computed(() => converter.value?.units || [])
     const availableTypes = ConverterFactory.getAvailableTypes()
 
-    // Main conversion logic
     const convert = async (): Promise<void> => {
         if (!converter.value) return
 
@@ -89,7 +106,7 @@ export function useConverterController(
             )
 
             const precision = options.precision.value
-            const formattedValue = formatDecimalNumber(convertedValue.toFixed(precision), true)
+            const formattedValue = formatDecimalNumber(formatWithPrecision(convertedValue, precision), true)
 
             const result: ConversionResult = {
                 value: convertedValue,
@@ -110,15 +127,21 @@ export function useConverterController(
     }
 
     // Unit management
-    const setFromUnit = (unitId: string): void => {
+    const setFromUnit = async (unitId: string): Promise<void> => {
         if (availableUnits.value.find(u => u.id === unitId)) {
             updateState({ fromUnit: unitId })
+            if (state.input.trim()) {
+                await convert()
+            }
         }
     }
 
-    const setToUnit = (unitId: string): void => {
+    const setToUnit = async (unitId: string): Promise<void> => {
         if (availableUnits.value.find(u => u.id === unitId)) {
             updateState({ toUnit: unitId })
+            if (state.input.trim()) {
+                await convert()
+            }
         }
     }
 
@@ -140,7 +163,12 @@ export function useConverterController(
     }
 
     const setActiveConverter = (type: ConverterType): void => {
-        updateState({ activeConverter: type })
+        updateState({
+            activeConverter: type,
+            input: '0',
+            result: null,
+            error: ''
+        })
     }
 
     return {

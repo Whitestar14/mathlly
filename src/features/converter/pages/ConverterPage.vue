@@ -8,7 +8,7 @@
             <div class="relative flex flex-1 flex-col gap-2">
               <ConversionPanel 
                 class="font-bold" 
-                v-model:model-value="state.input" 
+                :model-value="state.input" 
                 label="From" 
                 :units="availableUnits" 
                 :selected-unit="state.fromUnit" 
@@ -47,7 +47,7 @@
             </div>
             <div class="flex-initial max-h-10 h-10">
               <!-- Add visualization display here -->
-              <VisualizationDisplay :visualizations="visualizations" :converter-type="state.activeConverter" />
+              <VisualizationDisplay :visualizations="visualizations" :converter-type="state.activeConverter" :converter="converter" />
               <div v-show="state.activeConverter === 'currency'" class="text-xs text-muted-foreground text-center mt-1">
                 Exchange rates powered by <a href="https://open.er-api.com" target="_blank" class="underline hover:no-underline">exchangerate-api.com</a>
               </div>
@@ -57,7 +57,7 @@
           <!-- Right column: Numpad -->
           <div class="flex flex-1 justify-center lg:justify-end">
             <ConverterNumpad 
-              :autoConvert="options.autoConvert" 
+              :autoConvert="autoConvert" 
               :disabled="state.isConverting" 
               @button-click="handleNumpadClick" 
             />
@@ -87,8 +87,11 @@ defineProps<{
 }>()
 
 // Initialize state and controller
-const { state, updateState, reset } = useConverterState()
+const options = useConverterOptions()
+const autoConvert = computed(() => options.autoConvert.value)
+const { state, updateState, reset } = useConverterState(options.defaultConverterType.value)
 const { 
+  converter,
   availableUnits, 
   availableTypes, 
   convert, 
@@ -102,9 +105,6 @@ const {
 // Type switcher for navigation
 const { currentConverterType, updateConverterType } = useConverterTypeSwitcher()
 
-// Options
-const options = useConverterOptions()
-
 // Services
 const keyboard = useKeyboardStore()
 const { copy } = useClipboard()
@@ -113,6 +113,7 @@ const { error: errorToast, info } = useToast()
 // Sync with type switcher
 watch(currentConverterType, (newType) => {
   setActiveConverter(newType)
+  reset()
 })
 
 watch(() => state.activeConverter, (newType) => {
@@ -146,7 +147,7 @@ const handleRefreshRates = async () => {
 }
 
 const handleNumpadClick = (btn: string) => {
-  if (btn === 'C') {
+  if (btn === 'CE') {
     reset()
   } else if (btn === '=') {
     convert()

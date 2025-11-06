@@ -1,5 +1,6 @@
 <template>
   <SelectBar
+    :key="showUnitAbbreviations"
     :model-value="selectedUnit"
     :options="selectOptions"
     :placeholder="placeholder"

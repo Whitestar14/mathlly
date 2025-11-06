@@ -12,7 +12,7 @@ export class CssUnitsConverter extends BaseConverter {
     readonly defaultFromUnit = 'px'
     readonly defaultToUnit = 'rem'
 
-    private baseFontSize = ConverterConstants.DEFAULT_BASE_FONT_SIZE
+    private baseFontSize: number = ConverterConstants.DEFAULT_BASE_FONT_SIZE
 
     readonly units: ConversionUnit[] = [
         { id: 'px', symbol: 'px', name: 'Pixels', category: 'css-units' },

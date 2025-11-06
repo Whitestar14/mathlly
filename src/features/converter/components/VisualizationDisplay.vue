@@ -24,11 +24,13 @@
 import { computed, ref, watch } from 'vue'
 import { Info, Thermometer, Ruler, Weight, Code, Clock } from 'lucide-vue-next'
 import type { ConverterType } from '../types/converter'
+import type { BaseConverter } from '../services/converters/BaseConverter'
 import { useConverterOptions } from '@converter/composables'
 
 interface Props {
   visualizations: string[] | undefined
   converterType: ConverterType
+  converter: BaseConverter | null
 }
 
 const props = defineProps<Props>()
@@ -69,10 +71,9 @@ const lastUpdateTime = computed(() => {
   return new Date(lastUpdateTimestamp.value).toLocaleString()
 })
 
-watch(() => props.converterType, async newType => {
-  if (newType === 'currency') {
-    const { currencyService } = await import('@converter/services/converters/currency')
-    lastUpdateTimestamp.value = currencyService.getLastUpdate()
+watch(() => props.converter, (newConverter) => {
+  if (newConverter && 'getLastUpdate' in newConverter) {
+    lastUpdateTimestamp.value = newConverter.getLastUpdate()
   } else {
     lastUpdateTimestamp.value = null
   }

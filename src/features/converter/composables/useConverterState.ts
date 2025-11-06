@@ -37,10 +37,11 @@ export function useConverterState(initialType?: ConverterType): UseConverterStat
   }
 
   function reset(): void {
-    const initialState = createInitialState(state.activeConverter)
-    Object.keys(initialState).forEach(key => {
-      const stateKey = key as keyof ConverterState
-        ; (state as any)[stateKey] = initialState[stateKey]
+    updateState({
+      input: '0',
+      result: null,
+      error: '',
+      isConverting: false
     })
   }
 

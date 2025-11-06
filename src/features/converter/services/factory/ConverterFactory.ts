@@ -1,4 +1,4 @@
-import type { ConverterType, ConversionResult, ConversionUnit } from '@converter/types'
+import type { ConverterType } from '@converter/types'
 import { TemperatureConverter } from '../converters/TemperatureConverter'
 import { LengthConverter } from '../converters/LengthConverter'
 import { WeightConverter } from '../converters/WeightConverter'
