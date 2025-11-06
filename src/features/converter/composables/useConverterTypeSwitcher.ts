@@ -1,6 +1,6 @@
 import { ref, readonly } from 'vue'
-import { ConverterRegistry } from '@converter/services/ConverterRegistry'
-import type { ConverterType } from '@converter/types'
+import { ConverterFactory } from '../services/factory/ConverterFactory'
+import type { ConverterType } from '../types'
 import { useConverterOptions } from './useConverterOptions'
 
 interface ConverterTypeOption {
@@ -28,9 +28,12 @@ export function initializeConverterTypeSwitcher(initialType?: ConverterType): vo
 
   // Load default converter type from options
   const { defaultConverterType } = useConverterOptions()
+  const availableTypes = ConverterFactory.getAvailableTypes()
+
   const typeToUse = initialType || defaultConverterType.value
 
-  currentConverterType.value = typeToUse
+  // Ensure the type is available
+  currentConverterType.value = availableTypes.includes(typeToUse) ? typeToUse : 'temperature'
   isInitialized.value = true
 }
 
@@ -43,20 +46,19 @@ export function useConverterTypeSwitcher() {
   }
 
   const updateConverterType = (newType: ConverterType): void => {
-    if (availableConverterTypes.some(type => type.value === newType)) {
-      if (ConverterRegistry.getInstance().isRegistered(newType)) {
-        currentConverterType.value = newType
-      } else {
-        console.warn(`Converter type '${newType}' is not registered in ConverterRegistry`)
-      }
+    if (availableConverterTypes.some(type => type.value === newType) &&
+      ConverterFactory.getAvailableTypes().includes(newType)) {
+      currentConverterType.value = newType
     } else {
-      console.warn(`Converter type '${newType}' is not available in availableConverterTypes`)
+      console.warn(`Converter type '${newType}' is not available`)
     }
   }
 
   return {
     currentConverterType: readonly(currentConverterType),
-    availableConverterTypes,
+    availableConverterTypes: availableConverterTypes.filter(type =>
+      ConverterFactory.getAvailableTypes().includes(type.value)
+    ),
     updateConverterType
   }
 }

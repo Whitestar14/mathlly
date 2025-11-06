@@ -1,1 +1,1 @@
-export type { ConverterType, ConversionUnit, ConversionResult, ConverterConfig, ConverterOptions, VisualizationReference, VisualizationData } from './converter'
+export type { ConverterType, ConversionUnit, ConversionResult, ConverterConfig, ConverterOptions, VisualizationReference, VisualizationData, ExchangeRates } from './converter'

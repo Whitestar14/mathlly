@@ -55,6 +55,16 @@ export interface ConverterOptions {
 }
 
 /**
+ * Exchange rates response from API
+ */
+export interface ExchangeRates {
+  base: string
+  date: string
+  rates: Record<string, number>
+  timestamp: number
+}
+
+/**
  * Interface for external API-based converters (e.g., currency, crypto)
  */
 export interface ExternalConverterService {
@@ -86,16 +96,6 @@ export interface ExternalConverterService {
    * Get last update timestamp for cached rates
    */
   getLastUpdate(): number | null
-}
-
-/**
- * Exchange rates response from API
- */
-export interface ExchangeRates {
-  base: string
-  date: string
-  rates: Record<string, number>
-  timestamp: number
 }
 
 /**

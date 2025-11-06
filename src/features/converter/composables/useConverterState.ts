@@ -1,47 +1,52 @@
-import { computed, type Ref, type ComputedRef } from 'vue'
-import { ConverterRegistry } from '@converter/services/ConverterRegistry'
-import type { ConverterType, ConverterConfig } from '@converter/types'
-import { ConverterFactory, type ConverterInstance } from '@converter/services/factory/ConverterFactory'
-import { useConverterTypeSwitcher } from './useConverterTypeSwitcher'
+import { reactive, readonly, type DeepReadonly } from 'vue'
+import type { ConverterType, ConversionResult } from '../types'
 
-export interface UseConverterStateReturn {
-  activeConverterType: Readonly<Ref<ConverterType>>
-  activeConverter: ComputedRef<ConverterInstance>
-  converterConfig: ComputedRef<ConverterConfig | undefined>
-  setActiveConverterType: (type: ConverterType) => void
-  resetActiveConverter: () => void
+export interface ConverterState {
+  input: string
+  fromUnit: string
+  toUnit: string
+  result: ConversionResult | null
+  error: string
+  isConverting: boolean
+  activeConverter: ConverterType
 }
 
-export function useConverterState(): UseConverterStateReturn {
-  // State
-  const { currentConverterType, updateConverterType } = useConverterTypeSwitcher()
+export interface UseConverterStateReturn {
+  state: DeepReadonly<ConverterState>
+  updateState: (updates: Partial<ConverterState>) => void
+  reset: () => void
+}
 
-  // Converters are created on-demand via factory in activeConverter computed
+function createInitialState(initialType: ConverterType = 'temperature'): ConverterState {
+  return {
+    input: '0',
+    fromUnit: '',
+    toUnit: '',
+    result: null,
+    error: '',
+    isConverting: false,
+    activeConverter: initialType
+  }
+}
 
-  // Computed Properties
-  const activeConverter = computed(() => {
-    return ConverterFactory.create(currentConverterType.value)
-  })
+export function useConverterState(initialType?: ConverterType): UseConverterStateReturn {
+  const state = reactive<ConverterState>(createInitialState(initialType))
 
-  const converterConfig = computed(() =>
-    ConverterRegistry.getInstance().get(currentConverterType.value)
-  )
-
-  // Methods
-  const setActiveConverterType = (type: ConverterType): void => {
-    updateConverterType(type)
-    resetActiveConverter()
+  function updateState(updates: Partial<ConverterState>): void {
+    Object.assign(state, updates)
   }
 
-  const resetActiveConverter = (): void => {
-    activeConverter.value.reset()
+  function reset(): void {
+    const initialState = createInitialState(state.activeConverter)
+    Object.keys(initialState).forEach(key => {
+      const stateKey = key as keyof ConverterState
+        ; (state as any)[stateKey] = initialState[stateKey]
+    })
   }
 
   return {
-    activeConverterType: currentConverterType,
-    activeConverter,
-    converterConfig,
-    setActiveConverterType,
-    resetActiveConverter,
+    state: readonly(state),
+    updateState,
+    reset
   }
 }
