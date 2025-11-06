@@ -10,8 +10,7 @@ const DEFAULT_CONVERTER_OPTIONS: ConverterOptions = {
   showUnitAbbreviations: false,
   enableVisualizations: true,
   baseFontSize: ConverterConstants.DEFAULT_BASE_FONT_SIZE,
-  swapUnitsOnFlip: true,
-  currencyApiKey: ''
+  swapUnitsOnFlip: true
 }
 
 export function useConverterOptions() {
@@ -89,14 +88,6 @@ export function useConverterOptions() {
         type: 'toggle',
         value: options,
         section: 'Behavior'
-      },
-      {
-        id: 'currencyApiKey',
-        label: 'Currency API Key',
-        description: 'API key for currency conversion service (optional, uses free tier if empty)',
-        type: 'text',
-        value: options,
-        section: 'API Configuration'
       }
     ]
   )

@@ -22,6 +22,9 @@ export interface ConverterInstance {
   hasError: ComputedRef<boolean>
   formattedResult: ComputedRef<string>
 
+  // Options (reactive)
+  options: ReturnType<typeof useConverterOptions>
+
   // Methods
   convert: (precision?: number) => Promise<void>
   setFromUnit: (unitId: string) => Promise<void>
@@ -31,27 +34,21 @@ export interface ConverterInstance {
   reset: () => void
 }
 
-export interface CssUnitsConverterInstance extends ConverterInstance {
-  baseFontSize: Readonly<Ref<number>>
-  updateBaseFontSize: (size: number) => Promise<void>
-}
-
-export function isCssUnitsConverter(converter: ConverterInstance): converter is CssUnitsConverterInstance {
-  return 'baseFontSize' in converter
-}
-
 export class ConverterFactory {
-  static create(converterType: ConverterType): ConverterInstance {
-    // 1. Get converter options via useConverterOptions()
-    const converterOptions = useConverterOptions()
+  static create(
+    converterType: ConverterType,
+    converterOptions?: ReturnType<typeof useConverterOptions>
+  ): ConverterInstance {
+    // Get reactive options (passed in or from composable)
+    const options = converterOptions || useConverterOptions()
 
-    // 2. Get converter config from registry via ConverterRegistry.getInstance().get(converterType)
+    // Get converter config
     const config = ConverterRegistry.getInstance().get(converterType)
     if (!config) {
       throw new Error(`Unsupported converter type: ${converterType}`)
     }
 
-    // 3. Create reactive state refs based on config defaults
+    // Create reactive state
     const inputValue = ref<string>('0')
     const fromUnit = ref<string>(config.defaultFromUnit || '')
     const toUnit = ref<string>(config.defaultToUnit || '')
@@ -59,23 +56,25 @@ export class ConverterFactory {
     const error = ref<string>('')
     const isConverting = ref<boolean>(false)
 
-    // 4. Create computed properties for availableUnits, numericValue, hasError, formattedResult
+    // Computed properties
     const availableUnits = computed<ConversionUnit[]>(() => config.units || [])
     const numericValue = computed<number>(() => parseFloat(inputValue.value) || 0)
     const hasError = computed<boolean>(() => error.value !== '')
     const formattedResult = computed<string>(() => result.value?.formattedValue || '0')
 
-    // Debounce timeout ref
+    // Debounce timeout
     let debounceTimeout: NodeJS.Timeout | null = null
 
-    // 5. Implement convert method (async) that calls ConversionService.getInstance().convert()
+    // Convert method
     const convert = async (precision?: number): Promise<void> => {
-      const actualPrecision = precision ?? converterOptions.precision.value
+      const actualPrecision = precision ?? options.precision.value
+
       if (!isValidNumber(numericValue.value)) {
         error.value = ConverterConstants.ERROR_MESSAGES.INVALID_VALUE
         result.value = null
         return
       }
+
       isConverting.value = true
       try {
         const conversionResult = await ConversionService.getInstance().convert(
@@ -95,7 +94,7 @@ export class ConverterFactory {
       }
     }
 
-    // 6. Implement setFromUnit, setToUnit, flipUnits, setInputValue, reset methods
+    // Unit management methods
     const setFromUnit = async (unitId: string): Promise<void> => {
       if (!availableUnits.value.find(u => u.id === unitId)) return
       fromUnit.value = unitId
@@ -118,10 +117,11 @@ export class ConverterFactory {
       }
     }
 
+    // Input management
     const setInputValue = (value: string): void => {
       inputValue.value = value
       error.value = ''
-      // Conversion handled by watcher if autoConvert is true
+      // Conversion handled by autoConvert watcher
     }
 
     const reset = (): void => {
@@ -133,7 +133,7 @@ export class ConverterFactory {
       isConverting.value = false
     }
 
-    // 7. Setup autoConvert watcher conditionally based on converterOptions.autoConvert.value
+    // Auto-convert watcher
     let inputWatcherStop: (() => void) | null = null
 
     const setupAutoConvert = () => {
@@ -141,7 +141,8 @@ export class ConverterFactory {
         inputWatcherStop()
         inputWatcherStop = null
       }
-      if (converterOptions.autoConvert.value) {
+
+      if (options.autoConvert.value) {
         inputWatcherStop = watch(inputValue, (newVal) => {
           if (debounceTimeout) clearTimeout(debounceTimeout)
           debounceTimeout = setTimeout(async () => {
@@ -151,14 +152,13 @@ export class ConverterFactory {
       }
     }
 
-    // Watch autoConvert option and setup watcher dynamically
-    watch(() => converterOptions.autoConvert.value, setupAutoConvert)
-    // Initial setup
+    // Watch autoConvert option changes
+    watch(() => options.autoConvert.value, setupAutoConvert)
     setupAutoConvert()
 
-    // 8. Setup precision watcher to reconvert when precision changes
+    // Watch precision changes and reconvert if needed
     watch(
-      () => converterOptions.precision.value,
+      () => options.precision.value,
       async (newPrecision) => {
         if (inputValue.value.trim() && result.value) {
           await convert(newPrecision)
@@ -166,58 +166,20 @@ export class ConverterFactory {
       }
     )
 
-    // 9. Special case for CSS units
+    // Special handling for CSS units
     if (converterType === 'css-units') {
-      const baseFontSize = ref<number>(converterOptions.baseFontSize.value)
-
-      const updateBaseFontSize = async (size: number): Promise<void> => {
-        baseFontSize.value = size
-        await setBaseFontSize(size)
-        if (inputValue.value.trim()) await convert()
-      }
-
-      // Add watcher on baseFontSize that triggers reconversion
-      watch(baseFontSize, async () => {
-        if (inputValue.value.trim()) await convert()
-      })
-
-      // 10. Return typed converter instance (extended for CSS units)
-      return {
-        // State (readonly)
-        inputValue: readonly(inputValue),
-        fromUnit: readonly(fromUnit),
-        toUnit: readonly(toUnit),
-        result: readonly(result),
-        error: readonly(error),
-        isConverting: readonly(isConverting),
-
-        // Computed
-        availableUnits,
-        numericValue,
-        hasError,
-        formattedResult,
-
-        // Methods
-        convert,
-        setFromUnit,
-        setToUnit,
-        flipUnits,
-        setInputValue,
-        reset,
-
-        // CSS units specific
-        baseFontSize: readonly(baseFontSize),
-        updateBaseFontSize
-      } as CssUnitsConverterInstance
+      watch(() => options.baseFontSize.value, (newSize) => {
+        setBaseFontSize(newSize)
+      }, { immediate: true })
     }
 
-    // 10. Return typed converter instance (standard)
+    // Return converter instance
     return {
-      // State (readonly)
+      // State
       inputValue: readonly(inputValue),
       fromUnit: readonly(fromUnit),
       toUnit: readonly(toUnit),
-      result: readonly(result),
+      result: readonly(result) as Readonly<Ref<ConversionResult | null>>,
       error: readonly(error),
       isConverting: readonly(isConverting),
 
@@ -226,6 +188,9 @@ export class ConverterFactory {
       numericValue,
       hasError,
       formattedResult,
+
+      // Options
+      options,
 
       // Methods
       convert,

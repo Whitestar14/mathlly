@@ -10,18 +10,9 @@
                 :selected-unit="fromUnit" :read-only="false" :error="error" @update:model-value="setInputValue"
                 @update:selected-unit="setFromUnit" />
 
-              <ConversionPanel
-                class="font-thin"
-                :model-value="formattedResult"
-                label="To"
-                :units="availableUnits"
-                :selected-unit="toUnit"
-                :read-only="true"
-                :show-convert-button="!autoConvert"
-                :show-copy-button="true"
-                @update:selected-unit="setToUnit"
-                @convert="handleConvert"
-                @copy="handleCopy" />
+                <ConversionPanel class="font-thin" :model-value="formattedResult" label="To" :units="availableUnits"
+                :selected-unit="toUnit" :read-only="true" :show-copy-button="true" :show-refresh-button="converterType === 'currency'"
+                @update:selected-unit="setToUnit" @copy="handleCopy" @refresh="handleRefreshRates" />
 
               <!-- Flip button -->
               <div class="absolute top-[45.5%] md:top-[46.5%] md:left-1/2 left-[47%] flex justify-center">
@@ -33,13 +24,16 @@
             </div>
             <div class="flex-initial max-h-10 h-10">
               <!-- Add visualization display here -->
-              <VisualizationDisplay :visualizations="visualizations" :converter-type="activeConverterType" />
+              <VisualizationDisplay :visualizations="visualizations" :converter-type="converterType" />
+              <div v-show="converterType === 'currency'" class="text-xs text-muted-foreground text-center mt-1">
+                Exchange rates powered by <a href="https://open.er-api.com" target="_blank" class="underline hover:no-underline">exchangerate-api.com</a>
+              </div>
             </div>
           </div>
 
           <!-- Right column: Numpad -->
           <div class="flex flex-1 justify-center lg:justify-end">
-            <ConverterNumpad :disabled="isConverting" @button-click="handleNumpadClick" />
+            <ConverterNumpad :autoConvert="autoConvert" :disabled="isConverting" @button-click="handleNumpadClick" />
           </div>
         </div>
       </div>
@@ -48,15 +42,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { ArrowDownUp } from 'lucide-vue-next'
 import { BasePage, BaseButton } from '@components/ui'
 import { ConversionPanel, ConverterNumpad } from '@converter/components'
 import { ConverterFactory } from '@converter/services/factory/ConverterFactory'
 import { VisualizationDisplay } from '@converter/components'
-import { useConverterTypeSwitcher } from '@converter/composables'
-import { useConverterOptions } from '@converter/composables'
-import { onMounted, onUnmounted } from 'vue'
+import { useConverterOptions, useConverterTypeSwitcher } from '@converter/composables'
 import { useKeyboardStore } from '@stores/keyboard'
 import { useClipboard } from '@vueuse/core'
 import { useToast } from '@composables/ui/useToast'
@@ -67,46 +59,52 @@ defineProps<{
 }>()
 
 // Active converter type
-const { currentConverterType: activeConverterType } = useConverterTypeSwitcher()
+const { currentConverterType: converterType } = useConverterTypeSwitcher()
 
-// Load options
-const { autoConvert } = useConverterOptions()
+const converterOptions = useConverterOptions()
 
-// Computed active converter
-const activeConverter = computed(() => {
-  return ConverterFactory.create(activeConverterType.value)
+const createConverter = (type: ConverterType) => {
+  return ConverterFactory.create(type, converterOptions)
+}
+
+const converter = ref(createConverter(converterType.value))
+
+// Watch for converter type changes only
+watch(converterType, (newType) => {
+  converter.value = createConverter(newType)
 })
 
-// Load options
+const autoConvert = computed(() => converterOptions.autoConvert.value)
 
 const keyboard = useKeyboardStore()
 const { copy } = useClipboard()
 const { toast } = useToast()
 
-// Computed properties that reactively access activeConverter
-const inputValue = computed(() => activeConverter.value.inputValue.value)
-const fromUnit = computed(() => activeConverter.value.fromUnit.value)
-const toUnit = computed(() => activeConverter.value.toUnit.value)
-const error = computed(() => activeConverter.value.error.value)
-const availableUnits = computed(() => activeConverter.value.availableUnits.value)
-const formattedResult = computed(() => activeConverter.value.formattedResult.value)
-const isConverting = computed(() => activeConverter.value.isConverting.value)
+const inputValue = computed(() => converter.value.inputValue)
+const fromUnit = computed(() => converter.value.fromUnit)
+const toUnit = computed(() => converter.value.toUnit)
+const error = computed(() => converter.value.error)
+const availableUnits = computed(() => converter.value.availableUnits)
+const formattedResult = computed(() => converter.value.formattedResult)
+const isConverting = computed(() => converter.value.isConverting)
 
-// Methods accessed directly from activeConverter
-const setInputValue = (value: string) => activeConverter.value.setInputValue(value)
-const setFromUnit = (unitId: string) => activeConverter.value.setFromUnit(unitId)
-const setToUnit = (unitId: string) => activeConverter.value.setToUnit(unitId)
-const flipUnits = () => activeConverter.value.flipUnits()
+const setInputValue = (value: string) => converter.value.setInputValue(value)
+const setFromUnit = (unitId: string) => converter.value.setFromUnit(unitId)
+const setToUnit = (unitId: string) => converter.value.setToUnit(unitId)
+const flipUnits = () => converter.value.flipUnits()
 
-// Access result
-const visualizations = computed(() => activeConverter.value.result.value?.visualizations)
+const visualizations = computed(() => converter.value.result?.visualizations)
 
-// Handle numpad clicks
 const handleNumpadClick = (value: string): void => {
   let newValue = inputValue.value
 
+  if (value === '=') {
+    handleConvert()
+    return;
+  }
   if (value === 'CE') {
     newValue = '0'
+    setInputValue('0')
   } else if (value === 'backspace') {
     newValue = newValue.length > 1 ? newValue.slice(0, -1) : '0'
   } else if (value === '.' && !newValue.includes('.')) {
@@ -115,15 +113,14 @@ const handleNumpadClick = (value: string): void => {
     newValue = newValue === '0' ? value : newValue + value
   }
 
-  // Basic validation
-  if (newValue.length > 15) return // Max length
-  if (!/^-?\d*\.?\d*$/.test(newValue)) return // Valid number format
+  if (newValue.length > 15) return
+  if (!/^-?\d*\.?\d*$/.test(newValue)) return
 
   setInputValue(newValue)
 }
 
 const handleConvert = () => {
-  activeConverter.value.convert()
+  converter.value.convert()
 }
 
 const handleCopy = async () => {
@@ -150,10 +147,41 @@ const handleClear = () => {
   toast('Input cleared!', { type: 'success' })
 }
 
-const switchConverterType = (type: ConverterType) => {
-  const { updateConverterType } = useConverterTypeSwitcher()
-  updateConverterType(type)
+import { currencyService } from '@converter/services/converters/currency'
+
+const handleRefreshRates = async () => {
+  try {
+    await currencyService.refreshRates('USD') // Refresh USD rates as base
+    toast('Exchange rates refreshed!', { type: 'success' })
+    // Re-convert if there's an input
+    if (inputValue.value && inputValue.value !== '0') {
+      await handleConvert()
+    }
+  } catch (error) {
+    toast('Failed to refresh rates', { type: 'error' })
+  }
 }
+
+const isOffline = ref(false)
+
+const checkOnlineStatus = async () => {
+  try {
+    isOffline.value = !(await currencyService.isOnline())
+  } catch {
+    isOffline.value = true
+  }
+}
+
+// Check online status when currency converter is selected
+watch(converterType, async (newType) => {
+  if (newType === 'currency') {
+    await checkOnlineStatus()
+  }
+}, { immediate: true })
+
+watch(converterType, (newType: ConverterType) => {
+  converter.value = createConverter(newType)
+})
 
 onMounted(() => {
   keyboard.attachAllForContext('converter', {
@@ -161,11 +189,6 @@ onMounted(() => {
     'Ctrl+F': () => flipUnits(),
     'Ctrl+C': () => handleCopy(),
     'Ctrl+V': () => handlePaste(),
-    'Ctrl+1': () => switchConverterType('temperature'),
-    'Ctrl+2': () => switchConverterType('length'),
-    'Ctrl+3': () => switchConverterType('weight'),
-    'Ctrl+4': () => switchConverterType('css-units'),
-    'Ctrl+5': () => switchConverterType('currency'),
     'Escape': () => handleClear()
   })
   keyboard.pushContext('converter')

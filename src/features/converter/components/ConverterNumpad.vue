@@ -17,20 +17,24 @@
 </template>
   
 <script setup>
-import { markRaw } from 'vue'
-import { Delete } from 'lucide-vue-next'
+import { markRaw, computed } from 'vue'
+import { Delete, Calculator } from 'lucide-vue-next'
 import ConverterButton from './ConverterButton.vue'
   
 const props = defineProps({
   disabled: {
     type: Boolean,
     default: false
+  },
+  autoConvert: {
+    type: Boolean,
+    default: true
   }
 })
   
 const emit = defineEmits(['button-click'])
   
-const numpadRows = markRaw([
+const staticRows = markRaw([
   [
     null,
     { value: 'CE', variant: 'function' },
@@ -50,15 +54,22 @@ const numpadRows = markRaw([
     { value: '1', variant: 'number' },
     { value: '2', variant: 'number' },
     { value: '3', variant: 'number' }
-  ],
-  [
-    null,
-    { value: '0', variant: 'number' },
-    { value: '.', variant: 'number' }
   ]
 ])
-  
+
+const lastRow = computed(() => !props.autoConvert ? [
+  { value: '.', variant: 'number' },
+  { value: '0', variant: 'number' },
+  { value: '=', variant: 'function' }
+] : [
+  null,
+  { value: '0', variant: 'number' },
+  { value: '.', variant: 'number' },
+])
+
+const numpadRows = computed(() => [ ...staticRows, lastRow.value ])
+
 const handleClick = (value) => {
-  emit('button-click', value)
+    emit('button-click', value)
 }
 </script>

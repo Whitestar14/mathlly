@@ -83,11 +83,6 @@ export interface ExternalConverterService {
   getCachedRate(fromCurrency: string, toCurrency: string): number | null
 
   /**
-   * Check if service is online and API is reachable
-   */
-  isOnline(): Promise<boolean>
-
-  /**
    * Get last update timestamp for cached rates
    */
   getLastUpdate(): number | null

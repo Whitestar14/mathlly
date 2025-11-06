@@ -1,4 +1,4 @@
-import { ConverterConfig, ConversionUnit } from '../../types/converter';
+import type { ConverterConfig } from '../../types/converter'
 
 export const lengthConfig: ConverterConfig = {
   id: 'length',
@@ -57,6 +57,6 @@ export const lengthConfig: ConverterConfig = {
       symbol: 'mi',
       name: 'Mile',
       category: 'length',
-    },
-  ],
-};
+    }
+  ]
+}

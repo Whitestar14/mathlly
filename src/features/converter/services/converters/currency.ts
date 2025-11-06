@@ -1,9 +1,9 @@
-import type { ConverterConfig, ConversionUnit } from '../../types/converter'
+import type { ConverterConfig } from '../../types/converter'
 import { BaseCurrencyService } from '../external/BaseCurrencyService'
 
 const currencyService = new BaseCurrencyService()
 
-// Custom converter function that uses the external service
+// Custom converter function for currency conversion
 const customConverter = async (value: number, fromUnit: string, toUnit: string): Promise<number> => {
   return await currencyService.convert(value, fromUnit, toUnit)
 }
@@ -11,7 +11,7 @@ const customConverter = async (value: number, fromUnit: string, toUnit: string):
 export const currencyConfig: ConverterConfig = {
   id: 'currency',
   name: 'Currency Converter',
-  description: 'Convert between world currencies with live exchange rates',
+  description: 'Convert between world currencies with live exchange rates (powered by open.er-api.com)',
   icon: 'banknote',
   useMathJs: false,
   customConverter,
@@ -33,5 +33,4 @@ export const currencyConfig: ConverterConfig = {
   ]
 }
 
-// Export service for direct access if needed
 export { currencyService }

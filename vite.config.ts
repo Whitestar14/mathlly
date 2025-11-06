@@ -44,6 +44,25 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 * 24 * 30
               }
             }
+          },
+          {
+            urlPattern: /^https:\/\/open\.er-api\.com\//,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'currency-api',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 2
+              },
+              networkTimeoutSeconds: 10
+            }
+          },
+          {
+            urlPattern: /^https:\/\/open\.er-api\.com\//,
+            handler: 'NetworkOnly',
+            options: {
+              cacheName: 'currency-api-fallback'
+            }
           }
         ]
       },

@@ -16,6 +16,10 @@
           :position="position"
           :side-offset="5"
           :align="align">
+          <SelectScrollUpButton class="flex items-center justify-center bg-background border border-border/50 rounded-md m-1 hover:bg-muted/40 cursor-pointer p-1">
+            <ChevronUpIcon class="size-3" />
+          </SelectScrollUpButton>
+          
           <SelectViewport class="p-1">
             <SelectGroup>
               <SelectLabel
@@ -33,6 +37,10 @@
               </SelectItem>
             </SelectGroup>
           </SelectViewport>
+          
+          <SelectScrollDownButton class="flex items-center justify-center bg-background border border-border/50 rounded-md m-1 hover:bg-muted/40 cursor-pointer p-1">
+            <ChevronDownIcon class="size-3" />
+          </SelectScrollDownButton>
         </SelectContent>
       </SelectPortal>
     </SelectRoot>
@@ -50,9 +58,11 @@ import {
   SelectGroup,
   SelectLabel,
   SelectItem,
-  SelectItemText
+  SelectItemText,
+  SelectScrollUpButton,
+  SelectScrollDownButton
 } from 'radix-vue'
-import { ChevronDownIcon } from 'lucide-vue-next'
+import { ChevronDownIcon, ChevronUpIcon } from 'lucide-vue-next'
 
 defineProps({
   modelValue: {

@@ -1,4 +1,4 @@
-import { ref, computed, type Ref, type ComputedRef } from 'vue'
+import { computed, type Ref, type ComputedRef } from 'vue'
 import { ConverterRegistry } from '@converter/services/ConverterRegistry'
 import type { ConverterType, ConverterConfig } from '@converter/types'
 import { ConverterFactory, type ConverterInstance } from '@converter/services/factory/ConverterFactory'
@@ -10,7 +10,6 @@ export interface UseConverterStateReturn {
   converterConfig: ComputedRef<ConverterConfig | undefined>
   setActiveConverterType: (type: ConverterType) => void
   resetActiveConverter: () => void
-  getAllConverters: () => Record<string, ConverterInstance>
 }
 
 export function useConverterState(): UseConverterStateReturn {
@@ -38,19 +37,11 @@ export function useConverterState(): UseConverterStateReturn {
     activeConverter.value.reset()
   }
 
-  const getAllConverters = (): Record<string, ConverterInstance> => ({
-    temperature: ConverterFactory.create('temperature'),
-    length: ConverterFactory.create('length'),
-    weight: ConverterFactory.create('weight'),
-    'css-units': ConverterFactory.create('css-units')
-  })
-
   return {
     activeConverterType: currentConverterType,
     activeConverter,
     converterConfig,
     setActiveConverterType,
     resetActiveConverter,
-    getAllConverters
   }
 }

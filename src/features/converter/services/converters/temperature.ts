@@ -1,4 +1,4 @@
-import type { ConverterConfig, ConversionUnit } from '../../types/converter';
+import type { ConverterConfig } from '../../types/converter'
 
 export const temperatureConfig: ConverterConfig = {
   id: 'temperature',
@@ -35,4 +35,4 @@ export const temperatureConfig: ConverterConfig = {
       category: 'temperature'
     }
   ]
-};
+}
