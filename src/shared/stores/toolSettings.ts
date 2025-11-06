@@ -30,6 +30,9 @@ export const useToolSettingsStore = defineStore('toolSettings', () => {
     if (path === '/calculator' || path.startsWith('/calculator/')) {
       return 'calculator'
     }
+    if (path === '/converter' || path.startsWith('/converter/')) {
+      return 'converter'
+    }
     if (path.startsWith('/tools/')) {
       const toolName = path.split('/tools/')[1]?.split('/')[0]
       return toolName || null

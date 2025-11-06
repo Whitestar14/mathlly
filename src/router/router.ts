@@ -23,6 +23,16 @@ const routes: Array<RouteRecordRaw> = [
     meta: { transition: 'fade', group: 'calculators', header: { widgetNames: ['CalculatorModeSwitcher'] } }
   },
   {
+    path: '/converter',
+    name: 'converter',
+    component: () => import('@converter/pages/ConverterPage.vue'),
+    meta: {
+      transition: 'fade',
+      group: 'tools',
+      header: { widgetNames: ['ConverterTypeSwitcher'] }
+    }
+  },
+  {
     path: '/tools/base64',
     name: 'base64',
     component: () => import('@base64/pages/Base64Tool.vue'),
@@ -126,7 +136,7 @@ router.afterEach(to => {
   of staying put on the current page! Please, it took me way too much time than I'll allowed
   to admit to discover why app rerouting and navigation didn't behave as expected.
  */
-router.beforeEach(async(to, _, next) => {
+router.beforeEach(async (to, _, next) => {
   isRouteLoading.value = true
 
   if (!isInitialNavigation) {
@@ -157,7 +167,7 @@ router.beforeEach(async(to, _, next) => {
     }
 
     return next()
-  } catch(error) {
+  } catch (error) {
     console.error('Error in initial navigation guard:', error)
     return next()
   }

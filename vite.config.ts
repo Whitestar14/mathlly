@@ -79,6 +79,7 @@ export default defineConfig({
       '@calculator': resolve(__dirname, './src/features/calculator'),
       '@base64': resolve(__dirname, './src/features/tools/base64'),
       '@color': resolve(__dirname, './src/features/tools/color'),
+      '@converter': resolve(__dirname, './src/features/converter'),
       '@settings': resolve(__dirname, './src/features/settings')
     }
   },
