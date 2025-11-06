@@ -1,6 +1,7 @@
 <template>
   <BaseModal
     :open="modelValue"
+    id="welcome-modal"
     size="md"
     :hide-close-button="true"
     :close-on-click-outside="false"

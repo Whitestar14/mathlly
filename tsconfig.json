@@ -26,7 +26,7 @@
       "@stores/*": ["shared/stores/*"],
       "@services/*": ["shared/services/*"],
       "@utils/*": ["shared/utils/*"],
-      "@types/*": ["shared/types/*"],
+      "@types/*": ["app/types/*"],
       "@features/*": ["features/*"],
       "@pages/*": ["pages/*"],
       "@router/*": ["router/*"],

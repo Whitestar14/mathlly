@@ -69,7 +69,7 @@ export default defineConfig({
       '@stores': resolve(__dirname, './src/shared/stores'),
       '@services': resolve(__dirname, './src/shared/services'),
       '@utils': resolve(__dirname, './src/shared/utils'),
-      '@types': resolve(__dirname, './src/shared/types'),
+      '@types': resolve(__dirname, './src/app/types'),
       '@features': resolve(__dirname, './src/features'),
       '@pages': resolve(__dirname, './src/pages'),
       '@router': resolve(__dirname, './src/router'),

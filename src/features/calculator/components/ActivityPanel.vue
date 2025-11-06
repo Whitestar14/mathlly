@@ -51,7 +51,7 @@
           variant="destructive"
           class="w-full md:hidden"
           @click="showClearConfirmation = true">
-          <TrashIcon class="w-4 h-4 mr-2" />
+          <TrashIcon class="w-4 h-4" />
           Clear History
         </BaseButton>
       </div>

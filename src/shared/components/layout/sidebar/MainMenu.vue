@@ -146,7 +146,7 @@
             </span>
           </BaseButton>
 
-          <BaseModal v-model:open="showThemeModal">
+          <BaseModal :id="'theme-pack-modal'" v-model:open="showThemeModal">
             <template #title>
               Theme Settings
             </template>
