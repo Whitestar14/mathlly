@@ -85,15 +85,18 @@ const keyboard = useKeyboardStore()
 const { copy } = useClipboard()
 const { error: errorToast, info } = useToast()
 
-// Sync with type switcher
 watch(currentConverterType, (newType) => {
-  setActiveConverter(newType)
-  reset()
-})
+  if (newType !== state.activeConverter) {
+    setActiveConverter(newType)
+    reset()
+  }
+}, { immediate: true })
 
 watch(() => state.activeConverter, (newType) => {
-  updateConverterType(newType)
-})
+  if (newType !== currentConverterType.value) {
+    updateConverterType(newType)
+  }
+}, { immediate: true })
 
 // Computed properties
 const formattedResult = computed(() => state.result?.formattedValue || '0')

@@ -1,25 +1,12 @@
 import { ref, readonly } from 'vue'
 import { ConverterFactory } from '../services/factory/ConverterFactory'
 import type { ConverterType } from '../types'
-import { useConverterOptions } from './useConverterOptions'
-
-interface ConverterTypeOption {
-  value: ConverterType
-  label: string
-  icon?: string
-}
+import { useConverterOptions, availableConverterTypes } from './useConverterOptions'
 
 const currentConverterType = ref<ConverterType>('temperature')
 const isInitialized = ref(false)
 
-const availableConverterTypes: ConverterTypeOption[] = [
-  { value: 'temperature', label: 'Temperature', icon: 'thermometer' },
-  { value: 'length', label: 'Length', icon: 'ruler' },
-  { value: 'weight', label: 'Weight & Mass', icon: 'weight' },
-  { value: 'css-units', label: 'CSS Units', icon: 'code' },
-  { value: 'volume', label: 'Volume', icon: 'burette' },
-  { value: 'currency', label: 'Currency', icon: 'banknote' }
-]
+
 
 /**
  * Initialize the converter type switcher

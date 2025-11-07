@@ -1,4 +1,4 @@
-export type ConverterType = 'temperature' | 'length' | 'weight' | 'css-units' | 'currency' | 'volume'
+export type ConverterType = 'temperature' | 'length' | 'weight' | 'css-units' | 'currency' | 'volume' | 'data' | 'area'
 
 export interface ConversionUnit {
   id: string

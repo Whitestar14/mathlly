@@ -1,405 +1,279 @@
-import { ConverterType } from '@converter/types'
+// src/composables/useConversionVisualization.ts
+export type SupportedType = 'temperature' | 'length' | 'weight' | 'volume' | 'data' | 'area'
 
-type SupportedType = 'temperature' | 'length' | 'weight' | 'volume'
-
-export type ScientificViz = {
-  type: 'scientific'
-  value: number            // raw numeric after conversion
-  formattedValue: string   // e.g., "274" or "8.5"
-  prefix?: string          // "k" | "M" | "G" | "T" | undefined
-  unit: string             // e.g., "K", "km"
-  targetUnit: string       // e.g., "kelvin", "kilometer"
+export interface VisualizationItem {
+  key: string
+  type: 'reference' | 'scientific'
+  formattedValue: string
+  prefix?: string
+  unit?: string
+  label?: string
+  value?: number
 }
 
-export type ReferenceViz = {
-  type: 'reference'
-  value: number            // ratio against anchor
-  formattedValue: string   // "≈" | "<0.1" | "1.2" | "234"
-  prefix?: string          // "×" | "k×" | "M×" | undefined
-  label: string            // e.g., "freezing point of water"
-  key: string              // slug for icons
+/** Symbolized unit display labels */
+const UNIT_DISPLAY: Record<string, string> = {
+  // temperature
+  celsius: '°C', fahrenheit: '°F', kelvin: 'K',
+  // length
+  meter: 'm', kilometer: 'km', centimeter: 'cm', millimeter: 'mm',
+  mile: 'mi', yard: 'yd', foot: 'ft', inch: 'in',
+  // area
+  squareMeter: 'm²', squareKilometer: 'km²', squareCentimeter: 'cm²',
+  squareFoot: 'ft²', squareYard: 'yd²', squareInch: 'in²', acre: 'ac', hectare: 'ha',
+  // weight
+  kilogram: 'kg', gram: 'g', milligram: 'mg', tonne: 't', pound: 'lb', ounce: 'oz',
+  // volume
+  liter: 'L', milliliter: 'mL', cubicMeter: 'm³', gallon: 'gal', quart: 'qt', pint: 'pt', cup: 'cup', tablespoon: 'tbsp', teaspoon: 'tsp',
+  // data (binary prefixes)
+  byte: 'B', kilobyte: 'KB', megabyte: 'MB', gigabyte: 'GB', terabyte: 'TB', petabyte: 'PB'
 }
 
-export type VisualizationItem = ScientificViz | ReferenceViz
+type FactorTypes = Exclude<SupportedType, 'temperature'>
 
-/**
- * Scientific candidates per type (agnostic).
- * Extend by adding entries; no logic changes needed.
- */
-const SCIENTIFIC_CANDIDATES: Record<
-  ConverterType,
-  Array<{ unit: string; targetUnit: string; system: 'si' | 'imperial' }>
-> = {
+const CONVERSION_FACTORS: Record<FactorTypes, Record<string, number>> = {
+  length: {
+    meter: 1, kilometer: 1000, centimeter: 0.01, millimeter: 0.001,
+    mile: 1609.344, yard: 0.9144, foot: 0.3048, inch: 0.0254
+  },
+  weight: {
+    kilogram: 1, gram: 0.001, milligram: 1e-6, tonne: 1000,
+    pound: 0.45359237, ounce: 0.028349523125
+  },
+  volume: {
+    liter: 1, milliliter: 0.001, cubicMeter: 1000,
+    gallon: 3.785, quart: 0.946, pint: 0.473, cup: 0.24,
+    tablespoon: 0.015, teaspoon: 0.005
+  },
+  data: {
+    byte: 1,
+    kilobyte: 1000,
+    megabyte: 1000 ** 2,
+    gigabyte: 1000 ** 3,
+    terabyte: 1000 ** 4,
+    petabyte: 1000 ** 5
+  },
+  area: {
+    squareMeter: 1,
+    squareKilometer: 1_000_000,
+    squareCentimeter: 0.0001,
+    hectare: 10_000,
+    acre: 4046.8564224,
+    squareFoot: 0.09290304,
+    squareYard: 0.83612736,
+    squareInch: 0.00064516
+  }
+}
+
+/** Temperature (affine) */
+function convertTemperature(value: number, from: string, to: string): number {
+  const toC = (v: number, u: string): number => {
+    switch (u) {
+      case 'celsius': return v
+      case 'kelvin': return v - 273.15
+      case 'fahrenheit': return (v - 32) * (5 / 9)
+      default: return v
+    }
+  }
+  const c = toC(value, from)
+  switch (to) {
+    case 'celsius': return c
+    case 'kelvin': return c + 273.15
+    case 'fahrenheit': return c * (9 / 5) + 32
+    default: return c
+  }
+}
+
+function convert(value: number, from: string, to: string, type: SupportedType): number {
+  if (type === 'temperature') return convertTemperature(value, from, to)
+  const factors = CONVERSION_FACTORS[type as FactorTypes]
+  const fromFactor = factors?.[from]
+  const toFactor = factors?.[to]
+  if (fromFactor == null || toFactor == null) return value
+  return value * fromFactor / toFactor
+}
+
+/** References with domains + anchors (add more mid-range entries for better matches) */
+const REFERENCES: Record<SupportedType, Array<{
+  min: number; max: number; name: string; anchor?: number; key: string; unit: string
+}>> = {
   temperature: [
-    { unit: '°C', targetUnit: 'celsius', system: 'si' },
-    { unit: 'K', targetUnit: 'kelvin', system: 'si' },
-    { unit: '°F', targetUnit: 'fahrenheit', system: 'imperial' }
+    { min: -60, max: -20, name: 'antarctic winter', anchor: -40, key: 'antarctic-winter', unit: 'celsius' },
+    { min: -2, max: 5, name: 'freezing point of water', anchor: 0, key: 'freezing-point-of-water', unit: 'celsius' },
+    { min: 19, max: 23, name: 'room temperature', anchor: 22, key: 'room-temperature', unit: 'celsius' },
+    { min: 36.5, max: 37.5, name: 'body temperature', anchor: 37, key: 'body-temperature', unit: 'celsius' },
+    { min: 90, max: 110, name: 'boiling point of water', anchor: 100, key: 'boiling-point-of-water', unit: 'celsius' },
+    { min: 180, max: 260, name: 'oven temperature', anchor: 200, key: 'oven-temperature', unit: 'celsius' },
+    { min: 5000, max: 7000, name: 'sun surface', anchor: 5778, key: 'sunsurface', unit: 'kelvin' },
+    { min: 25000, max: 35000, name: 'lightning bolt', anchor: 30000, key: 'lightning-bolt', unit: 'kelvin' }
   ],
-  length: [
-    { unit: 'mm', targetUnit: 'millimeter', system: 'si' },
-    { unit: 'cm', targetUnit: 'centimeter', system: 'si' },
-    { unit: 'm', targetUnit: 'meter', system: 'si' },
-    { unit: 'km', targetUnit: 'kilometer', system: 'si' },
-    { unit: 'in', targetUnit: 'inch', system: 'imperial' },
-    { unit: 'ft', targetUnit: 'foot', system: 'imperial' },
-    { unit: 'mi', targetUnit: 'mile', system: 'imperial' }
-  ],
-  weight: [
-    { unit: 'mg', targetUnit: 'milligram', system: 'si' },
-    { unit: 'g', targetUnit: 'gram', system: 'si' },
-    { unit: 'kg', targetUnit: 'kilogram', system: 'si' },
-    { unit: 't', targetUnit: 'metric-ton', system: 'si' },
-    { unit: 'oz', targetUnit: 'ounce', system: 'imperial' },
-    { unit: 'lb', targetUnit: 'pound', system: 'imperial' }
-  ],
-  volume: [
-    { unit: 'mL', targetUnit: 'milliliter', system: 'si' },
-    { unit: 'L', targetUnit: 'liter', system: 'si' },
-    { unit: 'm³', targetUnit: 'cubic-meter', system: 'si' },
-    { unit: 'gal', targetUnit: 'us-gallon', system: 'imperial' },
-    { unit: 'qt', targetUnit: 'us-quart', system: 'imperial' },
-    { unit: 'cup', targetUnit: 'us-cup', system: 'imperial' }
-  ],
-  'css-units': [],
-  currency: []
-}
 
-/**
- * Grounded references per type with explicit anchors.
- * Extend by adding entries; no logic changes needed.
- * - temperature anchors in °C (common intuition)
- * - length anchors in the output unit (we compare in toUnit)
- * - weight anchors in the output unit (we compare in toUnit)
- */
-const VISUALIZATION_REFERENCES: Record<
-  SupportedType,
-  Array<{ min: number; max: number; name: string; anchor: number }>
-> = {
-  temperature: [
-    { min: -200, max: -50, name: 'Antarctic winter', anchor: -80 },
-    { min: -50, max: -10, name: 'freezing cold', anchor: -20 },
-    { min: -10, max: 5, name: 'freezing point of water', anchor: 0 },
-    { min: 5, max: 25, name: 'room temperature', anchor: 22 },
-    { min: 25, max: 40, name: 'body temperature', anchor: 37 },
-    { min: 40, max: 120, name: 'boiling point of water', anchor: 100 },
-    { min: 120, max: 1000, name: 'oven temperature', anchor: 180 },
-    { min: 1000, max: 6000, name: "Sun's surface", anchor: 5500 },
-    { min: 6000, max: 20000, name: 'lightning bolt', anchor: 15000 },
-    { min: 20000, max: Infinity, name: 'nuclear fusion', anchor: 10_000_000 }
-  ],
   length: [
-    { min: 0, max: 0.001, name: 'grain of sand', anchor: 0.0005 },
-    { min: 0.001, max: 0.01, name: 'sheet of paper', anchor: 0.005 },
-    { min: 0.01, max: 0.1, name: 'pencil length', anchor: 0.05 },
-    { min: 0.1, max: 1, name: 'ruler length', anchor: 0.5 },
-    { min: 1, max: 2, name: 'human height', anchor: 1.7 },
-    { min: 2, max: 5, name: 'car length', anchor: 4 },
-    { min: 5, max: 20, name: 'school bus', anchor: 12 },
-    { min: 20, max: 100, name: 'football field', anchor: 100 },
-    { min: 100, max: 1000, name: 'skyscraper', anchor: 500 },
-    { min: 1000, max: 10000, name: 'mountain', anchor: 3000 },
-    { min: 10000, max: 100000, name: 'large lake', anchor: 50_000 },
-    { min: 100000, max: 1_000_000, name: 'country', anchor: 500_000 },
-    { min: 1_000_000, max: 10_000_000, name: 'continent', anchor: 5_000_000 },
-    { min: 10_000_000, max: Infinity, name: 'Earth diameter', anchor: 12_742 } // km
+    { min: 1.5, max: 2.0, name: 'human height', anchor: 1.7, key: 'human-height', unit: 'meter' },
+    { min: 90, max: 120, name: 'football field', anchor: 100, key: 'football-field', unit: 'meter' },
+    { min: 200, max: 450, name: 'skyscraper', anchor: 350, key: 'skyscraper', unit: 'meter' },
+    { min: 12_742_000, max: 12_742_000, name: 'earth diameter', anchor: 12_742_000, key: 'earth-diameter', unit: 'meter' }
   ],
+
   weight: [
-    { min: 0, max: 0.001, name: 'grain of rice', anchor: 0.00003 },
-    { min: 0.001, max: 0.01, name: 'apple', anchor: 0.2 },
-    { min: 0.01, max: 0.1, name: 'watermelon', anchor: 5 },
-    { min: 0.1, max: 1, name: 'bag of sugar', anchor: 1 },
-    { min: 1, max: 5, name: 'house cat', anchor: 4 },
-    { min: 5, max: 20, name: 'medium dog', anchor: 15 },
-    { min: 20, max: 80, name: 'adult human', anchor: 70 },
-    { min: 80, max: 500, name: 'grand piano', anchor: 300 },
-    { min: 500, max: 2000, name: 'small car', anchor: 1200 },
-    { min: 2000, max: 10000, name: 'elephant', anchor: 6000 },
-    { min: 10000, max: 100000, name: 'blue whale', anchor: 100_000 },
-    { min: 100000, max: 1_000_000, name: 'Boeing 747', anchor: 400_000 },
-    { min: 1_000_000, max: Infinity, name: 'space shuttle', anchor: 2_000_000 }
+    { min: 50_000, max: 100_000, name: 'adult human', anchor: 70_000, key: 'adult-human', unit: 'gram' },
+    { min: 3_000_000, max: 7_000_000, name: 'elephant', anchor: 5_000_000, key: 'elephant', unit: 'gram' },
+    { min: 100_000_000, max: 150_000_000, name: 'blue whale', anchor: 120_000_000, key: 'blue-whale', unit: 'gram' }
   ],
+
   volume: [
-    { min: 0, max: 0.001, name: 'drop of water', anchor: 0.05 },
-    { min: 0.001, max: 0.01, name: 'teaspoon', anchor: 0.005 },
-    { min: 0.01, max: 0.1, name: 'tablespoon', anchor: 0.015 },
-    { min: 0.1, max: 1, name: 'cup', anchor: 0.24 },
-    { min: 1, max: 5, name: 'water bottle', anchor: 0.5 },
-    { min: 5, max: 20, name: 'bucket', anchor: 10 },
-    { min: 20, max: 200, name: 'bathtub', anchor: 150 },
-    { min: 200, max: 2000, name: 'small pool', anchor: 1000 },
-    { min: 2000, max: 20000, name: 'swimming pool', anchor: 10000 },
-    { min: 20000, max: 200000, name: 'large lake', anchor: 100000 },
-    { min: 200000, max: 2_000_000, name: 'reservoir', anchor: 1_000_000 },
-    { min: 2_000_000, max: 20_000_000, name: 'Great Lake', anchor: 10_000_000 },
-    { min: 20_000_000, max: Infinity, name: 'ocean', anchor: 1_000_000_000 }
+    { min: 230, max: 270, name: 'cup', anchor: 240, key: 'cup', unit: 'milliliter' },
+    { min: 150_000, max: 200_000, name: 'bathtub', anchor: 180_000, key: 'bathtub', unit: 'milliliter' },
+    { min: 5_000_000, max: 10_000_000, name: 'small pool', anchor: 7_500_000, key: 'small-pool', unit: 'milliliter' }
+  ],
+
+  area: [
+    { min: 7_140, max: 7_140, name: 'football field', anchor: 7_140, key: 'football-field', unit: 'squareMeter' },
+    { min: 4_046, max: 4_046, name: 'acre', anchor: 4046, key: 'acre', unit: 'squareMeter' },
+    { min: 10_000, max: 10_000, name: 'hectare', anchor: 10_000, key: 'hectare', unit: 'squareMeter' }
+  ],
+
+  data: [
+    { min: 1400, max: 1500, name: '3.5\" floppy disk', anchor: 1440, key: '3-5-floppy-disk', unit: 'kilobyte' },
+    { min: 4600, max: 5000, name: 'DVD', anchor: 4700, key: 'dvd', unit: 'megabyte' },
+    { min: 25_000, max: 50_000, name: 'Blu-ray disc', anchor: 25_000, key: 'blu-ray', unit: 'megabyte' },
+    { min: 1, max: 8, name: 'SSD', anchor: 4, key: 'ssd', unit: 'terabyte' },
+    { min: 20, max: 80, name: 'internet archive', anchor: 70, key: 'internet-archive', unit: 'petabyte' }
   ]
 }
 
-/**
- * Converters (pure functions)
- */
-const tempConvert = (v: number, f: string, t: string): number => {
-  if (f === t) return v
-  let c: number
-  if (f === 'celsius') c = v
-  else if (f === 'fahrenheit') c = (v - 32) * 5 / 9
-  else if (f === 'kelvin') c = v - 273.15
-  else return v
-
-  if (t === 'celsius') return c
-  if (t === 'fahrenheit') return c * 9 / 5 + 32
-  if (t === 'kelvin') return c + 273.15
-  return v
-}
-
-const lengthConvert = (v: number, f: string, t: string): number => {
-  const k: Record<string, number> = {
-    meter: 1, kilometer: 1000, centimeter: 0.01, millimeter: 0.001,
-    mile: 1609.34, foot: 0.3048, inch: 0.0254
-  }
-  return v * (k[f] ?? 1) / (k[t] ?? 1)
-}
-
-const weightConvert = (v: number, f: string, t: string): number => {
-  const k: Record<string, number> = {
-    kilogram: 1, gram: 0.001, milligram: 1e-6, microgram: 1e-9,
-    'metric-ton': 1000, pound: 0.453592, ounce: 0.0283495
-  }
-  return v * (k[f] ?? 1) / (k[t] ?? 1)
-}
-
-const volumeConvert = (v: number, f: string, t: string): number => {
-  const k: Record<string, number> = {
-    liter: 1, milliliter: 0.001, microliter: 1e-6,
-    'cubic-meter': 1000, 'cubic-centimeter': 0.001, 'cubic-millimeter': 1e-6,
-    'us-gallon': 3.785411784, 'us-quart': 0.946352946, 'us-pint': 0.473176473,
-    'us-cup': 0.2365882365, 'us-fluid-ounce': 0.0295735295625,
-    'us-tablespoon': 0.01478676478125, 'us-teaspoon': 0.00492892159375
-  }
-  return v * (k[f] ?? 1) / (k[t] ?? 1)
-}
-
-/**
- * Formatting helpers: compact SI with minimal decimals
- */
-const formatScientificParts = (n: number, unit: string) => {
-  const abs = Math.abs(n)
-  let prefix = ''
-  let value = abs
-
-  if (abs >= 1e12) { value = abs / 1e12; prefix = 'T' }
-  else if (abs >= 1e9) { value = abs / 1e9; prefix = 'G' }
-  else if (abs >= 1e6) { value = abs / 1e6; prefix = 'M' }
-  else if (abs >= 1e3) { value = abs / 1e3; prefix = 'k' }
-
-  const formattedValue = value >= 10 ? Math.round(value).toString() : value.toFixed(1)
-  return { value, formattedValue, prefix, unit }
-}
-
-const formatRatioParts = (ratio: number) => {
-  const abs = Math.abs(ratio)
-  let prefix = ''
-  let value = abs
-
-  if (abs >= 1e6) { value = abs / 1e6; prefix = 'M×' }
-  else if (abs >= 1e3) { value = abs / 1e3; prefix = 'k×' }
-  else { prefix = '×' }
-
-  const formattedValue =
-    abs >= 10 ? Math.round(value).toString() :
-      abs >= 1 ? value.toFixed(1) :
-        abs >= 0.1 ? value.toFixed(2) : '<0.1'
-
-  return { value, formattedValue, prefix }
-}
-
-const toReferenceKey = (name: string): string =>
-  name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
-
-/**
- * Magnitude score: prefer numeric in ~[0.1, 999]
- */
-const scoreMagnitude = (n: number): number => {
-  const a = Math.abs(n)
-  if (a === 0) return -Infinity
-  const log = Math.log10(a)
-  const min = Math.log10(0.1) // -1
-  const max = Math.log10(999) // ~2.999
-  if (log < min) return log - min
-  if (log > max) return max - log
-  return 0
-}
-
-/**
- * Small vs large: based on magnitude in the output unit (toUnit)
- */
-const isLargeMagnitude = (
-  v: number, f: string, t: string, type: SupportedType
-): boolean => {
-  const conv = { temperature: tempConvert, length: lengthConvert, weight: weightConvert, volume: volumeConvert }[type]
-  const out = conv(v, f, t)
-  return scoreMagnitude(out) < -0.75
-}
-
-/**
- * Pick N scientific visualizations, excluding active units and respecting imperial options.
- */
-const pickScientificUnits = (
-  value: number,
-  fromUnit: string,
-  toUnit: string,
-  type: SupportedType,
-  maxItems: number,
-  includeImperial: boolean
-): ScientificViz[] => {
-  const conv = { temperature: tempConvert, length: lengthConvert, weight: weightConvert, volume: volumeConvert }[type]
-  const active = new Set([fromUnit.toLowerCase(), toUnit.toLowerCase()])
-
-  const candidates = SCIENTIFIC_CANDIDATES[type]
-    .filter(c => !active.has(c.targetUnit.toLowerCase()))
-    .filter(c => includeImperial ? true : c.system === 'si')
-    .map(c => {
-      const converted = conv(value, fromUnit, c.targetUnit)
-      return { ...c, converted, score: scoreMagnitude(converted) }
-    })
-    .filter(x => Math.abs(x.converted) >= 0.01)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, maxItems)
-    .map(x => {
-      const parts = formatScientificParts(x.converted, x.unit)
-      return {
-        type: 'scientific',
-        value: x.converted,
-        formattedValue: parts.formattedValue,
-        prefix: parts.prefix,
-        unit: parts.unit,
-        targetUnit: x.targetUnit
-      } as ScientificViz
-    })
-
-  return candidates
-}
-
-/**
- * Build a grounded reference visualization (uniform logic for all types):
- * - Compare in an intuitive unit: °C for temperature, toUnit for others.
- * - Use explicit per-reference anchor, not ref.min or type-specific code.
- * - If within ±10% of anchor and inside range, show "≈ label" (formattedValue = "≈").
- * - Otherwise, show ratio against the anchor with compact prefix (k×, M×).
- */
-const buildReferenceViz = (
-  value: number,
-  fromUnit: string,
-  toUnit: string,
-  type: SupportedType
-): ReferenceViz | null => {
-  const conv = { temperature: tempConvert, length: lengthConvert, weight: weightConvert, volume: volumeConvert }[type]
-  const refs = VISUALIZATION_REFERENCES[type]
-  if (!refs?.length) return null
-
-  // Choose comparison unit (agnostic)
-  const compareUnit = type === 'temperature' ? 'celsius' : toUnit
-  const compareValue = conv(value, fromUnit, compareUnit)
-
-  // Find reference bucket
-  const ref =
-    refs.find(r => compareValue >= r.min && compareValue < r.max) ??
-    refs[refs.length - 1]
-
-  const key = toReferenceKey(ref.name)
-
-  // Use explicit anchor; guard against near-zero anchors
-  const safeAnchor = Math.max(Math.abs(ref.anchor), 1e-6)
-  const ratio = Math.abs(compareValue) / safeAnchor
-
-  const withinRange = compareValue >= ref.min && compareValue < ref.max
-  const closeToAnchor = ratio >= 0.9 && ratio <= 1.1
-
-  if (withinRange && closeToAnchor) {
-    return {
-      type: 'reference',
-      value: 1,
-      formattedValue: '≈',
-      prefix: '',
-      label: ref.name,
-      key
-    }
-  }
-
-  const parts = formatRatioParts(ratio)
+/** Scientific formatter and unit picker */
+function formatScientificParts(value: number, unit: string, prefix?: string): VisualizationItem {
   return {
+    type: 'scientific',
+    formattedValue: formatNumber(value),
+    prefix,
+    unit: UNIT_DISPLAY[unit] ?? unit,
+    value,
+    key: `sci-${unit}`
+  }
+}
+
+/** Avoid extreme candidates that produce unreadable tiny numbers */
+function pickScientificUnits(value: number, type: SupportedType, from: string, to: string, topN = 3): VisualizationItem[] {
+  const baseUnits = type === 'temperature'
+    ? ['celsius', 'fahrenheit', 'kelvin']
+    : Object.keys(CONVERSION_FACTORS[type as FactorTypes] ?? {})
+
+  const candidates = baseUnits.filter(u => u !== from && u !== to).map(u => {
+    const v = convert(value, from, u, type)
+    return { unit: u, v, score: readabilityScore(v) }
+  }).sort((a, b) => a.score - b.score)
+
+  // Prefer values in 0.01–100000 range
+  const preferred = candidates.filter(c => Math.abs(c.v) >= 0.01 && Math.abs(c.v) <= 100000)
+
+  const chosen = (preferred.length > 0 ? preferred : candidates).slice(0, topN)
+  return chosen.map(({ v, unit }) => formatScientificParts(v, unit))
+}
+
+function buildReferenceViz(value: number, type: SupportedType, from: string, maxRefs = 1): VisualizationItem[] {
+  const refs = REFERENCES[type] ?? []
+  if (!refs.length) return []
+
+  const scored = refs.map(ref => {
+    const anchor = ref.anchor ?? (ref.min + ref.max) / 2
+    const valInRefUnit = convert(value, from, ref.unit, type)
+    const multiplier = valInRefUnit / (anchor || 1)
+    const approx = isApproximately(valInRefUnit, anchor, ref)
+    return { ref, valInRefUnit, multiplier, approx, distanceToOne: Math.abs(multiplier - 1) }
+  }).sort((a, b) => a.distanceToOne - b.distanceToOne)
+
+  // Prefer multipliers in 0.01–1000 range
+  const preferred = scored.filter(r => r.multiplier >= 0.01 && r.multiplier <= 1000)
+
+  const chosen = (preferred.length > 0 ? preferred : scored).slice(0, maxRefs)
+  return chosen.map(best => ({
     type: 'reference',
-    value: ratio,
-    formattedValue: parts.formattedValue,
-    prefix: parts.prefix || '×',
-    label: ref.name,
-    key
-  }
+    formattedValue: best.approx ? '≈' : formatMultiplier(best.multiplier),
+    label: best.ref.name,
+    key: best.ref.key,
+    value: best.valInRefUnit
+  }))
 }
 
-/**
- * Public API
- */
-export function useConversionVisualization(options?: {
-  includeImperialLength?: boolean
-  includeImperialWeight?: boolean
-  includeImperialTemperature?: boolean
-}) {
-  const opts = {
-    includeImperialLength: false,
-    includeImperialWeight: true,
-    includeImperialTemperature: true,
-    ...(options ?? {})
-  }
-
-  const getVisualization = (
-    value: number,
-    fromUnit: string,
-    toUnit: string,
-    converterType: ConverterType
-  ): VisualizationItem[] | undefined => {
-    if (!['temperature', 'length', 'weight', 'volume'].includes(converterType)) return undefined
-
-    const type = converterType as SupportedType
-    const large = isLargeMagnitude(value, fromUnit, toUnit, type)
-    const sciCount = large ? 1 : 2
-
-    const includeImperial =
-      (type === 'length' && opts.includeImperialLength) ||
-      (type === 'weight' && opts.includeImperialWeight) ||
-      (type === 'temperature' && opts.includeImperialTemperature) ||
-      (type === 'volume' && true)
-
-    const scientific = pickScientificUnits(value, fromUnit, toUnit, type, sciCount, includeImperial)
-    const reference = buildReferenceViz(value, fromUnit, toUnit, type)
-
-    const visuals: VisualizationItem[] = [
-      ...scientific,
-      ...(reference ? [reference] : [])
-    ]
-
-    return visuals.length ? visuals.slice(0, Math.min(visuals.length, sciCount + 1)) : undefined
-  }
-
-  const getAllVisualizationsForConverter = (
-    converterType: ConverterType
-  ): Array<{ min: number; max: number; name: string; anchor: number }> => {
-    if (!['temperature', 'length', 'weight'].includes(converterType)) return []
-    return VISUALIZATION_REFERENCES[converterType as SupportedType] ?? []
-  }
-
-  const hasVisualization = (
-    _fromUnit: string,
-    _toUnit: string,
-    converterType: ConverterType
-  ): boolean => {
-    if (!['temperature', 'length', 'weight'].includes(converterType)) return false
-    return (VISUALIZATION_REFERENCES[converterType as SupportedType]?.length ?? 0) > 0
-  }
-
-  return {
-    getVisualization,
-    getAllVisualizationsForConverter,
-    hasVisualization
-  }
+/** Formatting and heuristics */
+function formatNumber(n: number): string {
+  const abs = Math.abs(n)
+  if (abs === 0) return '0'
+  if (abs >= 1000 || abs < 0.01) return n.toExponential(2)
+  if (abs >= 100) return n.toFixed(0)
+  if (abs >= 10) return n.toFixed(1)
+  if (abs >= 1) return n.toFixed(2)
+  return n.toPrecision(3)
 }
+
+function formatMultiplier(k: number): string {
+  const abs = Math.abs(k)
+  let text: string
+  if (abs >= 1000 || abs < 0.01) text = k.toExponential(1)
+  else if (abs >= 100) text = k.toFixed(0)
+  else if (abs >= 10) text = k.toFixed(1)
+  else if (abs >= 1) text = k.toFixed(2)
+  else if (abs >= 0.1) text = k.toFixed(2)
+  else text = k.toPrecision(2)
+  return `${text}×`
+}
+
+function readabilityScore(v: number): number {
+  const abs = Math.abs(v)
+  if (abs === 0) return 10
+  if (abs >= 1 && abs < 1000) return Math.abs(Math.log10(abs) - 2)
+  return Math.abs(Math.log10(abs)) + 3
+}
+
+function isApproximately(val: number, anchor: number, ref: { min: number; max: number }): boolean {
+  const width = Math.max(1, Math.abs(ref.max - ref.min))
+  const baseTol = width * 0.05
+  const absVal = Math.abs(val)
+  const tol = Math.max(baseTol, absVal > 1 ? absVal * 0.03 : 0.03)
+  return Math.abs(val - anchor) <= tol
+}
+
+/** Public API with caps: small shows 2 scientific + 1 reference; large shows 1 + 1 */
+export function useConversionVisualization() {
+  function getVisualization(value: number, from: string, to: string, type: SupportedType): VisualizationItem[] {
+    const sciCandidates = pickScientificUnits(value, type, from, to, 3)
+    const refCandidates = buildReferenceViz(value, type, from, 1)
+
+    const magnitude = sciCandidates[0]?.value ?? value
+    const isSmall = Math.abs(magnitude) >= 1 && Math.abs(magnitude) < 1000
+
+    const sciCap = isSmall ? 2 : 1
+    const refCap = 1
+
+    // Take up to sciCap scientific
+    const sci = sciCandidates.slice(0, sciCap)
+    // Take up to refCap references
+    const refs = refCandidates.slice(0, refCap)
+
+    let merged: VisualizationItem[] = [...sci, ...refs]
+
+    // If we didn’t fill the expected slots, backfill
+    const expectedCount = isSmall ? 3 : 2
+    if (merged.length < expectedCount) {
+      const extras = [...sciCandidates.slice(sci.length), ...refCandidates.slice(refs.length)]
+      merged = [...merged, ...extras.slice(0, expectedCount - merged.length)]
+    }
+
+    // Deduplicate
+    const out: VisualizationItem[] = []
+    const seen = new Set<string>()
+    for (const item of merged) {
+      const k = `${item.type}:${item.unit ?? ''}:${item.label ?? ''}:${item.key ?? ''}`
+      if (!seen.has(k)) {
+        seen.add(k)
+        out.push(item)
+      }
+    }
+    return out
+  }
+
+  return { getVisualization }
+}
+

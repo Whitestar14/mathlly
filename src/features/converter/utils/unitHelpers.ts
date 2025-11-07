@@ -70,12 +70,8 @@ export function getMathJsUnitName(unitId: string, converterType: ConverterType):
       kilometer: 'km',
       centimeter: 'cm',
       millimeter: 'mm',
-      micrometer: 'micrometer',
-      nanometer: 'nanometer',
 
       // Imperial/US Units
-      mile: 'mile',
-      yard: 'yard',
       foot: 'ft',
       inch: 'inch',
       'nautical-mile': 'nauticalmile'
@@ -86,7 +82,6 @@ export function getMathJsUnitName(unitId: string, converterType: ConverterType):
       kilogram: 'kg',
       gram: 'g',
       milligram: 'mg',
-      microgram: 'microgram',
       'metric-ton': 'tonne',
 
       // Imperial/US Units
@@ -99,7 +94,6 @@ export function getMathJsUnitName(unitId: string, converterType: ConverterType):
       'cubic-meter': 'm3',
       liter: 'L',
       milliliter: 'mL',
-      microliter: 'microliter',
       'cubic-centimeter': 'cm3',
       'cubic-millimeter': 'mm3',
 
@@ -108,16 +102,24 @@ export function getMathJsUnitName(unitId: string, converterType: ConverterType):
       'cubic-foot': 'ft3',
       'cubic-yard': 'yard3'
     },
+    data: {},
+    area: {
+      // SI Units
+      'square-meter': 'm2',
+      'square-kilometer': 'km2',
+      'square-centimeter': 'cm2',
+      'square-millimeter': 'mm2',
+      'square-micrometer': 'micrometer2',
+      'square-nanometer': 'nanometer2',
+
+      // Imperial/US Units
+      'square-mile': 'mile2',
+      'square-yard': 'yard2',
+      'square-foot': 'sqft',
+      'square-inch': 'inch2'
+    },
     'css-units': {
-      px: 'px',
       pt: 'csspt',
-      cm: 'cm',
-      mm: 'mm',
-      in: 'inch',
-      rem: 'rem',
-      em: 'em',
-      vh: 'vh',
-      vw: 'vw'
     },
     currency: {}
   }

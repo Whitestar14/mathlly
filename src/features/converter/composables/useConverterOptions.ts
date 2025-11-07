@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import { useToolOptions } from '@composables/ui/useToolOptions'
-import { ConverterOptions } from '@converter/types'
+import { ConverterOptions, ConverterType } from '@converter/types'
 import { ConverterConstants } from '@converter/lib/constants'
 
 const DEFAULT_CONVERTER_OPTIONS: ConverterOptions = {
@@ -14,6 +14,22 @@ const DEFAULT_CONVERTER_OPTIONS: ConverterOptions = {
   showThousandSeparators: true
 }
 
+interface ConverterTypeOption {
+  value: ConverterType
+  label: string
+}
+
+export const availableConverterTypes: ConverterTypeOption[] = [
+  { value: 'area', label: 'Area' },
+  { value: 'temperature', label: 'Temperature' },
+  { value: 'length', label: 'Length' },
+  { value: 'weight', label: 'Weight & Mass' },
+  { value: 'css-units', label: 'CSS Units' },
+  { value: 'volume', label: 'Volume' },
+  { value: 'data', label: 'Data' },
+  { value: 'currency', label: 'Currency' }
+]
+
 export function useConverterOptions() {
   const { options, isLoading } = useToolOptions<ConverterOptions>(
     'converter',
@@ -26,13 +42,7 @@ export function useConverterOptions() {
         description: 'Which converter to load when opening the converter tool',
         type: 'select',
         value: options,
-        options: [
-          { value: 'temperature', label: 'Temperature' },
-          { value: 'length', label: 'Length' },
-          { value: 'weight', label: 'Weight & Mass' },
-          { value: 'css-units', label: 'CSS Units' },
-          { value: 'currency', label: 'Currency' }
-        ],
+        options: availableConverterTypes,
         section: 'General'
       },
       {

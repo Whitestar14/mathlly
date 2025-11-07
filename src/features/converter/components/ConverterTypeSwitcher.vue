@@ -5,7 +5,7 @@
       :model-value="currentConverterType"
       :options="converterOptions"
       placeholder="Select converter"
-      @update:model-value="val => updateConverterType(val as ConverterType)" />
+      @update:model-value="(val: ConverterType) => updateConverterType(val)" />
     <template #fallback>
       <div class="w-full inline-flex items-center rounded-md bg-muted p-1 h-10 animate-pulse"></div>
     </template>

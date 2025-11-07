@@ -5,6 +5,8 @@ import { WeightConverter } from '../converters/WeightConverter'
 import { CurrencyConverter } from '../converters/CurrencyConverter'
 import { CssUnitsConverter } from '../converters/CssUnitsConverter'
 import { VolumeConverter } from '../converters/VolumeConverter'
+import { DataConverter } from '../converters/DataConverter'
+import { AreaConverter } from '../converters/AreaConverter'
 import type { BaseConverter } from '../converters/BaseConverter'
 
 export class ConverterFactory {
@@ -14,7 +16,9 @@ export class ConverterFactory {
     weight: WeightConverter,
     currency: CurrencyConverter,
     'css-units': CssUnitsConverter,
-    volume: VolumeConverter
+    volume: VolumeConverter,
+    data: DataConverter,
+    area: AreaConverter
   }
 
   static create(type: ConverterType): BaseConverter {
