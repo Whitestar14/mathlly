@@ -17,6 +17,7 @@ const availableConverterTypes: ConverterTypeOption[] = [
   { value: 'length', label: 'Length', icon: 'ruler' },
   { value: 'weight', label: 'Weight & Mass', icon: 'weight' },
   { value: 'css-units', label: 'CSS Units', icon: 'code' },
+  { value: 'volume', label: 'Volume', icon: 'burette' },
   { value: 'currency', label: 'Currency', icon: 'banknote' }
 ]
 

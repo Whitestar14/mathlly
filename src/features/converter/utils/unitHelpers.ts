@@ -94,6 +94,20 @@ export function getMathJsUnitName(unitId: string, converterType: ConverterType):
       ounce: 'oz'
 
     },
+    volume: {
+      // SI Units
+      'cubic-meter': 'm3',
+      liter: 'L',
+      milliliter: 'mL',
+      microliter: 'microliter',
+      'cubic-centimeter': 'cm3',
+      'cubic-millimeter': 'mm3',
+
+      // Imperial/US Units
+      'cubic-inch': 'inch3',
+      'cubic-foot': 'ft3',
+      'cubic-yard': 'yard3'
+    },
     'css-units': {
       px: 'px',
       pt: 'csspt',

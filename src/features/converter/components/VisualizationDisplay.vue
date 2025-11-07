@@ -84,14 +84,18 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { 
-  Icon,
+  Icon, Droplet,
   Thermometer, Dot, Paperclip, Map, Ruler, Clock, Info,
   Snowflake, PersonStanding, Car, Building,
   Mountain, Target, Waves, Globe2,
   Apple, Backpack, Cat, Dog, Piano, Fish, Plane, Rocket, Bomb,
-  CloudLightning, SunDim, House
+  CloudLightning, SunDim, House,
+  SoupIcon,
+  CupSoda,
+  Bath,
+  Globe
 } from 'lucide-vue-next'
-import { elephant } from '@lucide/lab'
+import { bottlePlastic, bucket, elephant, floppyDisk } from '@lucide/lab'
 import type { ConverterType } from '../types/converter'
 import type { BaseConverter } from '../services/converters/BaseConverter'
 import { useConverterOptions } from '@converter/composables'
@@ -128,7 +132,7 @@ const ICON_MAP: Record<string, any> = {
   'body-temperature': PersonStanding,
   'boiling-point-of-water': Thermometer,
   'oven-temperature': Thermometer,
-  'suns-surface': SunDim,
+  'sunsurface': SunDim,
   'lightning-bolt': CloudLightning,
   'nuclear-fusion': Bomb,
 
@@ -158,14 +162,33 @@ const ICON_MAP: Record<string, any> = {
   'adult-human': PersonStanding,
   'grand-piano': Piano,
   'small-car': Car,
+  'elephant': elephant,
   'blue-whale': Fish,
   'boeing-747': Plane,
-  'space-shuttle': Rocket
+  'space-shuttle': Rocket,
+
+  // Volume
+  'drop-of-water': Droplet,
+  'teaspoon': SoupIcon,
+  'tablespoon': SoupIcon,
+  'cup': CupSoda,
+  'water-bottle': bottlePlastic,
+  'bathtub': Bath,
+  'small-pool': Waves,
+  'swimming-pool': Waves,
+  'reservoir': Waves,
+  'great-lake': Waves,
+  'ocean': Globe2,
+
+  // Data
+  'internet-archive': Globe
 }
 
 
 const LAB_ICON_MAP: Record<string, any> = {
-  'elephant': elephant
+  'bucket': bucket,
+  'elephant': elephant,
+  '3-5-floppy-disk': floppyDisk
 }
 
 const isLabIcon = (key: string): boolean => {

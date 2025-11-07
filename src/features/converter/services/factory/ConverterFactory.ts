@@ -4,22 +4,29 @@ import { LengthConverter } from '../converters/LengthConverter'
 import { WeightConverter } from '../converters/WeightConverter'
 import { CurrencyConverter } from '../converters/CurrencyConverter'
 import { CssUnitsConverter } from '../converters/CssUnitsConverter'
+import { VolumeConverter } from '../converters/VolumeConverter'
 import type { BaseConverter } from '../converters/BaseConverter'
 
 export class ConverterFactory {
+  private static readonly converterRegistry: Record<ConverterType, new () => BaseConverter> = {
+    temperature: TemperatureConverter,
+    length: LengthConverter,
+    weight: WeightConverter,
+    currency: CurrencyConverter,
+    'css-units': CssUnitsConverter,
+    volume: VolumeConverter
+  }
+
   static create(type: ConverterType): BaseConverter {
-    switch (type) {
-      case 'temperature': return new TemperatureConverter()
-      case 'length': return new LengthConverter()
-      case 'weight': return new WeightConverter()
-      case 'currency': return new CurrencyConverter()
-      case 'css-units': return new CssUnitsConverter()
-      default: throw new Error(`Unsupported converter type: ${type}`)
+    const ConverterClass = this.converterRegistry[type]
+    if (!ConverterClass) {
+      throw new Error(`Unsupported converter type: ${type}`)
     }
+    return new ConverterClass()
   }
 
   static getAvailableTypes(): ConverterType[] {
-    return ['temperature', 'length', 'weight', 'currency', 'css-units']
+    return Object.keys(this.converterRegistry) as ConverterType[]
   }
 
   static getConverterInfo(type: ConverterType) {

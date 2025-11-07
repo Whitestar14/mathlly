@@ -1,4 +1,4 @@
-export type ConverterType = 'temperature' | 'length' | 'weight' | 'css-units' | 'currency'
+export type ConverterType = 'temperature' | 'length' | 'weight' | 'css-units' | 'currency' | 'volume'
 
 export interface ConversionUnit {
   id: string
@@ -13,22 +13,6 @@ export interface ConversionResult {
   fromUnit: ConversionUnit
   toUnit: ConversionUnit
   error?: string
-}
-
-export interface VisualizationReference {
-  value: number          // Reference value in the specified unit
-  unit: string          // Unit of the reference value
-  name: string          // Display name (e.g., "boiling point of water")
-  minRatio?: number     // Minimum ratio to display (default: 0.1)
-  maxRatio?: number     // Maximum ratio to display (default: 10)
-  icon?: string         // Optional icon name from lucide-vue-next
-}
-
-export interface VisualizationData {
-  converterType: ConverterType
-  fromUnit: string
-  toUnit: string
-  references: VisualizationReference[]  // Changed from 'comparisons'
 }
 
 export interface ConverterConfig {

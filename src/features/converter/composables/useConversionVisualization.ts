@@ -1,6 +1,6 @@
 import { ConverterType } from '@converter/types'
 
-type SupportedType = 'temperature' | 'length' | 'weight'
+type SupportedType = 'temperature' | 'length' | 'weight' | 'volume'
 
 export type ScientificViz = {
   type: 'scientific'
@@ -51,6 +51,14 @@ const SCIENTIFIC_CANDIDATES: Record<
     { unit: 't', targetUnit: 'metric-ton', system: 'si' },
     { unit: 'oz', targetUnit: 'ounce', system: 'imperial' },
     { unit: 'lb', targetUnit: 'pound', system: 'imperial' }
+  ],
+  volume: [
+    { unit: 'mL', targetUnit: 'milliliter', system: 'si' },
+    { unit: 'L', targetUnit: 'liter', system: 'si' },
+    { unit: 'm³', targetUnit: 'cubic-meter', system: 'si' },
+    { unit: 'gal', targetUnit: 'us-gallon', system: 'imperial' },
+    { unit: 'qt', targetUnit: 'us-quart', system: 'imperial' },
+    { unit: 'cup', targetUnit: 'us-cup', system: 'imperial' }
   ],
   'css-units': [],
   currency: []
@@ -109,6 +117,21 @@ const VISUALIZATION_REFERENCES: Record<
     { min: 10000, max: 100000, name: 'blue whale', anchor: 100_000 },
     { min: 100000, max: 1_000_000, name: 'Boeing 747', anchor: 400_000 },
     { min: 1_000_000, max: Infinity, name: 'space shuttle', anchor: 2_000_000 }
+  ],
+  volume: [
+    { min: 0, max: 0.001, name: 'drop of water', anchor: 0.05 },
+    { min: 0.001, max: 0.01, name: 'teaspoon', anchor: 0.005 },
+    { min: 0.01, max: 0.1, name: 'tablespoon', anchor: 0.015 },
+    { min: 0.1, max: 1, name: 'cup', anchor: 0.24 },
+    { min: 1, max: 5, name: 'water bottle', anchor: 0.5 },
+    { min: 5, max: 20, name: 'bucket', anchor: 10 },
+    { min: 20, max: 200, name: 'bathtub', anchor: 150 },
+    { min: 200, max: 2000, name: 'small pool', anchor: 1000 },
+    { min: 2000, max: 20000, name: 'swimming pool', anchor: 10000 },
+    { min: 20000, max: 200000, name: 'large lake', anchor: 100000 },
+    { min: 200000, max: 2_000_000, name: 'reservoir', anchor: 1_000_000 },
+    { min: 2_000_000, max: 20_000_000, name: 'Great Lake', anchor: 10_000_000 },
+    { min: 20_000_000, max: Infinity, name: 'ocean', anchor: 1_000_000_000 }
   ]
 }
 
@@ -141,6 +164,17 @@ const weightConvert = (v: number, f: string, t: string): number => {
   const k: Record<string, number> = {
     kilogram: 1, gram: 0.001, milligram: 1e-6, microgram: 1e-9,
     'metric-ton': 1000, pound: 0.453592, ounce: 0.0283495
+  }
+  return v * (k[f] ?? 1) / (k[t] ?? 1)
+}
+
+const volumeConvert = (v: number, f: string, t: string): number => {
+  const k: Record<string, number> = {
+    liter: 1, milliliter: 0.001, microliter: 1e-6,
+    'cubic-meter': 1000, 'cubic-centimeter': 0.001, 'cubic-millimeter': 1e-6,
+    'us-gallon': 3.785411784, 'us-quart': 0.946352946, 'us-pint': 0.473176473,
+    'us-cup': 0.2365882365, 'us-fluid-ounce': 0.0295735295625,
+    'us-tablespoon': 0.01478676478125, 'us-teaspoon': 0.00492892159375
   }
   return v * (k[f] ?? 1) / (k[t] ?? 1)
 }
@@ -202,7 +236,7 @@ const scoreMagnitude = (n: number): number => {
 const isLargeMagnitude = (
   v: number, f: string, t: string, type: SupportedType
 ): boolean => {
-  const conv = { temperature: tempConvert, length: lengthConvert, weight: weightConvert }[type]
+  const conv = { temperature: tempConvert, length: lengthConvert, weight: weightConvert, volume: volumeConvert }[type]
   const out = conv(v, f, t)
   return scoreMagnitude(out) < -0.75
 }
@@ -218,7 +252,7 @@ const pickScientificUnits = (
   maxItems: number,
   includeImperial: boolean
 ): ScientificViz[] => {
-  const conv = { temperature: tempConvert, length: lengthConvert, weight: weightConvert }[type]
+  const conv = { temperature: tempConvert, length: lengthConvert, weight: weightConvert, volume: volumeConvert }[type]
   const active = new Set([fromUnit.toLowerCase(), toUnit.toLowerCase()])
 
   const candidates = SCIENTIFIC_CANDIDATES[type]
@@ -259,7 +293,7 @@ const buildReferenceViz = (
   toUnit: string,
   type: SupportedType
 ): ReferenceViz | null => {
-  const conv = { temperature: tempConvert, length: lengthConvert, weight: weightConvert }[type]
+  const conv = { temperature: tempConvert, length: lengthConvert, weight: weightConvert, volume: volumeConvert }[type]
   const refs = VISUALIZATION_REFERENCES[type]
   if (!refs?.length) return null
 
@@ -324,7 +358,7 @@ export function useConversionVisualization(options?: {
     toUnit: string,
     converterType: ConverterType
   ): VisualizationItem[] | undefined => {
-    if (!['temperature', 'length', 'weight'].includes(converterType)) return undefined
+    if (!['temperature', 'length', 'weight', 'volume'].includes(converterType)) return undefined
 
     const type = converterType as SupportedType
     const large = isLargeMagnitude(value, fromUnit, toUnit, type)
@@ -333,7 +367,8 @@ export function useConversionVisualization(options?: {
     const includeImperial =
       (type === 'length' && opts.includeImperialLength) ||
       (type === 'weight' && opts.includeImperialWeight) ||
-      (type === 'temperature' && opts.includeImperialTemperature)
+      (type === 'temperature' && opts.includeImperialTemperature) ||
+      (type === 'volume' && true)
 
     const scientific = pickScientificUnits(value, fromUnit, toUnit, type, sciCount, includeImperial)
     const reference = buildReferenceViz(value, fromUnit, toUnit, type)
