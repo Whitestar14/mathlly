@@ -97,6 +97,7 @@
   </BasePanel>
 
   <BaseModal
+  id="confirmation-delete-history-modal"
     v-model:open="showClearConfirmation"
     description="confirmation-dialog">
     <template #title>
@@ -123,6 +124,7 @@
   </BaseModal>
 
   <BaseModal
+    id="confirmation-delete-memory-modal"
     v-model:open="showClearMemoryConfirmation"
     description="confirmation-dialog">
     <template #title>

@@ -71,6 +71,7 @@
     </div>
 
     <BaseModal
+    id="create-memory-modal"
       v-model:open="showCreateSlot"
       description="create-memory-slot-dialog">
       <template #title>

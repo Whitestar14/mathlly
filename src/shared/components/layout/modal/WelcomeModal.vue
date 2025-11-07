@@ -49,11 +49,11 @@
       <div class="grid grid-cols-2 gap-4">
         <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
           <Calculator class="h-4 w-4 text-primary flex-shrink-0" />
-          <span class="text-sm font-medium text-foreground">Math & Calculator</span>
+          <span class="text-sm font-medium text-foreground">Calculator</span>
         </div>
         <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
           <Code class="h-4 w-4 text-primary flex-shrink-0" />
-          <span class="text-sm font-medium text-foreground">Base64 & Encoding</span>
+          <span class="text-sm font-medium text-foreground">Base64</span>
         </div>
         <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
           <Palette class="h-4 w-4 text-primary flex-shrink-0" />

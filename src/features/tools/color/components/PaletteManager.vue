@@ -186,6 +186,7 @@
     </BaseCard>
 
     <BaseModal
+      id="create-palette-modal"
       :open="isCreateDialogOpen"
       @update:open="setIsCreateDialogOpen">
       <template #title>
