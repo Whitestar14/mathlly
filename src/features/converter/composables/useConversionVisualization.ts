@@ -1,5 +1,6 @@
 // src/composables/useConversionVisualization.ts
-export type SupportedType = 'temperature' | 'length' | 'weight' | 'volume' | 'data' | 'area'
+export const SupportedTypes = ['temperature', 'length', 'weight', 'volume', 'data', 'area'] as const
+export type SupportedType = typeof SupportedTypes[number]
 
 export interface VisualizationItem {
   key: string
@@ -105,32 +106,43 @@ const REFERENCES: Record<SupportedType, Array<{
     { min: 90, max: 110, name: 'boiling point of water', anchor: 100, key: 'boiling-point-of-water', unit: 'celsius' },
     { min: 180, max: 260, name: 'oven temperature', anchor: 200, key: 'oven-temperature', unit: 'celsius' },
     { min: 5000, max: 7000, name: 'sun surface', anchor: 5778, key: 'sunsurface', unit: 'kelvin' },
-    { min: 25000, max: 35000, name: 'lightning bolt', anchor: 30000, key: 'lightning-bolt', unit: 'kelvin' }
+    { min: 25000, max: 35000, name: 'lightning bolt', anchor: 30000, key: 'lightning-bolt', unit: 'kelvin' },
+    { min: -273.15, max: -273.15, name: 'absolute zero', anchor: -273.15, key: 'absolute-zero', unit: 'celsius' }
   ],
 
   length: [
     { min: 1.5, max: 2.0, name: 'human height', anchor: 1.7, key: 'human-height', unit: 'meter' },
     { min: 90, max: 120, name: 'football field', anchor: 100, key: 'football-field', unit: 'meter' },
     { min: 200, max: 450, name: 'skyscraper', anchor: 350, key: 'skyscraper', unit: 'meter' },
-    { min: 12_742_000, max: 12_742_000, name: 'earth diameter', anchor: 12_742_000, key: 'earth-diameter', unit: 'meter' }
+    { min: 12_742_000, max: 12_742_000, name: 'earth diameter', anchor: 12_742_000, key: 'earth-diameter', unit: 'meter' },
+    { min: 384_000_000, max: 384_000_000, name: 'earth to moon distance', anchor: 384_000_000, key: 'earth-moon-distance', unit: 'meter' }
   ],
 
   weight: [
     { min: 50_000, max: 100_000, name: 'adult human', anchor: 70_000, key: 'adult-human', unit: 'gram' },
     { min: 3_000_000, max: 7_000_000, name: 'elephant', anchor: 5_000_000, key: 'elephant', unit: 'gram' },
-    { min: 100_000_000, max: 150_000_000, name: 'blue whale', anchor: 120_000_000, key: 'blue-whale', unit: 'gram' }
+    { min: 100_000_000, max: 150_000_000, name: 'blue whale', anchor: 120_000_000, key: 'blue-whale', unit: 'gram' },
+    { min: 5.97e27, max: 5.97e27, name: 'earth mass', anchor: 5.97e27, key: 'earth-mass', unit: 'gram' }
   ],
 
   volume: [
-    { min: 230, max: 270, name: 'cup', anchor: 240, key: 'cup', unit: 'milliliter' },
-    { min: 150_000, max: 200_000, name: 'bathtub', anchor: 180_000, key: 'bathtub', unit: 'milliliter' },
-    { min: 5_000_000, max: 10_000_000, name: 'small pool', anchor: 7_500_000, key: 'small-pool', unit: 'milliliter' }
+    { min: 0.004, max: 0.006, name: 'teaspoon', anchor: 0.005, key: 'teaspoon', unit: 'liter' },
+    { min: 0.014, max: 0.016, name: 'tablespoon', anchor: 0.015, key: 'tablespoon', unit: 'liter' },
+    { min: 0.23, max: 0.27, name: 'cup', anchor: 0.24, key: 'cup', unit: 'liter' },
+    { min: 1.9, max: 5.1, name: '2-liter bottle', anchor: 2, key: 'two-liter-bottle', unit: 'liter' },
+    { min: 10, max: 15, name: 'bucket', anchor: 12, key: 'bucket', unit: 'liter' },
+    { min: 150, max: 200, name: 'bathtub', anchor: 180, key: 'bathtub', unit: 'liter' },
+    { min: 200, max: 250, name: 'rain barrel', anchor: 220, key: 'rain-barrel', unit: 'liter' },
+    { min: 5_000, max: 10_000, name: 'small pool', anchor: 7_500, key: 'small-pool', unit: 'liter' },
+    { min: 2_400_000, max: 2_600_000, name: 'Olympic swimming pool', anchor: 2_500_000, key: 'olympic-pool', unit: 'liter' },
+    { min: 1.3e21, max: 1.35e21, name: 'Ocean of Earth', anchor: 1.332e21, key: 'earth-ocean', unit: 'liter' }
   ],
 
   area: [
     { min: 7_140, max: 7_140, name: 'football field', anchor: 7_140, key: 'football-field', unit: 'squareMeter' },
     { min: 4_046, max: 4_046, name: 'acre', anchor: 4046, key: 'acre', unit: 'squareMeter' },
-    { min: 10_000, max: 10_000, name: 'hectare', anchor: 10_000, key: 'hectare', unit: 'squareMeter' }
+    { min: 10_000, max: 10_000, name: 'hectare', anchor: 10_000, key: 'hectare', unit: 'squareMeter' },
+    { min: 510_000_000_000_000, max: 510_000_000_000_000, name: 'earth surface area', anchor: 510_000_000_000_000, key: 'earth-surface-area', unit: 'squareMeter' }
   ],
 
   data: [
@@ -138,9 +150,11 @@ const REFERENCES: Record<SupportedType, Array<{
     { min: 4600, max: 5000, name: 'DVD', anchor: 4700, key: 'dvd', unit: 'megabyte' },
     { min: 25_000, max: 50_000, name: 'Blu-ray disc', anchor: 25_000, key: 'blu-ray', unit: 'megabyte' },
     { min: 1, max: 8, name: 'SSD', anchor: 4, key: 'ssd', unit: 'terabyte' },
-    { min: 20, max: 80, name: 'internet archive', anchor: 70, key: 'internet-archive', unit: 'petabyte' }
+    { min: 20, max: 80, name: 'internet archive', anchor: 70, key: 'internet-archive', unit: 'petabyte' },
+    { min: 1000, max: 2000, name: 'smartphone storage', anchor: 128, key: 'smartphone-storage', unit: 'gigabyte' },
+    { min: 1e6, max: 2e6, name: 'large data center', anchor: 1.5e6, key: 'data-center', unit: 'terabyte' }
   ]
-}
+};
 
 /** Scientific formatter and unit picker */
 function formatScientificParts(value: number, unit: string, prefix?: string): VisualizationItem {

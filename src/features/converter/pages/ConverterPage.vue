@@ -6,19 +6,20 @@
           <!-- Left column: Conversion panels -->
           <div class="flex flex-col gap-1">
             <div class="relative flex flex-1 flex-col gap-2">
-              <ConversionPanel class="font-bold" :model-value="state.input" label="From" :units="availableUnits"
-                :selected-unit="state.fromUnit" :read-only="false" :error="state.error" @update:model-value="setInput"
-                @update:selected-unit="setFromUnit" />
+              <ConversionPanel :class="{ 'flip-scale': isFlipping }" class="font-bold" :model-value="state.input"
+                label="From" :units="availableUnits" :selected-unit="state.fromUnit" :read-only="false"
+                :error="state.error" @reset="() => { if (state.input === '' || state.input === '-') setInput('0') }"
+                @update:model-value="setInput" @update:selected-unit="setFromUnit" />
 
-              <ConversionPanel class="font-thin" :model-value="formattedResult" label="To" :units="availableUnits"
-                :selected-unit="state.toUnit" :read-only="true" :show-copy-button="true"
-                :show-refresh-button="state.activeConverter === 'currency'" @update:selected-unit="setToUnit"
-                @copy="handleCopy" @refresh="handleRefreshRates" />
+              <ConversionPanel :class="{ 'flip-scale': isFlipping }" class="font-thin" :model-value="formattedResult"
+                label="To" :units="availableUnits" :selected-unit="state.toUnit" :read-only="true"
+                :show-copy-button="true" :show-refresh-button="state.activeConverter === 'currency'"
+                @update:selected-unit="setToUnit" @copy="handleCopy" @refresh="handleRefreshRates" />
 
               <!-- Flip button -->
               <div class="absolute top-[45.5%] md:top-[46.5%] md:left-1/2 left-[47%] flex justify-center">
-                <BaseButton v-tippy="{ content: 'Swap units' }" variant="primary" size="icon" class="rounded-full"
-                  @click="flipUnits">
+                <BaseButton v-tippy="{ content: 'Swap units' }" variant="primary" size="icon" class="active:scale-[0.98] transition-transform duration-[400ms] rounded-full"
+                  @click="flipAnimate">
                   <ArrowDownUp class="h-4 w-4" />
                 </BaseButton>
               </div>
@@ -36,7 +37,7 @@
 
           <!-- Right column: Numpad -->
           <div class="flex flex-1 justify-center lg:justify-end">
-            <ConverterNumpad :autoConvert="autoConvert" :disabled="state.isConverting"
+            <ConverterNumpad :converter="state.activeConverter" :autoConvert="autoConvert" :disabled="state.isConverting"
               @button-click="handleNumpadClick" />
           </div>
         </div>
@@ -46,7 +47,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted, onUnmounted } from 'vue'
+import { computed, watch, onMounted, onUnmounted, shallowRef } from 'vue'
 import { ArrowDownUp } from 'lucide-vue-next'
 import { BasePage, BaseButton } from '@components/ui'
 import { ConversionPanel, ConverterNumpad } from '@converter/components'
@@ -57,15 +58,18 @@ import { useConverterOptions, useConverterTypeSwitcher } from '@converter/compos
 import { useKeyboardStore } from '@stores/keyboard'
 import { useClipboard } from '@vueuse/core'
 import { useToast } from '@composables/ui/useToast'
+import { isCurrencyConverter } from '../services/converters/BaseConverter'
 
 defineProps<{
   isMobile?: boolean
 }>()
 
-// Initialize state and controller
 const options = useConverterOptions()
+const isFlipping = shallowRef(false)
+
 const autoConvert = computed(() => options.autoConvert.value)
 const { state, updateState, reset } = useConverterState(options.defaultConverterType.value)
+const formattedResult = computed(() => state.result?.formattedValue || '0')
 const {
   converter,
   availableUnits,
@@ -77,10 +81,8 @@ const {
   setActiveConverter
 } = useConverterController(state, updateState)
 
-// Type switcher for navigation
 const { currentConverterType, updateConverterType } = useConverterTypeSwitcher()
 
-// Services
 const keyboard = useKeyboardStore()
 const { copy } = useClipboard()
 const { error: errorToast, info } = useToast()
@@ -98,10 +100,7 @@ watch(() => state.activeConverter, (newType) => {
   }
 }, { immediate: true })
 
-// Computed properties
-const formattedResult = computed(() => state.result?.formattedValue || '0')
 
-// Event handlers
 const handleCopy = async () => {
   try {
     await copy(formattedResult.value)
@@ -112,18 +111,24 @@ const handleCopy = async () => {
 }
 
 const handleRefreshRates = async () => {
-  if (state.activeConverter === 'currency') {
-    // Force reconvert to refresh rates
-    await convert()
+  if (isCurrencyConverter(converter.value)) {
+    try {
+      await converter.value?.refreshRates?.()
+      info('Rates refreshed!', { title: 'Success' })
+    } catch (error) {
+      errorToast('Failed to refresh rates')
+    }
   }
 }
 
-// Shared input handling logic for both numpad and keyboard
 const handleInput = (input: string) => {
   const currentInput = state.input
   let newInput = currentInput
 
-  if (input === 'backspace') {
+  if (input === '-') {
+    const numericValue = parseFloat(currentInput) || 0
+    newInput = (-numericValue).toString()
+  } else if (input === 'backspace') {
     newInput = currentInput.slice(0, -1) || '0'
   } else if (input === 'clear') {
     newInput = '0'
@@ -140,7 +145,6 @@ const handleInput = (input: string) => {
       newInput = currentInput + input
     }
   } else {
-    // Invalid input, ignore
     return
   }
 
@@ -157,27 +161,17 @@ const handleNumpadClick = (btn: string) => {
   }
 }
 
-// Auto-convert on input change
-if (options.autoConvert.value) {
-  watch(() => state.input, () => {
-    if (state.input.trim()) {
-      // Debounce auto-convert
-      setTimeout(convert, 300)
-    }
-  })
-}
-
 onMounted(async () => {
   keyboard.pushContext('converter')
   keyboard.enableTextInput('converter', /^[0-9.]$/, { preventDefault: false })
 
   keyboard.setInputProxy('converter', (e, payload) => {
     const { key } = payload
-    
+
     const activeElement = document.activeElement
     const isInputFocused = activeElement && (
-      activeElement.tagName === 'INPUT' || 
-      activeElement.tagName === 'TEXTAREA' || 
+      activeElement.tagName === 'INPUT' ||
+      activeElement.tagName === 'TEXTAREA' ||
       (activeElement as HTMLElement).contentEditable === 'true'
     )
 
@@ -202,14 +196,39 @@ onMounted(async () => {
   keyboard.attachAllForContext('converter', {
     Enter: () => convert(),
     Escape: () => reset(),
-    'Ctrl+F': () => flipUnits(),
+    'Ctrl+F': () => flipAnimate(),
     'Ctrl+C': () => handleCopy(),
   })
 
   await convert()
 })
 
+const flipAnimate = () => {
+  isFlipping.value = true
+  flipUnits()
+  setTimeout(() => {
+    isFlipping.value = false
+  }, 300)
+}
+
 onUnmounted(() => {
   keyboard.popContext('converter')
 })
 </script>
+<style lang="css" scoped>
+@keyframes flipScale {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(0.98);
+    opacity: 0.7;
+  }
+}
+
+.flip-scale {
+  animation: flipScale 0.4s ease-in-out;
+}
+</style>

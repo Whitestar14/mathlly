@@ -58,8 +58,7 @@ import { bottlePlastic, bucket, elephant, floppyDisk } from '@lucide/lab'
 import type { ConverterType } from '../types/converter'
 import type { BaseConverter } from '../services/converters/BaseConverter'
 import { useConverterOptions } from '@converter/composables'
-import { useConversionVisualization } from '../composables/useConversionVisualization'
-import type { SupportedType, VisualizationItem } from '../composables/useConversionVisualization'
+import { useConversionVisualization, SupportedTypes, type SupportedType, VisualizationItem } from '../composables/useConversionVisualization'
 
 interface Props {
   converterType: ConverterType
@@ -77,14 +76,13 @@ const { getVisualization } = useConversionVisualization()
  * Raw visualizations from the composable.
  * Composable already enforces caps and fallback rules.
  */
- const supportedTypes: SupportedType[] = ['temperature','length','weight','volume','data','area']
 
 const displayVisualizations = computed<VisualizationItem[]>(() => {
   const numericValue = parseFloat(props.inputValue)
   if (!Number.isFinite(numericValue) || !props.fromUnit || !props.toUnit) return []
   if (numericValue === 0) return []
 
-  if (!supportedTypes.includes(props.converterType as SupportedType)) {
+  if (!SupportedTypes.includes(props.converterType as SupportedType)) {
     return []
   }
 

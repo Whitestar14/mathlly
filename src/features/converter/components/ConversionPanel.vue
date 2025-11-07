@@ -4,7 +4,7 @@
     <BaseInput :model-value="modelValue" :type="'text'" :inputmode="'decimal'" :placeholder="placeholder"
       :disabled="readOnly" :error="error" :auto-select="false" :autofocus="false"
       class="text-4xl md:text-6xl text-right border-0 font-mono"
-      @update:model-value="$emit('update:modelValue', $event as string)" @input="$emit('input')"
+      @update:model-value="$emit('update:modelValue', $event as string)" @input="$emit('input')" @blur="$emit('reset')"
       aria-label="Conversion value" />
 
     <div class="flex flex-row justify-between">
@@ -47,6 +47,7 @@ defineEmits<{
   'update:selectedUnit': [unitId: string]
   'input': []
   'copy': []
+  'reset': []
   'refresh': []
 }>()
 </script>

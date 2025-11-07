@@ -77,6 +77,10 @@ export class CurrencyConverter extends BaseConverter {
         return await this.currencyService.fetchRates(baseCurrency)
     }
 
+    async refreshRates(baseCurrency: string = 'USD'): Promise<void> {
+        return await this.currencyService.refreshRates(baseCurrency)
+    }
+
     getCachedRate(fromCurrency: string, toCurrency: string): number | null {
         return this.currencyService.getCachedRate(fromCurrency, toCurrency)
     }

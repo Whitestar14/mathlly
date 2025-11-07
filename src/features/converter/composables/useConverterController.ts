@@ -1,10 +1,12 @@
 import { ref, watch, computed, type ComputedRef } from 'vue'
+import { watchDebounced } from '@vueuse/core'
 import { ConverterFactory } from '../services/factory/ConverterFactory'
 import { useConverterOptions } from './useConverterOptions'
 import { useDisplayFormatter } from '@calculator/services/display/DisplayFormatter'
 import { ConverterConstants } from '../lib/constants'
 import type { ConverterType, ConversionResult, ConversionUnit } from '../types'
 import type { UseConverterStateReturn } from './useConverterState'
+import { isCssUnitConverter } from '../services/converters/BaseConverter'
 
 export interface UseConverterControllerReturn {
     converter: ComputedRef<import('../services/converters/BaseConverter').BaseConverter | null>
@@ -26,35 +28,38 @@ export function useConverterController(
     const options = useConverterOptions()
     const { formatDecimalNumber } = useDisplayFormatter()
 
+    const hasInput = () => state.input.trim().length > 0
+
     const formatWithPrecision = (value: number, precision: number): string => {
         const fixed = value.toFixed(precision)
-        return fixed.replace(/\.?0+$/, '')
+        return fixed.replace(/(?:\.0+|(\.\d*?[1-9])0+)$/, '$1')
     }
 
-    // Initialize converter and ensure it's imported
-    const createConverter = (type: ConverterType) => {
-        return ConverterFactory.create(type)
-    }
+    const createConverter = (type: ConverterType) => ConverterFactory.create(type)
 
-    // Initialize default units when converter changes
     const initializeConverter = async (type: ConverterType) => {
         converter.value = createConverter(type)
+
         if (converter.value) {
             updateState({
                 fromUnit: converter.value.defaultFromUnit,
                 toUnit: converter.value.defaultToUnit
             })
+
+            if (isCssUnitConverter(converter.value)) {
+                converter.value.setBaseFontSize(options.baseFontSize.value)
+            }
         }
 
-        if (state.input.trim()) await convert()
+        if (hasInput()) await convert()
     }
 
     const convert = async (): Promise<void> => {
-        if (!converter.value) return
+        const conv = converter.value
+        if (!conv) return
 
-        const numericValue = parseFloat(state.input) || 0
-
-        if (!isFinite(numericValue)) {
+        const numericValue = parseFloat(state.input)
+        if (!Number.isFinite(numericValue)) {
             updateState({
                 error: ConverterConstants.ERROR_MESSAGES.INVALID_VALUE,
                 result: null,
@@ -63,10 +68,8 @@ export function useConverterController(
             return
         }
 
-        // Validate units exist
-        const fromUnitObj = converter.value.units.find(u => u.id === state.fromUnit)
-        const toUnitObj = converter.value.units.find(u => u.id === state.toUnit)
-
+        const fromUnitObj = conv.units.find(u => u.id === state.fromUnit)
+        const toUnitObj = conv.units.find(u => u.id === state.toUnit)
         if (!fromUnitObj || !toUnitObj) {
             updateState({
                 error: ConverterConstants.ERROR_MESSAGES.INVALID_UNIT,
@@ -79,15 +82,13 @@ export function useConverterController(
         updateState({ isConverting: true, error: '' })
 
         try {
-            const convertedValue = await converter.value.convert(
-                numericValue,
-                state.fromUnit,
-                state.toUnit
-            )
-
+            const convertedValue = await conv.convert(numericValue, state.fromUnit, state.toUnit)
             const precision = options.precision.value
             const useSeparators = options.showThousandSeparators.value
-            const formattedValue = formatDecimalNumber(formatWithPrecision(convertedValue, precision), useSeparators)
+            const formattedValue = formatDecimalNumber(
+                formatWithPrecision(convertedValue, precision),
+                useSeparators
+            )
 
             const result: ConversionResult = {
                 value: convertedValue,
@@ -111,53 +112,60 @@ export function useConverterController(
         initializeConverter(newType)
     }, { immediate: true })
 
-    watch(() => options.precision.value, async () => {
-        if (state.input.trim() && state.result && !state.isConverting) {
+    watch(options.precision, async () => {
+        if (hasInput() && state.result && !state.isConverting) {
             await convert()
         }
     })
 
-    watch(() => options.baseFontSize.value, (newSize) => {
-        if (converter.value && 'setBaseFontSize' in converter.value) {
-            (converter.value as any).setBaseFontSize(newSize)
-            if (state.input.trim() && state.result && !state.isConverting) {
-                convert()
+    watch(options.baseFontSize, async (newSize) => {
+        const conv = converter.value
+        if (conv && state.activeConverter === 'css-units' && isCssUnitConverter(conv)) {
+            conv.setBaseFontSize(newSize)
+            if (hasInput() && state.result && !state.isConverting) {
+                await convert()
             }
         }
     }, { immediate: true })
 
-    const availableUnits = computed(() => converter.value?.units || [])
+    watchDebounced(
+        [options.autoConvert, () => state.input],
+        async ([autoConvertEnabled, input]) => {
+            if (!converter.value) return
+            if (autoConvertEnabled && input.trim()) await convert()
+        },
+        { debounce: 300, immediate: true }
+    )
+
+    const availableUnits = computed(() => converter.value?.units ?? [])
     const availableTypes = ConverterFactory.getAvailableTypes()
 
-    // Unit management
     const setFromUnit = async (unitId: string): Promise<void> => {
-        if (availableUnits.value.find(u => u.id === unitId)) {
+        if (availableUnits.value.some(u => u.id === unitId)) {
             updateState({ fromUnit: unitId })
-            if (state.input.trim()) {
-                await convert()
-            }
+            if (hasInput()) await convert()
         }
     }
 
     const setToUnit = async (unitId: string): Promise<void> => {
-        if (availableUnits.value.find(u => u.id === unitId)) {
+        if (availableUnits.value.some(u => u.id === unitId)) {
             updateState({ toUnit: unitId })
-            if (state.input.trim()) {
-                await convert()
-            }
+            if (hasInput()) await convert()
         }
     }
 
     const flipUnits = (): void => {
-        const temp = state.fromUnit
         updateState({
             fromUnit: state.toUnit,
-            toUnit: temp
+            toUnit: state.fromUnit
         })
 
-        // Swap input/output values if there's a result
         if (state.result && options.swapUnitsOnFlip.value) {
             updateState({ input: state.result.formattedValue })
+        }
+
+        if (hasInput()) {
+            void convert()
         }
     }
 

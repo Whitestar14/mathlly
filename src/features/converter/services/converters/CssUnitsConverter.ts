@@ -114,7 +114,6 @@ export class CssUnitsConverter extends BaseConverter {
             return this.convertRelativeUnits(value, fromUnit, toUnit)
         }
 
-        // Both units are absolute, use Math.js
         const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
         const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
 
@@ -123,11 +122,9 @@ export class CssUnitsConverter extends BaseConverter {
     }
 
     private convertRelativeUnits(value: number, fromUnit: string, toUnit: string): number {
-        // Convert to pixels first
         const toPixelsFactor = this.toPixelsFactors[fromUnit]
         const pixels = toPixelsFactor ? value * toPixelsFactor() : value
 
-        // Convert from pixels to target unit
         const fromPixelsFactor = this.toPixelsFactors[toUnit]
         return fromPixelsFactor ? pixels / fromPixelsFactor() : pixels
     }
