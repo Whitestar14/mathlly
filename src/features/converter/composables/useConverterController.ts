@@ -37,7 +37,7 @@ export function useConverterController(
     }
 
     // Initialize default units when converter changes
-    const initializeConverter = (type: ConverterType) => {
+    const initializeConverter = async (type: ConverterType) => {
         converter.value = createConverter(type)
         if (converter.value) {
             updateState({
@@ -45,6 +45,8 @@ export function useConverterController(
                 toUnit: converter.value.defaultToUnit
             })
         }
+
+        if (state.input.trim()) await convert()
     }
 
     watch(() => state.activeConverter, (newType) => {

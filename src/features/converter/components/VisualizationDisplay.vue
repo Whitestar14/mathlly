@@ -1,17 +1,78 @@
 <template>
   <Transition name="fade" mode="out-in">
-    <div v-if="enableVisualizations && visualizations && visualizations.length > 0" class="flex flex-initial flex-row gap-2">
-      <div
-        v-for="(visualization, index) in visualizations"
-        :key="index"
-        class="flex items-center gap-2 text-xs leading-tight text-muted-foreground bg-muted/20 rounded"
-        :aria-label="'Conversion visualization ' + (index + 1)"
-        :title="'Conversion visualization: ' + visualization">
-        <component :is="iconComponent" class="h-4 w-4 flex-shrink-0" />
-        <span class="flex-1">
-          <span v-if="getMultiplier(visualization)" class="font-bold font-mono">{{ getMultiplier(visualization) }}</span> {{ getRest(visualization) }}
-        </span>
+    <div
+      v-if="enableVisualizations && displayVisualizations.length > 0"
+      class="visualization-container"
+    >
+      <div class="text-xs text-muted-foreground mb-1">
+        roughly equal to:
       </div>
+
+      <div class="flex flex-wrap items-center gap-3 text-xs leading-tight text-muted-foreground">
+        <div
+          v-for="(viz, index) in displayVisualizations"
+          :key="index"
+          class="flex items-center gap-1"
+        >
+          <!-- Reference icon -->
+          <template v-if="viz.type === 'reference'">
+            <component
+              v-if="getIconData(viz.key).type === 'regular'"
+              :is="getIconData(viz.key).data"
+              class="size-4 flex-shrink-0"
+              aria-hidden="true"
+            />
+            <Icon
+              v-else
+              name="Elephant"
+              :iconNode="getIconData(viz.key).data"
+              class="size-4 flex-shrink-0"
+              aria-hidden="true"
+            />
+          </template>
+
+          <!-- Scientific visualization -->
+          <template v-if="viz.type === 'scientific'">
+            <span class="font-mono font-semibold text-foreground">
+              {{ viz.formattedValue }}
+            </span>
+            <span v-if="viz.prefix" class="font-mono text-muted-foreground/80">
+              {{ viz.prefix }}
+            </span>
+            <span class="font-mono text-muted-foreground/90">
+              {{ viz.unit }}
+            </span>
+          </template>
+
+          <!-- Reference visualization -->
+          <template v-else>
+            <span
+              v-if="viz.formattedValue !== '≈'"
+              class="font-mono font-semibold text-foreground"
+            >
+              {{ viz.formattedValue }}
+            </span>
+            <span
+              v-if="viz.prefix"
+              class="font-mono text-muted-foreground/80"
+            >
+              {{ viz.prefix }}
+            </span>
+            <span class="text-muted-foreground/90">
+              {{ viz.label }}
+            </span>
+          </template>
+
+          <span
+            v-if="index < displayVisualizations.length - 1"
+            class="text-muted-foreground/50 mx-1"
+          >
+            •
+          </span>
+        </div>
+      </div>
+
+      <!-- Currency update timestamp -->
       <div v-if="showLastUpdate && lastUpdateTime" class="mt-1 text-xs text-muted-foreground/70">
         <Clock class="h-3 w-3 inline mr-1" />
         Rates updated: {{ lastUpdateTime }}
@@ -22,48 +83,107 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Info, Thermometer, Ruler, Weight, Code, Clock } from 'lucide-vue-next'
+import { 
+  Icon,
+  Thermometer, Dot, Paperclip, Map, Ruler, Clock, Info,
+  Snowflake, PersonStanding, Car, Building,
+  Mountain, Target, Waves, Globe2,
+  Apple, Backpack, Cat, Dog, Piano, Fish, Plane, Rocket, Bomb,
+  CloudLightning, SunDim, House
+} from 'lucide-vue-next'
+import { elephant } from '@lucide/lab'
 import type { ConverterType } from '../types/converter'
 import type { BaseConverter } from '../services/converters/BaseConverter'
 import { useConverterOptions } from '@converter/composables'
+import { useConversionVisualization } from '../composables/useConversionVisualization'
+import type { VisualizationItem } from '../composables/useConversionVisualization'
 
 interface Props {
-  visualizations: string[] | undefined
   converterType: ConverterType
   converter: BaseConverter | null
+  inputValue: string
+  fromUnit: string
+  toUnit: string
 }
 
 const props = defineProps<Props>()
 const { enableVisualizations } = useConverterOptions()
 
-const getMultiplier = (visualization: string): string => {
-  const match = visualization.match(/^([\d.]+×)/)
-  return match ? match[1] : ''
-}
+const { getVisualization } = useConversionVisualization()
 
-const getRest = (visualization: string): string => {
-  return visualization.replace(/^[\d.]+×\s*/, '')
-}
-
-const iconComponent = computed(() => {
-  switch (props.converterType) {
-    case 'temperature':
-      return Thermometer
-    case 'length':
-      return Ruler
-    case 'weight':
-      return Weight
-    case 'css-units':
-      return Code
-    default:
-      return Info
-  }
+const displayVisualizations = computed<VisualizationItem[]>(() => {
+  const numericValue = parseFloat(props.inputValue)
+  if (!Number.isFinite(numericValue) || !props.fromUnit || !props.toUnit) return []
+  if (numericValue === 0) return []
+  return getVisualization(numericValue, props.fromUnit, props.toUnit, props.converterType) || []
 })
 
+// Regular lucide-vue-next icons
+const ICON_MAP: Record<string, any> = {
+  // Temperature
+  'antarctic-winter': Snowflake,
+  'freezing-cold': Snowflake,
+  'freezing-point-of-water': Snowflake,
+  'room-temperature': House,
+  'body-temperature': PersonStanding,
+  'boiling-point-of-water': Thermometer,
+  'oven-temperature': Thermometer,
+  'suns-surface': SunDim,
+  'lightning-bolt': CloudLightning,
+  'nuclear-fusion': Bomb,
+
+  // Length
+  'grain-of-sand': Dot,
+  'sheet-of-paper': Paperclip,
+  'pencil-length': Ruler,
+  'ruler-length': Ruler,
+  'human-height': PersonStanding,
+  'car-length': Car,
+  'school-bus': Car,
+  'football-field': Target,
+  'skyscraper': Building,
+  'mountain': Mountain,
+  'large-lake': Waves,
+  'country': Map,
+  'continent': Map,
+  'earth-diameter': Globe2,
+
+  // Weight
+  'grain-of-rice': Ruler,
+  'apple': Apple,
+  'watermelon': Apple,
+  'bag-of-sugar': Backpack,
+  'house-cat': Cat,
+  'medium-dog': Dog,
+  'adult-human': PersonStanding,
+  'grand-piano': Piano,
+  'small-car': Car,
+  'blue-whale': Fish,
+  'boeing-747': Plane,
+  'space-shuttle': Rocket
+}
+
+
+const LAB_ICON_MAP: Record<string, any> = {
+  'elephant': elephant
+}
+
+const isLabIcon = (key: string): boolean => {
+  return key in LAB_ICON_MAP
+}
+
+const getIconData = (key: string) => {
+  if (isLabIcon(key)) {
+    return { type: 'lab', data: LAB_ICON_MAP[key] }
+  }
+  return { type: 'regular', data: ICON_MAP[key] || Info }
+}
+
+// Currency update tracking
 const lastUpdateTimestamp = ref<number | null>(null)
 
 const showLastUpdate = computed(() => {
-  return props.converterType === 'currency' && props.visualizations && props.visualizations.length > 0
+  return props.converterType === 'currency' && displayVisualizations.value.length > 0
 })
 
 const lastUpdateTime = computed(() => {
@@ -73,7 +193,7 @@ const lastUpdateTime = computed(() => {
 
 watch(() => props.converter, (newConverter) => {
   if (newConverter && 'getLastUpdate' in newConverter) {
-    lastUpdateTimestamp.value = newConverter.getLastUpdate()
+    lastUpdateTimestamp.value = (newConverter as any).getLastUpdate()
   } else {
     lastUpdateTimestamp.value = null
   }
@@ -81,6 +201,10 @@ watch(() => props.converter, (newConverter) => {
 </script>
 
 <style scoped>
+.visualization-container {
+  @apply flex flex-col gap-1;
+}
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s ease;

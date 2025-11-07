@@ -47,7 +47,13 @@
             </div>
             <div class="flex-initial max-h-10 h-10">
               <!-- Add visualization display here -->
-              <VisualizationDisplay :visualizations="visualizations" :converter-type="state.activeConverter" :converter="converter" />
+              <VisualizationDisplay 
+                :converter-type="state.activeConverter" 
+                :converter="converter"
+                :input-value="state.input"
+                :from-unit="state.fromUnit"
+                :to-unit="state.toUnit"
+              />
               <div v-show="state.activeConverter === 'currency'" class="text-xs text-muted-foreground text-center mt-1">
                 Exchange rates powered by <a href="https://open.er-api.com" target="_blank" class="underline hover:no-underline">exchangerate-api.com</a>
               </div>
@@ -80,7 +86,6 @@ import { useConverterOptions, useConverterTypeSwitcher } from '@converter/compos
 import { useKeyboardStore } from '@stores/keyboard'
 import { useClipboard } from '@vueuse/core'
 import { useToast } from '@composables/ui/useToast'
-import { ConverterType } from '../types'
 
 defineProps<{
   isMobile?: boolean
@@ -92,8 +97,7 @@ const autoConvert = computed(() => options.autoConvert.value)
 const { state, updateState, reset } = useConverterState(options.defaultConverterType.value)
 const { 
   converter,
-  availableUnits, 
-  availableTypes, 
+  availableUnits,
   convert, 
   setFromUnit, 
   setToUnit, 
@@ -122,12 +126,6 @@ watch(() => state.activeConverter, (newType) => {
 
 // Computed properties
 const formattedResult = computed(() => state.result?.formattedValue || '0')
-
-// Handle visualizations (keep existing logic or implement if needed)
-const visualizations = computed(() => {
-  // TODO: Implement visualization logic
-  return []
-})
 
 // Event handlers
 const handleCopy = async () => {
@@ -181,7 +179,7 @@ if (options.autoConvert.value) {
 }
 
 // Keyboard shortcuts
-onMounted(() => {
+onMounted(async () => {
   keyboard.pushContext('converter')
   
   keyboard.attachAllForContext('converter', {
@@ -189,6 +187,8 @@ onMounted(() => {
     Escape: () => reset(),
     Backspace: () => handleNumpadClick('backspace')
   })
+
+    await convert()
 })
 
 onUnmounted(() => {
