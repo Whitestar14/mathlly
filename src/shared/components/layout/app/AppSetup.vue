@@ -86,7 +86,7 @@ const settings = useSettingsStore()
 const keyboard = useKeyboardStore()
 const { toggleTheme } = useTheme()
 
-;[globalManifest, calculatorManifest, base64Manifest, colorManifest, converterManifest].flat().forEach(cfg => keyboard.register(cfg))
+;[globalManifest, calculatorManifest, converterManifest, base64Manifest, colorManifest].flat().forEach(cfg => keyboard.register(cfg))
 
 onMounted(() => {
   keyboard.attachListener()

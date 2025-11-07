@@ -49,28 +49,6 @@ export function useConverterController(
         if (state.input.trim()) await convert()
     }
 
-    watch(() => state.activeConverter, (newType) => {
-        initializeConverter(newType)
-    }, { immediate: true })
-
-    watch(() => options.precision.value, async () => {
-        if (state.input.trim() && state.result && !state.isConverting) {
-            await convert()
-        }
-    })
-
-    watch(() => options.baseFontSize.value, (newSize) => {
-        if (converter.value && 'setBaseFontSize' in converter.value) {
-            (converter.value as any).setBaseFontSize(newSize)
-            if (state.input.trim() && state.result && !state.isConverting) {
-                convert()
-            }
-        }
-    }, { immediate: true })
-
-    const availableUnits = computed(() => converter.value?.units || [])
-    const availableTypes = ConverterFactory.getAvailableTypes()
-
     const convert = async (): Promise<void> => {
         if (!converter.value) return
 
@@ -128,6 +106,28 @@ export function useConverterController(
             updateState({ isConverting: false })
         }
     }
+
+    watch(() => state.activeConverter, (newType) => {
+        initializeConverter(newType)
+    }, { immediate: true })
+
+    watch(() => options.precision.value, async () => {
+        if (state.input.trim() && state.result && !state.isConverting) {
+            await convert()
+        }
+    })
+
+    watch(() => options.baseFontSize.value, (newSize) => {
+        if (converter.value && 'setBaseFontSize' in converter.value) {
+            (converter.value as any).setBaseFontSize(newSize)
+            if (state.input.trim() && state.result && !state.isConverting) {
+                convert()
+            }
+        }
+    }, { immediate: true })
+
+    const availableUnits = computed(() => converter.value?.units || [])
+    const availableTypes = ConverterFactory.getAvailableTypes()
 
     // Unit management
     const setFromUnit = async (unitId: string): Promise<void> => {

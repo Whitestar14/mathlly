@@ -6,67 +6,38 @@
           <!-- Left column: Conversion panels -->
           <div class="flex flex-col gap-1">
             <div class="relative flex flex-1 flex-col gap-2">
-              <ConversionPanel 
-                class="font-bold" 
-                :model-value="state.input" 
-                label="From" 
-                :units="availableUnits" 
-                :selected-unit="state.fromUnit" 
-                :read-only="false" 
-                :error="state.error" 
-                @update:model-value="setInput"
-                @update:selected-unit="setFromUnit" 
-              />
+              <ConversionPanel class="font-bold" :model-value="state.input" label="From" :units="availableUnits"
+                :selected-unit="state.fromUnit" :read-only="false" :error="state.error" @update:model-value="setInput"
+                @update:selected-unit="setFromUnit" />
 
-              <ConversionPanel 
-                class="font-thin" 
-                :model-value="formattedResult" 
-                label="To" 
-                :units="availableUnits" 
-                :selected-unit="state.toUnit" 
-                :read-only="true" 
-                :show-copy-button="true" 
-                :show-refresh-button="state.activeConverter === 'currency'"
-                @update:selected-unit="setToUnit" 
-                @copy="handleCopy" 
-                @refresh="handleRefreshRates" 
-              />
+              <ConversionPanel class="font-thin" :model-value="formattedResult" label="To" :units="availableUnits"
+                :selected-unit="state.toUnit" :read-only="true" :show-copy-button="true"
+                :show-refresh-button="state.activeConverter === 'currency'" @update:selected-unit="setToUnit"
+                @copy="handleCopy" @refresh="handleRefreshRates" />
 
               <!-- Flip button -->
               <div class="absolute top-[45.5%] md:top-[46.5%] md:left-1/2 left-[47%] flex justify-center">
-                <BaseButton 
-                  v-tippy="{ content: 'Swap units' }" 
-                  variant="primary" 
-                  size="icon" 
-                  class="rounded-full"
-                  @click="flipUnits"
-                >
+                <BaseButton v-tippy="{ content: 'Swap units' }" variant="primary" size="icon" class="rounded-full"
+                  @click="flipUnits">
                   <ArrowDownUp class="h-4 w-4" />
                 </BaseButton>
               </div>
             </div>
             <div class="flex-initial max-h-10 h-10">
               <!-- Add visualization display here -->
-              <VisualizationDisplay 
-                :converter-type="state.activeConverter" 
-                :converter="converter"
-                :input-value="state.input"
-                :from-unit="state.fromUnit"
-                :to-unit="state.toUnit"
-              />
+              <VisualizationDisplay :converter-type="state.activeConverter" :converter="converter"
+                :input-value="state.input" :from-unit="state.fromUnit" :to-unit="state.toUnit" />
               <div v-show="state.activeConverter === 'currency'" class="text-xs text-muted-foreground text-center mt-1">
-                Exchange rates powered by <a href="https://open.er-api.com" target="_blank" class="underline hover:no-underline">exchangerate-api.com</a>
+                Exchange rates powered by <a href="https://open.er-api.com" target="_blank"
+                  class="underline hover:no-underline">exchangerate-api.com</a>
               </div>
             </div>
           </div>
 
           <!-- Right column: Numpad -->
           <div class="flex flex-1 justify-center lg:justify-end">
-            <ConverterNumpad 
-              :autoConvert="autoConvert" 
-              :disabled="state.isConverting" 
-              @button-click="handleNumpadClick" 
-            />
+            <ConverterNumpad :autoConvert="autoConvert" :disabled="state.isConverting"
+              @button-click="handleNumpadClick" />
           </div>
         </div>
       </div>
@@ -95,15 +66,15 @@ defineProps<{
 const options = useConverterOptions()
 const autoConvert = computed(() => options.autoConvert.value)
 const { state, updateState, reset } = useConverterState(options.defaultConverterType.value)
-const { 
+const {
   converter,
   availableUnits,
-  convert, 
-  setFromUnit, 
-  setToUnit, 
-  flipUnits, 
-  setInput, 
-  setActiveConverter 
+  convert,
+  setFromUnit,
+  setToUnit,
+  flipUnits,
+  setInput,
+  setActiveConverter
 } = useConverterController(state, updateState)
 
 // Type switcher for navigation
@@ -131,7 +102,7 @@ const formattedResult = computed(() => state.result?.formattedValue || '0')
 const handleCopy = async () => {
   try {
     await copy(formattedResult.value)
-    info(formattedResult.value, { title: 'Copied to clipboard'})
+    info(formattedResult.value, { title: 'Copied to clipboard' })
   } catch (error) {
     errorToast('Failed to copy')
   }
@@ -144,27 +115,42 @@ const handleRefreshRates = async () => {
   }
 }
 
+// Shared input handling logic for both numpad and keyboard
+const handleInput = (input: string) => {
+  const currentInput = state.input
+  let newInput = currentInput
+
+  if (input === 'backspace') {
+    newInput = currentInput.slice(0, -1) || '0'
+  } else if (input === 'clear') {
+    newInput = '0'
+  } else if (input === '.' && !currentInput.includes('.')) {
+    if (currentInput === '0') {
+      newInput = '0.'
+    } else {
+      newInput = currentInput + input
+    }
+  } else if (/^[0-9]$/.test(input)) {
+    if (currentInput === '0') {
+      newInput = input
+    } else {
+      newInput = currentInput + input
+    }
+  } else {
+    // Invalid input, ignore
+    return
+  }
+
+  setInput(newInput)
+}
+
 const handleNumpadClick = (btn: string) => {
   if (btn === 'CE') {
     reset()
   } else if (btn === '=') {
     convert()
   } else {
-    // Handle number input
-    const currentInput = state.input
-    let newInput = currentInput
-
-    if (btn === 'backspace') {
-      newInput = currentInput.slice(0, -1) || '0'
-    } else if (btn === '.' && !currentInput.includes('.')) {
-      newInput = currentInput + btn
-    } else if (btn === '0' && currentInput === '0') {
-      // Don't add leading zeros
-    } else if (/^\d$/.test(btn)) {
-      newInput = currentInput === '0' ? btn : currentInput + btn
-    }
-
-    setInput(newInput)
+    handleInput(btn)
   }
 }
 
@@ -178,17 +164,46 @@ if (options.autoConvert.value) {
   })
 }
 
-// Keyboard shortcuts
 onMounted(async () => {
   keyboard.pushContext('converter')
-  
+  keyboard.enableTextInput('converter', /^[0-9.]$/, { preventDefault: false })
+
+  keyboard.setInputProxy('converter', (e, payload) => {
+    const { key } = payload
+    
+    const activeElement = document.activeElement
+    const isInputFocused = activeElement && (
+      activeElement.tagName === 'INPUT' || 
+      activeElement.tagName === 'TEXTAREA' || 
+      (activeElement as HTMLElement).contentEditable === 'true'
+    )
+
+    if (isInputFocused) {
+      return false
+    }
+
+    if (key === 'Backspace') {
+      handleInput('backspace')
+      return true
+    } else if (key === 'Delete') {
+      handleInput('clear')
+      return true
+    } else if (/^[0-9.]$/.test(key)) {
+      handleInput(key)
+      return true
+    }
+
+    return false
+  })
+
   keyboard.attachAllForContext('converter', {
     Enter: () => convert(),
     Escape: () => reset(),
-    Backspace: () => handleNumpadClick('backspace')
+    'Ctrl+F': () => flipUnits(),
+    'Ctrl+C': () => handleCopy(),
   })
 
-    await convert()
+  await convert()
 })
 
 onUnmounted(() => {
