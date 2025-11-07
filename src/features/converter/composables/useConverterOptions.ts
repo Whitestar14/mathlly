@@ -10,7 +10,8 @@ const DEFAULT_CONVERTER_OPTIONS: ConverterOptions = {
   showUnitAbbreviations: false,
   enableVisualizations: true,
   baseFontSize: ConverterConstants.DEFAULT_BASE_FONT_SIZE,
-  swapUnitsOnFlip: true
+  swapUnitsOnFlip: true,
+  showThousandSeparators: true
 }
 
 export function useConverterOptions() {
@@ -88,6 +89,14 @@ export function useConverterOptions() {
         type: 'toggle',
         value: options,
         section: 'Behavior'
+      },
+      {
+        id: 'showThousandSeparators',
+        label: 'Show Thousand Separators',
+        description: 'Display commas in large numbers (e.g., 1,234.56 vs 1234.56)',
+        type: 'toggle',
+        value: options,
+        section: 'Display'
       }
     ]
   )
@@ -101,6 +110,7 @@ export function useConverterOptions() {
     enableVisualizations: computed(() => options.value.enableVisualizations),
     baseFontSize: computed(() => options.value.baseFontSize),
     swapUnitsOnFlip: computed(() => options.value.swapUnitsOnFlip),
+    showThousandSeparators: computed(() => options.value.showThousandSeparators),
     isLoading
   }
 }

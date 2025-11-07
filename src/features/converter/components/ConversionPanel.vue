@@ -22,16 +22,11 @@
         </BaseButton>
       </div>
     </div>
-
-    <div v-if="error" class="flex items-center text-destructive text-sm">
-      <AlertCircle class="h-4 w-4 mr-1" />
-      {{ error }}
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { AlertCircle, Copy, RotateCcw } from 'lucide-vue-next'
+import { Copy, RotateCcw } from 'lucide-vue-next'
 import { BaseInput, BaseButton } from '@components/ui'
 import UnitSelector from './UnitSelector.vue'
 import type { ConversionUnit } from '../types/converter'

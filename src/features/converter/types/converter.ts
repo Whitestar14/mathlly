@@ -52,6 +52,7 @@ export interface ConverterOptions {
   enableVisualizations: boolean
   baseFontSize: number
   swapUnitsOnFlip: boolean
+  showThousandSeparators: boolean
 }
 
 /**

@@ -5,7 +5,7 @@
     :options="selectOptions"
     :placeholder="placeholder"
     :disabled="disabled"
-    class="max-w-32"
+    class="max-w-48"
     @update:model-value="$emit('update:selectedUnit', $event)"
   />
 </template>
@@ -32,9 +32,10 @@ const { showUnitAbbreviations } = useConverterOptions()
 const selectOptions = computed(() =>
   props.units.map(unit => ({
     value: unit.id,
-    label: showUnitAbbreviations.value
-      ? unit.symbol
-      : unit.name
+    label:
+       showUnitAbbreviations.value
+        ? unit.symbol
+        : `${unit.name} (${unit.symbol})`
   }))
 )
 </script>

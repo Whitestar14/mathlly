@@ -106,7 +106,8 @@ export function useConverterController(
             )
 
             const precision = options.precision.value
-            const formattedValue = formatDecimalNumber(formatWithPrecision(convertedValue, precision), true)
+            const useSeparators = options.showThousandSeparators.value
+            const formattedValue = formatDecimalNumber(formatWithPrecision(convertedValue, precision), useSeparators)
 
             const result: ConversionResult = {
                 value: convertedValue,

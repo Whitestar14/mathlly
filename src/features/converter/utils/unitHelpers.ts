@@ -65,31 +65,47 @@ export function getMathJsUnitName(unitId: string, converterType: ConverterType):
       rankine: 'degR'
     },
     length: {
+      // SI Units
       meter: 'm',
+      kilometer: 'km',
       centimeter: 'cm',
       millimeter: 'mm',
-      kilometer: 'km',
-      foot: 'ft',
-      yard: 'yard',
+      micrometer: 'micrometer',
+      nanometer: 'nanometer',
+
+      // Imperial/US Units
       mile: 'mile',
-      inch: 'inch'
+      yard: 'yard',
+      foot: 'ft',
+      inch: 'inch',
+      'nautical-mile': 'nauticalmile'
+
     },
     weight: {
+      // SI Units
       kilogram: 'kg',
       gram: 'g',
       milligram: 'mg',
+      microgram: 'microgram',
+      'metric-ton': 'tonne',
+
+      // Imperial/US Units
       pound: 'lb',
-      ounce: 'oz',
-      ton: 'ton',
-      tonne: 'tonne'
+      ounce: 'oz'
+
     },
     'css-units': {
       px: 'px',
       pt: 'csspt',
       cm: 'cm',
       mm: 'mm',
-      in: 'inch'
-    }
+      in: 'inch',
+      rem: 'rem',
+      em: 'em',
+      vh: 'vh',
+      vw: 'vw'
+    },
+    currency: {}
   }
 
   const typeMappings = mappings[converterType]
