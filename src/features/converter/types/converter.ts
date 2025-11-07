@@ -12,7 +12,6 @@ export interface ConversionResult {
   formattedValue: string
   fromUnit: ConversionUnit
   toUnit: ConversionUnit
-  visualizations?: string[]
   error?: string
 }
 
