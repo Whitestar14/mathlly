@@ -24,7 +24,7 @@ export interface ConverterConfig {
   defaultToUnit: string
   icon?: string
   useMathJs: boolean
-  customConverter?: Function
+  customConversions?: Record<string, number>
 }
 
 export interface ConverterOptions {

@@ -21,7 +21,7 @@ export class BaseCurrencyService implements ExternalConverterService {
         baseUrl: 'https://open.er-api.com/v6',
         options: {
           timeout: 10000,
-          onFetchError: (ctx) => {
+          onFetchError: ctx => {
             if (ctx.error?.name === 'AbortError') {
               ctx.error = new Error('Request timed out. Please check your internet connection and try again, or reload the page.')
             } else if (ctx.error?.message.includes('Failed to fetch') || ctx.error?.message.includes('NetworkError')) {
@@ -42,7 +42,6 @@ export class BaseCurrencyService implements ExternalConverterService {
         throw error.value
       }
 
-      // Validate response structure
       if (!data.value || !data.value.rates || typeof data.value.rates !== 'object') {
         throw new Error('Invalid response from exchange rate service. Please try again later.')
       }
@@ -58,7 +57,7 @@ export class BaseCurrencyService implements ExternalConverterService {
       this.lastFetchTime.set(baseCurrency, now)
 
       return rates
-    } catch (error) {
+    } catch(error) {
       if (cached) {
         console.warn('Using stale exchange rates due to network error:', error)
         return cached

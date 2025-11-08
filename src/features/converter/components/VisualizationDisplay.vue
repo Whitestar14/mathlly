@@ -5,7 +5,7 @@
 
       <div class="flex flex-wrap items-center gap-3 text-xs leading-tight text-muted-foreground">
         <div v-for="(viz, index) in displayVisualizations" :key="index" class="flex items-center gap-1">
-          <!-- Reference icon -->
+
           <template v-if="viz.type === 'reference'">
             <component
               :is="getIconData(viz.key).data"
@@ -20,28 +20,24 @@
               aria-hidden="true" />
           </template>
 
-          <!-- Scientific visualization -->
           <template v-if="viz.type === 'scientific'">
             <span class="font-mono font-semibold text-foreground">{{ viz.formattedValue }}</span>
             <span v-if="viz.prefix" class="font-mono text-muted-foreground/80">{{ viz.prefix }}</span>
             <span class="font-mono text-muted-foreground/90">{{ viz.unit }}</span>
           </template>
 
-          <!-- Reference visualization -->
           <template v-else>
-            <!-- Show ≈ marker when composable emits it; otherwise show numeric -->
+
             <span v-if="viz.formattedValue === '≈'" class="font-mono font-semibold text-foreground">≈</span>
             <span v-else-if="viz.formattedValue" class="font-mono font-semibold text-foreground">{{ viz.formattedValue }}</span>
             <span v-if="viz.prefix" class="font-mono text-muted-foreground/80">{{ viz.prefix }}</span>
             <span class="text-muted-foreground/90">{{ viz.label }}</span>
           </template>
 
-          <!-- Separator -->
           <span v-if="index < displayVisualizations.length - 1" class="text-muted-foreground/50 mx-1"> • </span>
         </div>
       </div>
 
-      <!-- Currency update timestamp -->
       <div v-if="showLastUpdate && lastUpdateTime" class="mt-1 text-xs text-muted-foreground/70">
         <Clock class="h-3 w-3 inline mr-1" /> Rates updated: {{ lastUpdateTime }}
       </div>
@@ -92,9 +88,8 @@ const displayVisualizations = computed<VisualizationItem[]>(() => {
   ) || []
 })
 
-// Regular lucide-vue-next icons
 const ICON_MAP: Record<string, any> = {
-  // Temperature
+
   'antarctic-winter': Snowflake,
   'freezing-cold': Snowflake,
   'freezing-point-of-water': Snowflake,
@@ -106,7 +101,6 @@ const ICON_MAP: Record<string, any> = {
   'lightning-bolt': CloudLightning,
   'nuclear-fusion': Bomb,
 
-  // Length
   'grain-of-sand': Dot,
   'sheet-of-paper': Paperclip,
   'pencil-length': Ruler,
@@ -121,7 +115,7 @@ const ICON_MAP: Record<string, any> = {
   'country': Map,
   'continent': Map,
   'earth-diameter': Globe2,
-  // Weight
+
   'grain-of-rice': Ruler,
   'apple': Apple,
   'watermelon': Apple,
@@ -136,7 +130,6 @@ const ICON_MAP: Record<string, any> = {
   'boeing-747': Plane,
   'space-shuttle': Rocket,
 
-  // Volume
   'drop-of-water': Droplet,
   'teaspoon': SoupIcon,
   'tablespoon': SoupIcon,
@@ -149,13 +142,11 @@ const ICON_MAP: Record<string, any> = {
   'great-lake': Waves,
   'ocean': Globe2,
 
-  // Data
   'ssd': HardDrive,
   'internet-archive': Globe,
   'blu-ray': Disc,
   'dvd': Disc,
 
-  // Energy
   'slice-of-bread': Apple,
   'banana': Apple,
   'peanut-butter-sandwich': Apple,
@@ -164,7 +155,6 @@ const ICON_MAP: Record<string, any> = {
   'daily-food-intake': Apple,
   'electronvolt': Zap,
 
-  // Speed
   'walking-speed': PersonStanding,
   'jogging-speed': PersonStanding,
   'cycling-speed': PersonStanding,
@@ -187,7 +177,6 @@ const getIconData = (key: string) => {
   return { type: 'regular', data: ICON_MAP[key] || Info }
 }
 
-// Currency update tracking
 const lastUpdateTimestamp = ref<number | null>(null)
 const showLastUpdate = computed(() => props.converterType === 'currency' && displayVisualizations.value.length > 0)
 const lastUpdateTime = computed(() => lastUpdateTimestamp.value ? new Date(lastUpdateTimestamp.value).toLocaleString() : null)

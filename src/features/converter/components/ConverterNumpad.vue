@@ -3,9 +3,9 @@
     <template v-for="(row, rowIndex) in numpadRows" :key="rowIndex">
       <template v-for="(btn, btnIndex) in row" :key="btnIndex">
         <div v-if="!btn" class="invisible"></div>
-        <ConverterButton v-else :variant="btn.variant" :disabled="disabled" :icon="btn.icon" :value="btn.value"
-          @click="handleClick(btn.value)">
-        </ConverterButton>
+        <ConverterButton
+          v-else :variant="btn.variant" :disabled="disabled" :icon="btn.icon" :value="btn.value"
+          @click="handleClick(btn.value)" />
       </template>
     </template>
   </div>
@@ -13,7 +13,7 @@
 
 <script setup>
 import { markRaw, computed } from 'vue'
-import { Delete, Calculator } from 'lucide-vue-next'
+import { Delete } from 'lucide-vue-next'
 import ConverterButton from './ConverterButton.vue'
 
 const props = defineProps({
@@ -53,9 +53,9 @@ const staticRows = markRaw([
 
 const firstRow = computed(() =>
   [
-    props.converter === 'temperature'
-      ? { value: '-', variant: 'function' }
-      : null,
+    props.converter === 'temperature' ?
+      { value: '-', variant: 'function' } :
+      null,
     { value: 'CE', variant: 'function' },
     { value: 'backspace', variant: 'function', icon: Delete }
   ]
@@ -68,12 +68,12 @@ const lastRow = computed(() => !props.autoConvert ? [
 ] : [
   null,
   { value: '0', variant: 'number' },
-  { value: '.', variant: 'number' },
+  { value: '.', variant: 'number' }
 ])
 
 const numpadRows = computed(() => [firstRow.value, ...staticRows, lastRow.value])
 
-const handleClick = (value) => {
+const handleClick = value => {
   emit('button-click', value)
 }
 </script>

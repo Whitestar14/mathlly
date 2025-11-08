@@ -65,7 +65,7 @@ export const useAppStorageStore = defineStore('appStorage', () => {
     try {
       const stored = localStorage.getItem(BLOB_KEY)
       blob.value = stored ? JSON.parse(stored) : {}
-    } catch (err) {
+    } catch(err) {
       console.warn('Failed to load storage blob:', err)
       blob.value = {}
     }
@@ -74,7 +74,7 @@ export const useAppStorageStore = defineStore('appStorage', () => {
   function _saveBlob(): void {
     try {
       localStorage.setItem(BLOB_KEY, JSON.stringify(blob.value))
-    } catch (err) {
+    } catch(err) {
       console.warn('Failed to save storage blob:', err)
     }
   }
@@ -125,7 +125,7 @@ export const useAppStorageStore = defineStore('appStorage', () => {
   ): void {
     _ensureLoaded()
     if (!blob.value[namespace]) blob.value[namespace] = {} as any
-      ; (blob.value[namespace] as any)[key] = value
+    ; (blob.value[namespace] as any)[key] = value
     _saveBlob()
   }
 

@@ -20,13 +20,12 @@ export class TimeConverter extends BaseConverter {
   }
 
   readonly units: ConversionUnit[] = [
-    // SI Units
+
     { id: 'second', symbol: 's', name: 'Second', category: 'time' },
     { id: 'millisecond', symbol: 'ms', name: 'Millisecond', category: 'time' },
     { id: 'microsecond', symbol: 'µs', name: 'Microsecond', category: 'time' },
     { id: 'nanosecond', symbol: 'ns', name: 'Nanosecond', category: 'time' },
 
-    // Common Units
     { id: 'minute', symbol: 'min', name: 'Minute', category: 'time' },
     { id: 'hour', symbol: 'h', name: 'Hour', category: 'time' },
     { id: 'day', symbol: 'd', name: 'Day', category: 'time' },

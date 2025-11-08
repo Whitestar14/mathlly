@@ -20,7 +20,7 @@ import { useConverterTypeSwitcher } from '@converter/composables/useConverterTyp
 
 const { currentConverterType, availableConverterTypes, updateConverterType } = useConverterTypeSwitcher()
 
-const converterOptions = computed(() => 
+const converterOptions = computed(() =>
   availableConverterTypes.map(type => ({
     value: type.value,
     label: type.label

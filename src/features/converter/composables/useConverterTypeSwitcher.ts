@@ -6,21 +6,17 @@ import { useConverterOptions, availableConverterTypes } from './useConverterOpti
 const currentConverterType = ref<ConverterType>('temperature')
 const isInitialized = ref(false)
 
-
-
 /**
  * Initialize the converter type switcher
  */
 export function initializeConverterTypeSwitcher(initialType?: ConverterType): void {
   if (isInitialized.value) return
 
-  // Load default converter type from options
   const { defaultConverterType } = useConverterOptions()
   const availableTypes = ConverterFactory.getAvailableTypes()
 
   const typeToUse = initialType || defaultConverterType.value
 
-  // Ensure the type is available
   currentConverterType.value = availableTypes.includes(typeToUse) ? typeToUse : 'temperature'
   isInitialized.value = true
 }

@@ -247,7 +247,7 @@ const schemeLabel = computed(() => {
 })
 
 const reloadApplication = () => {
-  return window.location.reload(true)
+  return window.location.reload()
 }
 
 const hasToolOptions = computed(() => toolStore.hasCurrentToolOptions)

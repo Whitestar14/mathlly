@@ -6,13 +6,12 @@
     :placeholder="placeholder"
     :disabled="disabled"
     class="max-w-48"
-    @update:model-value="$emit('update:selectedUnit', $event)"
-  />
+    @update:model-value="$emit('update:selectedUnit', $event)" />
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import {SelectBar} from '@components/ui'
+import { SelectBar } from '@components/ui'
 import type { ConversionUnit } from '../types/converter'
 import { useConverterOptions } from '@converter/composables/useConverterOptions'
 
@@ -23,7 +22,7 @@ const props = defineProps<{
   disabled?: boolean
 }>()
 
-const emit = defineEmits<{
+defineEmits<{
   'update:selectedUnit': [unitId: string]
 }>()
 
@@ -33,9 +32,9 @@ const selectOptions = computed(() =>
   props.units.map(unit => ({
     value: unit.id,
     label:
-       showUnitAbbreviations.value
-        ? unit.symbol
-        : `${unit.name} (${unit.symbol})`
+       showUnitAbbreviations.value ?
+         unit.symbol :
+         `${unit.name} (${unit.symbol})`
   }))
 )
 </script>
