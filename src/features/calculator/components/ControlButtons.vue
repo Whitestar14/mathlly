@@ -8,7 +8,7 @@
         size="icon"
         class="rounded-none group-hover:bg-opacity-100 md:hidden"
         @click="openHistory">
-        <Icon name="hexagon3" :icon-node="hexagons3" size="15" />
+        <DraftingCompassIcon size="15" />
       </BaseButton>
       <Separator
         class="h-6 bg-border w-px md:hidden group-has-[.rounded-none:hover]:h-8 transition-[height]" />
@@ -26,8 +26,7 @@
 
 <script setup>
 import { Separator } from 'radix-vue'
-import { Icon, Copy } from 'lucide-vue-next'
-import { hexagons3 } from '@lucide/lab'
+import { DraftingCompassIcon, Copy } from 'lucide-vue-next'
 import { BaseButton } from '@components/ui'
 
 const emit = defineEmits(['open-activity', 'copy-to-clipboard'])

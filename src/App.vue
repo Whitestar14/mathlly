@@ -14,6 +14,7 @@
   </Suspense>
 
   <UpdateNotification />
+  <InstallNotification />
   <DevDock v-if="settings.experimental.devDockEnabled" />
 </template>
 
@@ -21,7 +22,7 @@
 import { shallowRef, onErrorCaptured, type ComponentPublicInstance, defineAsyncComponent } from 'vue'
 import { BaseLoader } from '@components/ui'
 import { useSettingsStore } from '@stores/settings'
-import { UpdateNotification } from '@components/layout'
+import { UpdateNotification, InstallNotification } from '@components/layout'
 import { DevDock } from '@components/ui/dev'
 import ErrorFallback from '@pages/ErrorFallback.vue'
 import { hasError } from '@router/errorHandler'
