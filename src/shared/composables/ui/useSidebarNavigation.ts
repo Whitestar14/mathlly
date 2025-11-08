@@ -15,24 +15,24 @@ import {
 } from 'lucide-vue-next'
 
 export interface NavigationItem {
-  name: string;
-  path: string;
-  icon: any;
-  comingSoon?: boolean;
-  isNew?: boolean;
-  description?: string;
+  name: string
+  path: string
+  icon: any
+  comingSoon?: boolean
+  isNew?: boolean
+  description?: string
 }
 
 export interface NavigationCategory {
-  title: string;
-  items: NavigationItem[];
+  title: string
+  items: NavigationItem[]
 }
 
 export interface FooterItem {
-  key: string;
-  path: string;
-  icon: any;
-  label: string;
+  key: string
+  path: string
+  icon: any
+  label: string
 }
 
 /**
@@ -63,6 +63,13 @@ export function useSidebarNavigation() {
           isNew: false
         },
         {
+          name: 'Converter',
+          path: '/converter',
+          icon: ArrowRightLeftIcon,
+          comingSoon: false,
+          isNew: true
+        },
+        {
           name: 'Functions',
           path: '/functions',
           icon: FunctionSquareIcon,
@@ -78,12 +85,6 @@ export function useSidebarNavigation() {
           name: 'Graphing',
           path: '/graphing',
           icon: LineChartIcon,
-          comingSoon: true
-        },
-        {
-          name: 'Converter',
-          path: '/converter',
-          icon: ArrowRightLeftIcon,
           comingSoon: true
         }
       ]

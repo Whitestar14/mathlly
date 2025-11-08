@@ -47,7 +47,7 @@ export class ProgrammerCalculator extends ICalculator {
   evaluateExpression(expr: string, base: BaseType = this.activeBase as BaseType): any {
     try {
       return this.calculations.evaluateExpression(expr, { base })
-    } catch(err: any) {
+    } catch (err: any) {
       console.log('Error evaluating expression:', err.stack)
       throw new Error(CalculatorUtils.formatError(err, 'Invalid expression'))
     }
@@ -73,7 +73,7 @@ export class ProgrammerCalculator extends ICalculator {
     }
     try {
       return this.normalizeResponse(this.processButton(btn))
-    } catch(err: any) {
+    } catch (err: any) {
       return this.createErrorResponse(err, this.states[this.activeBase as BaseType].input)
     }
   }
@@ -90,7 +90,7 @@ export class ProgrammerCalculator extends ICalculator {
       this.error = ''
       switch (btn) {
         case '=': return this.handleEquals()
-        case 'AC': return this.handleClear()
+        case 'C': return this.handleClear()
         case 'CE': return this.handleClearEntry()
         case 'backspace': result = this.operations.handleBackspace() as CalculatorResult; break
         case '±': result = this.operations.handleToggleSign() as CalculatorResult; break
@@ -101,7 +101,7 @@ export class ProgrammerCalculator extends ICalculator {
         default:
           result = this.operations.handleNumber(btn) as CalculatorResult
       }
-    } catch(err: any) {
+    } catch (err: any) {
       result = this.createErrorResponse(err, this.states[this.activeBase as BaseType].input)
     }
 
@@ -140,7 +140,7 @@ export class ProgrammerCalculator extends ICalculator {
         result: formattedResult,
         displayValues: { ...this.states }
       }
-    } catch(err: any) {
+    } catch (err: any) {
       return this.createErrorResponse(err, this.states[this.activeBase as BaseType].input)
     }
   }
@@ -162,7 +162,7 @@ export class ProgrammerCalculator extends ICalculator {
         })
       }
       return this.states
-    } catch(err: any) {
+    } catch (err: any) {
       console.warn('[ProgrammerCalculator]: UpdateDisplayValues threw an unexpected error, returning states', err)
       return this.states
     }
@@ -196,7 +196,7 @@ export class ProgrammerCalculator extends ICalculator {
         error: this.error,
         displayValues: this.states
       }
-    } catch(err: any) {
+    } catch (err: any) {
       return this.createErrorResponse(err, this.states[this.activeBase as BaseType].input)
     }
   }
@@ -214,7 +214,7 @@ export class ProgrammerCalculator extends ICalculator {
           display: converted
         }
       })
-    } catch(err) {
+    } catch (err) {
       console.error('Error updating states:', err)
       throw err
     }
@@ -222,9 +222,9 @@ export class ProgrammerCalculator extends ICalculator {
 
   handleClear(): CalculatorResult {
     super.handleClear()
-    ; (Object.keys(this.states) as BaseType[]).forEach(base => {
-      this.states[base] = { input: '0', display: '0' }
-    })
+      ; (Object.keys(this.states) as BaseType[]).forEach(base => {
+        this.states[base] = { input: '0', display: '0' }
+      })
     this.operations.resetParentheses()
 
     return {

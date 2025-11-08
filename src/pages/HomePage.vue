@@ -80,7 +80,7 @@
                   variant="outline"
                   class="w-full sm:w-auto">
                   <GithubIcon class="h-4 w-4" />
-                  View GitHub
+                  View Source
                 </BaseButton>
               </a>
             </div>

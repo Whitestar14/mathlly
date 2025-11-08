@@ -1,0 +1,177 @@
+@layer base {
+  /* =================================================================== */
+  /* DRACULA (LIGHT)                                                     */
+  /* =================================================================== */
+  [data-theme-pack='dracula'] {
+    /* * Core UI Colors (Inverted Dracula)
+     * Background: A very light, low-chroma purple/white
+     * Foreground: The original dark background color
+     */
+    --color-background: 0.98 0.005 266;
+    --color-foreground: 0.27 0.024 266;
+    --color-card: 0.98 0.005 266;
+    --color-card-foreground: 0.27 0.024 266;
+    --color-popover: 0.98 0.005 266;
+    --color-popover-foreground: 0.27 0.024 266;
+    
+    /* * Accent Colors (Darkened Dracula)
+     * Purple: #bd93f9 -> Darker
+     * Pink: #ff79c6 -> Darker
+     * Red: #ff5555 -> Darker
+     * Comment: #6272a4
+     */
+    --color-primary: 0.50 0.20 289;           /* Dark Purple */
+    --color-primary-foreground: 0.98 0.005 266; /* Light BG for contrast */
+    --color-secondary: 0.92 0.01 265;         /* Lighter Muted BG */
+    --color-secondary-foreground: 0.27 0.024 266;
+    --color-muted: 0.92 0.01 265;
+    --color-muted-foreground: 0.54 0.05 264; /* Original Comment color */
+    --color-accent: 0.55 0.25 328;            /* Dark Pink */
+    --color-accent-foreground: 0.98 0.005 266;
+    --color-destructive: 0.55 0.28 29;       /* Dark Red */
+    --color-destructive-foreground: 0.98 0.005 266;
+    --color-border: 0.85 0.01 265;            /* Light Border */
+    --color-input: 0.98 0.005 266;
+    --color-ring: 0.50 0.20 289;              /* Dark Purple */
+
+    --backdrop: 0.140 0.018 326;
+    --backdrop-light: 0.98 0.005 266;
+    --backdrop-surface: 0.92 0.01 265;
+    --color-panel: 0.98 0.005 266;
+    --logo-bg-fill: 0.98 0.005 266;
+    --logo-stroke-stop-color: 0.27 0.024 266;
+    --logo-fg-stop-color: 0.27 0.024 266;
+    --color-highlight: 0.85 0.05 265;     /* Light Selection BG */
+    
+    /* * Syntax Colors (Darkened Dracula)
+     * Cyan: #8be9fd -> Darker
+     * Green: #50fa7b -> Darker
+     * Yellow: #f1fa8c -> Darker
+     * Pink: #ff79c6 -> Darker
+     * Orange: #ffb86c -> Darker
+     * Comment: #6272a4
+     */
+    --syntax-tag: 0.55 0.25 328;        /* Dark Pink */
+    --syntax-func: 0.50 0.26 145;       /* Dark Green */
+    --syntax-string: 0.70 0.23 111;    /* Dark Gold/Yellow */
+    --syntax-regexp: 0.70 0.23 111;    /* Dark Gold/Yellow */
+    --syntax-markup: 0.55 0.25 328;     /* Dark Pink */
+    --syntax-keyword: 0.55 0.25 328;    /* Dark Pink */
+    --syntax-special: 0.55 0.15 212;    /* Dark Cyan/Blue */
+    --syntax-comment: 0.54 0.05 264;    /* Original Comment */
+    --syntax-constant: 0.60 0.18 77;    /* Dark Orange */
+    --syntax-operator: 0.55 0.25 328;   /* Dark Pink */
+
+    /* Dark parentheses for readability */
+    --syntax-paren-0: 0.40 0.02 266;
+    --syntax-paren-1: 0.40 0.02 266;
+    --syntax-paren-2: 0.40 0.02 266;
+    --syntax-paren-3: 0.40 0.02 266;
+    --syntax-paren-4: 0.40 0.02 266;
+    --syntax-paren-5: 0.40 0.02 266;
+  }
+
+  /* =================================================================== */
+  /* DRACULA (DARK) - The Official Theme                                 */
+  /* =================================================================== */
+  [data-theme-pack='dracula'].dark {
+    /* * Core UI Colors (Dracula)
+     * Background: #282a36
+     * Current Line: #44475a
+     * Foreground: #f8f8f2
+     */
+    --color-background: 0.288 0.022 278;
+    --color-foreground: 0.977 0.008 107;
+    --color-card: 0.288 0.022 278;
+    --color-card-foreground: 0.977 0.008 107;
+    --color-popover: 0.288 0.022 278;
+    --color-popover-foreground: 0.977 0.008 107;
+    
+    /* * Accent Colors (Dracula)
+     * Purple: #bd93f9
+     * Pink: #ff79c6
+     * Red: #ff5555
+     * Comment: #6272a4
+     */
+    --color-primary: 0.70 0.17 289;           /* Purple */
+    --color-primary-foreground: 0.288 0.022 278; /* Dark BG for contrast */
+    --color-secondary: 0.255 0.019 280;         /* Current Line/Muted BG */
+    --color-secondary-foreground: 0.977 0.008 107;
+    --color-muted: 0.255 0.019 280;             /* Current Line/Muted BG */
+    --color-muted-foreground: 0.54 0.05 264; /* Comment */
+    --color-accent: 0.755 0.183 347;            /* Pink */
+    --color-accent-foreground: 0.588 0.022 278;
+    --color-destructive: 0.682 0.206 24;       /* Red */
+    --color-destructive-foreground: 0.977 0.008 107;
+    --color-border: 0.255 0.019 280;            /* Current Line/Muted BG */
+    --color-input: 0.288 0.022 278;
+    --color-ring: 0.70 0.17 289;              /* Purple */
+
+    --backdrop: 0 0 0;
+    --backdrop-light: 0.288 0.022 278;     /* Background */
+    --backdrop-surface: 0.255 0.019 280;    /* Muted BG */
+    --color-panel: 0.288 0.022 278;        /* Background */
+    --logo-bg-fill: 0.288 0.022 278;
+    --logo-stroke-stop-color: 0.977 0.008 107;
+    --logo-fg-stop-color: 0.977 0.008 107;
+    --color-highlight: 0.403 0.032 278;     /* Current Line/Selection BG */
+    
+    /* * Syntax Colors (Dracula)
+     * Cyan: #8be9fd
+     * Green: #50fa7b
+     * Yellow: #f1fa8c
+     * Pink: #ff79c6
+     * Orange: #ffb86c
+     * Comment: #6272a4
+     */
+    --syntax-tag: 0.755 0.183 347;        /* Pink */
+    --syntax-func: 0.871 0.220 148;       /* Green */
+    --syntax-string: 0.955 0.134 113;    /* Yellow */
+    --syntax-regexp: 0.955 0.134 113;    /* Yellow */
+    --syntax-markup: 0.755 0.183 347;     /* Pink */
+    --syntax-keyword: 0.755 0.183 347;    /* Pink */
+    --syntax-special: 0.883 0.093 213;    /* Cyan (e.g., this, class) */
+    --syntax-comment: 0.560 0.080 270;    /* Comment */
+    --syntax-constant: 0.834 0.124 67;    /* Orange (e.g., numbers, true) */
+    --syntax-operator: 0.755 0.183 347;   /* Pink */
+
+    /* Dracula doesn't typically color parentheses */
+    --syntax-paren-0: 0.977 0.008 107; /* Foreground */
+    --syntax-paren-1: 0.977 0.008 107; /* Foreground */
+    --syntax-paren-2: 0.977 0.008 107; /* Foreground */
+    --syntax-paren-3: 0.977 0.008 107; /* Foreground */
+    --syntax-paren-4: 0.977 0.008 107; /* Foreground */
+    --syntax-paren-5: 0.977 0.008 107; /* Foreground */
+  }
+
+  [data-theme-pack='dracula'][data-variant-darkened='true'].dark {
+    --color-background: 0.220 0.014 279;
+    --color-foreground: 0.877 0.008 107;
+    --color-card: 0.220 0.014 279;
+    --color-popover: 0.220 0.014 279;
+    --color-muted: 0.275 0.019 280;             /* Current Line/Muted BG */
+    --color-border: 0.275 0.019 280;            /* Current Line/Muted BG */
+
+    --backdrop: 0.140 0.018 326;
+    --backdrop-light: 0.220 0.014 279;     /* Background */
+    --color-panel: 0.220 0.014 279;        /* Background */
+    --logo-bg-fill: 0.220 0.014 279;
+  }
+
+  /* =================================================================== */
+  /* SELECTION STYLES                                                    */
+  /* =================================================================== */
+  [data-theme-pack='dracula']::selection {
+    background-color: oklch(var(--color-highlight) / 0.50);
+  }
+  [data-theme-pack='dracula']::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.50);
+  }
+
+  [data-theme-pack='dracula'].dark::selection {
+    background-color: oklch(var(--color-highlight) / 0.80);
+  }
+  [data-theme-pack='dracula'].dark::-moz-selection {
+    background-color: oklch(var(--color-highlight) / 0.80);
+  }
+}

@@ -2,11 +2,11 @@ import { markRaw } from 'vue'
 import { Delete, ChevronsRightIcon, ChevronsLeftIcon } from 'lucide-vue-next'
 
 export interface ButtonConfig {
-  value: string;
-  variant: 'number' | 'operator' | 'function' | 'memory';
-  display?: string;
-  icon?: any;
-  checkMaxLength?: boolean;
+  value: string
+  variant: 'number' | 'operator' | 'function' | 'memory'
+  display?: string
+  icon?: any
+  checkMaxLength?: boolean
 }
 
 export const numberRows = markRaw<ButtonConfig[][]>([
@@ -54,24 +54,24 @@ export const standardSecondRow = markRaw<ButtonConfig[]>([
   { value: '÷', variant: 'operator', checkMaxLength: true }
 ])
 
-export const scientificSecondRow = markRaw<ButtonConfig[]>([
+export const scientificFirstRow = markRaw<ButtonConfig[]>([
   { value: 'π', variant: 'function', checkMaxLength: true },
   { value: 'e', variant: 'function', checkMaxLength: true },
-  { value: 'exp', variant: 'function', checkMaxLength: true },
+  { value: 'CE', variant: 'function' },
   { value: 'backspace', variant: 'function', icon: Delete }
 ])
 
-export const scientificThirdRow = markRaw<ButtonConfig[]>([
+export const scientificSecondRow = markRaw<ButtonConfig[]>([
   { value: '1/x', variant: 'function', checkMaxLength: true },
   { value: '|x|', variant: 'function', checkMaxLength: true },
+  { value: 'exp', variant: 'function', checkMaxLength: true },
   { value: 'mod', variant: 'function', checkMaxLength: true },
-  { value: '÷', variant: 'operator', checkMaxLength: true }
 ])
 
 export const programmerFirstRow = markRaw<ButtonConfig[]>([
   { value: '<<', variant: 'function', icon: ChevronsLeftIcon, checkMaxLength: true },
   { value: '>>', variant: 'function', icon: ChevronsRightIcon, checkMaxLength: true },
-  { value: 'CE', variant: 'function' },
+  { value: 'C', variant: 'function' },
   { value: 'backspace', variant: 'function', icon: Delete }
 ])
 

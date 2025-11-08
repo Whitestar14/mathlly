@@ -3,7 +3,7 @@
 
     <div
       v-show="showHeader"
-      class="flex-shrink-0 h-14 px-3 border-b border-border flex items-center justify-between">
+      class="flex-shrink-0 h-14 px-3 border-b border-border/80 flex items-center justify-between">
 
       <div
         v-if="title"
@@ -42,7 +42,7 @@
 
     <div
       v-if="showFooter && $slots.footer"
-      class="flex-shrink-0 border-t border-border p-3 lg:min-h-14">
+      class="flex-shrink-0 border-t border-border/80 p-3 lg:min-h-14">
       <slot name="footer"></slot>
     </div>
   </div>

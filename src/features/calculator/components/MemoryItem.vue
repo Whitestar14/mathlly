@@ -81,6 +81,7 @@
     </ContextMenu>
 
     <BaseModal
+      id="edit-label-memory-modal"
       v-if="memorySlot.id !== undefined"
       v-model:open="showEditLabel"
       description="edit-label-dialog">

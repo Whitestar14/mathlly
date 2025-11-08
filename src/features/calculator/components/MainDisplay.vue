@@ -44,7 +44,7 @@
         <div
           v-if="preview && !error"
           ref="previewContainer"
-          class="font-medium text-foreground/75 overflow-x-auto whitespace-nowrap scrollbar-hide"
+          class="font-normal text-foreground/75 overflow-x-auto whitespace-nowrap scrollbar-hide"
           aria-live="polite"
           aria-atomic="true">
           {{ preview }}

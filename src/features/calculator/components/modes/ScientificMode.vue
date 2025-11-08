@@ -122,10 +122,11 @@
       <div class="col-span-4 grid grid-cols-4 gap-1">
 
         <CalculatorButton
-          v-for="(btn, index) in reactiveButtonRow"
+          v-for="(btn, index) in scientificFirstRow"
           :key="index"
           :value="btn.value"
           :variant="btn.variant"
+          :icon="btn.icon"
           :disabled="shouldDisableButton(btn.value, btn.variant)"
           @click="handleClick">
           <span>{{ btn.display || btn.value }}</span>
@@ -135,7 +136,6 @@
           v-for="(btn, index) in scientificSecondRow"
           :key="index"
           :value="btn.value"
-          :icon="btn.icon"
           :variant="btn.variant"
           :disabled="shouldDisableButton(btn.value, btn.variant)"
           @click="handleClick" />
@@ -174,8 +174,8 @@ import {
 } from 'lucide-vue-next'
 import {
   numberRows,
+  scientificFirstRow,
   scientificSecondRow,
-  scientificThirdRow,
   memoryOperations,
   scientificFunctions,
   primaryTrigFunctions,
@@ -230,7 +230,7 @@ const shouldDisableButton = (value, variant, checkMaxLength = false) => {
   )
 }
 
-const reactiveButtonRow = computed(() => [
+const scientificThirdRow = computed(() => [
   { value: '(', variant: 'function', checkMaxLength: true },
   { value: ')', variant: 'function', checkMaxLength: true },
   {
@@ -239,7 +239,7 @@ const reactiveButtonRow = computed(() => [
     variant: 'function',
     checkMaxLength: true
   },
-  { value: 'C', variant: 'function' }
+  { value: '÷', variant: 'operator', checkMaxLength: true }
 ])
 
 const currentTrigFunctions = computed(() => {

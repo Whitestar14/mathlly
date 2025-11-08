@@ -166,7 +166,21 @@ export const useKeyboardStore = defineStore('keyboard', {
      */
     inputProxies: new Map<
       ContextPath,
-      (e: KeyboardEvent, payload: { canonical: string; key: string; code: string }) => void
+      {
+        handler: (e: KeyboardEvent, payload: { canonical: string; key: string; code: string }) => boolean
+        preventDefault?: boolean
+      }
+    >(),
+
+    /**
+     * Contexts with enabled text input and their configuration.
+     */
+    textInputContexts: new Map<
+      ContextPath,
+      {
+        mode: 'all' | 'numeric' | 'alpha' | 'alphanumeric' | RegExp
+        preventDefault?: boolean
+      }
     >(),
 
     /**
@@ -234,6 +248,7 @@ export const useKeyboardStore = defineStore('keyboard', {
      * Pop a context with tree semantics:
      * - If popping a parent, also remove all its children (descendants).
      * - If popping a child, remove only that child.
+     * Automatically cleans up text input and input proxy configurations.
      */
     popContext(context: ContextPath) {
       this.activeContexts = this.activeContexts.filter(c => {
@@ -241,6 +256,11 @@ export const useKeyboardStore = defineStore('keyboard', {
         if (c.startsWith(context + '.')) return false
         return true
       })
+
+      // Auto-cleanup associated resources
+      this.disableTextInput(context)
+      this.clearInputProxy(context)
+
       this.syncEnabledFlags()
     },
 
@@ -375,14 +395,17 @@ export const useKeyboardStore = defineStore('keyboard', {
     },
 
     /**
-     * Set an input proxy (wildcard handler) for a context.
-     * Proxies are invoked when no explicit binding resolves for the key.
-     */
+  * Set an input proxy (wildcard handler) for a context.
+  */
     setInputProxy(
       context: ContextPath,
-      proxy: (e: KeyboardEvent, payload: { canonical: string; key: string; code: string }) => void
+      proxy: (e: KeyboardEvent, payload: { canonical: string; key: string; code: string }) => boolean,
+      options: { preventDefault?: boolean } = {}
     ) {
-      this.inputProxies.set(context, proxy)
+      this.inputProxies.set(context, {
+        handler: proxy,
+        preventDefault: options.preventDefault ?? true
+      })
     },
 
     /**
@@ -390,6 +413,65 @@ export const useKeyboardStore = defineStore('keyboard', {
      */
     clearInputProxy(context: ContextPath) {
       this.inputProxies.delete(context)
+    },
+
+    /**
+     * Enable text input for a context with specified input mode.
+     * @param context - The context path
+     * @param mode - Input filtering mode: predefined string or RegExp pattern
+     * @param options - Configuration options
+     */
+    enableTextInput(
+      context: ContextPath,
+      mode: 'all' | 'numeric' | 'alpha' | 'alphanumeric' | RegExp = 'all',
+      options: { preventDefault?: boolean } = {}
+    ) {
+      this.textInputContexts.set(context, {
+        mode,
+        preventDefault: options.preventDefault ?? true
+      })
+    },
+
+    /**
+     * Disable text input for a context.
+     */
+    disableTextInput(context: ContextPath) {
+      this.textInputContexts.delete(context)
+    },
+
+    /**
+     * Get the text input configuration for the current active context (most specific first).
+     */
+    getTextInputConfig(): { mode: 'all' | 'numeric' | 'alpha' | 'alphanumeric' | RegExp; preventDefault?: boolean } | null {
+      if (this.activeContexts.length === 0) return null
+
+      const levels = expandSpecificityLevels(this.activeContexts)
+      for (const level of levels) {
+        const config = this.textInputContexts.get(level)
+        if (config) return config
+      }
+      return null
+    },
+    /**
+     * Check if a character is allowed based on the input mode.
+     */
+    isCharacterAllowed(key: string, mode: 'all' | 'numeric' | 'alpha' | 'alphanumeric' | RegExp): boolean {
+      if (mode instanceof RegExp) {
+        return mode.test(key)
+      }
+
+      switch (mode) {
+        case 'all':
+          return true
+        case 'numeric':
+          return /^\d$/.test(key)
+        case 'alpha':
+          return /^[a-zA-Z]$/.test(key)
+        case 'alphanumeric':
+          return /^[a-zA-Z0-9]$/.test(key)
+        default:
+          return false
+      }
     },
 
     /**
@@ -418,13 +500,29 @@ export const useKeyboardStore = defineStore('keyboard', {
         return
       }
 
+      // Check text input configuration
+      const textInputConfig = this.getTextInputConfig()
+      if (textInputConfig && this.isSingleCharacterKey(e)) {
+        const isAllowed = this.isCharacterAllowed(e.key, textInputConfig.mode)
+        if (!isAllowed && textInputConfig.preventDefault) {
+          e.preventDefault()
+          e.stopPropagation()
+        }
+      }
+
       if (this.activeContexts.length > 0) {
         const levels = expandSpecificityLevels(this.activeContexts)
         for (const level of levels) {
-          const proxy = this.inputProxies.get(level)
-          if (proxy) {
-            proxy(e, { canonical, key: rawKey, code })
-            return
+          const proxyConfig = this.inputProxies.get(level)
+          if (proxyConfig) {
+            const handled = proxyConfig.handler(e, { canonical, key: rawKey, code })
+            if (handled && proxyConfig.preventDefault) {
+              e.preventDefault()
+              e.stopPropagation()
+            }
+            if (handled) {
+              return
+            }
           }
         }
       }
@@ -459,17 +557,20 @@ export const useKeyboardStore = defineStore('keyboard', {
 
     /**
      * Recompute collisions for a specific key and refresh the collisions list.
-     * A collision occurs when a key has multiple bindings across overlapping contexts.
+     * A collision occurs when a key has multiple ENABLED bindings that could be active simultaneously.
      */
     computeCollisionsForKey(key: CanonicalKey) {
       const list = this.bindingsByKey.get(key) ?? []
-      if (list.length <= 1) {
+      // Only consider enabled bindings for conflicts
+      const enabledBindings = list.filter(b => b.enabled)
+
+      if (enabledBindings.length <= 1) {
         this.collisions = this.collisions.filter(c => c.key !== key)
         return
       }
 
-      const contexts = Array.from(new Set(list.map(b => b.context)))
-      const collision: Collision = { key, contexts, bindings: list.slice() }
+      const contexts = Array.from(new Set(enabledBindings.map(b => b.context)))
+      const collision: Collision = { key, contexts, bindings: enabledBindings.slice() }
 
       const idx = this.collisions.findIndex(c => c.key === key)
       if (idx !== -1) {
@@ -489,6 +590,8 @@ export const useKeyboardStore = defineStore('keyboard', {
         for (const list of this.bindingsByKey.values()) {
           for (const b of list) this._setEnabled(b.id, false)
         }
+        // Recompute all collisions after disabling
+        this.recomputeAllCollisions()
         return
       }
 
@@ -498,6 +601,17 @@ export const useKeyboardStore = defineStore('keyboard', {
           const shouldEnable = levels.has(b.context)
           this._setEnabled(b.id, shouldEnable)
         }
+      }
+      // Recompute all collisions after context changes
+      this.recomputeAllCollisions()
+    },
+
+    /**
+     * Recompute collisions for all keys after enabled states change.
+     */
+    recomputeAllCollisions() {
+      for (const key of this.bindingsByKey.keys()) {
+        this.computeCollisionsForKey(key)
       }
     },
 
@@ -516,6 +630,16 @@ export const useKeyboardStore = defineStore('keyboard', {
       this.globalEnabled = enabled
       const settings = useSettingsStore()
       settings.updateSetting('keyboard.shortcutsEnabled', enabled)
+    },
+
+    /**
+     * Helper to determine if a key event represents a single character (for text input).
+     */
+    isSingleCharacterKey(e: KeyboardEvent): boolean {
+      // Allow single character keys without modifiers
+      return !e.ctrlKey && !e.altKey && !e.metaKey &&
+        e.key.length === 1 &&
+        !['Enter', 'Tab', 'Escape', 'Backspace', 'Delete'].includes(e.key)
     }
   }
 })

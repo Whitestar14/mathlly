@@ -104,6 +104,8 @@ function variantLabel(key: string): string {
   switch (key) {
     case 'bordered':
       return 'Enhance with sharper borders'
+    case 'darkened':
+      return 'Darken background for dark mode'
     default:
       return key
   }
@@ -123,7 +125,7 @@ function variantLabel(key: string): string {
           v-for="(config, packKey) in themePackConfigs"
           :key="packKey"
           :for="`theme-${packKey}`"
-          class="flex-[0_0_80%] sm:flex-[0_0_50%] px-2 cursor-pointer group"
+          class="flex-[0_0_70%] sm:flex-[0_0_50%] px-2 cursor-pointer group"
           @click.prevent="onPackClick(packKey as ThemePackOption)">
           <div
             class="relative p-4 min-h-48 rounded-xl border-2 transition-all duration-300 bg-background hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-black/20"
