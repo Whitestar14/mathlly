@@ -88,9 +88,9 @@ module.exports = {
     ],
 
     'comma-dangle': 'off',
-    indent: 'off',
-    quotes: 'off',
-    semi: 'off',
+    indent: ['error', 2, { SwitchCase: 1 }],
+    quotes: ['error', 'single', { avoidEscape: true }],
+    semi: ['error', 'never'],
     'object-curly-spacing': 'off',
     'array-bracket-spacing': 'off',
     'arrow-parens': 'off',

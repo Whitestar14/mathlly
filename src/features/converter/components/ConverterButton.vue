@@ -1,7 +1,7 @@
 <template>
   <button
     :class="[
-      'calc-btn calc-btn-grid',
+      'calc-btn min-h-[44px] md:min-h-[3rem]',
       `calc-${variant}-btn`,
     ]"
     :disabled="disabled"
@@ -25,7 +25,7 @@ defineProps({
   variant: {
     type: String,
     default: 'number',
-    validator: val => ['number', 'operator', 'function', 'memory'].includes(val)
+    validator: val => ['number', 'function', 'operator'].includes(val)
   },
   icon: {
     type: [Object, Function],

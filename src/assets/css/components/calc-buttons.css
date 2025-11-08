@@ -3,24 +3,18 @@
 @layer components {
   /* Base calculator button */
   .calc-btn {
+    -webkit-tap-highlight-color: transparent;
+    transform: translateZ(0);
+    backface-visibility: hidden;
     @apply relative flex items-center justify-center
            text-base font-medium rounded-lg
            px-3 py-2 border shadow-sm
            transition-transform transition-colors duration-500 ease-out
-           disabled:opacity-50 disabled:cursor-not-allowed
            min-h-[2.5rem]
+           active:scale-[0.98] active:rounded-[calc(--radius*1.25)]
+           hover:scale-[1.01] hover:shadow-md hover:border-border
+           disabled:opacity-50 disabled:cursor-default disabled:shadow-none disabled:pointer-events-none
            touch-manipulation;
-    -webkit-tap-highlight-color: transparent;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-  }
-
-  .calc-btn:hover {
-    @apply scale-[1.01] shadow-md border-border;
-  }
-
-  .calc-btn:active {
-    @apply scale-[0.98];
   }
 
   /* Number buttons */
@@ -50,12 +44,6 @@
            min-h-[2rem]
            hover:bg-muted/20 hover:text-foreground
            active:bg-muted/20 active:text-muted-foreground;
-  }
-
-  /* Active state (persistent) */
-  .calc-active-btn {
-    @apply text-primary-foreground bg-primary shadow-md border-primary
-           hover:bg-primary/90;
   }
 
   /* Top row buttons */
