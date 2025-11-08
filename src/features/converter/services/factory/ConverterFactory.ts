@@ -7,6 +7,12 @@ import { CssUnitsConverter } from '../converters/CssUnitsConverter'
 import { VolumeConverter } from '../converters/VolumeConverter'
 import { DataConverter } from '../converters/DataConverter'
 import { AreaConverter } from '../converters/AreaConverter'
+import { EnergyConverter } from '../converters/EnergyConverter'
+import { SpeedConverter } from '../converters/SpeedConverter'
+import { TimeConverter } from '../converters/TimeConverter'
+import { PowerConverter } from '../converters/PowerConverter'
+import { PressureConverter } from '../converters/PressureConverter'
+import { AngleConverter } from '../converters/AngleConverter'
 import type { BaseConverter } from '../converters/BaseConverter'
 
 export class ConverterFactory {
@@ -18,7 +24,13 @@ export class ConverterFactory {
     'css-units': CssUnitsConverter,
     volume: VolumeConverter,
     data: DataConverter,
-    area: AreaConverter
+    area: AreaConverter,
+    energy: EnergyConverter,
+    speed: SpeedConverter,
+    time: TimeConverter,
+    power: PowerConverter,
+    pressure: PressureConverter,
+    angle: AngleConverter
   }
 
   static create(type: ConverterType): BaseConverter {

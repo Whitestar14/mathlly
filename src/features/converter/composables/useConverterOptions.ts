@@ -27,7 +27,13 @@ export const availableConverterTypes: ConverterTypeOption[] = [
   { value: 'css-units', label: 'CSS Units' },
   { value: 'volume', label: 'Volume' },
   { value: 'data', label: 'Data' },
-  { value: 'currency', label: 'Currency' }
+  { value: 'currency', label: 'Currency' },
+  { value: 'energy', label: 'Energy' },
+  { value: 'speed', label: 'Speed' },
+  { value: 'time', label: 'Time' },
+  { value: 'power', label: 'Power' },
+  { value: 'pressure', label: 'Pressure' },
+  { value: 'angle', label: 'Angle' }
 ]
 
 export function useConverterOptions() {

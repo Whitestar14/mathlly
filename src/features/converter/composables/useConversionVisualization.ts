@@ -1,5 +1,4 @@
-// src/composables/useConversionVisualization.ts
-export const SupportedTypes = ['temperature', 'length', 'weight', 'volume', 'data', 'area'] as const
+export const SupportedTypes = ['temperature', 'length', 'weight', 'volume', 'data', 'area', 'energy', 'speed', 'time', 'power', 'pressure', 'angle'] as const
 export type SupportedType = typeof SupportedTypes[number]
 
 export interface VisualizationItem {
@@ -27,7 +26,31 @@ const UNIT_DISPLAY: Record<string, string> = {
   // volume
   liter: 'L', milliliter: 'mL', cubicMeter: 'm³', gallon: 'gal', quart: 'qt', pint: 'pt', cup: 'cup', tablespoon: 'tbsp', teaspoon: 'tsp',
   // data (binary prefixes)
-  byte: 'B', kilobyte: 'KB', megabyte: 'MB', gigabyte: 'GB', terabyte: 'TB', petabyte: 'PB'
+  byte: 'B', kilobyte: 'KB', megabyte: 'MB', gigabyte: 'GB', terabyte: 'TB', petabyte: 'PB',
+  // energy
+  joule: 'J', kilojoule: 'kJ', megajoule: 'MJ', gigajoule: 'GJ', calorie: 'cal', kilocalorie: 'kcal',
+  wattHour: 'Wh', kilowattHour: 'kWh', megawattHour: 'MWh', britishThermalUnit: 'BTU',
+  footPound: 'ft⋅lb', erg: 'erg', electronvolt: 'eV',
+  // speed
+  meterPerSecond: 'm/s', kilometerPerHour: 'km/h', milePerHour: 'mph', footPerSecond: 'ft/s',
+  inchPerSecond: 'in/s', knot: 'kn', mach: 'Ma', speedOfLight: 'c',
+  // time
+  second: 's', millisecond: 'ms', microsecond: 'µs', nanosecond: 'ns', minute: 'min', hour: 'h',
+  day: 'd', week: 'wk', month: 'mo', year: 'yr', decade: 'dec', century: 'cent', millennium: 'mill',
+  siderealDay: 'sidereal d', siderealYear: 'sidereal yr',
+  // power
+  watt: 'W', kilowatt: 'kW', megawatt: 'MW', gigawatt: 'GW', horsepower: 'hp',
+  horsepowerMetric: 'hp(M)', britishThermalUnitPerHour: 'BTU/h', britishThermalUnitPerMinute: 'BTU/min',
+  footPoundPerSecond: 'ft⋅lb/s', footPoundPerMinute: 'ft⋅lb/min', caloriePerSecond: 'cal/s',
+  caloriePerMinute: 'cal/min', joulePerSecond: 'J/s',
+  // pressure
+  pascal: 'Pa', kilopascal: 'kPa', megapascal: 'MPa', bar: 'bar', millibar: 'mbar',
+  atmosphere: 'atm', torr: 'Torr', millimeterOfMercury: 'mmHg', poundPerSquareInch: 'psi',
+  poundPerSquareFoot: 'psf', barye: 'Ba', centimeterOfWater: 'cmH₂O', inchOfWater: 'inH₂O',
+  centimeterOfMercury: 'cmHg', inchOfMercury: 'inHg',
+  // angle
+  degree: '°', radian: 'rad', gradian: 'grad', arcminute: "'", arcsecond: '"',
+  milliradian: 'mil', turn: 'turn', quadrant: 'quad', sextant: 'sextant'
 }
 
 type FactorTypes = Exclude<SupportedType, 'temperature'>
@@ -63,6 +86,40 @@ const CONVERSION_FACTORS: Record<FactorTypes, Record<string, number>> = {
     squareFoot: 0.09290304,
     squareYard: 0.83612736,
     squareInch: 0.00064516
+  },
+  energy: {
+    joule: 1, kilojoule: 1000, megajoule: 1_000_000, gigajoule: 1_000_000_000,
+    calorie: 4.184, kilocalorie: 4184, wattHour: 3600, kilowattHour: 3_600_000,
+    megawattHour: 3_600_000_000, britishThermalUnit: 1055.05585262, footPound: 1.35581794833140,
+    erg: 1e-7, electronvolt: 1.602176634e-19
+  },
+  speed: {
+    meterPerSecond: 1, kilometerPerHour: 1000 / 3600, milePerHour: 1609.344 / 3600,
+    footPerSecond: 0.3048, inchPerSecond: 0.0254, knot: 1852 / 3600, mach: 343, speedOfLight: 299792458
+  },
+  time: {
+    second: 1, millisecond: 1e-3, microsecond: 1e-6, nanosecond: 1e-9, minute: 60, hour: 3600,
+    day: 86400, week: 604800, month: 2592000, year: 31536000, decade: 315360000,
+    century: 3153600000, millennium: 31536000000, siderealDay: 86164.0905, siderealYear: 31558149.7632
+  },
+  power: {
+    watt: 1, kilowatt: 1000, megawatt: 1_000_000, gigawatt: 1_000_000_000,
+    horsepower: 745.699871582270, horsepowerMetric: 735.49875, britishThermalUnitPerHour: 0.2930710701722222,
+    britishThermalUnitPerMinute: 17.58426421033333, footPoundPerSecond: 1.3558179483314,
+    footPoundPerMinute: 0.0225976324721900, caloriePerSecond: 4.184,
+    caloriePerMinute: 0.06973333333333333, joulePerSecond: 1
+  },
+  pressure: {
+    pascal: 1, kilopascal: 1000, megapascal: 1_000_000, bar: 100_000, millibar: 100,
+    atmosphere: 101325, torr: 133.322387415, millimeterOfMercury: 133.322387415,
+    poundPerSquareInch: 6894.757293168, poundPerSquareFoot: 47.8802589804, barye: 0.1,
+    centimeterOfWater: 98.0665, inchOfWater: 249.088908333, centimeterOfMercury: 1333.22387415,
+    inchOfMercury: 3386.389
+  },
+  angle: {
+    degree: Math.PI / 180, radian: 1, gradian: Math.PI / 200, arcminute: Math.PI / (180 * 60),
+    arcsecond: Math.PI / (180 * 3600), milliradian: 0.001, turn: 2 * Math.PI,
+    quadrant: Math.PI / 2, sextant: Math.PI / 3
   }
 }
 
@@ -146,15 +203,42 @@ const REFERENCES: Record<SupportedType, Array<{
   ],
 
   data: [
-    { min: 1400, max: 1500, name: '3.5\" floppy disk', anchor: 1440, key: '3-5-floppy-disk', unit: 'kilobyte' },
+    { min: 1400, max: 1500, name: '3.5" floppy disk', anchor: 1440, key: '3-5-floppy-disk', unit: 'kilobyte' },
     { min: 4600, max: 5000, name: 'DVD', anchor: 4700, key: 'dvd', unit: 'megabyte' },
     { min: 25_000, max: 50_000, name: 'Blu-ray disc', anchor: 25_000, key: 'blu-ray', unit: 'megabyte' },
     { min: 1, max: 8, name: 'SSD', anchor: 4, key: 'ssd', unit: 'terabyte' },
     { min: 20, max: 80, name: 'internet archive', anchor: 70, key: 'internet-archive', unit: 'petabyte' },
     { min: 1000, max: 2000, name: 'smartphone storage', anchor: 128, key: 'smartphone-storage', unit: 'gigabyte' },
     { min: 1e6, max: 2e6, name: 'large data center', anchor: 1.5e6, key: 'data-center', unit: 'terabyte' }
-  ]
-};
+  ],
+
+  energy: [
+    { min: 300, max: 400, name: 'slice of bread', anchor: 350, key: 'slice-of-bread', unit: 'kilojoule' },
+    { min: 400, max: 500, name: 'banana', anchor: 450, key: 'banana', unit: 'kilojoule' },
+    { min: 1000, max: 1200, name: 'peanut butter sandwich', anchor: 1100, key: 'peanut-butter-sandwich', unit: 'kilojoule' },
+    { min: 1500, max: 1800, name: 'chocolate bar', anchor: 1650, key: 'chocolate-bar', unit: 'kilojoule' },
+    { min: 3000, max: 4000, name: 'fast food meal', anchor: 3500, key: 'fast-food-meal', unit: 'kilojoule' },
+    { min: 8000, max: 12000, name: 'daily food intake', anchor: 10000, key: 'daily-food-intake', unit: 'kilojoule' },
+    { min: 1.602e-19, max: 1.602e-19, name: 'electronvolt', anchor: 1.602e-19, key: 'electronvolt', unit: 'joule' }
+  ],
+
+  speed: [
+    { min: 1.2, max: 1.8, name: 'walking speed', anchor: 1.5, key: 'walking-speed', unit: 'meterPerSecond' },
+    { min: 3, max: 5, name: 'jogging speed', anchor: 4, key: 'jogging-speed', unit: 'meterPerSecond' },
+    { min: 25, max: 35, name: 'cycling speed', anchor: 30, key: 'cycling-speed', unit: 'meterPerSecond' },
+    { min: 50, max: 70, name: 'city driving', anchor: 60, key: 'city-driving', unit: 'meterPerSecond' },
+    { min: 250, max: 300, name: 'highway driving', anchor: 280, key: 'highway-driving', unit: 'meterPerSecond' },
+    { min: 343, max: 343, name: 'speed of sound', anchor: 343, key: 'speed-of-sound', unit: 'meterPerSecond' }
+  ],
+
+  power: [],
+
+  time: [],
+
+  pressure: [],
+
+  angle: []
+}
 
 /** Scientific formatter and unit picker */
 function formatScientificParts(value: number, unit: string, prefix?: string): VisualizationItem {
@@ -170,9 +254,9 @@ function formatScientificParts(value: number, unit: string, prefix?: string): Vi
 
 /** Avoid extreme candidates that produce unreadable tiny numbers */
 function pickScientificUnits(value: number, type: SupportedType, from: string, to: string, topN = 3): VisualizationItem[] {
-  const baseUnits = type === 'temperature'
-    ? ['celsius', 'fahrenheit', 'kelvin']
-    : Object.keys(CONVERSION_FACTORS[type as FactorTypes] ?? {})
+  const baseUnits = type === 'temperature' ?
+    ['celsius', 'fahrenheit', 'kelvin'] :
+    Object.keys(CONVERSION_FACTORS[type as FactorTypes] ?? {})
 
   const candidates = baseUnits.filter(u => u !== from && u !== to).map(u => {
     const v = convert(value, from, u, type)
@@ -261,21 +345,17 @@ export function useConversionVisualization() {
     const sciCap = isSmall ? 2 : 1
     const refCap = 1
 
-    // Take up to sciCap scientific
     const sci = sciCandidates.slice(0, sciCap)
-    // Take up to refCap references
     const refs = refCandidates.slice(0, refCap)
 
     let merged: VisualizationItem[] = [...sci, ...refs]
 
-    // If we didn’t fill the expected slots, backfill
     const expectedCount = isSmall ? 3 : 2
     if (merged.length < expectedCount) {
       const extras = [...sciCandidates.slice(sci.length), ...refCandidates.slice(refs.length)]
       merged = [...merged, ...extras.slice(0, expectedCount - merged.length)]
     }
 
-    // Deduplicate
     const out: VisualizationItem[] = []
     const seen = new Set<string>()
     for (const item of merged) {
@@ -290,4 +370,3 @@ export function useConversionVisualization() {
 
   return { getVisualization }
 }
-

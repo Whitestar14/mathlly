@@ -39,7 +39,8 @@ export function normalizeUnitId(unitId: string): string {
     'metres': 'meter',
     'meters': 'meter',
     'lbs': 'pound',
-    'lb': 'pound'
+    'lb': 'pound',
+    'weeks': 'week'
   }
   const lower = unitId.toLowerCase()
   return unitAliases[lower] || lower
@@ -90,21 +91,18 @@ export function getMathJsUnitName(unitId: string, converterType: ConverterType):
 
     },
     volume: {
-      // SI Units
       'cubic-meter': 'm3',
       liter: 'L',
       milliliter: 'mL',
       'cubic-centimeter': 'cm3',
       'cubic-millimeter': 'mm3',
 
-      // Imperial/US Units
       'cubic-inch': 'inch3',
       'cubic-foot': 'ft3',
       'cubic-yard': 'yard3'
     },
     data: {},
     area: {
-      // SI Units
       'square-meter': 'm2',
       'square-kilometer': 'km2',
       'square-centimeter': 'cm2',
@@ -112,16 +110,83 @@ export function getMathJsUnitName(unitId: string, converterType: ConverterType):
       'square-micrometer': 'micrometer2',
       'square-nanometer': 'nanometer2',
 
-      // Imperial/US Units
       'square-mile': 'mile2',
       'square-yard': 'yard2',
       'square-foot': 'sqft',
       'square-inch': 'inch2'
     },
     'css-units': {
-      pt: 'csspt',
+      pt: 'csspt'
     },
-    currency: {}
+    currency: {},
+    energy: {
+      joule: 'J',
+      kilojoule: 'kJ',
+      megajoule: 'MJ',
+      gigajoule: 'GJ',
+      calorie: 'cal',
+      kilocalorie: 'kcal',
+      'watt-hour': 'Wh',
+      'kilowatt-hour': 'kWh',
+      'british-thermal-unit': 'BTU',
+      'foot-pound': 'ftlb',
+      erg: 'erg',
+      electronvolt: 'eV'
+    },
+    speed: {
+      'meter-per-second': 'm/s',
+      'kilometer-per-hour': 'km/h',
+      'mile-per-hour': 'mi/h',
+      'foot-per-second': 'ft/s',
+      'inch-per-second': 'inch/s'
+    },
+    time: {
+      second: 's',
+      millisecond: 'ms',
+      microsecond: 'us',
+      nanosecond: 'ns',
+      minute: 'min',
+      hour: 'h',
+      day: 'day',
+      week: 'week',
+      month: 'month',
+      year: 'year',
+      decade: 'decade',
+      century: 'century',
+      millennium: 'millennium',
+      'sidereal-day': 'siderealday',
+      'sidereal-year': 'siderealyear'
+    },
+    power: {
+      watt: 'W',
+      kilowatt: 'kW',
+      megawatt: 'MW',
+      gigawatt: 'GW',
+      horsepower: 'hp',
+      'british-thermal-unit-per-hour': 'BTU/h',
+      'british-thermal-unit-per-minute': 'BTU/min',
+      'foot-pound-per-second': 'ft lbf / s',
+      'joule-per-second': 'J/s'
+    },
+    pressure: {
+      pascal: 'Pa',
+      kilopascal: 'kPa',
+      megapascal: 'MPa',
+      bar: 'bar',
+      atmosphere: 'atm',
+      torr: 'torr',
+      'millimeter-of-mercury': 'mmHg',
+      'pound-per-square-inch': 'psi'
+    },
+    angle: {
+      degree: 'deg',
+      radian: 'rad',
+      gradian: 'grad',
+      arcminute: 'arcmin',
+      arcsecond: 'arcsec',
+      milliradian: 'mrad',
+      turn: 'cycle'
+    }
   }
 
   const typeMappings = mappings[converterType]

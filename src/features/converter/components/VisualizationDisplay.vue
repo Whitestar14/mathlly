@@ -8,18 +8,16 @@
           <!-- Reference icon -->
           <template v-if="viz.type === 'reference'">
             <component
-              v-if="getIconData(viz.key).type === 'regular'"
               :is="getIconData(viz.key).data"
+              v-if="getIconData(viz.key).type === 'regular'"
               class="size-4 font-semibold text-foreground flex-shrink-0"
-              aria-hidden="true"
-            />
+              aria-hidden="true" />
             <Icon
               v-else
               name="LabIcon"
-              :iconNode="getIconData(viz.key).data"
+              :icon-node="getIconData(viz.key).data"
               class="size-4 font-semibold text-foreground flex-shrink-0"
-              aria-hidden="true"
-            />
+              aria-hidden="true" />
           </template>
 
           <!-- Scientific visualization -->
@@ -53,7 +51,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Icon, Droplet, Thermometer, Dot, Paperclip, Map, Ruler, Clock, Info, Snowflake, PersonStanding, Car, Building, Mountain, Target, Waves, Globe2, Apple, Backpack, Cat, Dog, Piano, Fish, Plane, Rocket, Bomb, CloudLightning, SunDim, House, SoupIcon, CupSoda, Bath, Globe, Disc, HardDrive } from 'lucide-vue-next'
+import { Icon, Droplet, Thermometer, Dot, Paperclip, Map, Ruler, Clock, Info, Snowflake, PersonStanding, Car, Building, Mountain, Target, Waves, Globe2, Apple, Backpack, Cat, Dog, Piano, Fish, Plane, Rocket, Bomb, CloudLightning, SunDim, House, SoupIcon, CupSoda, Bath, Globe, Disc, HardDrive, Zap } from 'lucide-vue-next'
 import { bottlePlastic, bucket, elephant, floppyDisk } from '@lucide/lab'
 import type { ConverterType } from '../types/converter'
 import type { BaseConverter } from '../services/converters/BaseConverter'
@@ -155,7 +153,24 @@ const ICON_MAP: Record<string, any> = {
   'ssd': HardDrive,
   'internet-archive': Globe,
   'blu-ray': Disc,
-  'dvd': Disc
+  'dvd': Disc,
+
+  // Energy
+  'slice-of-bread': Apple,
+  'banana': Apple,
+  'peanut-butter-sandwich': Apple,
+  'chocolate-bar': Apple,
+  'fast-food-meal': Apple,
+  'daily-food-intake': Apple,
+  'electronvolt': Zap,
+
+  // Speed
+  'walking-speed': PersonStanding,
+  'jogging-speed': PersonStanding,
+  'cycling-speed': PersonStanding,
+  'city-driving': Car,
+  'highway-driving': Car,
+  'speed-of-sound': Waves
 }
 
 const LAB_ICON_MAP: Record<string, any> = {
@@ -177,7 +192,7 @@ const lastUpdateTimestamp = ref<number | null>(null)
 const showLastUpdate = computed(() => props.converterType === 'currency' && displayVisualizations.value.length > 0)
 const lastUpdateTime = computed(() => lastUpdateTimestamp.value ? new Date(lastUpdateTimestamp.value).toLocaleString() : null)
 
-watch(() => props.converter, (newConverter) => {
+watch(() => props.converter, newConverter => {
   if (newConverter && 'getLastUpdate' in newConverter) {
     lastUpdateTimestamp.value = (newConverter as any).getLastUpdate()
   } else {
