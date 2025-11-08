@@ -26,7 +26,7 @@
       "@stores/*": ["shared/stores/*"],
       "@services/*": ["shared/services/*"],
       "@utils/*": ["shared/utils/*"],
-      "@types/*": ["shared/types/*"],
+      "@types/*": ["app/types/*"],
       "@features/*": ["features/*"],
       "@pages/*": ["pages/*"],
       "@router/*": ["router/*"],
@@ -35,6 +35,7 @@
       "@shared/*": ["shared/*"],
 
       "@calculator/*" : ["features/calculator/*"],
+      "@converter/*": ["features/converter/*"],
       "@base64/*" : ["features/tools/base64/*"],
       "@color/*" : ["features/tools/color/*"],
       "@settings/*" : ["features/settings/*"],

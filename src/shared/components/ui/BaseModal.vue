@@ -165,16 +165,16 @@ watch(() => props.open, val => {
   else closeModalManager(props.id)
 }, { immediate: true })
 
-const modalComposable = useModal(props.id)
-const zIndex = modalComposable.zIndex
-const isTopModal = modalComposable.isTopModal
+const modal = useModal(props.id)
+const zIndex = modal.zIndex
+const isTopModal = modal.isTopModal
 
 const isLocked = useScrollLock(document.body)
 
 const contentRef = ref<HTMLElement | null>(null)
 const focusTrap = useFocusTrap(contentRef)
 
-watch([modalComposable.isOpen, isTopModal], async([isOpen, isTop]) => {
+watch([modal.isOpen, isTopModal], async([isOpen, isTop]) => {
   const shouldActivate = isOpen && isTop
   if (shouldActivate) {
     await nextTick()

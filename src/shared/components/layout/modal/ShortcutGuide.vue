@@ -1,5 +1,6 @@
 <template>
   <BaseModal
+    id="shortcut-guide-modal"
     :open="show"
     @update:open="handleModalUpdate">
     <template #title>

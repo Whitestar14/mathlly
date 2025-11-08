@@ -2,7 +2,8 @@
 @layer base {
   /* Body + html base styles */
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground
+    font-sans font-normal;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
@@ -20,7 +21,6 @@
 	overscroll-behavior-y: contain;
 	overscroll-behavior-x: contain;
 	-webkit-overflow-scrolling: touch;
-	scrollbar-gutter: stable;
 	scrollbar-base-color: transparent;
 	scrollbar-track-color: transparent;
   }
@@ -37,7 +37,7 @@
   }
 
   textarea {
-    @apply outline-none text-foreground bg-background transition-[border-color] duration-200 ease-linear focus:ring-1 focus:ring-ring/20 focus:border-ring/50;
+    @apply outline-none text-foreground bg-background transition-[border-color] duration-200 ease-linear focus:ring-1 focus:ring-ring/50 focus:border-ring/50;
   }
 
   /* Accessibility: reduced motion */

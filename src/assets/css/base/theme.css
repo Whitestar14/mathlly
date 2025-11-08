@@ -2,7 +2,7 @@
 @import '../themes/ayu.css';
 @import '../themes/mira.css';
 @import '../themes/siena.css';
-@import '../themes/monaco.css';
+@import '../themes/dracula.css';
 
 @layer base {
   * {

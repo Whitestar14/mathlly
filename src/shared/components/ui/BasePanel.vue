@@ -87,7 +87,7 @@
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent, ref, watch, onBeforeUnmount } from 'vue'
-import { useThrottleFn, useScrollLock } from '@vueuse/core'
+import { useThrottleFn, useScrollLock, useDebouncedRefHistory } from '@vueuse/core'
 import { useFocusTrap } from '@composables/utils/useFocusTrap'
 import { usePanel } from '@composables/ui/usePanel'
 import type { PanelAPI } from '@composables/ui/types'
@@ -181,8 +181,15 @@ const mobileProps = computed(() => ({
   animationEnabled: animationEnabled.value
 }))
 
+const { last } = useDebouncedRefHistory(isDragging, {
+  debounce: 150,
+  capacity: 1
+})
+
+const isDraggingDelayed = computed(() => last.value?.snapshot ?? false)
+
 const backdropClasses = computed(() => [
-  isDragging.value ? 'bg-backdrop/20' : 'bg-backdrop/40',
+  isDraggingDelayed.value ? 'bg-backdrop/20' : 'bg-backdrop/40',
   animationEnabled.value ?
     'backdrop-blur-sm transition-colors duration-300' :
     'bg-backdrop/50'

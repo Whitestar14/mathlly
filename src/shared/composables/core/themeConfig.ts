@@ -13,7 +13,7 @@ export const themeOptions = [
 ] as const
 
 const PRESETS = {
-  vibrant: {
+  orion: {
     primary: 'bg-indigo-500 dark:bg-indigo-400',
     secondary: 'bg-indigo-200 dark:bg-indigo-300',
     accent: 'bg-indigo-50 dark:bg-indigo-950/50',
@@ -23,7 +23,7 @@ const PRESETS = {
     selectedText: 'text-indigo-700 dark:text-indigo-300',
     hoverBg: 'hover:bg-indigo-50/30 dark:hover:bg-indigo-950/20'
   },
-  neutral: {
+  mira: {
     primary: 'bg-zinc-700 dark:bg-zinc-400',
     secondary: 'bg-zinc-300 dark:bg-zinc-500',
     accent: 'bg-zinc-50 dark:bg-zinc-900/50',
@@ -53,31 +53,31 @@ const PRESETS = {
     selectedText: 'text-amber-800 dark:text-amber-300',
     hoverBg: 'hover:bg-amber-50/30 dark:hover:bg-stone-900/20'
   },
-  monaco: {
-    primary: 'bg-sky-600 dark:bg-sky-500',
-    secondary: 'bg-sky-200 dark:bg-sky-700',
-    accent: 'bg-blue-50 dark:bg-blue-950/40',
-    border: 'border-sky-300 dark:border-sky-600',
-    selectedBorder: 'border-sky-500 dark:border-sky-400',
-    selectedBg: 'bg-sky-50/50 dark:bg-slate-900/30',
-    selectedText: 'text-sky-700 dark:text-sky-300',
-    hoverBg: 'hover:bg-sky-50/30 dark:hover:bg-slate-900/20'
+  dracula: {
+    primary: 'bg-violet-500 dark:bg-violet-400',
+    secondary: 'bg-pink-400 dark:bg-pink-400',
+    accent: 'bg-slate-100 dark:bg-slate-700/50',
+    border: 'border-slate-300 dark:border-slate-600',
+    selectedBorder: 'border-violet-500 dark:border-violet-400',
+    selectedBg: 'bg-violet-50/50 dark:bg-slate-800/30',
+    selectedText: 'text-violet-700 dark:text-violet-300',
+    hoverBg: 'hover:bg-violet-50/30 dark:hover:bg-slate-800/20'
   }
 } as const
 
 type PresetName = keyof typeof PRESETS
 
 function createPack<Id extends string>(id: Id, opts: {
-  name: string;
-  description?: string;
-  preset?: PresetName;
-  preview?: { light: string; dark: string };
-  pwaColors?: { light: string; dark: string };
-  default?: boolean;
-  visual?: any;
-  variants?: string[];
+  name: string
+  description?: string
+  preset?: PresetName
+  preview?: { light: string; dark: string }
+  pwaColors?: { light: string; dark: string }
+  default?: boolean
+  visual?: any
+  variants?: string[]
 }) {
-  const visualColors = opts.visual ? opts.visual : PRESETS[opts.preset ?? 'neutral']
+  const visualColors = opts.visual ? opts.visual : PRESETS[opts.preset ?? 'mira']
   const preview = opts.preview ?? { light: opts.pwaColors?.light ?? '#ffffff', dark: opts.pwaColors?.dark ?? '#000000' }
   const pwaColors = opts.pwaColors ?? preview
 
@@ -97,7 +97,7 @@ const THEME_PACK_LIST = [
   createPack('orion', {
     name: 'Orion',
     description: 'Classic indigo theme with vibrant accents and familiar patterns',
-    preset: 'vibrant',
+    preset: 'orion',
     preview: { light: '#4f46e5', dark: '#818cf8' },
     pwaColors: { light: '#5a00ff', dark: '#6e89ff' },
     default: false
@@ -105,7 +105,7 @@ const THEME_PACK_LIST = [
   createPack('mira', {
     name: 'Mira',
     description: 'Modern minimalist design with clean lines and neutral tones',
-    preset: 'neutral',
+    preset: 'mira',
     preview: { light: '#18181b', dark: '#fafafa' },
     pwaColors: { light: '#18181b', dark: '#fafafa' },
     default: true
@@ -127,13 +127,14 @@ const THEME_PACK_LIST = [
     default: false,
     variants: ['bordered']
   }),
-  createPack('monaco', {
-    name: 'Monaco',
-    description: 'VS Code inspired theme with cool blue-gray tones',
-    preset: 'monaco',
-    preview: { light: '#007ACC', dark: '#569CD6' },
-    pwaColors: { light: '#007ACC', dark: '#569CD6' },
-    default: false
+  createPack('dracula', {
+    name: 'Dracula',
+    description: 'Vibrant theme with a dark purple background and bold accents.',
+    preset: 'dracula',
+    preview: { light: '#bd93f9', dark: '#ff79c6' },
+    pwaColors: { light: '#bd93f9', dark: '#282a36' },
+    default: false,
+    variants: ['darkened']
   })
 ] as const
 
@@ -158,16 +159,16 @@ export function getThemeColor(packKey: ThemePackOption, darkMode: boolean) {
 }
 
 export function registerThemePack<Id extends string>(id: Id, def: {
-  name: string;
-  description?: string;
-  preview?: { light: string; dark: string };
-  preset?: PresetName;
-  visual?: any;
-  pwaColors: { light: string; dark: string };
-  default?: boolean;
-  variants?: string[];
+  name: string
+  description?: string
+  preview?: { light: string; dark: string }
+  preset?: PresetName
+  visual?: any
+  pwaColors: { light: string; dark: string }
+  default?: boolean
+  variants?: string[]
 }) {
-  const visual = def.visual ?? PRESETS[def.preset ?? 'neutral'];
+  const visual = def.visual ?? PRESETS[def.preset ?? 'mira'];
 
   (RUNTIME_PACKS as any)[id] = { visual, pwaColors: def.pwaColors };
 

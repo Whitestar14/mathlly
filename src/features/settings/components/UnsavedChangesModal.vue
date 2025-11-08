@@ -17,6 +17,7 @@ defineEmits<Emits>()
 
 <template>
   <BaseModal
+    id="confirmation-unsaved-changes-modal"
     :open="open"
     @update:open="$emit('update:open', $event)">
     <template #title>

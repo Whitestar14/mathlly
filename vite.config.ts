@@ -44,6 +44,25 @@ export default defineConfig({
                 maxAgeSeconds: 60 * 60 * 24 * 30
               }
             }
+          },
+          {
+            urlPattern: /^https:\/\/open\.er-api\.com\//,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'currency-api',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 2
+              },
+              networkTimeoutSeconds: 10
+            }
+          },
+          {
+            urlPattern: /^https:\/\/open\.er-api\.com\//,
+            handler: 'NetworkOnly',
+            options: {
+              cacheName: 'currency-api-fallback'
+            }
           }
         ]
       },
@@ -69,7 +88,7 @@ export default defineConfig({
       '@stores': resolve(__dirname, './src/shared/stores'),
       '@services': resolve(__dirname, './src/shared/services'),
       '@utils': resolve(__dirname, './src/shared/utils'),
-      '@types': resolve(__dirname, './src/shared/types'),
+      '@types': resolve(__dirname, './src/app/types'),
       '@features': resolve(__dirname, './src/features'),
       '@pages': resolve(__dirname, './src/pages'),
       '@router': resolve(__dirname, './src/router'),
@@ -79,6 +98,7 @@ export default defineConfig({
       '@calculator': resolve(__dirname, './src/features/calculator'),
       '@base64': resolve(__dirname, './src/features/tools/base64'),
       '@color': resolve(__dirname, './src/features/tools/color'),
+      '@converter': resolve(__dirname, './src/features/converter'),
       '@settings': resolve(__dirname, './src/features/settings')
     }
   },

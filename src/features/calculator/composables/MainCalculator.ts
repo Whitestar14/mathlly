@@ -122,7 +122,7 @@ export function CalculatorController(
         )
         setAnimation(result.result)
       }
-    } catch(err) {
+    } catch (err) {
       console.error('Calculator operation error:', err)
       updateState({ input: 'Error', error: 'Operation failed' })
     }
@@ -152,7 +152,7 @@ export function CalculatorController(
       try {
         const updatedValues = calculator.value.updateDisplayValues(state.input)
         updateDisplayValues(updatedValues)
-      } catch(error) {
+      } catch (error) {
         console.error('Error updating display values:', error)
       }
     }
@@ -195,7 +195,7 @@ export function CalculatorController(
       if (value === 'Error') return value
       try {
         return displayFormatter.format(value, options)
-      } catch(err) {
+      } catch (err) {
         console.error('Error formatting display text:', err)
         return String(value)
       }
@@ -240,7 +240,6 @@ export function CalculatorController(
     const v = normalizeInput(e)
 
     if (v === '=') {
-      e.preventDefault()
       handleButtonClick('=')
       return
     }
@@ -252,7 +251,6 @@ export function CalculatorController(
         v === ')' ||
         CalculatorUtils.isValidForBase(v, state.activeBase)
       ) {
-        e.preventDefault()
         handleButtonClick(v)
       }
     } else {
@@ -263,7 +261,6 @@ export function CalculatorController(
         v === ')' ||
         v === '.'
       ) {
-        e.preventDefault()
         handleButtonClick(v)
       }
     }
@@ -271,6 +268,7 @@ export function CalculatorController(
 
   onMounted(() => {
     keyboard.pushContext('calculator')
+    keyboard.enableTextInput('calculator', /^[0-9a-zA-Z+\-*/=().]$/, { preventDefault: true })
 
     keyboard.attachAllForContext('calculator', {
       Enter: () => handleButtonClick('='),
@@ -290,7 +288,6 @@ export function CalculatorController(
   })
 
   onUnmounted(() => {
-    keyboard.clearInputProxy('calculator')
     keyboard.popContext('calculator')
   })
 

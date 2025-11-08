@@ -81,7 +81,7 @@ const cancelResetDatabase = (): void => {
     </div>
   </BaseCollapsible>
 
-  <BaseModal v-model:open="showResetDatabaseModal">
+  <BaseModal id="reset-database-modal" v-model:open="showResetDatabaseModal">
     <template #title>
       <div class="flex items-center gap-2 text-foreground">
         <AlertTriangle class="h-5 w-5" />

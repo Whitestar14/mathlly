@@ -53,13 +53,19 @@ export const useAppStorageStore = defineStore('appStorage', () => {
 
   const BLOB_KEY = 'app:data'
   const VERSION_KEY = 'app:storage-version'
-  const STORAGE_VERSION = '0.0.2'
+  /**
+   * '0' - Important, necessary update from dev to prod
+   * '0' - Non-important but useful update to match prod
+   * '0' - Me just flexing around breaking things on dev
+   */
+  const PROD_VERSION = '0.0.2'
+  const DEV_VERSION = '0.0.4'
 
   function _loadBlob(): void {
     try {
       const stored = localStorage.getItem(BLOB_KEY)
       blob.value = stored ? JSON.parse(stored) : {}
-    } catch(err) {
+    } catch (err) {
       console.warn('Failed to load storage blob:', err)
       blob.value = {}
     }
@@ -68,7 +74,7 @@ export const useAppStorageStore = defineStore('appStorage', () => {
   function _saveBlob(): void {
     try {
       localStorage.setItem(BLOB_KEY, JSON.stringify(blob.value))
-    } catch(err) {
+    } catch (err) {
       console.warn('Failed to save storage blob:', err)
     }
   }
@@ -119,7 +125,7 @@ export const useAppStorageStore = defineStore('appStorage', () => {
   ): void {
     _ensureLoaded()
     if (!blob.value[namespace]) blob.value[namespace] = {} as any
-    ; (blob.value[namespace] as any)[key] = value
+      ; (blob.value[namespace] as any)[key] = value
     _saveBlob()
   }
 
@@ -169,9 +175,15 @@ export const useAppStorageStore = defineStore('appStorage', () => {
 
   function ensureStorageVersion(): void {
     const current = localStorage.getItem(VERSION_KEY)
-    if (current !== STORAGE_VERSION) {
+
+    if (import.meta.env.DEV) {
+      if (current == DEV_VERSION) return
       localStorage.clear()
-      localStorage.setItem(VERSION_KEY, STORAGE_VERSION)
+      localStorage.setItem(VERSION_KEY, DEV_VERSION)
+    } else {
+      if (current == PROD_VERSION) return
+      localStorage.clear()
+      localStorage.setItem(VERSION_KEY, PROD_VERSION)
     }
   }
 

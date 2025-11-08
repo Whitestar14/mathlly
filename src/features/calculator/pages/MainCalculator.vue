@@ -6,7 +6,7 @@
     main-class="flex"
     :is-tool-layout="true">
     <div
-      class="flex-grow flex-initial bg-background overflow-hidden transition-colors duration-300">
+      class="flex-1 bg-background overflow-hidden transition-colors duration-300">
       <div
         class="grid grid-cols-1 h-full p-4 gap-1 mx-auto"
         :class="
