@@ -236,12 +236,12 @@ export function CalculatorController(
     return raw
   }
 
-  function calculatorInputProxy(e: KeyboardEvent) {
+  function calculatorInputProxy(e: KeyboardEvent): boolean {
     const v = normalizeInput(e)
 
     if (v === '=') {
       handleButtonClick('=')
-      return
+      return true
     }
 
     if (state.mode === 'Programmer') {
@@ -252,6 +252,7 @@ export function CalculatorController(
         CalculatorUtils.isValidForBase(v, state.activeBase)
       ) {
         handleButtonClick(v)
+        return true
       }
     } else {
       if (
@@ -262,8 +263,10 @@ export function CalculatorController(
         v === '.'
       ) {
         handleButtonClick(v)
+        return true
       }
     }
+    return false
   }
 
   onMounted(() => {

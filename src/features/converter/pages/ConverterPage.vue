@@ -164,7 +164,7 @@ onMounted(async() => {
   keyboard.pushContext('converter')
   keyboard.enableTextInput('converter', /^[0-9.]$/, { preventDefault: false })
 
-  keyboard.setInputProxy('converter', (e, payload) => {
+  keyboard.setInputProxy('converter', (_, payload) => {
     const { key } = payload
 
     const activeElement = document.activeElement
