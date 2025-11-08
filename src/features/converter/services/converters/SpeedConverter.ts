@@ -20,19 +20,16 @@ export class SpeedConverter extends BaseConverter {
   }
 
   readonly units: ConversionUnit[] = [
-    // Metric Units
+
     { id: 'meter-per-second', symbol: 'm/s', name: 'Meter per Second', category: 'speed' },
     { id: 'kilometer-per-hour', symbol: 'km/h', name: 'Kilometer per Hour', category: 'speed' },
 
-    // Imperial/US Units
     { id: 'mile-per-hour', symbol: 'mi/h', name: 'Mile per Hour', category: 'speed' },
     { id: 'foot-per-second', symbol: 'ft/s', name: 'Foot per Second', category: 'speed' },
     { id: 'inch-per-second', symbol: 'in/s', name: 'Inch per Second', category: 'speed' },
 
-    // Nautical Units
     { id: 'knot', symbol: 'kn', name: 'Knot', category: 'speed' },
 
-    // Other Units
     { id: 'mach', symbol: 'Ma', name: 'Mach', category: 'speed' },
     { id: 'speed-of-light', symbol: 'c', name: 'Speed of Light', category: 'speed' }
   ]
@@ -56,7 +53,6 @@ export class SpeedConverter extends BaseConverter {
       }
     }
 
-    // Both units are supported by Math.js
     const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
     const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
 

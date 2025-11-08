@@ -257,7 +257,6 @@ export const useKeyboardStore = defineStore('keyboard', {
         return true
       })
 
-      // Auto-cleanup associated resources
       this.disableTextInput(context)
       this.clearInputProxy(context)
 
@@ -500,7 +499,6 @@ export const useKeyboardStore = defineStore('keyboard', {
         return
       }
 
-      // Check text input configuration
       const textInputConfig = this.getTextInputConfig()
       if (textInputConfig && this.isSingleCharacterKey(e)) {
         const isAllowed = this.isCharacterAllowed(e.key, textInputConfig.mode)
@@ -561,7 +559,7 @@ export const useKeyboardStore = defineStore('keyboard', {
      */
     computeCollisionsForKey(key: CanonicalKey) {
       const list = this.bindingsByKey.get(key) ?? []
-      // Only consider enabled bindings for conflicts
+
       const enabledBindings = list.filter(b => b.enabled)
 
       if (enabledBindings.length <= 1) {
@@ -590,7 +588,7 @@ export const useKeyboardStore = defineStore('keyboard', {
         for (const list of this.bindingsByKey.values()) {
           for (const b of list) this._setEnabled(b.id, false)
         }
-        // Recompute all collisions after disabling
+
         this.recomputeAllCollisions()
         return
       }
@@ -602,7 +600,7 @@ export const useKeyboardStore = defineStore('keyboard', {
           this._setEnabled(b.id, shouldEnable)
         }
       }
-      // Recompute all collisions after context changes
+
       this.recomputeAllCollisions()
     },
 
@@ -636,7 +634,6 @@ export const useKeyboardStore = defineStore('keyboard', {
      * Helper to determine if a key event represents a single character (for text input).
      */
     isSingleCharacterKey(e: KeyboardEvent): boolean {
-      // Allow single character keys without modifiers
       return !e.ctrlKey && !e.altKey && !e.metaKey &&
         e.key.length === 1 &&
         !['Enter', 'Tab', 'Escape', 'Backspace', 'Delete'].includes(e.key)

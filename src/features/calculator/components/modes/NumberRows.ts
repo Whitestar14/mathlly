@@ -65,7 +65,7 @@ export const scientificSecondRow = markRaw<ButtonConfig[]>([
   { value: '1/x', variant: 'function', checkMaxLength: true },
   { value: '|x|', variant: 'function', checkMaxLength: true },
   { value: 'exp', variant: 'function', checkMaxLength: true },
-  { value: 'mod', variant: 'function', checkMaxLength: true },
+  { value: 'mod', variant: 'function', checkMaxLength: true }
 ])
 
 export const programmerFirstRow = markRaw<ButtonConfig[]>([

@@ -13,42 +13,42 @@ export interface VisualizationItem {
 
 /** Symbolized unit display labels */
 const UNIT_DISPLAY: Record<string, string> = {
-  // temperature
+
   celsius: '°C', fahrenheit: '°F', kelvin: 'K',
-  // length
+
   meter: 'm', kilometer: 'km', centimeter: 'cm', millimeter: 'mm',
   mile: 'mi', yard: 'yd', foot: 'ft', inch: 'in',
-  // area
+
   squareMeter: 'm²', squareKilometer: 'km²', squareCentimeter: 'cm²',
   squareFoot: 'ft²', squareYard: 'yd²', squareInch: 'in²', acre: 'ac', hectare: 'ha',
-  // weight
+
   kilogram: 'kg', gram: 'g', milligram: 'mg', tonne: 't', pound: 'lb', ounce: 'oz',
-  // volume
+
   liter: 'L', milliliter: 'mL', cubicMeter: 'm³', gallon: 'gal', quart: 'qt', pint: 'pt', cup: 'cup', tablespoon: 'tbsp', teaspoon: 'tsp',
-  // data (binary prefixes)
+
   byte: 'B', kilobyte: 'KB', megabyte: 'MB', gigabyte: 'GB', terabyte: 'TB', petabyte: 'PB',
-  // energy
+
   joule: 'J', kilojoule: 'kJ', megajoule: 'MJ', gigajoule: 'GJ', calorie: 'cal', kilocalorie: 'kcal',
   wattHour: 'Wh', kilowattHour: 'kWh', megawattHour: 'MWh', britishThermalUnit: 'BTU',
   footPound: 'ft⋅lb', erg: 'erg', electronvolt: 'eV',
-  // speed
+
   meterPerSecond: 'm/s', kilometerPerHour: 'km/h', milePerHour: 'mph', footPerSecond: 'ft/s',
   inchPerSecond: 'in/s', knot: 'kn', mach: 'Ma', speedOfLight: 'c',
-  // time
+
   second: 's', millisecond: 'ms', microsecond: 'µs', nanosecond: 'ns', minute: 'min', hour: 'h',
   day: 'd', week: 'wk', month: 'mo', year: 'yr', decade: 'dec', century: 'cent', millennium: 'mill',
   siderealDay: 'sidereal d', siderealYear: 'sidereal yr',
-  // power
+
   watt: 'W', kilowatt: 'kW', megawatt: 'MW', gigawatt: 'GW', horsepower: 'hp',
   horsepowerMetric: 'hp(M)', britishThermalUnitPerHour: 'BTU/h', britishThermalUnitPerMinute: 'BTU/min',
   footPoundPerSecond: 'ft⋅lb/s', footPoundPerMinute: 'ft⋅lb/min', caloriePerSecond: 'cal/s',
   caloriePerMinute: 'cal/min', joulePerSecond: 'J/s',
-  // pressure
+
   pascal: 'Pa', kilopascal: 'kPa', megapascal: 'MPa', bar: 'bar', millibar: 'mbar',
   atmosphere: 'atm', torr: 'Torr', millimeterOfMercury: 'mmHg', poundPerSquareInch: 'psi',
   poundPerSquareFoot: 'psf', barye: 'Ba', centimeterOfWater: 'cmH₂O', inchOfWater: 'inH₂O',
   centimeterOfMercury: 'cmHg', inchOfMercury: 'inHg',
-  // angle
+
   degree: '°', radian: 'rad', gradian: 'grad', arcminute: "'", arcsecond: '"',
   milliradian: 'mil', turn: 'turn', quadrant: 'quad', sextant: 'sextant'
 }
@@ -263,7 +263,6 @@ function pickScientificUnits(value: number, type: SupportedType, from: string, t
     return { unit: u, v, score: readabilityScore(v) }
   }).sort((a, b) => a.score - b.score)
 
-  // Prefer values in 0.01–100000 range
   const preferred = candidates.filter(c => Math.abs(c.v) >= 0.01 && Math.abs(c.v) <= 100000)
 
   const chosen = (preferred.length > 0 ? preferred : candidates).slice(0, topN)
@@ -282,7 +281,6 @@ function buildReferenceViz(value: number, type: SupportedType, from: string, max
     return { ref, valInRefUnit, multiplier, approx, distanceToOne: Math.abs(multiplier - 1) }
   }).sort((a, b) => a.distanceToOne - b.distanceToOne)
 
-  // Prefer multipliers in 0.01–1000 range
   const preferred = scored.filter(r => r.multiplier >= 0.01 && r.multiplier <= 1000)
 
   const chosen = (preferred.length > 0 ? preferred : scored).slice(0, maxRefs)

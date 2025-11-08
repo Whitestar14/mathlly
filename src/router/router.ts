@@ -136,7 +136,7 @@ router.afterEach(to => {
   of staying put on the current page! Please, it took me way too much time than I'll allowed
   to admit to discover why app rerouting and navigation didn't behave as expected.
  */
-router.beforeEach(async (to, _, next) => {
+router.beforeEach(async(to, _, next) => {
   isRouteLoading.value = true
 
   if (!isInitialNavigation) {
@@ -167,7 +167,7 @@ router.beforeEach(async (to, _, next) => {
     }
 
     return next()
-  } catch (error) {
+  } catch(error) {
     console.error('Error in initial navigation guard:', error)
     return next()
   }

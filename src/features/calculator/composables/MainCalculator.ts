@@ -122,7 +122,7 @@ export function CalculatorController(
         )
         setAnimation(result.result)
       }
-    } catch (err) {
+    } catch(err) {
       console.error('Calculator operation error:', err)
       updateState({ input: 'Error', error: 'Operation failed' })
     }
@@ -152,7 +152,7 @@ export function CalculatorController(
       try {
         const updatedValues = calculator.value.updateDisplayValues(state.input)
         updateDisplayValues(updatedValues)
-      } catch (error) {
+      } catch(error) {
         console.error('Error updating display values:', error)
       }
     }
@@ -195,7 +195,7 @@ export function CalculatorController(
       if (value === 'Error') return value
       try {
         return displayFormatter.format(value, options)
-      } catch (err) {
+      } catch(err) {
         console.error('Error formatting display text:', err)
         return String(value)
       }

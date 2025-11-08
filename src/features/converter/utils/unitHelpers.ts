@@ -66,26 +66,24 @@ export function getMathJsUnitName(unitId: string, converterType: ConverterType):
       rankine: 'degR'
     },
     length: {
-      // SI Units
+
       meter: 'm',
       kilometer: 'km',
       centimeter: 'cm',
       millimeter: 'mm',
 
-      // Imperial/US Units
       foot: 'ft',
       inch: 'inch',
       'nautical-mile': 'nauticalmile'
 
     },
     weight: {
-      // SI Units
+
       kilogram: 'kg',
       gram: 'g',
       milligram: 'mg',
       'metric-ton': 'tonne',
 
-      // Imperial/US Units
       pound: 'lb',
       ounce: 'oz'
 

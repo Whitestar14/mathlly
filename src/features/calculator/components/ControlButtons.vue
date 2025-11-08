@@ -8,7 +8,7 @@
         size="icon"
         class="rounded-none group-hover:bg-opacity-100 md:hidden"
         @click="openHistory">
-        <Icon name="hexagon3" :iconNode="hexagons3" size="15" />
+        <Icon name="hexagon3" :icon-node="hexagons3" size="15" />
       </BaseButton>
       <Separator
         class="h-6 bg-border w-px md:hidden group-has-[.rounded-none:hover]:h-8 transition-[height]" />

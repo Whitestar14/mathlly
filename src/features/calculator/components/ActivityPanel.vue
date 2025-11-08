@@ -97,7 +97,7 @@
   </BasePanel>
 
   <BaseModal
-  id="confirmation-delete-history-modal"
+    id="confirmation-delete-history-modal"
     v-model:open="showClearConfirmation"
     description="confirmation-dialog">
     <template #title>
