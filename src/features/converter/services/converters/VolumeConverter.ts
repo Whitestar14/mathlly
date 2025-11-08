@@ -1,7 +1,6 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
+import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class VolumeConverter extends BaseConverter {
   readonly id: ConverterType = 'volume'
@@ -76,28 +75,7 @@ export class VolumeConverter extends BaseConverter {
   ]
 
   convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let liters: number
-      if (this.customConversions[fromUnit]) {
-        liters = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        liters = unit(value, mathJsFromUnit).to('L').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return liters / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(liters, 'L').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
+    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'L')
   }
 
   validateUnits(fromUnit: string, toUnit: string): boolean {

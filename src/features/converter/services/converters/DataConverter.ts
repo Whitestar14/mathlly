@@ -1,7 +1,6 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
+import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class DataConverter extends BaseConverter {
   readonly id: ConverterType = 'data'
@@ -66,28 +65,7 @@ export class DataConverter extends BaseConverter {
   ]
 
   convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let bytes: number
-      if (this.customConversions[fromUnit]) {
-        bytes = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        bytes = unit(value, mathJsFromUnit).to('byte').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return bytes / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(bytes, 'byte').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
+    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'byte')
   }
 
   validateUnits(fromUnit: string, toUnit: string): boolean {

@@ -1,7 +1,6 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
+import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class EnergyConverter extends BaseConverter {
   readonly id: ConverterType = 'energy'
@@ -35,29 +34,7 @@ export class EnergyConverter extends BaseConverter {
   ]
 
   convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let joules: number
-      if (this.customConversions[fromUnit]) {
-        joules = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        const mathUnit = unit(value, mathJsFromUnit)
-        joules = mathUnit.to('J').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return joules / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(joules, 'J').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
+    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'J')
   }
 
   validateUnits(fromUnit: string, toUnit: string): boolean {

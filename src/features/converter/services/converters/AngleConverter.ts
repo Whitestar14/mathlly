@@ -1,7 +1,6 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
+import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class AngleConverter extends BaseConverter {
   readonly id: ConverterType = 'angle'
@@ -30,29 +29,7 @@ export class AngleConverter extends BaseConverter {
   ]
 
   convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let radians: number
-      if (this.customConversions[fromUnit]) {
-        radians = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        const mathUnit = unit(value, mathJsFromUnit)
-        radians = mathUnit.to('rad').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return radians / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(radians, 'rad').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
+    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'rad')
   }
 
   validateUnits(fromUnit: string, toUnit: string): boolean {

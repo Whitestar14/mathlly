@@ -5,7 +5,7 @@
       :key="base"
       size="sm"
       :class="[
-        'flex justify-between items-center py-2 px-3 h-auto text-xs font-medium rounded-md border cursor-pointer transition-transform active:scale-95 duration-150',
+        'flex justify-between focus:ring-0 items-center py-2 px-3 h-auto text-xs font-medium rounded-md border cursor-pointer transition-transform active:scale-95 duration-150',
         activeBase === base
           ? 'bg-primary/10 border-primary/30 text-primary shadow-sm hover:bg-primary/15 hover:text-primary/80'
           : 'bg-muted/30 border-border hover:bg-muted/50 hover:text-foreground',

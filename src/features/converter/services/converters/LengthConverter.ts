@@ -1,7 +1,6 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
+import { convertWithCustom } from '@features/converter/utils/customConversionsHelper'
 
 export class LengthConverter extends BaseConverter {
   readonly id: ConverterType = 'length'
@@ -51,29 +50,7 @@ export class LengthConverter extends BaseConverter {
   ]
 
   convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let meters: number
-      if (this.customConversions[fromUnit]) {
-        meters = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        const mathUnit = unit(value, mathJsFromUnit)
-        meters = mathUnit.to('m').toNumber() // Fix: call toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return meters / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(meters, 'm').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
+    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'm')
   }
 
   validateUnits(fromUnit: string, toUnit: string): boolean {

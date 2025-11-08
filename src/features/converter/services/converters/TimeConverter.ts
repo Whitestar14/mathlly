@@ -1,7 +1,6 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
+import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class TimeConverter extends BaseConverter {
   readonly id: ConverterType = 'time'
@@ -41,29 +40,7 @@ export class TimeConverter extends BaseConverter {
   ]
 
   convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let seconds: number
-      if (this.customConversions[fromUnit]) {
-        seconds = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        const mathUnit = unit(value, mathJsFromUnit)
-        seconds = mathUnit.to('s').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return seconds / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(seconds, 's').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
+    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 's')
   }
 
   validateUnits(fromUnit: string, toUnit: string): boolean {

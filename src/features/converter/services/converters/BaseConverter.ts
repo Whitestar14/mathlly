@@ -25,7 +25,7 @@ export interface ICssUnitConverter extends BaseConverter {
   convert(value: number, fromUnit: string, toUnit: string): number
 }
 
-export function isCssUnitConverter(conv: unknown): conv is ICssUnitConverter {
+export function isCssUnitConverter(conv: BaseConverter | null): conv is ICssUnitConverter {
   return !!conv && (conv as ICssUnitConverter).id === 'css-units'
 }
 

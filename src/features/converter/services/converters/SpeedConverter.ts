@@ -1,8 +1,6 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
-
+import { convertWithCustom } from '../../utils/customConversionsHelper'
 export class SpeedConverter extends BaseConverter {
   readonly id: ConverterType = 'speed'
   readonly name = 'Speed Converter'
@@ -35,29 +33,7 @@ export class SpeedConverter extends BaseConverter {
   ]
 
   convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let speed: number
-      if (this.customConversions[fromUnit])
-        speed = value * this.customConversions[fromUnit]
-      else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        const mathUnit = unit(value, mathJsFromUnit)
-        speed = mathUnit.to('m/s').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return speed / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(speed, 'm/s').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
+    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'm/s')
   }
 
   validateUnits(fromUnit: string, toUnit: string): boolean {

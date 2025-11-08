@@ -1,8 +1,6 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
-
+import { convertWithCustom } from '../../utils/customConversionsHelper'
 export class WeightConverter extends BaseConverter {
   readonly id: ConverterType = 'weight'
   readonly name = 'Weight & Mass Converter'
@@ -50,28 +48,7 @@ export class WeightConverter extends BaseConverter {
   ]
 
   convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let kilograms: number
-      if (this.customConversions[fromUnit]) {
-        kilograms = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        kilograms = unit(value, mathJsFromUnit).to('kg').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return kilograms / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(kilograms, 'kg').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
+    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'kg')
   }
 
   validateUnits(fromUnit: string, toUnit: string): boolean {
