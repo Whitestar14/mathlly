@@ -1,6 +1,17 @@
 {
   "updates": [
     {
+      "version": "0.15.1",
+      "date": "November 8, 2025",
+      "features": [
+        "@milestone: Improved data transfer speeds by reducing bundle size by about 50%",
+        "Fixed the update service worker not triggering an automatic reload when user clicks on the handleUpdate trigger",
+        "Fixed lucide-vue-icons mapping error that caused several crashes in multiple parts of the app",
+        "Fixed the bug that mapped the C character button in Programmer HEX mode to clearing input",
+        "Improve siena dark theme pwa colors and reduced LCP by 2s"
+      ]
+    },
+    {
       "version": "0.15.0",
       "date": "November 8, 2025",
       "features": [
