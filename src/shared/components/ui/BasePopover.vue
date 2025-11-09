@@ -38,7 +38,7 @@ const props = defineProps({
   sideOffset: { type: Number, default: 6 },
   align: {
     type: String as () => 'start' | 'center' | 'end',
-    default: 'start'
+    default: 'end'
   },
   side: {
     type: String as () => 'top' | 'right' | 'bottom' | 'left',

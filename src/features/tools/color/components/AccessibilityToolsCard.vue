@@ -52,11 +52,12 @@
           </span>
         </div>
         <div
-          class="p-4 rounded border flex justify-center items-center"
-          :style="{ backgroundColor: convertColor(contrastBg).hex, color: convertColor(currentSafe).hex }">
+          class="p-4 rounded border border-border flex justify-center items-center"
+          :style="{ backgroundColor: convertColor(contrastBg).hex }">
           <textarea
             v-model="sampleText"
             dir="ltr"
+            :style="{ color: convertColor(currentSafe).hex }"
             class="text-center w-full h-5 resize-none focus:ring-0 bg-transparent outline-none"
             @blur="onPreviewBlur"></textarea>
         </div>

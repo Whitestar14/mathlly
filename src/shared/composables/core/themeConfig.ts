@@ -47,8 +47,8 @@ const PRESETS = {
     primary: 'bg-amber-700 dark:bg-amber-600',
     secondary: 'bg-amber-300 dark:bg-amber-800',
     accent: 'bg-orange-100 dark:bg-orange-900/40',
-    border: 'border-amber-400 dark:border-amber-700',
-    selectedBorder: 'border-amber-600 dark:border-amber-500',
+    border: 'border-amber-400 dark:border-[#ffb597]',
+    selectedBorder: 'border-amber-600 dark:border-[#ffb597]',
     selectedBg: 'bg-amber-50/50 dark:bg-stone-900/30',
     selectedText: 'text-amber-800 dark:text-amber-300',
     hoverBg: 'hover:bg-amber-50/30 dark:hover:bg-stone-900/20'
@@ -114,8 +114,8 @@ const THEME_PACK_LIST = [
     name: 'Siena',
     description: 'Warm sepia tones inspired by aged paper and earth',
     preset: 'siena',
-    preview: { light: '#C19A6B', dark: '#8B6F47' },
-    pwaColors: { light: '#ede3dc', dark: '#8B6F47' },
+    preview: { light: '#C19A6B', dark: '#ffb597' },
+    pwaColors: { light: '#ede3dc', dark: '#ffb597' },
     default: false
   }),
   createPack('ayu', {

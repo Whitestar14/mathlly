@@ -11,7 +11,9 @@ export class EnergyConverter extends BaseConverter {
   protected readonly canonicalUnit: string = 'J'
 
   protected readonly customConversions: Record<string, number> = {
-    'megawatt-hour': 3_600_000_000
+    'megawatt-hour': 3_600_000_000,
+    'calorie': 4.184,
+    'kilocalorie': 4184
   }
 
   readonly units: ConversionUnit[] = [

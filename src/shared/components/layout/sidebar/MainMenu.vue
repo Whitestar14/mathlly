@@ -98,7 +98,7 @@
         <div class="flex-shrink-0 p-3 flex flex-col gap-2 pt-0">
           <BaseButton
             variant="ghost"
-            class="w-full flex flex-row justify-between px-3 py-2 h-auto text-muted-foreground rounded-lg border border-border/50 hover:border-border"
+            class="w-full flex flex-row justify-between px-2 pl-3 py-2 h-auto text-muted-foreground rounded-lg border border-border/50 hover:border-border"
             @click="showTroubleshooting = true">
             <span class="flex flex-row items-center gap-2">
               <Wrench class="size-4" />
