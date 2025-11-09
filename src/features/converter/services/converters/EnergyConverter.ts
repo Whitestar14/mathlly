@@ -8,7 +8,7 @@ export class EnergyConverter extends BaseConverter {
   readonly icon = 'zap'
   readonly defaultFromUnit = 'joule'
   readonly defaultToUnit = 'kilocalorie'
-  protected readonly canonicalUnit: string = 'J'
+  readonly canonicalUnit = 'J'
 
   protected readonly customConversions: Record<string, number> = {
     'megawatt-hour': 3_600_000_000,

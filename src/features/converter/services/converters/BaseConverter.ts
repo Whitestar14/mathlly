@@ -12,12 +12,13 @@ export abstract class BaseConverter {
   abstract readonly units: ConversionUnit[]
 
   /** canonical unit for mathjs conversions (e.g. 'm/s', 'rad') */
-  protected abstract readonly canonicalUnit: string
+  abstract readonly canonicalUnit: string
 
   /** optional custom conversions relative to canonical */
-  protected readonly customConversions: Record<string, number> = {}
+  protected readonly customConversions?: Record<string, number> = {}
 
   convert(value: number, fromUnit: string, toUnit: string): number | Promise<number> {
+    if (!this.customConversions) return 0
     let baseValue: number
 
     if (this.customConversions[fromUnit]) {
@@ -48,13 +49,13 @@ export interface CurrencyConverter extends BaseConverter {
   getLastUpdate?(): number | null
 }
 
-export interface ICssUnitConverter extends BaseConverter {
+export interface CssUnitConverter extends BaseConverter {
   setBaseFontSize(size: number): void
   convert(value: number, fromUnit: string, toUnit: string): number
 }
 
-export function isCssUnitConverter(conv: BaseConverter | null): conv is ICssUnitConverter {
-  return !!conv && (conv as ICssUnitConverter).id === 'css-units'
+export function isCssUnitConverter(conv: BaseConverter | null): conv is CssUnitConverter {
+  return !!conv && (conv as CssUnitConverter).id === 'css-units'
 }
 
 export function isCurrencyConverter(conv: BaseConverter | null): conv is CurrencyConverter {

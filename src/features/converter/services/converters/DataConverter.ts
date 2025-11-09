@@ -8,29 +8,29 @@ export class DataConverter extends BaseConverter {
   readonly icon = 'hard-drive'
   readonly defaultFromUnit = 'megabyte'
   readonly defaultToUnit = 'gigabyte'
-  protected readonly canonicalUnit: string = 'byte'
+  readonly canonicalUnit = 'byte'
 
   protected readonly customConversions: Record<string, number> = {
 
-    bit: 0.125, // 1 bit = 0.125 bytes
+    bit: 0.125,
     kilobit: 0.125 * 1000,
-    megabit: 0.125 * 1000000, // 0.125 * 1000 * 1000
-    gigabit: 0.125 * 1000000000, // 0.125 * 1000 * 1000 * 1000
-    terabit: 0.125 * 1000000000000, // 0.125 * 1000 * 1000 * 1000 * 1000
-    petabit: 0.125 * 1000000000000000, // 0.125 * 1000 * 1000 * 1000 * 1000 * 1000
+    megabit: 0.125 * 1000000,
+    gigabit: 0.125 * 1000000000,
+    terabit: 0.125 * 1000000000000,
+    petabit: 0.125 * 1000000000000000,
 
     kibibyte: 1024,
-    mebibyte: 1048576, // 1024 * 1024
-    gibibyte: 1073741824, // 1024 * 1024 * 1024
-    tebibyte: 1099511627776, // 1024 * 1024 * 1024 * 1024
-    pebibyte: 1125899906842624, // 1024 * 1024 * 1024 * 1024 * 1024
-    exbibyte: 1152921504606846976, // 1024 * 1024 * 1024 * 1024 * 1024 * 1024
+    mebibyte: 1048576,
+    gibibyte: 1073741824,
+    tebibyte: 1099511627776,
+    pebibyte: 1125899906842624,
+    exbibyte: 1152921504606847,
 
-    kibibit: 128, // 1024 bits = 128 bytes
-    mebibit: 131072, // 128 * 1024
-    gibibit: 134217728, // 128 * 1024 * 1024
-    tebibit: 137438953472, // 128 * 1024 * 1024 * 1024
-    pebibit: 140737488355328 // 128 * 1024 * 1024 * 1024 * 1024
+    kibibit: 128,
+    mebibit: 131072,
+    gibibit: 134217728,
+    tebibit: 137438953472,
+    pebibit: 140737488355328
   }
 
   readonly units: ConversionUnit[] = [

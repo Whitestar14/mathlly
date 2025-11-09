@@ -10,7 +10,7 @@ export class TemperatureConverter extends BaseConverter {
   readonly icon = 'thermometer'
   readonly defaultFromUnit = 'celsius'
   readonly defaultToUnit = 'fahrenheit'
-  protected readonly canonicalUnit: string = 'celsius'
+  readonly canonicalUnit = 'celsius'
 
   readonly units: ConversionUnit[] = [
     {

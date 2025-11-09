@@ -9,7 +9,7 @@ export class CurrencyConverter extends BaseConverter {
   readonly icon = 'banknote'
   readonly defaultFromUnit = 'USD'
   readonly defaultToUnit = 'EUR'
-  protected readonly canonicalUnit: string = 'USD'
+  readonly canonicalUnit = 'USD'
 
   private currencyService = new BaseCurrencyService()
 

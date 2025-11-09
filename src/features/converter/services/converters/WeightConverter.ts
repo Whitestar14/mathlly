@@ -7,7 +7,7 @@ export class WeightConverter extends BaseConverter {
   readonly icon = 'weight'
   readonly defaultFromUnit = 'kilogram'
   readonly defaultToUnit = 'pound'
-  protected readonly canonicalUnit: string = 'kg'
+  readonly canonicalUnit = 'kg'
 
   protected readonly customConversions: Record<string, number> = {
     stone: 6.35029318,

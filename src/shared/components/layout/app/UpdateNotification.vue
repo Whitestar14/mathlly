@@ -100,12 +100,10 @@ const getUpdateDescription = (): string => {
 const handleUpdate = async(): Promise<void> => {
   try {
     isUpdating.value = true
-    await new Promise(resolve => setTimeout(resolve, 11500))
+    await new Promise(resolve => setTimeout(resolve, 1000))
     await updateApp()
   } catch(error) {
     console.error('Failed to update:', error)
-  } finally {
-    isUpdating.value = false
   }
 }
 </script>
@@ -257,7 +255,7 @@ const handleUpdate = async(): Promise<void> => {
 
             <BaseButton variant="primary" size="sm" class="min-w-36" @click="handleUpdate">
               <template v-if="isUpdating">
-                <Loader2 class="w-4 h-4 animate-spin" />
+                <Loader2 class="w-4 h-4 duration-500 animate-spin" />
               </template>
               <template v-else>
                 <span class="w-full flex flex-row gap-1 justify-center items-center">

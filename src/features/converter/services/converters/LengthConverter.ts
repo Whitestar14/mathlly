@@ -8,7 +8,7 @@ export class LengthConverter extends BaseConverter {
   readonly icon = 'ruler'
   readonly defaultFromUnit = 'meter'
   readonly defaultToUnit = 'foot'
-  protected readonly canonicalUnit: string = 'm'
+  readonly canonicalUnit = 'm'
 
   protected readonly customConversions: Record<string, number> = {
     fathom: 1.8288,

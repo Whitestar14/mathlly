@@ -11,7 +11,7 @@ export class CssUnitsConverter extends BaseConverter {
   readonly icon = 'code'
   readonly defaultFromUnit = 'px'
   readonly defaultToUnit = 'rem'
-  protected readonly canonicalUnit: string = 'rem'
+  readonly canonicalUnit = 'rem'
 
   private baseFontSize: number = ConverterConstants.DEFAULT_BASE_FONT_SIZE
 
@@ -19,20 +19,20 @@ export class CssUnitsConverter extends BaseConverter {
 
     rem: () => this.baseFontSize,
     em: () => this.baseFontSize,
-    ex: () => this.baseFontSize * 0.5, // Approximate: ex ≈ 0.5em
-    ch: () => this.baseFontSize * 0.6, // Approximate: ch ≈ 0.6em (width of '0')
-    lh: () => this.baseFontSize * 1.2, // Approximate line height
-    rlh: () => this.baseFontSize * 1.2, // Root line height
-    cap: () => this.baseFontSize * 0.7, // Approximate capital height
-    ic: () => this.baseFontSize, // Ideographic character ≈ 1em
-    ric: () => this.baseFontSize, // Root ideographic character ≈ 1em
+    ex: () => this.baseFontSize * 0.5,
+    ch: () => this.baseFontSize * 0.6,
+    lh: () => this.baseFontSize * 1.2,
+    rlh: () => this.baseFontSize * 1.2,
+    cap: () => this.baseFontSize * 0.7,
+    ic: () => this.baseFontSize,
+    ric: () => this.baseFontSize,
 
     vh: () => ConverterConstants.DEFAULT_VIEWPORT_HEIGHT / 100,
     vw: () => ConverterConstants.DEFAULT_VIEWPORT_WIDTH / 100,
     vmin: () => Math.min(ConverterConstants.DEFAULT_VIEWPORT_WIDTH, ConverterConstants.DEFAULT_VIEWPORT_HEIGHT) / 100,
     vmax: () => Math.max(ConverterConstants.DEFAULT_VIEWPORT_WIDTH, ConverterConstants.DEFAULT_VIEWPORT_HEIGHT) / 100,
-    vb: () => ConverterConstants.DEFAULT_VIEWPORT_HEIGHT / 100, // Block axis
-    vi: () => ConverterConstants.DEFAULT_VIEWPORT_WIDTH / 100, // Inline axis
+    vb: () => ConverterConstants.DEFAULT_VIEWPORT_HEIGHT / 100,
+    vi: () => ConverterConstants.DEFAULT_VIEWPORT_WIDTH / 100,
 
     svh: () => ConverterConstants.DEFAULT_VIEWPORT_HEIGHT / 100,
     svw: () => ConverterConstants.DEFAULT_VIEWPORT_WIDTH / 100,

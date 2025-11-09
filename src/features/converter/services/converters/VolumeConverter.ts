@@ -8,7 +8,7 @@ export class VolumeConverter extends BaseConverter {
   readonly icon = 'droplets'
   readonly defaultFromUnit = 'liter'
   readonly defaultToUnit = 'us-gallon'
-  protected readonly canonicalUnit: string = 'L'
+  readonly canonicalUnit = 'L'
 
   protected readonly customConversions: Record<string, number> = {
     'us-gallon': 3.785411784,

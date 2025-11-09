@@ -8,7 +8,7 @@ export class PowerConverter extends BaseConverter {
   readonly icon = 'bolt'
   readonly defaultFromUnit = 'watt'
   readonly defaultToUnit = 'horsepower'
-  protected readonly canonicalUnit: string = 'W'
+  readonly canonicalUnit = 'W'
 
   protected readonly customConversions: Record<string, number> = {
     'horsepower-metric': 735.49875,

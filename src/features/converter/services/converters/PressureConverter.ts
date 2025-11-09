@@ -8,7 +8,7 @@ export class PressureConverter extends BaseConverter {
   readonly icon = 'bar-chart-3'
   readonly defaultFromUnit = 'pascal'
   readonly defaultToUnit = 'bar'
-  protected readonly canonicalUnit: string = 'Pa'
+  readonly canonicalUnit = 'Pa'
 
   protected readonly customConversions: Record<string, number> = {
     millibar: 100,

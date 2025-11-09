@@ -8,7 +8,7 @@ export class TimeConverter extends BaseConverter {
   readonly icon = 'clock'
   readonly defaultFromUnit = 'second'
   readonly defaultToUnit = 'minute'
-  protected readonly canonicalUnit: string = 's'
+  readonly canonicalUnit = 's'
 
   protected readonly customConversions: Record<string, number> = {
     decade: 315360000,

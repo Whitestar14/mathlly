@@ -7,7 +7,7 @@ export class AngleConverter extends BaseConverter {
   readonly icon = 'triangle'
   readonly defaultFromUnit = 'degree'
   readonly defaultToUnit = 'radian'
-  protected readonly canonicalUnit = 'rad'
+  readonly canonicalUnit = 'rad'
 
   protected readonly customConversions: Record<string, number> = {
     quadrant: Math.PI / 2,

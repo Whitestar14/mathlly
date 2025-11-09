@@ -8,7 +8,7 @@ export class AreaConverter extends BaseConverter {
   readonly icon = 'square'
   readonly defaultFromUnit = 'square-meter'
   readonly defaultToUnit = 'square-foot'
-  protected readonly canonicalUnit: string = 'm2'
+  readonly canonicalUnit = 'm2'
 
   protected readonly customConversions: Record<string, number> = {
     acre: 4046.8564224,
