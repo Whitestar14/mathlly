@@ -1,7 +1,5 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
 
 export class TimeConverter extends BaseConverter {
   readonly id: ConverterType = 'time'
@@ -10,8 +8,9 @@ export class TimeConverter extends BaseConverter {
   readonly icon = 'clock'
   readonly defaultFromUnit = 'second'
   readonly defaultToUnit = 'minute'
+  readonly canonicalUnit = 's'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     decade: 315360000,
     century: 3153600000,
     millennium: 31536000000,
@@ -39,35 +38,4 @@ export class TimeConverter extends BaseConverter {
     { id: 'sidereal-day', symbol: 'sidereal d', name: 'Sidereal Day', category: 'time' },
     { id: 'sidereal-year', symbol: 'sidereal yr', name: 'Sidereal Year', category: 'time' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let seconds: number
-      if (this.customConversions[fromUnit]) {
-        seconds = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        const mathUnit = unit(value, mathJsFromUnit)
-        seconds = mathUnit.to('s').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return seconds / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(seconds, 's').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

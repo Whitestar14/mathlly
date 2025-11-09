@@ -100,7 +100,7 @@ const PaletteManagerContent = () => h(SuspenseCardWrapper, {
 
 const AccessibilityContent = () => h(SuspenseCardWrapper, {
   component: AccessibilityToolsCard,
-  fallback: () => h(BaseCard, { title: 'Accessibility Tools', class: 'h-[250px]' }, {
+  fallback: () => h(BaseCard, { title: 'Accessibility Tools', class: 'h-[280px]' }, {
     default: () => [
       h('div', { class: 'flex gap-2 mb-4' }, [
         h('div', { class: 'h-8 w-16 bg-muted rounded animate-pulse' }),
@@ -121,7 +121,7 @@ const AccessibilityContent = () => h(SuspenseCardWrapper, {
 
 const HarmoniesContent = () => h(SuspenseCardWrapper, {
   component: HarmoniesCard,
-  fallback: () => h(BaseCard, { class: 'h-[200px]' }, {
+  fallback: () => h(BaseCard, { class: 'h-[150px]' }, {
     default: () => [
       h('div', { class: 'flex gap-2 mb-4' }, [
         h('div', { class: 'h-8 w-16 bg-muted rounded animate-pulse' }),

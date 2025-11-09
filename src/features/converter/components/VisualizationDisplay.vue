@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/attribute-hyphenation -->
 <template>
   <Transition name="fade" mode="out-in">
     <div v-if="enableVisualizations && displayVisualizations.length > 0" class="visualization-container">
@@ -15,7 +16,7 @@
             <Icon
               v-else
               name="LabIcon"
-              :icon-node="getIconData(viz.key).data"
+              :iconNode="getIconData(viz.key).data"
               class="size-4 font-semibold text-foreground flex-shrink-0"
               aria-hidden="true" />
           </template>
@@ -47,7 +48,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Icon, Droplet, Thermometer, Dot, Paperclip, Map, Ruler, Clock, Info, Snowflake, PersonStanding, Car, Building, Mountain, Target, Waves, Globe2, Apple, Backpack, Cat, Dog, Piano, Fish, Plane, Rocket, Bomb, CloudLightning, SunDim, House, SoupIcon, CupSoda, Bath, Globe, Disc, HardDrive, Zap } from 'lucide-vue-next'
+import { Icon, Droplet, Thermometer, Dot, Paperclip, Map, Ruler, Clock, Info, Snowflake, PersonStanding, Car, Building, Mountain, Target, Waves, Globe2, Apple, Backpack, Cat, Dog, Piano, Fish, Plane, Rocket, Bomb, CloudLightning, SunDim, House, SoupIcon, CupSoda, Bath, Globe, Disc, HardDrive, Zap, Smartphone, Database } from 'lucide-vue-next'
 import { bottlePlastic, bucket, elephant, floppyDisk } from '@lucide/lab'
 import type { ConverterType } from '../types/converter'
 import type { BaseConverter } from '../services/converters/BaseConverter'
@@ -145,6 +146,8 @@ const ICON_MAP: Record<string, any> = {
   'ssd': HardDrive,
   'internet-archive': Globe,
   'blu-ray': Disc,
+  'smartphone-storage': Smartphone,
+  'data-center': Database,
   'dvd': Disc,
 
   'slice-of-bread': Apple,

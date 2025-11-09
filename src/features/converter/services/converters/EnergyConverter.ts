@@ -1,7 +1,5 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
 
 export class EnergyConverter extends BaseConverter {
   readonly id: ConverterType = 'energy'
@@ -10,9 +8,12 @@ export class EnergyConverter extends BaseConverter {
   readonly icon = 'zap'
   readonly defaultFromUnit = 'joule'
   readonly defaultToUnit = 'kilocalorie'
+  readonly canonicalUnit = 'J'
 
-  private readonly customConversions: Record<string, number> = {
-    'megawatt-hour': 3_600_000_000
+  protected readonly customConversions: Record<string, number> = {
+    'megawatt-hour': 3_600_000_000,
+    'calorie': 4.184,
+    'kilocalorie': 4184
   }
 
   readonly units: ConversionUnit[] = [
@@ -33,35 +34,4 @@ export class EnergyConverter extends BaseConverter {
     { id: 'erg', symbol: 'erg', name: 'Erg', category: 'energy' },
     { id: 'electronvolt', symbol: 'eV', name: 'Electronvolt', category: 'energy' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let joules: number
-      if (this.customConversions[fromUnit]) {
-        joules = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        const mathUnit = unit(value, mathJsFromUnit)
-        joules = mathUnit.to('J').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return joules / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(joules, 'J').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-      this.units.some(u => u.id === toUnit)
-  }
 }

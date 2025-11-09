@@ -1,7 +1,5 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
 
 export class AreaConverter extends BaseConverter {
   readonly id: ConverterType = 'area'
@@ -10,8 +8,9 @@ export class AreaConverter extends BaseConverter {
   readonly icon = 'square'
   readonly defaultFromUnit = 'square-meter'
   readonly defaultToUnit = 'square-foot'
+  readonly canonicalUnit = 'm2'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     acre: 4046.8564224,
     hectare: 10000,
     'square-mile': 2589988.110336,
@@ -42,34 +41,4 @@ export class AreaConverter extends BaseConverter {
     { id: 'hectare', symbol: 'ha', name: 'Hectare', category: 'area' },
     { id: 'are', symbol: 'a', name: 'Are', category: 'area' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let squareMeters: number
-      if (this.customConversions[fromUnit]) {
-        squareMeters = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        squareMeters = unit(value, mathJsFromUnit).to('m2').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return squareMeters / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(squareMeters, 'm2').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

@@ -1,95 +1,15 @@
-import { ref, computed } from 'vue'
+import { ref, nextTick, computed } from 'vue'
 import { useIntervalFn } from '@vueuse/core'
 import { useVersionStore } from '@stores/version'
 import { useSettingsStore } from '@stores/settings'
 import { useAppStorageStore } from '@stores/appStorage'
 
-let useRegisterSW: any
+import { initializePWA, getRegisterSW } from './registerPWA'
+import { isNewerVersion } from '../utils/versionUtils'
 
-async function initializePWA() {
-  try {
-    const pwaModule = await import('virtual:pwa-register/vue')
-    useRegisterSW = pwaModule.useRegisterSW
-    console.log('[PWA] Using virtual PWA module')
-  } catch(error) {
-    console.warn('[PWA] Virtual module not available, using fallback:', error)
+const ONE_HOUR = 60 * 60 * 1000
+const VERSION_ENDPOINT = '/version-info.json'
 
-    if (import.meta.env.DEV) {
-      console.log('[PWA] Development mode: creating fallback registration')
-    }
-
-    useRegisterSW = createFallbackRegisterSW()
-  }
-}
-
-function createFallbackRegisterSW() {
-  return (callbacks: any = {}) => {
-    const needRefresh = ref(false)
-    const offlineReady = ref(false)
-
-    const updateServiceWorker = async(reloadPage = true) => {
-      if ('serviceWorker' in navigator) {
-        try {
-          const registration = await navigator.serviceWorker.getRegistration()
-          if (registration?.waiting) {
-            registration.waiting.postMessage({ type: 'SKIP_WAITING' })
-            if (reloadPage) {
-              window.location.reload()
-            }
-          }
-        } catch(error) {
-          console.error('[PWA] Failed to update service worker:', error)
-          if (reloadPage) {
-            window.location.reload()
-          }
-        }
-      }
-    }
-
-    if ('serviceWorker' in navigator && (import.meta.env.PROD || import.meta.env.DEV)) {
-      const swPath = import.meta.env.PROD ? '/sw.js' : '/dev-sw.js?dev-sw'
-
-      navigator.serviceWorker.register(swPath)
-        .then((registration: ServiceWorkerRegistration) => {
-          console.log('[PWA] Service worker registered:', registration)
-          callbacks.onRegistered?.(registration)
-
-          registration.addEventListener('updatefound', () => {
-            const newWorker = registration.installing
-            if (newWorker) {
-              newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  needRefresh.value = true
-                  callbacks.onNeedRefresh?.()
-                }
-              })
-            }
-          })
-
-          if (registration.active && !navigator.serviceWorker.controller) {
-            offlineReady.value = true
-            callbacks.onOfflineReady?.()
-          }
-        })
-        .catch((error: Error) => {
-          console.warn('[PWA] Service worker registration failed:', error.message)
-          if (import.meta.env.PROD) {
-            callbacks.onRegisterError?.(error)
-          }
-        })
-    }
-
-    return {
-      needRefresh,
-      offlineReady,
-      updateServiceWorker
-    }
-  }
-}
-
-/**
- * PWA update management composable
- */
 export function usePWA() {
   const versionStore = useVersionStore()
   const settingsStore = useSettingsStore()
@@ -97,123 +17,100 @@ export function usePWA() {
 
   const latestVersion = ref('')
   const updateFeatures = ref<string[]>([])
-  const dismissedVersion = computed({
-    get: () => storageStore.get('pwa', 'dismissedVersion', ''),
-    set: (value: string) => storageStore.set('pwa', 'dismissedVersion', value)
-  })
-  const isInitialized = ref(false)
-
   const needRefresh = ref(false)
   const offlineReady = ref(false)
+  const isInitialized = ref(false)
+  const downloadProgress = ref(0)
+
   let updateServiceWorkerFn: ((reloadPage?: boolean) => Promise<void>) | null = null
+  let intervalController: { pause: () => void; resume: () => void } | null = null
 
   const currentVersion = computed(() => versionStore.versionInfo.full)
   const updatesEnabled = computed(() => settingsStore.appearance.checkForUpdates !== false)
 
+  const dismissedVersion = computed({
+    get: () => storageStore.get('pwa', 'dismissedVersion', ''),
+    set: (value: string) => storageStore.set('pwa', 'dismissedVersion', value)
+  })
+
   const initPWA = async() => {
     if (isInitialized.value) return
-
     await initializePWA()
 
-    if (useRegisterSW) {
-      const pwaResult = useRegisterSW({
-        onRegistered(registration: ServiceWorkerRegistration | undefined) {
-          console.log('[PWA] Service worker registered:', registration)
-
-          if (updatesEnabled.value && registration) {
-            registration.update()
-            startPeriodicChecks(registration)
-          }
-        },
-        onRegisterError(error: Error) {
-          console.error('[PWA] Service worker registration error:', error)
-        },
-        onNeedRefresh() {
-          needRefresh.value = true
-
-          populateUpdateInfo()
-        },
-        onOfflineReady() {
-          offlineReady.value = true
-        }
-      })
-
-      needRefresh.value = pwaResult.needRefresh.value
-      offlineReady.value = pwaResult.offlineReady.value
-      updateServiceWorkerFn = pwaResult.updateServiceWorker
-
-      if (pwaResult.needRefresh) {
-        needRefresh.value = pwaResult.needRefresh.value
-      }
-      if (pwaResult.offlineReady) {
-        offlineReady.value = pwaResult.offlineReady.value
-      }
+    const useRegisterSW = getRegisterSW()
+    if (!useRegisterSW) {
+      console.warn('[PWA] Registration function unavailable')
+      isInitialized.value = true
+      return
     }
+
+    const pwaResult = useRegisterSW({
+      onRegistered(registration: ServiceWorkerRegistration | undefined) {
+        if (updatesEnabled.value && registration) {
+          registration.update()
+          intervalController = startPeriodicChecks(registration)
+        }
+      },
+      onRegisterError(error: Error) {
+        console.error('[PWA] Service worker registration error:', error)
+      },
+      onNeedRefresh() {
+        needRefresh.value = true
+        void populateUpdateInfo()
+      },
+      onOfflineReady() {
+        offlineReady.value = true
+      }
+    })
+
+    needRefresh.value = pwaResult.needRefresh.value
+    offlineReady.value = pwaResult.offlineReady.value
+    updateServiceWorkerFn = pwaResult.updateServiceWorker
 
     isInitialized.value = true
   }
 
-  /**
-   * Start periodic update checks
-   */
   const startPeriodicChecks = (registration: ServiceWorkerRegistration) => {
     const { pause, resume } = useIntervalFn(
       () => {
-        if (registration && updatesEnabled.value) {
+        if (updatesEnabled.value) {
           registration.update()
-          checkForVersionUpdates()
+          void checkForVersionUpdates()
         }
       },
-      60 * 60 * 1000, // Check every hour
+      ONE_HOUR,
       { immediate: false }
     )
 
-    checkForVersionUpdates()
+    void checkForVersionUpdates()
     resume()
 
     return { pause, resume }
   }
 
-  /**
- * Check for version updates from generated version-info.json
- */
   const checkForVersionUpdates = async(): Promise<void> => {
     if (!updatesEnabled.value) return
 
     try {
-      const response = await fetch(`/version-info.json?t=${Date.now()}`)
-      if (response.ok) {
-        const versionData = await response.json()
-        const fetchedVersion = versionData.version || ''
+      const response = await fetch(`${VERSION_ENDPOINT}?t=${Date.now()}`)
+      if (!response.ok) return
 
-        console.log('[PWA] Checking versions:', {
-          current: currentVersion.value,
-          fetched: fetchedVersion,
-          hasChangelog: versionData.hasChangelog,
-          source: versionData.source,
-          updateType: versionData.updateType
-        })
+      const versionData = await response.json()
+      const fetchedVersion: string = versionData.version || ''
 
-        if (fetchedVersion && isNewerVersion(fetchedVersion, currentVersion.value)) {
-          latestVersion.value = fetchedVersion
+      if (fetchedVersion && isNewerVersion(fetchedVersion, currentVersion.value)) {
+        latestVersion.value = fetchedVersion
 
-          if (versionData.hasChangelog && versionData.features?.length > 0) {
-            updateFeatures.value = versionData.features
-          } else if (versionData.updateType === 'beta-to-stable') {
-            updateFeatures.value = [
-              'Stable release - all features tested and verified',
-              'Improved stability and performance',
-              'Bug fixes from beta testing'
-            ]
-          } else {
-            updateFeatures.value = versionData.message ? [versionData.message] : ['General improvements and bug fixes']
-          }
-
-          console.log('[PWA] Update available:', {
-            version: fetchedVersion,
-            type: versionData.updateType || (versionData.hasChangelog ? 'changelog' : 'build-only'),
-            features: updateFeatures.value.length
-          })
+        if (versionData.hasChangelog && Array.isArray(versionData.features) && versionData.features.length > 0) {
+          updateFeatures.value = versionData.features
+        } else if (versionData.updateType === 'beta-to-stable') {
+          updateFeatures.value = [
+            'Stable release - all features tested and verified',
+            'Improved stability and performance',
+            'Bug fixes from beta testing'
+          ]
+        } else {
+          updateFeatures.value = versionData.message ? [versionData.message] : ['General improvements and bug fixes']
         }
       }
     } catch(error) {
@@ -221,14 +118,10 @@ export function usePWA() {
     }
   }
 
-  /**
- * Populate update information when PWA update is detected
- */
   const populateUpdateInfo = async() => {
     await checkForVersionUpdates()
 
     if (needRefresh.value && !latestVersion.value) {
-      console.log('[PWA] Service worker update detected without version change')
       latestVersion.value = 'Service Worker Update'
       updateFeatures.value = [
         'Updated service worker for better offline functionality',
@@ -238,75 +131,9 @@ export function usePWA() {
     }
   }
 
-  /**
- * Compare version strings with proper prerelease handling
- */
-  const isNewerVersion = (latest: string, current: string): boolean => {
-    if (!latest || !current) return false
-
-    if (latest === 'Service Worker Update') return false
-
-    type PrereleaseType = 'alpha' | 'beta' | 'rc' | null
-
-    const parseVersionForComparison = (v: string) => {
-      const cleaned = v.replace(/^v/, '')
-      const match = cleaned.match(/^(\d+)\.(\d+)\.(\d+)(?:-(beta|alpha|rc)(\d*))?$/)
-
-      if (!match) return null
-
-      return {
-        major: parseInt(match[1], 10),
-        minor: parseInt(match[2], 10),
-        patch: parseInt(match[3], 10),
-        prerelease: (match[4] as PrereleaseType) || null,
-        prereleaseNumber: match[5] ? parseInt(match[5], 10) : 0,
-        isStable: !match[4]
-      }
-    }
-
-    const latestParsed = parseVersionForComparison(latest)
-    const currentParsed = parseVersionForComparison(current)
-
-    if (!latestParsed || !currentParsed) return false
-
-    if (latestParsed.major !== currentParsed.major) {
-      return latestParsed.major > currentParsed.major
-    }
-    if (latestParsed.minor !== currentParsed.minor) {
-      return latestParsed.minor > currentParsed.minor
-    }
-    if (latestParsed.patch !== currentParsed.patch) {
-      return latestParsed.patch > currentParsed.patch
-    }
-
-    if (currentParsed.prerelease && latestParsed.isStable) {
-      return true // beta -> stable is an update
-    }
-
-    if (currentParsed.isStable && latestParsed.prerelease) {
-      return false // stable -> beta is not an update
-    }
-
-    if (currentParsed.prerelease && latestParsed.prerelease) {
-      const prereleaseOrder: Record<'alpha' | 'beta' | 'rc', number> = { alpha: 1, beta: 2, rc: 3 }
-      if (currentParsed.prerelease === latestParsed.prerelease) {
-        return latestParsed.prereleaseNumber > currentParsed.prereleaseNumber
-      }
-      return prereleaseOrder[latestParsed.prerelease as 'alpha' | 'beta' | 'rc'] > prereleaseOrder[currentParsed.prerelease as 'alpha' | 'beta' | 'rc']
-    }
-
-    return false
-  }
-
-  /**
-   * Check if update should be shown
-   */
   const shouldShowUpdate = computed(() => {
     const dismissedUntil = storageStore.get('pwa', 'updateDismissedUntil', 0)
-    if (dismissedUntil && Date.now() < dismissedUntil) {
-      return false
-    }
-
+    if (dismissedUntil && Date.now() < dismissedUntil) return false
     if (needRefresh.value) return true
 
     if (latestVersion.value && isNewerVersion(latestVersion.value, currentVersion.value)) {
@@ -316,13 +143,11 @@ export function usePWA() {
     return false
   })
 
-  /**
-   * Update the application
-   */
   const updateApp = async(): Promise<void> => {
     try {
       if (updateServiceWorkerFn) {
         await updateServiceWorkerFn(true)
+        await nextTick()
       } else {
         window.location.reload()
       }
@@ -332,38 +157,43 @@ export function usePWA() {
     }
   }
 
-  /**
-   * Dismiss the update notification
-   */
   const dismissUpdate = (): void => {
     if (latestVersion.value) {
       dismissedVersion.value = latestVersion.value
-
-      const dismissalExpiry = Date.now() + (60 * 60 * 1000) // 1 hour
-      storageStore.set('pwa', 'updateDismissedUntil', dismissalExpiry)
+      storageStore.set('pwa', 'updateDismissedUntil', Date.now() + ONE_HOUR)
     }
     needRefresh.value = false
     latestVersion.value = ''
     updateFeatures.value = []
   }
 
-  initPWA()
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (event.data?.type === 'DOWNLOAD_PROGRESS') {
+      const { downloadedBytes, totalBytes } = event.data
+      downloadProgress.value = Math.round((downloadedBytes / totalBytes) * 100)
+    }
+  })
+
+  void initPWA()
 
   return {
-
     needRefresh,
     offlineReady,
     latestVersion,
     updateFeatures,
-    currentVersion,
 
+    currentVersion,
     shouldShowUpdate,
     updatesEnabled,
 
     updateApp,
-    isNewerVersion,
     dismissUpdate,
     checkForVersionUpdates,
-    populateUpdateInfo // Export for testing
+    populateUpdateInfo,
+
+    isNewerVersion,
+    downloadProgress,
+    pauseChecks: () => intervalController?.pause(),
+    resumeChecks: () => intervalController?.resume()
   }
 }

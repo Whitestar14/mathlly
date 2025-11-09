@@ -1,7 +1,7 @@
 <template>
   <BaseCard
     title="Palettes"
-    class="h-[300px]">
+    class="h-[200px]">
     <template #head>
       <div class="flex gap-2">
         <div class="h-8 w-16 bg-muted rounded animate-pulse"></div>

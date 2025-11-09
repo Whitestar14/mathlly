@@ -71,7 +71,7 @@ export const scientificSecondRow = markRaw<ButtonConfig[]>([
 export const programmerFirstRow = markRaw<ButtonConfig[]>([
   { value: '<<', variant: 'function', icon: ChevronsLeftIcon, checkMaxLength: true },
   { value: '>>', variant: 'function', icon: ChevronsRightIcon, checkMaxLength: true },
-  { value: 'C', variant: 'function' },
+  { value: 'AC', variant: 'function' },
   { value: 'backspace', variant: 'function', icon: Delete }
 ])
 

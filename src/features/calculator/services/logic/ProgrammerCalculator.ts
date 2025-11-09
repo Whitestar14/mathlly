@@ -90,7 +90,7 @@ export class ProgrammerCalculator extends ICalculator {
       this.error = ''
       switch (btn) {
         case '=': return this.handleEquals()
-        case 'C': return this.handleClear()
+        case 'AC': return this.handleClear()
         case 'CE': return this.handleClearEntry()
         case 'backspace': result = this.operations.handleBackspace() as CalculatorResult; break
         case '±': result = this.operations.handleToggleSign() as CalculatorResult; break

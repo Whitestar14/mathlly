@@ -9,6 +9,7 @@ export class CurrencyConverter extends BaseConverter {
   readonly icon = 'banknote'
   readonly defaultFromUnit = 'USD'
   readonly defaultToUnit = 'EUR'
+  readonly canonicalUnit = 'USD'
 
   private currencyService = new BaseCurrencyService()
 
@@ -58,11 +59,6 @@ export class CurrencyConverter extends BaseConverter {
 
   async convert(value: number, fromUnit: string, toUnit: string): Promise<number> {
     return await this.currencyService.convert(value, fromUnit, toUnit)
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
   }
 
   async fetchRates(baseCurrency: string): Promise<ExchangeRates> {

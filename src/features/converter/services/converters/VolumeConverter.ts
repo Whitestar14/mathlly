@@ -1,7 +1,5 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
 
 export class VolumeConverter extends BaseConverter {
   readonly id: ConverterType = 'volume'
@@ -10,8 +8,9 @@ export class VolumeConverter extends BaseConverter {
   readonly icon = 'droplets'
   readonly defaultFromUnit = 'liter'
   readonly defaultToUnit = 'us-gallon'
+  readonly canonicalUnit = 'L'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     'us-gallon': 3.785411784,
     'us-quart': 0.946352946,
     'us-pint': 0.473176473,
@@ -74,34 +73,4 @@ export class VolumeConverter extends BaseConverter {
     { id: 'deciliter', symbol: 'dL', name: 'Deciliter', category: 'volume' },
     { id: 'centiliter', symbol: 'cL', name: 'Centiliter', category: 'volume' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let liters: number
-      if (this.customConversions[fromUnit]) {
-        liters = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        liters = unit(value, mathJsFromUnit).to('L').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return liters / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(liters, 'L').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

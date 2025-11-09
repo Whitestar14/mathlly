@@ -1,9 +1,7 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA, type ManifestOptions } from 'vite-plugin-pwa'
-import { visualizer } from 'rollup-plugin-visualizer'
 import { resolve } from 'path'
-import type { PluginOption } from 'vite'
 
 import manifestJson from './public/manifest.json'
 const manifest: Partial<ManifestOptions> = manifestJson as Partial<ManifestOptions>
@@ -72,14 +70,7 @@ export default defineConfig({
         navigateFallback: 'index.html'
       },
       filename: 'sw.js'
-    }),
-    visualizer({
-      filename: 'dist/stats.html',
-      open: false,
-      gzipSize: true,
-      brotliSize: true,
-      template: 'treemap'
-    }) as PluginOption
+    })
   ],
   resolve: {
     alias: {

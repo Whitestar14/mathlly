@@ -1,7 +1,5 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
 
 export class LengthConverter extends BaseConverter {
   readonly id: ConverterType = 'length'
@@ -10,14 +8,15 @@ export class LengthConverter extends BaseConverter {
   readonly icon = 'ruler'
   readonly defaultFromUnit = 'meter'
   readonly defaultToUnit = 'foot'
+  readonly canonicalUnit = 'm'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     fathom: 1.8288,
     chain: 20.1168,
     rod: 5.0292,
     league: 4828.032,
     furlong: 201.168,
-    'light-year': 9460730472580800,
+    'light-year': 946073047258080,
     parsec: 3085677581491367,
     'astronomical-unit': 149597870700,
     'nautical-mile': 1852
@@ -49,35 +48,4 @@ export class LengthConverter extends BaseConverter {
     { id: 'league', symbol: 'lea', name: 'League', category: 'length' },
     { id: 'furlong', symbol: 'fur', name: 'Furlong', category: 'length' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let meters: number
-      if (this.customConversions[fromUnit]) {
-        meters = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        const mathUnit = unit(value, mathJsFromUnit)
-        meters = mathUnit.to('m').toNumber() // Fix: call toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return meters / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(meters, 'm').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

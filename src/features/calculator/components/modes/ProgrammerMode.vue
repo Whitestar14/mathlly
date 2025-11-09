@@ -53,7 +53,7 @@
             <CalculatorButton
               v-for="btn in programmerFirstRow"
               :key="btn.value"
-              :value="btn.value"
+              :value="btn.value === 'AC' ? 'C': btn.value"
               :icon="btn.icon"
               :variant="btn.variant"
               :disabled="shouldDisable(btn)"
@@ -183,7 +183,7 @@ const handleBitToggle = (bitPosition: number): void => {
 
 const isMaxLengthReached = computed(() => props.inputLength >= props.maxLength)
 const alwaysEnabled = new Set([
-  'C', 'CE', 'backspace', '=',
+  'AC', 'CE', 'backspace', '=',
   'MC', 'MR', 'M+', 'M-', 'MS'
 ])
 

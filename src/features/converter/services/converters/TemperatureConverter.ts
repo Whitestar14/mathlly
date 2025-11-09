@@ -10,6 +10,7 @@ export class TemperatureConverter extends BaseConverter {
   readonly icon = 'thermometer'
   readonly defaultFromUnit = 'celsius'
   readonly defaultToUnit = 'fahrenheit'
+  readonly canonicalUnit = 'celsius'
 
   readonly units: ConversionUnit[] = [
     {
@@ -44,10 +45,5 @@ export class TemperatureConverter extends BaseConverter {
 
     const mathUnit = unit(value, mathJsFromUnit)
     return mathUnit.to(mathJsToUnit).toNumber()
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
   }
 }

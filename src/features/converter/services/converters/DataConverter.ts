@@ -1,7 +1,5 @@
-import { unit } from 'mathjs'
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { getMathJsUnitName } from '../../utils/unitHelpers'
 
 export class DataConverter extends BaseConverter {
   readonly id: ConverterType = 'data'
@@ -10,28 +8,29 @@ export class DataConverter extends BaseConverter {
   readonly icon = 'hard-drive'
   readonly defaultFromUnit = 'megabyte'
   readonly defaultToUnit = 'gigabyte'
+  readonly canonicalUnit = 'byte'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
 
-    bit: 0.125, // 1 bit = 0.125 bytes
+    bit: 0.125,
     kilobit: 0.125 * 1000,
-    megabit: 0.125 * 1000000, // 0.125 * 1000 * 1000
-    gigabit: 0.125 * 1000000000, // 0.125 * 1000 * 1000 * 1000
-    terabit: 0.125 * 1000000000000, // 0.125 * 1000 * 1000 * 1000 * 1000
-    petabit: 0.125 * 1000000000000000, // 0.125 * 1000 * 1000 * 1000 * 1000 * 1000
+    megabit: 0.125 * 1000000,
+    gigabit: 0.125 * 1000000000,
+    terabit: 0.125 * 1000000000000,
+    petabit: 0.125 * 1000000000000000,
 
     kibibyte: 1024,
-    mebibyte: 1048576, // 1024 * 1024
-    gibibyte: 1073741824, // 1024 * 1024 * 1024
-    tebibyte: 1099511627776, // 1024 * 1024 * 1024 * 1024
-    pebibyte: 1125899906842624, // 1024 * 1024 * 1024 * 1024 * 1024
-    exbibyte: 1152921504606846976, // 1024 * 1024 * 1024 * 1024 * 1024 * 1024
+    mebibyte: 1048576,
+    gibibyte: 1073741824,
+    tebibyte: 1099511627776,
+    pebibyte: 1125899906842624,
+    exbibyte: 1152921504606847,
 
-    kibibit: 128, // 1024 bits = 128 bytes
-    mebibit: 131072, // 128 * 1024
-    gibibit: 134217728, // 128 * 1024 * 1024
-    tebibit: 137438953472, // 128 * 1024 * 1024 * 1024
-    pebibit: 140737488355328 // 128 * 1024 * 1024 * 1024 * 1024
+    kibibit: 128,
+    mebibit: 131072,
+    gibibit: 134217728,
+    tebibit: 137438953472,
+    pebibit: 140737488355328
   }
 
   readonly units: ConversionUnit[] = [
@@ -64,34 +63,4 @@ export class DataConverter extends BaseConverter {
     { id: 'tebibit', symbol: 'Tibit', name: 'Tebibit', category: 'data' },
     { id: 'pebibit', symbol: 'Pibit', name: 'Pebibit', category: 'data' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    if (this.customConversions[fromUnit] || this.customConversions[toUnit]) {
-      let bytes: number
-      if (this.customConversions[fromUnit]) {
-        bytes = value * this.customConversions[fromUnit]
-      } else {
-        const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-        bytes = unit(value, mathJsFromUnit).to('byte').toNumber()
-      }
-
-      if (this.customConversions[toUnit]) {
-        return bytes / this.customConversions[toUnit]
-      } else {
-        const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-        return unit(bytes, 'byte').to(mathJsToUnit).toNumber()
-      }
-    }
-
-    const mathJsFromUnit = getMathJsUnitName(fromUnit, this.id)
-    const mathJsToUnit = getMathJsUnitName(toUnit, this.id)
-
-    const mathUnit = unit(value, mathJsFromUnit)
-    return mathUnit.to(mathJsToUnit).toNumber()
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

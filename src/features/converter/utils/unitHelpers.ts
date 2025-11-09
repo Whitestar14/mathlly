@@ -122,8 +122,6 @@ export function getMathJsUnitName(unitId: string, converterType: ConverterType):
       kilojoule: 'kJ',
       megajoule: 'MJ',
       gigajoule: 'GJ',
-      calorie: 'cal',
-      kilocalorie: 'kcal',
       'watt-hour': 'Wh',
       'kilowatt-hour': 'kWh',
       'british-thermal-unit': 'BTU',
