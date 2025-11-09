@@ -1,6 +1,5 @@
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class AreaConverter extends BaseConverter {
   readonly id: ConverterType = 'area'
@@ -9,8 +8,9 @@ export class AreaConverter extends BaseConverter {
   readonly icon = 'square'
   readonly defaultFromUnit = 'square-meter'
   readonly defaultToUnit = 'square-foot'
+  protected readonly canonicalUnit: string = 'm2'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     acre: 4046.8564224,
     hectare: 10000,
     'square-mile': 2589988.110336,
@@ -41,13 +41,4 @@ export class AreaConverter extends BaseConverter {
     { id: 'hectare', symbol: 'ha', name: 'Hectare', category: 'area' },
     { id: 'are', symbol: 'a', name: 'Are', category: 'area' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'm2')
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

@@ -1,6 +1,5 @@
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class DataConverter extends BaseConverter {
   readonly id: ConverterType = 'data'
@@ -9,8 +8,9 @@ export class DataConverter extends BaseConverter {
   readonly icon = 'hard-drive'
   readonly defaultFromUnit = 'megabyte'
   readonly defaultToUnit = 'gigabyte'
+  protected readonly canonicalUnit: string = 'byte'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
 
     bit: 0.125, // 1 bit = 0.125 bytes
     kilobit: 0.125 * 1000,
@@ -63,13 +63,4 @@ export class DataConverter extends BaseConverter {
     { id: 'tebibit', symbol: 'Tibit', name: 'Tebibit', category: 'data' },
     { id: 'pebibit', symbol: 'Pibit', name: 'Pebibit', category: 'data' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'byte')
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

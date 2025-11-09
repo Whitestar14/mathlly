@@ -1,6 +1,5 @@
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class TimeConverter extends BaseConverter {
   readonly id: ConverterType = 'time'
@@ -9,8 +8,9 @@ export class TimeConverter extends BaseConverter {
   readonly icon = 'clock'
   readonly defaultFromUnit = 'second'
   readonly defaultToUnit = 'minute'
+  protected readonly canonicalUnit: string = 's'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     decade: 315360000,
     century: 3153600000,
     millennium: 31536000000,
@@ -38,13 +38,4 @@ export class TimeConverter extends BaseConverter {
     { id: 'sidereal-day', symbol: 'sidereal d', name: 'Sidereal Day', category: 'time' },
     { id: 'sidereal-year', symbol: 'sidereal yr', name: 'Sidereal Year', category: 'time' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 's')
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

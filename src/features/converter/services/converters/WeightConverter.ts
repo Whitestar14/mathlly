@@ -1,6 +1,5 @@
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { convertWithCustom } from '../../utils/customConversionsHelper'
 export class WeightConverter extends BaseConverter {
   readonly id: ConverterType = 'weight'
   readonly name = 'Weight & Mass Converter'
@@ -8,8 +7,9 @@ export class WeightConverter extends BaseConverter {
   readonly icon = 'weight'
   readonly defaultFromUnit = 'kilogram'
   readonly defaultToUnit = 'pound'
+  protected readonly canonicalUnit: string = 'kg'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     stone: 6.35029318,
     'long-ton': 1016.0469088,
     carat: 0.0002,
@@ -46,13 +46,4 @@ export class WeightConverter extends BaseConverter {
     { id: 'dalton', symbol: 'Da', name: 'Dalton', category: 'weight' },
     { id: 'slug', symbol: 'slug', name: 'Slug', category: 'weight' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'kg')
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

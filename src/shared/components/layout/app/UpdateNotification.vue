@@ -9,7 +9,8 @@ import {
   SparklesIcon,
   DownloadIcon,
   BookOpenIcon,
-  ExternalLinkIcon
+  ExternalLinkIcon,
+  Loader2
 } from 'lucide-vue-next'
 
 import { usePWA } from '@composables/core/usePWA'
@@ -28,6 +29,7 @@ const {
 
 // Local UI state
 const showDetails: Ref<boolean> = ref(false)
+const isUpdating: Ref<boolean> = ref(false)
 
 // Derived flags and helpers
 const hasReleaseNotes: ComputedRef<boolean> = computed(() => {
@@ -97,9 +99,13 @@ const getUpdateDescription = (): string => {
 
 const handleUpdate = async(): Promise<void> => {
   try {
+    isUpdating.value = true
+    await new Promise(resolve => setTimeout(resolve, 11500))
     await updateApp()
   } catch(error) {
     console.error('Failed to update:', error)
+  } finally {
+    isUpdating.value = false
   }
 }
 </script>
@@ -249,9 +255,16 @@ const handleUpdate = async(): Promise<void> => {
           <div class="flex gap-2 justify-end">
             <BaseButton variant="outline" size="sm" @click="dismissUpdate">Later</BaseButton>
 
-            <BaseButton variant="primary" size="sm" @click="handleUpdate">
-              <DownloadIcon class="size-4" />
-              Update App
+            <BaseButton variant="primary" size="sm" class="min-w-36" @click="handleUpdate">
+              <template v-if="isUpdating">
+                <Loader2 class="w-4 h-4 animate-spin" />
+              </template>
+              <template v-else>
+                <span class="w-full flex flex-row gap-1 justify-center items-center">
+                  <DownloadIcon class="size-4" />
+                  Update App
+                </span>
+              </template>
             </BaseButton>
           </div>
         </div>

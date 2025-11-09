@@ -1,7 +1,5 @@
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { convertWithCustom } from '../../utils/customConversionsHelper'
-
 export class AngleConverter extends BaseConverter {
   readonly id: ConverterType = 'angle'
   readonly name = 'Angle Converter'
@@ -9,8 +7,9 @@ export class AngleConverter extends BaseConverter {
   readonly icon = 'triangle'
   readonly defaultFromUnit = 'degree'
   readonly defaultToUnit = 'radian'
+  protected readonly canonicalUnit = 'rad'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     quadrant: Math.PI / 2,
     sextant: Math.PI / 3
   }
@@ -27,13 +26,4 @@ export class AngleConverter extends BaseConverter {
     { id: 'quadrant', symbol: 'quad', name: 'Quadrant', category: 'angle' },
     { id: 'sextant', symbol: 'sextant', name: 'Sextant', category: 'angle' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'rad')
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

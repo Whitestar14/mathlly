@@ -1,6 +1,5 @@
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { convertWithCustom } from '../../utils/customConversionsHelper'
 export class SpeedConverter extends BaseConverter {
   readonly id: ConverterType = 'speed'
   readonly name = 'Speed Converter'
@@ -8,8 +7,9 @@ export class SpeedConverter extends BaseConverter {
   readonly icon = 'gauge'
   readonly defaultFromUnit = 'kilometer-per-hour'
   readonly defaultToUnit = 'mile-per-hour'
+  readonly canonicalUnit = 'm/s'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     'mile-per-hour': 1.609344,
     'foot-per-second': 0.3048,
     'mach': 1234.84127,
@@ -18,26 +18,13 @@ export class SpeedConverter extends BaseConverter {
   }
 
   readonly units: ConversionUnit[] = [
-
     { id: 'meter-per-second', symbol: 'm/s', name: 'Meter per Second', category: 'speed' },
     { id: 'kilometer-per-hour', symbol: 'km/h', name: 'Kilometer per Hour', category: 'speed' },
-
     { id: 'mile-per-hour', symbol: 'mi/h', name: 'Mile per Hour', category: 'speed' },
     { id: 'foot-per-second', symbol: 'ft/s', name: 'Foot per Second', category: 'speed' },
     { id: 'inch-per-second', symbol: 'in/s', name: 'Inch per Second', category: 'speed' },
-
     { id: 'knot', symbol: 'kn', name: 'Knot', category: 'speed' },
-
     { id: 'mach', symbol: 'Ma', name: 'Mach', category: 'speed' },
     { id: 'speed-of-light', symbol: 'c', name: 'Speed of Light', category: 'speed' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'm/s')
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

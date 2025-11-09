@@ -1,6 +1,5 @@
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class PressureConverter extends BaseConverter {
   readonly id: ConverterType = 'pressure'
@@ -9,8 +8,9 @@ export class PressureConverter extends BaseConverter {
   readonly icon = 'bar-chart-3'
   readonly defaultFromUnit = 'pascal'
   readonly defaultToUnit = 'bar'
+  protected readonly canonicalUnit: string = 'Pa'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     millibar: 100,
     'pound-per-square-foot': 47.8802589804,
     barye: 0.1,
@@ -40,13 +40,4 @@ export class PressureConverter extends BaseConverter {
     { id: 'centimeter-of-mercury', symbol: 'cmHg', name: 'Centimeter of Mercury', category: 'pressure' },
     { id: 'inch-of-mercury', symbol: 'inHg', name: 'Inch of Mercury', category: 'pressure' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'Pa')
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-      this.units.some(u => u.id === toUnit)
-  }
 }

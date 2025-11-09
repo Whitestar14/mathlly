@@ -1,6 +1,5 @@
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class EnergyConverter extends BaseConverter {
   readonly id: ConverterType = 'energy'
@@ -9,8 +8,9 @@ export class EnergyConverter extends BaseConverter {
   readonly icon = 'zap'
   readonly defaultFromUnit = 'joule'
   readonly defaultToUnit = 'kilocalorie'
+  protected readonly canonicalUnit: string = 'J'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     'megawatt-hour': 3_600_000_000
   }
 
@@ -32,13 +32,4 @@ export class EnergyConverter extends BaseConverter {
     { id: 'erg', symbol: 'erg', name: 'Erg', category: 'energy' },
     { id: 'electronvolt', symbol: 'eV', name: 'Electronvolt', category: 'energy' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'J')
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-      this.units.some(u => u.id === toUnit)
-  }
 }

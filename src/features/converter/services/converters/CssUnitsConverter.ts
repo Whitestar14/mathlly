@@ -11,6 +11,7 @@ export class CssUnitsConverter extends BaseConverter {
   readonly icon = 'code'
   readonly defaultFromUnit = 'px'
   readonly defaultToUnit = 'rem'
+  protected readonly canonicalUnit: string = 'rem'
 
   private baseFontSize: number = ConverterConstants.DEFAULT_BASE_FONT_SIZE
 
@@ -116,10 +117,5 @@ export class CssUnitsConverter extends BaseConverter {
 
     const fromPixelsFactor = this.toPixelsFactors[toUnit]
     return fromPixelsFactor ? pixels / fromPixelsFactor() : pixels
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
   }
 }

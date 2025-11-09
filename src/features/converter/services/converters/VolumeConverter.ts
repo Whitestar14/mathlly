@@ -1,6 +1,5 @@
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { convertWithCustom } from '../../utils/customConversionsHelper'
 
 export class VolumeConverter extends BaseConverter {
   readonly id: ConverterType = 'volume'
@@ -9,8 +8,9 @@ export class VolumeConverter extends BaseConverter {
   readonly icon = 'droplets'
   readonly defaultFromUnit = 'liter'
   readonly defaultToUnit = 'us-gallon'
+  protected readonly canonicalUnit: string = 'L'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     'us-gallon': 3.785411784,
     'us-quart': 0.946352946,
     'us-pint': 0.473176473,
@@ -73,13 +73,4 @@ export class VolumeConverter extends BaseConverter {
     { id: 'deciliter', symbol: 'dL', name: 'Deciliter', category: 'volume' },
     { id: 'centiliter', symbol: 'cL', name: 'Centiliter', category: 'volume' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'L')
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }

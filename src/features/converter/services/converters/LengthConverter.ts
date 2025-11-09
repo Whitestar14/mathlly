@@ -1,6 +1,5 @@
 import { BaseConverter } from './BaseConverter'
 import { ConversionUnit, ConverterType } from '../../types'
-import { convertWithCustom } from '@features/converter/utils/customConversionsHelper'
 
 export class LengthConverter extends BaseConverter {
   readonly id: ConverterType = 'length'
@@ -9,14 +8,15 @@ export class LengthConverter extends BaseConverter {
   readonly icon = 'ruler'
   readonly defaultFromUnit = 'meter'
   readonly defaultToUnit = 'foot'
+  protected readonly canonicalUnit: string = 'm'
 
-  private readonly customConversions: Record<string, number> = {
+  protected readonly customConversions: Record<string, number> = {
     fathom: 1.8288,
     chain: 20.1168,
     rod: 5.0292,
     league: 4828.032,
     furlong: 201.168,
-    'light-year': 9460730472580800,
+    'light-year': 946073047258080,
     parsec: 3085677581491367,
     'astronomical-unit': 149597870700,
     'nautical-mile': 1852
@@ -48,13 +48,4 @@ export class LengthConverter extends BaseConverter {
     { id: 'league', symbol: 'lea', name: 'League', category: 'length' },
     { id: 'furlong', symbol: 'fur', name: 'Furlong', category: 'length' }
   ]
-
-  convert(value: number, fromUnit: string, toUnit: string): number {
-    return convertWithCustom(this.id, value, fromUnit, toUnit, this.customConversions, 'm')
-  }
-
-  validateUnits(fromUnit: string, toUnit: string): boolean {
-    return this.units.some(u => u.id === fromUnit) &&
-            this.units.some(u => u.id === toUnit)
-  }
 }
