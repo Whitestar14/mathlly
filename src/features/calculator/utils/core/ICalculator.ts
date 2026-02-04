@@ -2,8 +2,35 @@ import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptio
 import { ExpressionEvaluator } from '@calculator/utils/core/ExpressionEvaluator'
 import { CalculatorConstants } from '../constants/CalculatorConstants'
 import { CalculatorUtils } from '../constants/CalculatorUtils'
-import { CalculatorResult } from '@features/calculator/composables/MainCalculator'
-import { ICalculatorCore } from '@features/calculator/services/factory/CalculatorFactory'
+
+export interface CalculatorResult {
+  input: string
+  error?: string
+  result?: string
+  expression?: string
+  displayValues?: Record<string, any>
+}
+
+export interface ICalculatorCore {
+  input: string
+  error: string
+  currentExpression: string
+  activeBase: string
+  MAX_INPUT_LENGTH: number
+  calculatorOptions: ReturnType<typeof useCalculatorOptions>
+  evaluator: ExpressionEvaluator
+  operations: any
+  calculations: any
+  handleButtonClick(button: string): CalculatorResult
+  evaluateExpression(expression: string, base?: string): any
+  formatResult(result: any, base?: string): string
+  handleEquals(): CalculatorResult
+  handleClear(): CalculatorResult
+  processButton(btn: string): CalculatorResult
+  createErrorResponse(error: Error | string, fallbackInput?: string): CalculatorResult
+  normalizeResponse(result: any): CalculatorResult
+  isInputTooLong(btn: string): boolean
+}
 
 /**
  * Interface for calculator implementations.

@@ -1,17 +1,14 @@
 import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory'
 import { CalculatorUtils } from '../../constants/CalculatorUtils'
-import { ParenthesesTracker } from '../../core/ParenthesesTracker'
 
 /**
  * Handles special operations (|x|, n!, mod, rand, dms, deg)
  */
 export class SpecialOperationHandler {
   private calculator: any
-  private parenthesesTracker: ParenthesesTracker
 
-  constructor(calculator: any, parenthesesTracker: ParenthesesTracker) {
+  constructor(calculator: any) {
     this.calculator = calculator
-    this.parenthesesTracker = parenthesesTracker
   }
 
   /**
@@ -24,7 +21,6 @@ export class SpecialOperationHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = '|'
-        this.parenthesesTracker.open(0)
         return this.createResponse()
       }
 
@@ -37,11 +33,9 @@ export class SpecialOperationHandler {
 
         if (contentAfterPipe) {
           this.calculator.input = `${currentInput}|`
-          this.parenthesesTracker.close(currentInput.length)
           return this.createResponse()
         } else {
           this.calculator.input = currentInput.slice(0, lastPipeIndex)
-          this.parenthesesTracker.close(lastPipeIndex)
           return this.createResponse()
         }
       }
@@ -52,10 +46,8 @@ export class SpecialOperationHandler {
 
       if (isLastCharOperator) {
         this.calculator.input = `${currentInput}|`
-        this.parenthesesTracker.open(currentInput.length)
       } else {
         this.calculator.input = `${currentInput} × |`
-        this.parenthesesTracker.open(currentInput.length + 3)
       }
 
       return this.createResponse()
@@ -180,16 +172,15 @@ export class SpecialOperationHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = 'dms('
-        this.parenthesesTracker.open(4)
       } else {
         const needsParentheses =
-          ParenthesesTracker.needsParentheses(currentInput)
+          CalculatorUtils.needsParentheses(currentInput)
 
         if (needsParentheses) {
           this.calculator.input = `dms(${currentInput})`
         } else {
           const lastPart =
-            ParenthesesTracker.getLastExpressionPart(currentInput)
+            CalculatorUtils.getLastComplexSegment(currentInput)
           if (lastPart) {
             const lastPartIndex = currentInput.lastIndexOf(lastPart)
             this.calculator.input =
@@ -217,16 +208,15 @@ export class SpecialOperationHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = 'deg('
-        this.parenthesesTracker.open(4)
       } else {
         const needsParentheses =
-          ParenthesesTracker.needsParentheses(currentInput)
+          CalculatorUtils.needsParentheses(currentInput)
 
         if (needsParentheses) {
           this.calculator.input = `deg(${currentInput})`
         } else {
           const lastPart =
-            ParenthesesTracker.getLastExpressionPart(currentInput)
+            CalculatorUtils.getLastComplexSegment(currentInput)
           if (lastPart) {
             const lastPartIndex = currentInput.lastIndexOf(lastPart)
             this.calculator.input =

@@ -228,6 +228,23 @@ export const CalculatorUtils = {
   },
 
   /**
+   * Count unclosed opening parentheses in an expression
+   * @param expr - The expression to analyze
+   * @returns Number of unclosed opening parentheses
+   */
+  getOpenParenthesesCount(expr: string): number {
+    let count = 0
+    for (let i = 0; i < expr.length; i++) {
+      if (expr[i] === '(') {
+        count++
+      } else if (expr[i] === ')') {
+        count--
+      }
+    }
+    return Math.max(0, count)
+  },
+
+  /**
    * Check if expression ends with a shift operator
    * @param expr - Expression to check
    * @returns True if expression ends with a shift operator
@@ -292,6 +309,54 @@ export const CalculatorUtils = {
   getLastExpressionPart(expr: string): string {
     const parts = this.splitExpression(expr)
     return parts[parts.length - 1].trim()
+  },
+
+  /**
+   * Get the last complete expression part (number or parenthesized expression).
+   * Smartly handles nested parentheses and scientific functions.
+   * @param expr - Expression to analyze
+   * @returns The last expression part or null if none found
+   */
+  getLastComplexSegment(expr: string): string | null {
+    let parenCount = 0
+
+    for (let i = expr.length - 1; i >= 0; i--) {
+      const char = expr[i]
+
+      if (char === ')') {
+        parenCount++
+      } else if (char === '(') {
+        parenCount--
+        if (parenCount === 0) {
+          // Found start of parenthesized group, now look back for function name
+          let funcStart = i
+          // Look backwards for function names (letters, symbols like √)
+          while (funcStart > 0 && /[a-zA-Z√∛πe]/.test(expr[funcStart - 1])) {
+            funcStart--
+          }
+          return expr.substring(funcStart)
+        }
+      } else if (parenCount === 0 && /[+\-×÷]/.test(char)) {
+        break
+      }
+    }
+
+    const lastNumberMatch = expr.match(/(\d+(?:\.\d+)?)(?!.*\d)/)
+    if (lastNumberMatch) {
+      return lastNumberMatch[0]
+    }
+
+    return null
+  },
+
+  /**
+   * Check if expression needs parentheses for proper evaluation (has top level operators)
+   * @param expr - Expression to check
+   * @returns True if expression needs parentheses
+   */
+  needsParentheses(expr: string): boolean {
+    const hasTopLevelOperator = /[+\-×÷]/.test(expr)
+    return hasTopLevelOperator
   },
 
   /**

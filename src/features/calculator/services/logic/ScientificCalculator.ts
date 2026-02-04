@@ -1,5 +1,4 @@
-
-import { ICalculator } from '@calculator/utils/core/ICalculator.ts'
+import { ICalculator } from '@calculator/utils/core/ICalculator'
 import { ScientificOperations } from '@calculator/utils/operations/ScientificOperations.ts'
 import { ScientificCalculations } from '@calculator/utils/calculations/ScientificCalculations'
 import { CalculatorConstants } from '@calculator/utils/constants/CalculatorConstants.ts'

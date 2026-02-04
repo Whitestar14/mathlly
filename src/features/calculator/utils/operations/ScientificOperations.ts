@@ -1,5 +1,5 @@
 import { StandardOperations } from '../operations/StandardOperations.ts'
-import { ParenthesesTracker } from '../core/ParenthesesTracker.ts'
+import { ParenTracker } from '../core/ParenTracker.ts'
 import { CalculatorUtils } from '../constants/CalculatorUtils'
 import { ScientificFunctionHandler } from './handlers/ScientificFunctionHandler'
 import { ScientificConstantHandler } from './handlers/ScientificConstantHandler'
@@ -12,7 +12,7 @@ import { CalculatorResult } from '@features/calculator/services/factory/Calculat
  * This approach keeps the class focused and maintainable while preserving all functionality
  */
 export class ScientificOperations extends StandardOperations {
-  parenthesesTracker: ParenthesesTracker
+  parenthesesTracker: ParenTracker
   private functionHandler: ScientificFunctionHandler
   private constantHandler: ScientificConstantHandler
   private parenthesesHandler: ScientificParenthesesHandler
@@ -23,9 +23,9 @@ export class ScientificOperations extends StandardOperations {
    */
   constructor(calculator: any) {
     super(calculator)
-    this.parenthesesTracker = new ParenthesesTracker()
+    this.parenthesesTracker = new ParenTracker()
 
-    this.functionHandler = new ScientificFunctionHandler(calculator, this.parenthesesTracker)
+    this.functionHandler = new ScientificFunctionHandler(calculator)
     this.constantHandler = new ScientificConstantHandler(calculator)
     this.parenthesesHandler = new ScientificParenthesesHandler(calculator, this.parenthesesTracker)
   }
@@ -36,7 +36,9 @@ export class ScientificOperations extends StandardOperations {
    */
   handleScientificFunction(func: string): CalculatorResult {
     try {
-      return this.functionHandler.handle(func)
+      const result = this.functionHandler.handle(func)
+      this.parenthesesTracker.sync(this.calculator.input)
+      return result
     } catch(err: any) {
       return this.createResponse(CalculatorUtils.formatError(err, 'Scientific function failed'))
     }
@@ -48,7 +50,9 @@ export class ScientificOperations extends StandardOperations {
    */
   handleConstant(constant: string): CalculatorResult {
     try {
-      return this.constantHandler.handle(constant)
+      const result = this.constantHandler.handle(constant)
+      this.parenthesesTracker.sync(this.calculator.input)
+      return result
     } catch(err: any) {
       return this.createResponse(CalculatorUtils.formatError(err, 'Constant input failed'))
     }
@@ -60,7 +64,9 @@ export class ScientificOperations extends StandardOperations {
    */
   handleParenthesis(parenthesis: string): CalculatorResult {
     try {
-      return this.parenthesesHandler.handle(parenthesis)
+      const result = this.parenthesesHandler.handle(parenthesis)
+      this.parenthesesTracker.sync(this.calculator.input)
+      return result
     } catch(err: any) {
       return this.createResponse(CalculatorUtils.formatError(err, 'Parentheses operation failed'))
     }
@@ -75,32 +81,21 @@ export class ScientificOperations extends StandardOperations {
       const currentInput = this.calculator.input
 
       if (currentInput === '0' || currentInput === 'Error') {
-        return super.handleBackspace()
+        const res = super.handleBackspace()
+        this.parenthesesTracker.sync(this.calculator.input)
+        return res
       }
 
       const specialBackspace = CalculatorUtils.handleSpecialBackspace(currentInput)
       if (specialBackspace.handled) {
         this.calculator.input = specialBackspace.input
-
-        if (specialBackspace.input.length < currentInput.length - 1) {
-          if (this.parenthesesTracker.getOpenCount() > 0) {
-            this.parenthesesTracker.close(specialBackspace.input.length)
-          }
-        }
-
+        this.parenthesesTracker.sync(this.calculator.input)
         return this.createResponse()
       }
 
-      const lastChar = currentInput.slice(-1)
-      if (lastChar === '(') {
-        if (this.parenthesesTracker.getOpenCount() > 0) {
-          this.parenthesesTracker.close(currentInput.length - 1)
-        }
-      } else if (lastChar === ')') {
-        this.parenthesesTracker.open(currentInput.length - 1)
-      }
-
-      return super.handleBackspace()
+      const response = super.handleBackspace()
+      this.parenthesesTracker.sync(this.calculator.input)
+      return response
     } catch(err: any) {
       return this.createResponse(CalculatorUtils.formatError(err, 'Backspace failed'))
     }
@@ -116,19 +111,21 @@ export class ScientificOperations extends StandardOperations {
 
       if (input !== '0' && input !== 'Error') {
         const lastOpenIndex = input.lastIndexOf('(')
-
         const lastCloseIndex = input.lastIndexOf(')')
 
         if (lastOpenIndex > lastCloseIndex) {
           this.calculator.input = input.substring(0, lastOpenIndex + 1)
         } else {
-          return super.handleClearEntry()
+          const res = super.handleClearEntry()
+          this.parenthesesTracker.sync(this.calculator.input)
+          return res
         }
       } else {
         this.calculator.input = '0'
         this.resetParentheses()
       }
 
+      this.parenthesesTracker.sync(this.calculator.input)
       return this.createResponse()
     } catch(err: any) {
       return this.createResponse(CalculatorUtils.formatError(err, 'Clear entry failed'))
@@ -140,7 +137,9 @@ export class ScientificOperations extends StandardOperations {
    * StandardOperations already handles numbers, decimals, and comma properly
    */
   handleNumber(num: string): CalculatorResult {
-    return super.handleNumber(num)
+    const res = super.handleNumber(num)
+    this.parenthesesTracker.sync(this.calculator.input)
+    return res
   }
 
   /**
@@ -148,21 +147,27 @@ export class ScientificOperations extends StandardOperations {
    * StandardOperations already handles +, -, ×, ÷ properly
    */
   handleOperator(op: string): CalculatorResult {
-    return super.handleOperator(op)
+    const res = super.handleOperator(op)
+    this.parenthesesTracker.sync(this.calculator.input)
+    return res
   }
 
   /**
    * Handle percentage - delegates to StandardOperations
    */
   handlePercentage(): CalculatorResult {
-    return super.handlePercentage()
+    const res = super.handlePercentage()
+    this.parenthesesTracker.sync(this.calculator.input)
+    return res
   }
 
   /**
    * Handle sign toggle - delegates to StandardOperations
    */
   handleToggleSign(): CalculatorResult {
-    return super.handleToggleSign()
+    const res = super.handleToggleSign()
+    this.parenthesesTracker.sync(this.calculator.input)
+    return res
   }
 
   /**
@@ -183,7 +188,7 @@ export class ScientificOperations extends StandardOperations {
    * Reset parentheses tracker
    */
   resetParentheses(): void {
-    this.parenthesesTracker = new ParenthesesTracker()
+    this.parenthesesTracker.reset()
   }
 
   /**
