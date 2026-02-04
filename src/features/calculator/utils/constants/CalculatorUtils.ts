@@ -53,7 +53,8 @@ export const CalculatorUtils = {
   },
 
   /**
-   * Sanitize an expression for evaluation
+   * Sanitize an expression for evaluation.
+   * Maps UI representation to mathjs compatible syntax.
    * @param expr - Expression to sanitize
    * @returns Sanitized expression
    */
@@ -62,6 +63,10 @@ export const CalculatorUtils = {
       .replace(/×/g, '*')
       .replace(/÷/g, '/')
       .replace(/π/g, 'pi')
+      .replace(/√/g, 'sqrt')
+      .replace(/sqr\(/g, 'square(')
+      .replace(/cube\(/g, 'cube(')
+      .replace(/∛/g, 'cbrt')
       .replace(/\s+/g, ' ')
       .replace(/[+\-*/]\s*$/, '')
       .trim()

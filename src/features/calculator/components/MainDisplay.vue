@@ -67,6 +67,7 @@ import { useElementSize, useScroll, useThrottleFn } from '@vueuse/core'
 import { useAnimation, type SlideAnimationControls } from '@composables/ui/useAnimation'
 import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptions'
 import { SyntaxHighlighter } from '@calculator/services/display/SyntaxHighlighter'
+import type { ParenTracker } from '@calculator/utils/core/ParenTracker'
 
 interface Props {
   input?: string
@@ -91,7 +92,7 @@ interface Token {
 
 interface Calculator {
   operations: {
-    parenthesesTracker: any
+    parenthesesTracker: ParenTracker
   }
 }
 
