@@ -57,9 +57,9 @@ export class PrismDatabase extends Dexie {
   palettes!: Table<Palette>
 
   constructor() {
-    super('prism-app')
+    super('prism-app');
 
-    this.version(2).stores({
+    (this as any).version(2).stores({
       settings: 'id',
       history: '++id, mode, timestamp, [mode+timestamp]',
       memory: '++id, slot, value, label, mode, timestamp',
@@ -75,7 +75,7 @@ export class PrismDatabase extends Dexie {
  */
 export async function resetDatabase(dbInstance: PrismDatabase): Promise<boolean> {
   try {
-    dbInstance.close()
+    (dbInstance as any).close()
     await Dexie.delete('prism-app')
     localStorage.clear()
 
@@ -88,9 +88,9 @@ export async function resetDatabase(dbInstance: PrismDatabase): Promise<boolean>
   }
 }
 
-const db = new PrismDatabase()
+const db = new PrismDatabase();
 
-db.on('ready', async() => {
+(db as any).on('ready', async() => {
   try {
     const settingsCount = await db.settings.count()
     if (settingsCount === 0) {

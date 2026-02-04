@@ -110,7 +110,7 @@ export function createPanelContext(): PanelContext {
       if (state.isMobile === isMobile) return
       state.isMobile = isMobile
 
-      Object.values(state.panels).forEach(instance =>
+      ;(Object.values(state.panels) as PanelAPI[]).forEach(instance =>
         instance.handleResize(isMobile)
       )
 
