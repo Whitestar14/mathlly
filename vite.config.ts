@@ -1,4 +1,5 @@
-import { defineConfig } from 'vite'
+/// <reference types="vitest" />
+import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA, type ManifestOptions } from 'vite-plugin-pwa'
 import { resolve } from 'path'
@@ -113,6 +114,11 @@ export default defineConfig({
       }
     },
     chunkSizeWarningLimit: 1000
+  },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    css: true,
   },
   server: {
     port: 8080,
