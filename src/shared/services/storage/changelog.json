@@ -1,6 +1,15 @@
 {
   "updates": [
     {
+      "version": "0.15.2",
+      "date": "February 6, 2026",
+      "features": [
+        "Fixed the parentheses tracking algorithm into a simpler, much more robust parser",
+        "Improved performance in calculator mode by consolidating threading logic",
+        "Enhanced standard mode by implementing wrap functions for square and square root"
+      ]
+    },
+    {
       "version": "0.15.1",
       "date": "November 8, 2025",
       "features": [
