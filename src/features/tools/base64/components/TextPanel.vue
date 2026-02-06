@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import TextAreaField from './TextAreaField.vue'
 
 defineProps({
@@ -17,6 +18,12 @@ const emit = defineEmits(['update:modelValue','input','drop','paste'])
 function updateValue(v: string) {
   emit('update:modelValue', v)
 }
+
+const fieldRef = ref<InstanceType<typeof TextAreaField> | null>(null)
+
+defineExpose({
+  focus: () => fieldRef?.value?.focus()
+})
 </script>
 
 <template>

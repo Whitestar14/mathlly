@@ -1,5 +1,16 @@
 <template>
-  <div class="flex items-center">
+  <div class="flex items-center gap-2">
+    
+    <div class="hidden sm:flex items-center gap-2 mr-2">
+      <div class="w-32">
+        <SelectBar
+          :model-value="options.outputFormat"
+          :options="formatOptions"
+          placeholder="Format"
+          :is-dropdown="false"
+          @update:model-value="updateFormat" />
+      </div>
+    </div>
 
     <div class="hidden md:flex items-center gap-2">
       <BaseButton
@@ -56,6 +67,14 @@
           </BaseButton>
         </template>
 
+        <div class="p-2 border-b border-border mb-1 sm:hidden">
+          <label class="text-xs text-muted-foreground mb-1 block">Format</label>
+          <SelectBar
+            :model-value="options.outputFormat"
+            :options="formatOptions"
+            @update:model-value="updateFormat" />
+        </div>
+
         <PopoverItem
           label="Sample Text"
           :icon="FileText"
@@ -84,9 +103,15 @@
 
 <script setup lang="ts">
 import { FileText, Code, Shuffle, Trash2, UploadCloud, MoreVertical as MoreVerticalIcon } from 'lucide-vue-next'
-import { BaseButton, BasePopover, PopoverItem } from '@components/ui'
+import { BaseButton, BasePopover, PopoverItem, SelectBar } from '@components/ui'
+import type { Base64Options } from '../types/base64'
+
+defineOptions({
+  name: 'Base64Actions'
+})
 
 const props = defineProps<{
+  options: Base64Options;
   loadSampleText: () => void;
   loadSampleBase64: () => void;
   generateRandomData: () => void;
@@ -94,11 +119,14 @@ const props = defineProps<{
   triggerFilePicker: () => void;
 }>()
 
-const {
-  loadSampleText,
-  loadSampleBase64,
-  generateRandomData,
-  clearAll,
-  triggerFilePicker
-} = props
+const formatOptions = [
+  { value: 'standard', label: 'Standard' },
+  { value: 'url-safe', label: 'URL Safe' },
+  { value: 'mime', label: 'MIME' }
+]
+
+const updateFormat = (val: string) => {
+  props.options.outputFormat = val as any
+}
+
 </script>

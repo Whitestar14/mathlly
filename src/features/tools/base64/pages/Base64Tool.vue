@@ -1,302 +1,106 @@
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
-import { useClipboard, useDebounceFn } from '@vueuse/core'
-import { Copy, ArrowDownUp, Download, X, Loader2 } from 'lucide-vue-next'
-import { useToast } from '@composables/ui/useToast'
+import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
+import { Copy, ArrowDownUp, Download, X, Loader2, FileIcon, EyeIcon, FileTextIcon } from 'lucide-vue-next'
+import { useKeyboardStore } from '@stores/keyboard'
 
+// Components
 import Base64Actions from '../components/Base64Actions.vue'
-import { useBase64Options } from '../composables/useBase64Options'
-import { useBase64Operations } from '../composables/useBase64Operations'
-import { useFileOperations } from '../composables/useFileOperations'
-import { useSampleData } from '../composables/useSampleData'
-import { useBase64FileUI } from '../composables/useBase64FileUI'
-import { Tab } from '../types/base64'
-
 import TextPanel from '../components/TextPanel.vue'
 import FileUpload from '../components/FileUpload.vue'
 import FileProcessingOverlay from '../components/FileProcessingOverlay.vue'
 import { BaseButton, BaseTabs, BasePage, BaseCard } from '@components/ui'
+import { type Tab } from '../types/base64'
 import type { BreadcrumbItem } from '@components/ui/BasePage.vue'
 
-import { useKeyboardStore } from '@stores/keyboard'
+// The new unified composable
+import { useBase64Tool } from '../composables/useBase64Tool'
 
 const keyboard = useKeyboardStore()
+const tool = useBase64Tool()
 
 const tabs: Tab[] = [
   { value: 'encode', label: 'Encode' },
   { value: 'decode', label: 'Decode' }
 ]
 
-const singleInput = ref('')
-const encodeBuffer = ref('')
-const decodeBuffer = ref('')
-const currentTab = ref<'encode' | 'decode'>('encode')
-const selectedFileName = ref('')
-
+// UI Refs (must remain in component for DOM access)
+const tabsRef = ref<InstanceType<typeof BaseTabs> | null>(null)
+const fileInputRef = ref<HTMLInputElement | null>(null)
 const inputArea = ref<HTMLTextAreaElement | null>(null)
-const tabsRef = ref<InstanceType<typeof BaseTabs> | null>(null as any)
-const isFileProcessing = ref(false)
+const showPreview = ref(true)
 
-const outputValidationError = ref('')
-
-const { copy } = useClipboard()
-const { toast } = useToast()
-const base64Options = useBase64Options()
-
-const input = computed<string>({
-  get() {
-    return base64Options.options.value.preserveMode ?
-      currentTab.value === 'encode' ?
-        encodeBuffer.value :
-        decodeBuffer.value :
-      singleInput.value
-  },
-  set(v: string) {
-    if (base64Options.options.value.preserveMode) {
-      if (currentTab.value === 'encode') encodeBuffer.value = v
-      else decodeBuffer.value = v
-    } else {
-      singleInput.value = v
-    }
-  }
+// Computed helpers for View
+const outputFormatLabel = computed(() => {
+  const map: Record<string, string> = { 'url-safe': 'URL Safe', 'mime': 'MIME' }
+  return map[tool.options.value.outputFormat] || 'Standard'
 })
 
-const {
-  output,
-  isProcessing,
-  validationError,
-  inputStats,
-  outputStats,
-  processInput,
-  processState
-} = useBase64Operations(input, base64Options.options)
-
-const { handleFileUpload, handleDrop, downloadOutput } = useFileOperations(
-  input,
-  selectedFileName,
-  toast
-)
-const { fileInput, isDragActive, triggerFilePicker, handleDropEvent } =
-  useBase64FileUI()
-
-const sample = useSampleData()
-
-function applyProcessResult(showToastOnSuccess = false) {
-  const result = processState.value
-  if (!result) return
-
-  if (!result.success) {
-    if (result.error?.includes('Invalid Base64')) {
-      outputValidationError.value = result.error
-    } else {
-      outputValidationError.value = ''
-      toast(result.error ?? 'Processing failed', { type: 'error' })
-    }
-  } else {
-    outputValidationError.value = ''
-    if (showToastOnSuccess) {
-      toast(
-        `Successfully ${
-          currentTab.value === 'encode' ? 'encoded' : 'decoded'
-        }!`,
-        { type: 'success' }
-      )
-    }
+const previewInfo = computed(() => {
+  const result = tool.ops.processState.value
+  if (result.success && result.isBinary) {
+    const size = result.binary ? `${(result.binary.byteLength / 1024).toFixed(2)} KB` : 'Unknown size'
+    return { mime: result.mime || 'Unknown Type', size }
   }
-}
-
-const debouncedProcess = useDebounceFn(async(tab: 'encode' | 'decode') => {
-  if (!base64Options.options.value.autoProcess) return
-  await processInput(tab)
-  applyProcessResult(false)
-}, 300)
-
-const outputFormat = computed(() => {
-  const format = base64Options.options.value.outputFormat
-  return format === 'url-safe' ?
-    'URL Safe' :
-    format === 'mime' ?
-      'MIME' :
-      'Standard'
+  return null
 })
 
-const handleInput = async(): Promise<void> => {
-  selectedFileName.value = ''
-  await debouncedProcess(currentTab.value)
-}
-
-const handleProcess = async(): Promise<void> => {
-  await processInput(currentTab.value)
-  applyProcessResult(true)
-}
-
-const onFileUpload = async(event: Event): Promise<void> => {
-  try {
-    isFileProcessing.value = true
-    await handleFileUpload(event)
-    if (base64Options.options.value.autoProcess) {
-      await processInput(currentTab.value)
-      applyProcessResult(false)
-    }
-  } finally {
-    setTimeout(() => (isFileProcessing.value = false), 150)
-  }
-}
-
-const onDrop = async(event: DragEvent): Promise<void> => {
-  try {
-    isFileProcessing.value = true
-    await handleDropEvent(
-      event,
-      handleDrop,
-      processInput,
-      currentTab,
-      base64Options.options
-    )
-    applyProcessResult(false)
-  } finally {
-    setTimeout(() => (isFileProcessing.value = false), 150)
-  }
-}
-
-const handleTabChange = async(tabValue: string): Promise<void> => {
-  currentTab.value = tabValue as 'encode' | 'decode'
-  if (input.value.trim() && base64Options.options.value.autoProcess) {
-    await processInput(currentTab.value)
-    applyProcessResult(false)
-  }
+// Tab Switch Handler (UI Focus logic stays in view)
+const handleTabChange = (tabValue: string) => {
+  tool.currentTab.value = tabValue as 'encode' | 'decode'
   nextTick(() => inputArea.value?.focus())
 }
 
-const pasteFromClipboard = async(): Promise<void> => {
+const handleProcess = async () => {
+  await tool.ops.processInput(tool.currentTab.value)
+}
+
+const handleDropWrapper = (event: DragEvent) => {
+  tool.onDrop(event, fileInputRef)
+}
+
+const triggerUiFilePicker = () => {
+  fileInputRef.value?.click()
+}
+
+const handleUiPaste = async () => {
   try {
+    // Check if clipboard API is supported
+    if (!navigator.clipboard) {
+      tool.toast('Clipboard API not supported', { type: 'error' })
+      return
+    }
     const text = await navigator.clipboard.readText()
-    input.value = text
-    selectedFileName.value = ''
-    if (base64Options.options.value.autoProcess) {
-      await processInput(currentTab.value)
-      applyProcessResult(false)
-    }
-    toast('Pasted from clipboard!', { type: 'success' })
-  } catch {
-    toast('Failed to paste', { type: 'error' })
+    tool.input.value = text
+    tool.handleInput() // trigger debounce processing
+    tool.toast('Pasted from clipboard!', { type: 'success'})
+  } catch (err) {
+    console.error(err)
+    tool.toast('Failed to read clipboard', { type: 'error' })
   }
 }
 
-const handleCopy = async(): Promise<void> => {
-  if (!output.value) return toast('Nothing to copy', { type: 'warning' })
-  try {
-    await copy(output.value)
-    toast('Copied to clipboard!', { type: 'success' })
-  } catch {
-    toast('Failed to copy', { type: 'error' })
-  }
-}
-
-const handleSampleText = async() => {
-  input.value = sample.loadSampleText()
-  selectedFileName.value = ''
-  if (base64Options.options.value.autoProcess) {
-    await processInput('encode')
-    applyProcessResult(true)
-  }
-}
-
-const handleSampleBase64 = async() => {
-  input.value = sample.loadSampleBase64()
-  selectedFileName.value = ''
-  if (base64Options.options.value.autoProcess) {
-    await processInput('decode')
-    applyProcessResult(true)
-  }
-}
-
-const handleRandomData = () => {
-  input.value = sample.generateRandomData()
-  selectedFileName.value = ''
-}
-
-const handleSwap = (): void => {
-  const currInput = input.value
-  const currOutput = output.value
-
-  if (base64Options.options.value.preserveMode) {
-    if (currentTab.value === 'encode') decodeBuffer.value = currOutput
-    else encodeBuffer.value = currOutput
-    output.value = currInput
-  } else {
-    input.value = currOutput
-    output.value = currInput
-  }
-
-  selectedFileName.value = ''
-  currentTab.value = currentTab.value === 'encode' ? 'decode' : 'encode'
-  toast('Input and output swapped!', { type: 'success' })
-}
-
-const clearInput = (): void => {
-  if (base64Options.options.value.preserveMode) {
-    if (currentTab.value === 'encode') encodeBuffer.value = ''
-    else decodeBuffer.value = ''
-  } else {
-    singleInput.value = ''
-  }
-  selectedFileName.value = ''
-  if (base64Options.options.value.autoProcess) output.value = ''
-}
-
-const clearAll = (): void => {
-  singleInput.value = ''
-  encodeBuffer.value = ''
-  decodeBuffer.value = ''
-  output.value = ''
-  selectedFileName.value = ''
-  validationError.value = ''
-  outputValidationError.value = ''
-  toast('All fields cleared!', { type: 'success' })
-}
-
-watch(currentTab, async newTab => {
-  if (input.value.trim() && base64Options.options.value.autoProcess) {
-    await processInput(newTab)
-    applyProcessResult(false)
-  }
-})
-
-watch(
-  () => base64Options.options.value,
-  async() => {
-    if (base64Options.options.value.autoProcess && input.value.trim()) {
-      await processInput(currentTab.value)
-      applyProcessResult(false)
-    }
-  },
-  { deep: true }
-)
-
-nextTick(() => {
-  if (tabsRef.value?.initializePills) tabsRef.value.initializePills('encode')
-})
-
-const breadcrumbs: BreadcrumbItem[] = [
-  { label: 'Tools', path: '/' },
-  { label: 'Base64' }
-]
-
+// Keyboard shortcuts
 onMounted(() => {
   keyboard.attachAllForContext('tools.base64', {
-    'Ctrl+Enter': () => handleProcess(),
-    'Ctrl+V': () => pasteFromClipboard(),
-    'Ctrl+C': () => handleCopy(),
-    'Ctrl+S': () => handleSwap()
+    'Ctrl+Enter': handleProcess,
+    'Ctrl+V': async () => {
+       const text = await navigator.clipboard.readText()
+       tool.input.value = text
+       tool.handleInput() // trigger debounce
+       tool.toast('Pasted!', { type: 'success'})
+    },
+    'Ctrl+C': async () => tool.ops.output.value && (await tool.copy(tool.ops.output.value)) && tool.toast('Copied!', { type: 'success' }),
+    'Ctrl+S': tool.handleSwap
   })
   keyboard.pushContext('tools.base64')
+  nextTick(() => tabsRef.value?.initializePills(tool.currentTab.value))
 })
 
 onUnmounted(() => {
   keyboard.popContext('tools.base64')
 })
 
+const breadcrumbs: BreadcrumbItem[] = [{ label: 'Tools', path: '/' }, { label: 'Base64' }]
 </script>
 
 <template>
@@ -307,96 +111,86 @@ onUnmounted(() => {
     :is-tool-layout="true">
     <div class="container mx-auto p-2 md:p-3">
       <div class="max-w-6xl mx-auto space-y-3">
-
-        <div
-          class="rounded-lg border border-border dark:border-border overflow-hidden">
+        <div class="rounded-lg border border-border dark:border-border overflow-hidden">
+          
           <BaseTabs
             ref="tabsRef"
-            v-model:model-value="currentTab"
+            v-model:model-value="tool.currentTab.value"
             :tabs="tabs"
             @tab-change="handleTabChange">
             <template #actions>
               <Base64Actions
-                :load-sample-text="handleSampleText"
-                :load-sample-base64="handleSampleBase64"
-                :generate-random-data="handleRandomData"
-                :clear-all="clearAll"
-                :trigger-file-picker="triggerFilePicker" />
+                :options="tool.options.value"
+                :load-sample-text="() => tool.handleSample('text')"
+                :load-sample-base64="() => tool.handleSample('base64')"
+                :generate-random-data="() => { tool.input.value = 'Random...'; tool.selectedFileName.value = ''; }"
+                :clear-all="tool.handleClear"
+                :trigger-file-picker="triggerUiFilePicker" />
             </template>
           </BaseTabs>
 
           <div class="p-3 md:p-6 bg-card">
+            <!-- Hidden File Input -->
             <input
-              ref="fileInput"
+              ref="fileInputRef"
               type="file"
               class="hidden"
-              @change="onFileUpload" />
-            <FileProcessingOverlay :open="isFileProcessing" />
+              @change="tool.onFileUpload" />
+            
+            <FileProcessingOverlay :open="tool.isFileProcessing.value" />
 
             <div class="relative">
+              <!-- Drag Overlay -->
               <div
-                v-if="isDragActive"
-                class="absolute inset-0 z-20 flex items-center justify-center pointer-events-auto">
-                <Transition
-                  name="fade-scale"
-                  enter-active-class="transition ease-out duration-200"
-                  enter-from-class="opacity-0 scale-95"
-                  enter-to-class="opacity-100 scale-100"
-                  leave-active-class="transition ease-in duration-150"
-                  leave-from-class="opacity-100 scale-100"
-                  leave-to-class="opacity-0 scale-95">
+                v-if="tool.fileUI.isDragActive.value"
+                class="absolute inset-0 z-20 flex items-center justify-center pointer-events-auto bg-background/80 backdrop-blur-sm rounded-lg">
+                <Transition name="fade-scale" appear>
                   <FileUpload
                     :handle-binary-files="true"
-                    :current-tab="currentTab"
-                    class="w-full max-w-md mx-auto"
-                    @file-upload="onFileUpload"
-                    @drop="onDrop" />
+                    :current-tab="tool.currentTab.value"
+                    class="w-full max-w-4/5 mx-auto"
+                    @file-upload="tool.onFileUpload"
+                    @drop="handleDropWrapper" />
                 </Transition>
               </div>
 
+              <!-- Main Grid -->
               <div
-                :class="{ invisible: isDragActive }"
+                :class="{ invisible: tool.fileUI.isDragActive.value }"
                 class="grid gap-2 md:gap-3 lg:grid-cols-2">
 
+                <!-- Input Panel -->
                 <BaseCard class="border-none">
                   <TextPanel
-                    :model-value="input"
-                    :label="`Input${
-                      selectedFileName ? ` (${selectedFileName})` : ''
-                    }`"
-                    :placeholder="
-                      currentTab === 'encode'
-                        ? 'Enter text to encode or upload a file...'
-                        : 'Enter Base64 to decode...'
-                    "
-                    :stats="inputStats"
-                    :show-stats="base64Options.options.value.showCharacterCount"
-                    :validation-error="validationError"
+                    ref="inputArea"
+                    v-model="tool.input.value"
+                    :label="tool.selectedFileName.value ? `Input (${tool.selectedFileName.value})` : 'Input'"
+                    :placeholder="tool.currentTab.value === 'encode' ? 'Enter text to encode...' : 'Enter Base64 to decode...'"
+                    :stats="tool.ops.inputStats.value"
+                    :show-stats="tool.options.value.showCharacterCount"
+                    :validation-error="tool.ops.validationError.value"
                     :show-paste-button="true"
-                    @update:model-value="(v) => (input = v)"
-                    @input="handleInput"
-                    @drop="onDrop"
-                    @paste="pasteFromClipboard">
+                    @input="tool.handleInput"
+                    @drop="handleDropWrapper"
+                    @paste="handleUiPaste">
                     <template #actions>
                       <div class="flex items-center gap-2">
                         <BaseButton
-                          v-if="!base64Options.options.value.autoProcess"
+                          v-if="!tool.options.value.autoProcess"
                           variant="outline"
                           size="sm"
-                          :disabled="isProcessing"
+                          :disabled="tool.ops.isProcessing.value"
                           @click="handleProcess">
-                          <Loader2
-                            v-if="isProcessing"
-                            class="h-3 w-3 animate-spin mr-1" />
-                          {{ currentTab === 'encode' ? 'Encode' : 'Decode' }}
+                          <Loader2 v-if="tool.ops.isProcessing.value" class="h-3 w-3 animate-spin mr-1" />
+                          {{ tool.currentTab.value === 'encode' ? 'Encode' : 'Decode' }}
                         </BaseButton>
 
                         <BaseButton
-                          v-if="input"
+                          v-if="tool.input.value"
                           variant="ghost"
                           class="h-6 w-6"
                           size="icon"
-                          @click="clearInput">
+                          @click="tool.input.value = ''; tool.selectedFileName.value = ''">
                           <X class="h-3 w-3" />
                         </BaseButton>
                       </div>
@@ -404,52 +198,106 @@ onUnmounted(() => {
                   </TextPanel>
                 </BaseCard>
 
+                <!-- Output Panel -->
                 <BaseCard class="border-none">
-                  <TextPanel
-                    :model-value="output"
-                    :label="`Output (${outputFormat})`"
-                    placeholder="Result will appear here..."
-                    :stats="outputStats"
-                    :show-stats="
-                      base64Options.options.value.showCharacterCount && !!output
-                    "
-                    :read-only="true"
-                    :validation-error="outputValidationError"
-                    @update:model-value="(v) => (output = v)">
-                    <template #actions>
+                  <div class="space-y-3 h-full flex flex-col">
+                    <div class="flex items-center justify-between">
+                      <span class="text-sm font-medium text-foreground dark:text-muted-foreground">
+                        Output ({{ outputFormatLabel }})
+                      </span>
+                      
                       <div class="flex items-center gap-2">
+                         <BaseButton
+                           v-if="tool.activePreviewUrl.value || previewInfo"
+                           v-tippy="{ content: showPreview ? 'Show Text' : 'Show Preview' }"
+                           variant="ghost"
+                           size="icon"
+                           class="h-6 w-6"
+                           @click="showPreview = !showPreview">
+                           <component :is="showPreview ? FileTextIcon : EyeIcon" class="h-3 w-3" />
+                         </BaseButton>
+                         
+                         <div v-if="tool.activePreviewUrl.value || previewInfo" class="h-4 w-px bg-border mx-1"></div>
+
                         <BaseButton
-                          v-tippy="{ content: 'Swap input/output' }"
+                          v-tippy="{ content: 'Swap' }"
                           variant="ghost"
                           size="icon"
                           class="h-6 w-6"
-                          :disabled="!output"
-                          @click="handleSwap">
+                          :disabled="!tool.ops.output.value"
+                          @click="tool.handleSwap">
                           <ArrowDownUp class="h-3 w-3" />
                         </BaseButton>
 
                         <BaseButton
-                          v-tippy="{ content: 'Download as file' }"
+                          v-tippy="{ content: 'Download' }"
                           variant="ghost"
                           size="icon"
                           class="h-6 w-6"
-                          :disabled="!output"
-                          @click="downloadOutput(output, currentTab)">
+                          :disabled="!tool.ops.output.value && !tool.ops.processState.value.binary"
+                          @click="tool.fileOps.downloadOutput(tool.ops.output.value, tool.currentTab.value, tool.ops.processState.value)">
                           <Download class="h-3 w-3" />
                         </BaseButton>
 
                         <BaseButton
-                          v-tippy="{ content: 'Copy to clipboard' }"
+                          v-tippy="{ content: 'Copy' }"
                           variant="ghost"
                           size="icon"
                           class="h-6 w-6"
-                          :disabled="!output"
-                          @click="handleCopy">
+                          :disabled="!tool.ops.output.value"
+                          @click="async () => { await tool.copy(tool.ops.output.value); tool.toast('Copied!', {type:'success'}); }">
                           <Copy class="h-3 w-3" />
                         </BaseButton>
                       </div>
-                    </template>
-                  </TextPanel>
+                    </div>
+                    
+                    <div class="relative flex-1">
+                      <!-- File Preview -->
+                      <template v-if="showPreview && (tool.activePreviewUrl.value || previewInfo)">
+                         <div class="w-full h-full min-h-[192px] rounded-md border border-border bg-background p-4 flex flex-col items-center justify-center gap-4">
+                            <img 
+                              v-if="tool.activePreviewUrl.value && previewInfo?.mime.startsWith('image/')" 
+                              :src="tool.activePreviewUrl.value" 
+                              class="max-h-48 max-w-full object-contain rounded border border-border/50 bg-checkerboard" 
+                            />
+                            <iframe 
+                              v-else-if="tool.activePreviewUrl.value && previewInfo?.mime === 'application/pdf'" 
+                              :src="tool.activePreviewUrl.value" 
+                              class="w-full h-full min-h-[250px] border border-border rounded" 
+                              title="PDF Preview">
+                            </iframe>
+                            <div v-else class="flex flex-col items-center text-muted-foreground">
+                               <FileIcon class="h-12 w-12 mb-2 opacity-50" />
+                               <span class="text-sm font-medium">Binary Data</span>
+                            </div>
+                            <div class="text-xs text-muted-foreground text-center">
+                               <p class="font-medium text-foreground">{{ previewInfo?.mime }}</p>
+                               <p>{{ previewInfo?.size }}</p>
+                            </div>
+                         </div>
+                      </template>
+                      
+                      <!-- Text Output -->
+                      <textarea
+                        v-show="!showPreview || (!tool.activePreviewUrl.value && !previewInfo)"
+                        :value="tool.ops.output.value"
+                        readonly
+                        class="w-full h-full min-h-[192px] rounded-md border border-border bg-background px-3 py-2 text-sm resize-none font-mono focus:outline-none focus:ring-2 focus:ring-ring"
+                        :class="{ 'border-destructive/50 bg-destructive/10': tool.outputValidationError.value }"
+                        placeholder="Result will appear here..."></textarea>
+                    </div>
+
+                    <div v-if="tool.outputValidationError.value" class="text-xs text-destructive flex items-center gap-1">
+                      {{ tool.outputValidationError.value }}
+                    </div>
+
+                    <div
+                      v-if="tool.options.value.showCharacterCount && !!tool.ops.output.value"
+                      class="flex items-center justify-between text-xs text-muted-foreground">
+                      <span>{{ tool.ops.outputStats.value.characters }} characters, {{ tool.ops.outputStats.value.bytes }} bytes</span>
+                      <span v-if="tool.ops.outputStats.value.lines > 1">{{ tool.ops.outputStats.value.lines }} lines</span>
+                    </div>
+                  </div>
                 </BaseCard>
               </div>
             </div>

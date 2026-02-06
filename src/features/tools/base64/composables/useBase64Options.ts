@@ -1,17 +1,6 @@
 import { computed } from 'vue'
 import { useToolOptions } from '@composables/ui/useToolOptions'
-
-export interface Base64Options {
-  autoProcess: boolean
-  preserveWhitespace: boolean
-  preserveMode: boolean
-  outputFormat: 'standard' | 'url-safe' | 'mime'
-  lineLength: number
-  handleBinaryFiles: boolean
-  validateInput: boolean
-  showCharacterCount: boolean
-  compressionLevel: 'none' | 'low' | 'medium' | 'high'
-}
+import type { Base64Options } from '../types/base64'
 
 const DEFAULT_BASE64_OPTIONS: Base64Options = {
   autoProcess: true,
@@ -21,8 +10,7 @@ const DEFAULT_BASE64_OPTIONS: Base64Options = {
   lineLength: 76,
   handleBinaryFiles: true,
   validateInput: true,
-  showCharacterCount: true,
-  compressionLevel: 'none'
+  showCharacterCount: true
 }
 
 export function useBase64Options() {
@@ -80,19 +68,6 @@ export function useBase64Options() {
         section: 'Display'
       },
       {
-        id: 'outputFormat',
-        label: 'Output Format',
-        description: 'Choose the Base64 output format',
-        type: 'select',
-        value: options,
-        options: [
-          { value: 'standard', label: 'Standard' },
-          { value: 'url-safe', label: 'URL Safe' },
-          { value: 'mime', label: 'MIME' }
-        ],
-        section: 'Format'
-      },
-      {
         id: 'lineLength',
         label: 'Line Length (MIME)',
         description: 'Maximum characters per line for MIME format',
@@ -102,28 +77,12 @@ export function useBase64Options() {
         max: 120,
         step: 4,
         section: 'Format'
-      },
-      {
-        id: 'compressionLevel',
-        label: 'Compression Level',
-        description: 'Apply compression before encoding (experimental)',
-        type: 'select',
-        value: options,
-        options: [
-          { value: 'none', label: 'None' },
-          { value: 'low', label: 'Low' },
-          { value: 'medium', label: 'Medium' },
-          { value: 'high', label: 'High' }
-        ],
-        section: 'Advanced'
       }
     ]
   )
 
   return {
-
     options,
-
     autoProcess: computed(() => options.value.autoProcess),
     preserveWhitespace: computed(() => options.value.preserveWhitespace),
     preserveMode: computed(() => options.value.preserveMode),
@@ -132,8 +91,6 @@ export function useBase64Options() {
     handleBinaryFiles: computed(() => options.value.handleBinaryFiles),
     validateInput: computed(() => options.value.validateInput),
     showCharacterCount: computed(() => options.value.showCharacterCount),
-    compressionLevel: computed(() => options.value.compressionLevel),
-
     isLoading
   }
 }

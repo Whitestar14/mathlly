@@ -13,7 +13,7 @@ export interface Base64Options {
   outputFormat: 'standard' | 'url-safe' | 'mime';
   lineLength: number;
   preserveWhitespace: boolean;
-  compressionLevel: 'none' | 'low' | 'medium' | 'high';
+  preserveMode: boolean;
   autoProcess: boolean;
   validateInput: boolean;
   showCharacterCount: boolean;
@@ -23,5 +23,8 @@ export interface Base64Options {
 export interface Base64ProcessingResult {
   success: boolean;
   output?: string;
+  binary?: Uint8Array;
+  mime?: string | null;
+  isBinary?: boolean;
   error?: string;
 }

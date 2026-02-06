@@ -33,6 +33,10 @@ const handleInput = (event: Event): void => {
 const handlePaste = (): void => {
   emit('paste')
 }
+
+defineExpose({
+  focus: () => textareaRef?.value?.focus()
+})
 </script>
 
 <template>

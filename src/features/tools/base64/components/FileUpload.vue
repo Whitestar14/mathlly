@@ -56,7 +56,7 @@ const handleDrop = (event: DragEvent): void => {
           or drag and drop a file into this zone
         </div>
         <div class="text-xs text-muted-foreground">
-          Maximum file size: 10MB
+          Maximum file size: 20MB
         </div>
       </div>
     </div>
