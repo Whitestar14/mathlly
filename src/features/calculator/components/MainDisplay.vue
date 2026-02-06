@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, computed, onMounted, watch, onUnmounted, shallowRef, type Ref, type ComputedRef } from 'vue'
+import { inject, computed, watch, shallowRef, onMounted, onUnmounted, type Ref, type ComputedRef } from 'vue'
 import { useElementSize, useScroll, useThrottleFn } from '@vueuse/core'
 import { useAnimation, type SlideAnimationControls } from '@composables/ui/useAnimation'
 import { useCalculatorOptions } from '@calculator/composables/useCalculatorOptions'
@@ -115,7 +115,7 @@ const calculatorOptions = useCalculatorOptions()
 const displayContainer: Ref<HTMLElement | null> = shallowRef(null)
 const resultContainer: Ref<HTMLElement | null> = shallowRef(null)
 const inputContainer: Ref<HTMLElement | null> = shallowRef(null)
-const previewContainer: Ref<HTMLElement | null> = shallowRef(null)
+// const previewContainer: Ref<HTMLElement | null> = shallowRef(null)
 
 const animationService: SlideAnimationControls = (() => {
   const { createSlideAnimation } = useAnimation()
@@ -190,7 +190,7 @@ const formattedTokens: ComputedRef<Token[]> = computed(() => {
 
   return SyntaxHighlighter.format(
     props.input,
-    parenthesesTracker?.value,
+    parenthesesTracker.value ?? null,
     true,
     {
       base: props.activeBase,

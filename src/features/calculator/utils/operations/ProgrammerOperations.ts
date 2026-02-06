@@ -187,12 +187,11 @@ export class ProgrammerOperations {
       
       // Sync before operation to ensure clean state
       this.parenthesesTracker.sync(currentInput)
-      const position = currentInput.length
 
       if (parenthesis === '(') {
-        this.handleOpenParenthesis(currentInput, position)
+        this.handleOpenParenthesis(currentInput)
       } else if (parenthesis === ')' && this.canCloseParenthesis(currentInput)) {
-        this.handleCloseParenthesis(currentInput, position)
+        this.handleCloseParenthesis(currentInput)
       }
 
       // Sync after operation to confirm state
@@ -221,7 +220,7 @@ export class ProgrammerOperations {
     return /[0-9A-Fa-f)]/.test(lastChar)
   }
 
-  handleOpenParenthesis(currentInput: string, position: number): void {
+  handleOpenParenthesis(currentInput: string): void {
     const state = this.calculator.states[this.calculator.activeBase]
 
     if (currentInput === '0' || currentInput === 'Error') {
@@ -234,7 +233,7 @@ export class ProgrammerOperations {
     }
   }
 
-  handleCloseParenthesis(currentInput: string, position: number): void {
+  handleCloseParenthesis(currentInput: string): void {
     this.calculator.states[this.calculator.activeBase].input = `${currentInput})`
   }
 
