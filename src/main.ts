@@ -40,7 +40,8 @@ const tippyProps: TippyOptions = {
   delay: [200, 0],
   onShow() {
     const device = useDeviceStore();
-    return !device.isMobile;
+    if (device.isMobile) return false
+    return
   },
 };
 

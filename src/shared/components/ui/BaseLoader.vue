@@ -97,7 +97,7 @@
 
 <script setup lang="ts">
 import { shallowRef } from 'vue'
-import { LoaderIcon } from 'lucide-vue-next'
+import { Loader2Icon } from 'lucide-vue-next'
 
 defineProps({
   variant: {
@@ -109,7 +109,7 @@ defineProps({
   message: { type: String, default: '' }
 })
 
-const loaderIcon = shallowRef(LoaderIcon)
+const loaderIcon = shallowRef(Loader2Icon)
 </script>
 
 <style scoped>
