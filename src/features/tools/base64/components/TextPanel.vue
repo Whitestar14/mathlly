@@ -44,6 +44,11 @@ defineExpose({
       <template #actions>
         <slot name="actions"></slot>
       </template>
+      <template
+        v-if="$slots.content"
+        #content>
+        <slot name="content"></slot>
+      </template>
     </TextAreaField>
   </div>
 </template>

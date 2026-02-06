@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { ref, type Ref } from 'vue'
 import { ClipboardPaste, AlertCircle } from 'lucide-vue-next'
@@ -40,8 +41,8 @@ defineExpose({
 </script>
 
 <template>
-  <div class="space-y-2">
-    <div class="flex items-center justify-between">
+  <div class="space-y-2 h-full grid grid-cols-1 grid-rows-[1fr_4fr]">
+    <div class="flex items-center justify-between flex-shrink-0 min-h-[25px]">
       <label class="text-sm font-medium text-foreground dark:text-muted-foreground">
         {{ label }}
       </label>
@@ -51,48 +52,51 @@ defineExpose({
       </div>
     </div>
 
-    <div class="relative">
-      <textarea
-        ref="textareaRef"
-        :value="modelValue"
-        :rows="8"
-        :placeholder="validationError ? '' : placeholder"
-        :readonly="readOnly"
-        class="w-full rounded-md border border-border bg-background px-3 py-2 text-sm resize-none font-mono pr-20"
-        :class="{
-          'border-destructive/50 bg-destructive/10': validationError
-        }"
-        @input="handleInput"
-        @drop="$emit('drop', $event)"
-        @dragover.prevent
-        @dragenter.prevent></textarea>
+    <div class="relative flex-1 min-h-0">
+      <slot name="content">
+        <textarea
+          ref="textareaRef"
+          :value="modelValue"
+          :placeholder="validationError ? '' : placeholder"
+          :readonly="readOnly"
+          class="w-full h-full rounded-md border min-h-[192px] border-border bg-background px-3 py-2 text-sm resize-none font-mono pr-12 focus:outline-none focus:ring-2 focus:ring-ring"
+          :class="{
+            'border-destructive/50 bg-destructive/5 focus:ring-destructive/20': validationError
+          }"
+          @input="handleInput"
+          @drop="$emit('drop', $event)"
+          @dragover.prevent
+          @dragenter.prevent></textarea>
+
+        <div
+          v-if="showPasteButton"
+          class="absolute bottom-0 right-0 m-2 mb-2 flex items-center">
+          <BaseButton
+            v-tippy="{ content: 'Paste' }"
+            variant="secondary"
+            size="icon"
+            class="size-8"
+            @click="handlePaste">
+            <ClipboardPaste class="size-4" />
+          </BaseButton>
+        </div>
+      </slot>
+    </div>
+
+    <div class="flex-shrink-0 min-h-[20px] flex items-center">
+      <div
+        v-if="validationError"
+        class="text-xs text-destructive flex items-center gap-1.5 font-medium animate-in slide-in-from-left-2 duration-200">
+        <AlertCircle class="h-3.5 w-3.5" />
+        {{ validationError }}
+      </div>
 
       <div
-        v-if="showPasteButton"
-        class="absolute bottom-3 right-2 flex items-center gap-1">
-        <BaseButton
-          v-tippy="{ content: 'Paste' }"
-          variant="ghost"
-          size="icon"
-          class="h-6 w-6"
-          @click="handlePaste">
-          <ClipboardPaste class="h-3 w-3" />
-        </BaseButton>
+        v-else-if="showStats && stats"
+        class="flex items-center justify-between text-xs text-muted-foreground w-full">
+        <span>{{ stats.characters.toLocaleString() }} chars, {{ stats.bytes.toLocaleString() }} bytes</span>
+        <span v-if="stats.lines > 1">{{ stats.lines.toLocaleString() }} lines</span>
       </div>
-    </div>
-
-    <div
-      v-if="validationError"
-      class="text-xs text-destructive flex items-center gap-1">
-      <AlertCircle class="h-3 w-3" />
-      {{ validationError }}
-    </div>
-
-    <div
-      v-if="showStats && stats"
-      class="flex items-center justify-between text-xs text-muted-foreground">
-      <span>{{ stats.characters }} characters, {{ stats.bytes }} bytes</span>
-      <span v-if="stats.lines > 1">{{ stats.lines }} lines</span>
     </div>
   </div>
 </template>
