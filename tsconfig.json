@@ -3,6 +3,7 @@
     "target": "ES2023",
     "useDefineForClassFields": true,
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["vitest/globals", "vitest/jsdom", "node", "vite/client"],
     "module": "ESNext",
     "skipLibCheck": true,
     "moduleResolution": "bundler",
@@ -40,7 +41,6 @@
       "@color/*" : ["features/tools/color/*"],
       "@settings/*" : ["features/settings/*"],
     },
-    "types": ["vite/client", "node"]
   },
   "include": [
     "src/**/*.ts",

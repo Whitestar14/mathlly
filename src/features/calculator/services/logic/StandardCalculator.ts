@@ -1,4 +1,4 @@
-import { ICalculator } from '@calculator/utils/core/ICalculator.ts'
+import { ICalculator } from '@calculator/utils/core/ICalculator'
 import { StandardOperations } from '@calculator/utils/operations/StandardOperations.ts'
 import { StandardCalculations } from '@calculator/utils/calculations/StandardCalculations.ts'
 import { CalculatorConstants } from '@calculator/utils/constants/CalculatorConstants.ts'
@@ -6,7 +6,7 @@ import { CalculatorResult } from '../factory/CalculatorFactory'
 
 /**
  * Calculator implementation for standard mode
- * * @class StandardCalculator
+ * @class StandardCalculator
  * @extends ICalculator
  */
 export class StandardCalculator extends ICalculator {
@@ -51,9 +51,18 @@ export class StandardCalculator extends ICalculator {
    */
   handleEquals(): CalculatorResult {
     try {
-      this.currentExpression = this.input
+      const openCount = this.operations.getParenthesesCount()
+      const finalExpr = openCount > 0 ? this.input + ')'.repeat(openCount) : this.input
+      
+      this.currentExpression = finalExpr
       const result = this.evaluateExpression(this.currentExpression)
-      this.input = this.formatResult(result)
+      const formattedResult = this.formatResult(result)
+      
+      this.input = formattedResult
+      
+      // Reset tracker since we have a new result
+      this.operations.resetParentheses()
+
       return this.normalizeResponse({
         expression: this.currentExpression,
         result: this.input,
@@ -69,6 +78,7 @@ export class StandardCalculator extends ICalculator {
    */
   handleClear(): CalculatorResult {
     super.handleClear()
+    this.operations.resetParentheses()
     return {
       input: this.input,
       error: this.error
@@ -135,8 +145,7 @@ export class StandardCalculator extends ICalculator {
     }
 
     if (['AC', 'C'].includes(btn)) {
-      this.handleClear()
-      return { input: this.input, error: this.error }
+      return this.handleClear()
     }
 
     if (btn === 'CE') {

@@ -1,17 +1,14 @@
 import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory'
 import { CalculatorUtils } from '../../constants/CalculatorUtils'
-import { ParenthesesTracker } from '../../core/ParenthesesTracker'
 
 /**
  * Handles power-related operations (x², x³, x^y, 10^x, etc.)
  */
 export class PowerOperationHandler {
   private calculator: any
-  private parenthesesTracker: ParenthesesTracker
 
-  constructor(calculator: any, parenthesesTracker: ParenthesesTracker) {
+  constructor(calculator: any) {
     this.calculator = calculator
-    this.parenthesesTracker = parenthesesTracker
   }
 
   /**
@@ -23,16 +20,14 @@ export class PowerOperationHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = 'cube('
-        this.parenthesesTracker.open(5)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
 
         if (isLastCharOperator) {
           this.calculator.input = `${currentInput}cube(`
-          this.parenthesesTracker.open(currentInput.length + 5)
         } else {
-          const openParenCount = ParenthesesTracker.getOpenParenthesesCount(currentInput)
+          const openParenCount = CalculatorUtils.getOpenParenthesesCount(currentInput)
 
           if (openParenCount > 0) {
             const lastOpenParen = currentInput.lastIndexOf('(')
@@ -40,14 +35,11 @@ export class PowerOperationHandler {
 
             if (!contentAfterLastParen || CalculatorUtils.isOperator(contentAfterLastParen.slice(-1))) {
               this.calculator.input = `${currentInput}cube(`
-              this.parenthesesTracker.open(currentInput.length + 5)
             } else {
               this.calculator.input = `${currentInput} × cube(`
-              this.parenthesesTracker.open(currentInput.length + 7)
             }
           } else {
             this.calculator.input = `${currentInput} × cube(`
-            this.parenthesesTracker.open(currentInput.length + 7)
           }
         }
       }
@@ -67,20 +59,18 @@ export class PowerOperationHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = '0^('
-        this.parenthesesTracker.open(2)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         if (CalculatorUtils.isOperator(lastChar) || lastChar === '(' || lastChar === '^') {
           return this.createResponse()
         }
 
-        const lastPart = ParenthesesTracker.getLastExpressionPart(currentInput)
+        const lastPart = CalculatorUtils.getLastComplexSegment(currentInput)
         if (!lastPart || (lastPart.includes('^(') && !lastPart.endsWith(')'))) {
           return this.createResponse()
         }
 
         this.calculator.input += '^('
-        this.parenthesesTracker.open(currentInput.length + 2)
       }
 
       return this.createResponse()
@@ -95,21 +85,17 @@ export class PowerOperationHandler {
   handleBasePowerOperation(base: string): CalculatorResult {
     try {
       const currentInput = this.calculator.input
-      const baseLength = base.length
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = `${base}^(`
-        this.parenthesesTracker.open(baseLength + 2)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
 
         if (isLastCharOperator) {
           this.calculator.input = `${currentInput}${base}^(`
-          this.parenthesesTracker.open(currentInput.length + baseLength + 2)
         } else {
           this.calculator.input = `${currentInput} × ${base}^(`
-          this.parenthesesTracker.open(currentInput.length + baseLength + 4)
         }
       }
 
@@ -137,17 +123,14 @@ export class PowerOperationHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = 'exp('
-        this.parenthesesTracker.open(4)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
 
         if (isLastCharOperator) {
           this.calculator.input = `${currentInput}exp(`
-          this.parenthesesTracker.open(currentInput.length + 4)
         } else {
           this.calculator.input = `${currentInput} × exp(`
-          this.parenthesesTracker.open(currentInput.length + 6)
         }
       }
 

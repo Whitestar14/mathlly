@@ -1,6 +1,5 @@
 import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory'
 import { CalculatorUtils } from '../../constants/CalculatorUtils'
-import { ParenthesesTracker } from '../../core/ParenthesesTracker'
 import { PowerOperationHandler } from './PowerOperationHandler'
 import { RootOperationHandler } from './RootOperationHandler'
 import { SpecialOperationHandler } from './SpecialOperationHandler'
@@ -11,18 +10,16 @@ import { SpecialOperationHandler } from './SpecialOperationHandler'
  */
 export class ScientificFunctionHandler {
   private calculator: any
-  private parenthesesTracker: ParenthesesTracker
   private powerHandler: PowerOperationHandler
   private rootHandler: RootOperationHandler
   private specialHandler: SpecialOperationHandler
 
-  constructor(calculator: any, parenthesesTracker: ParenthesesTracker) {
+  constructor(calculator: any) {
     this.calculator = calculator
-    this.parenthesesTracker = parenthesesTracker
 
-    this.powerHandler = new PowerOperationHandler(calculator, parenthesesTracker)
-    this.rootHandler = new RootOperationHandler(calculator, parenthesesTracker)
-    this.specialHandler = new SpecialOperationHandler(calculator, parenthesesTracker)
+    this.powerHandler = new PowerOperationHandler(calculator)
+    this.rootHandler = new RootOperationHandler(calculator)
+    this.specialHandler = new SpecialOperationHandler(calculator)
   }
 
   /**
@@ -89,16 +86,14 @@ export class ScientificFunctionHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = 'sqr('
-        this.parenthesesTracker.open(4)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
 
         if (isLastCharOperator) {
           this.calculator.input = `${currentInput}sqr(`
-          this.parenthesesTracker.open(currentInput.length + 4)
         } else {
-          const openParenCount = ParenthesesTracker.getOpenParenthesesCount(currentInput)
+          const openParenCount = CalculatorUtils.getOpenParenthesesCount(currentInput)
 
           if (openParenCount > 0) {
             const lastOpenParen = currentInput.lastIndexOf('(')
@@ -106,14 +101,11 @@ export class ScientificFunctionHandler {
 
             if (!contentAfterLastParen || CalculatorUtils.isOperator(contentAfterLastParen.slice(-1))) {
               this.calculator.input = `${currentInput}sqr(`
-              this.parenthesesTracker.open(currentInput.length + 4)
             } else {
               this.calculator.input = `${currentInput} × sqr(`
-              this.parenthesesTracker.open(currentInput.length + 6)
             }
           } else {
             this.calculator.input = `${currentInput} × sqr(`
-            this.parenthesesTracker.open(currentInput.length + 6)
           }
         }
       }
@@ -130,17 +122,14 @@ export class ScientificFunctionHandler {
   private handleStandardFunction(funcName: string, currentInput: string): CalculatorResult {
     if (currentInput === '0' || currentInput === 'Error') {
       this.calculator.input = `${funcName}(`
-      this.parenthesesTracker.open(funcName.length)
     } else {
       const lastChar = currentInput.trim().slice(-1)
       const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
 
       if (isLastCharOperator) {
         this.calculator.input = `${currentInput}${funcName}(`
-        this.parenthesesTracker.open(currentInput.length + funcName.length)
       } else {
         this.calculator.input = `${currentInput} × ${funcName}(`
-        this.parenthesesTracker.open(currentInput.length + funcName.length + 3)
       }
     }
 

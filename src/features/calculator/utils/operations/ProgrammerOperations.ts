@@ -1,4 +1,4 @@
-import { ParenthesesTracker } from '../core/ParenthesesTracker.ts'
+import { ParenTracker } from '../core/ParenTracker.ts'
 import { CalculatorConstants } from '../constants/CalculatorConstants.ts'
 import { CalculatorUtils } from '../constants/CalculatorUtils'
 
@@ -7,11 +7,11 @@ import { CalculatorUtils } from '../constants/CalculatorUtils'
  */
 export class ProgrammerOperations {
   calculator: any
-  parenthesesTracker: ParenthesesTracker
+  parenthesesTracker: ParenTracker
 
   constructor(calculator: any) {
     this.calculator = calculator
-    this.parenthesesTracker = new ParenthesesTracker()
+    this.parenthesesTracker = new ParenTracker()
   }
 
   isLastCharOperator(): boolean {
@@ -71,8 +71,6 @@ export class ProgrammerOperations {
 
   /**
    * Parse the current operator state of the input
-   * @param {string} input - Current input to parse
-   * @returns {Object} Parsed state information
    */
   private parseOperatorState(input: string): {
     baseExpression: string;
@@ -186,13 +184,18 @@ export class ProgrammerOperations {
     try {
       const state = this.calculator.states[this.calculator.activeBase]
       const currentInput = state.input.trim()
-      const position = currentInput.length
+      
+      // Sync before operation to ensure clean state
+      this.parenthesesTracker.sync(currentInput)
 
       if (parenthesis === '(') {
-        this.handleOpenParenthesis(currentInput, position)
+        this.handleOpenParenthesis(currentInput)
       } else if (parenthesis === ')' && this.canCloseParenthesis(currentInput)) {
-        this.handleCloseParenthesis(currentInput, position)
+        this.handleCloseParenthesis(currentInput)
       }
+
+      // Sync after operation to confirm state
+      this.parenthesesTracker.sync(state.input)
 
       return this.createResponse(state.input)
     } catch(err: any) {
@@ -217,24 +220,21 @@ export class ProgrammerOperations {
     return /[0-9A-Fa-f)]/.test(lastChar)
   }
 
-  handleOpenParenthesis(currentInput: string, position: number): void {
+  handleOpenParenthesis(currentInput: string): void {
     const state = this.calculator.states[this.calculator.activeBase]
 
     if (currentInput === '0' || currentInput === 'Error') {
       state.input = '('
-      this.parenthesesTracker.open(position)
     } else {
       const lastChar = currentInput.slice(-1)
       const needsMultiplication = /[0-9A-Fa-f)]/.test(lastChar)
       const newInput = `${currentInput}${needsMultiplication ? ' × ' : ' '}(`
       state.input = newInput
-      this.parenthesesTracker.open(position + (needsMultiplication ? 3 : 1))
     }
   }
 
-  handleCloseParenthesis(currentInput: string, position: number): void {
+  handleCloseParenthesis(currentInput: string): void {
     this.calculator.states[this.calculator.activeBase].input = `${currentInput})`
-    this.parenthesesTracker.close(position)
   }
 
   handleBackspace(): Record<string, any> {
@@ -249,10 +249,12 @@ export class ProgrammerOperations {
       const beforeBackspace = currentInput
 
       if (this.handleSpecialBackspace(currentInput)) {
+        this.parenthesesTracker.sync(state.input)
         return this.createResponse(state.input)
       }
 
       this.handleDefaultBackspace(currentInput)
+      this.parenthesesTracker.sync(state.input)
 
       if (state.input === beforeBackspace) {
         console.debug('[ProgrammerOperations] Backspace had no effect')
@@ -360,6 +362,6 @@ export class ProgrammerOperations {
   }
 
   resetParentheses(): void {
-    this.parenthesesTracker = new ParenthesesTracker()
+    this.parenthesesTracker.reset()
   }
 }

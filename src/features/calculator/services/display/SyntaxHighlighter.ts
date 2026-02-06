@@ -2,7 +2,7 @@ import { CacheManager } from '@utils/cache/CacheManager'
 import { TokenUtils } from '@calculator/utils/syntax/TokenUtils'
 import { FunctionUtils } from '@calculator/utils/syntax/FunctionUtils'
 import { CacheUtils } from '@calculator/utils/syntax/CacheUtils'
-import type { ParenthesesTracker } from '@calculator/utils/core/ParenthesesTracker'
+import type { ParenTracker } from '@calculator/utils/core/ParenTracker'
 import type { Token, FormattedPart, FormatOptions } from '@calculator/types/syntax'
 
 export class SyntaxHighlighter {
@@ -14,7 +14,7 @@ export class SyntaxHighlighter {
    */
   static format(
     expr: string,
-    parenthesesTracker: ParenthesesTracker | null,
+    parenthesesTracker: ParenTracker | null,
     syntaxHighlightingEnabled: boolean = true,
     options: FormatOptions = {}
   ): Token[] {

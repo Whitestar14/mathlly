@@ -77,7 +77,7 @@ function createInitialState(mode: CalculatorMode = DEFAULT_MODE as CalculatorMod
 export function useCalculatorState(initialMode?: CalculatorMode): UseCalculatorStateReturn {
   const state = reactive<CalculatorState>(createInitialState(initialMode))
 
-  const animationTimeout: Ref<NodeJS.Timeout | null> = ref(null)
+  const animationTimeout: Ref<ReturnType<typeof setTimeout> | null> = ref(null)
 
   /**
    * Update state with partial updates

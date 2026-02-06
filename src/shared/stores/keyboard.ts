@@ -567,7 +567,7 @@ export const useKeyboardStore = defineStore('keyboard', {
         return
       }
 
-      const contexts = Array.from(new Set(enabledBindings.map(b => b.context)))
+      const contexts = Array.from(new Set(enabledBindings.map(b => b.context))) as ContextPath[]
       const collision: Collision = { key, contexts, bindings: enabledBindings.slice() }
 
       const idx = this.collisions.findIndex(c => c.key === key)

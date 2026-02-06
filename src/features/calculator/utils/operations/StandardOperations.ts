@@ -1,12 +1,15 @@
 import { CalculatorUtils } from '../constants/CalculatorUtils'
-import { CalculatorConstants } from '../constants/CalculatorConstants'
 import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory'
+import { ParenTracker } from '../core/ParenTracker'
 
 /**
- * Handles standard calculator operations
+ * Handles standard calculator operations.
+ * Acts as the base class for other modes, providing expression building
+ * and parentheses tracking capabilities.
  */
 export class StandardOperations {
   protected calculator: any
+  public parenthesesTracker: ParenTracker
 
   /**
    * Creates a new StandardOperations instance
@@ -14,6 +17,7 @@ export class StandardOperations {
    */
   constructor(calculator: any) {
     this.calculator = calculator
+    this.parenthesesTracker = new ParenTracker()
   }
 
   /**
@@ -34,6 +38,7 @@ export class StandardOperations {
       }
 
       this.calculator.input = `${currentInput}, `
+      this.parenthesesTracker.sync(this.calculator.input)
 
       return this.createResponse()
     } catch(err: any) {
@@ -43,8 +48,6 @@ export class StandardOperations {
 
   /**
    * Handles numeric input including decimal point
-   * @param {string} num - The number or decimal point to add
-   * @returns {Object} Updated input state and error message
    */
   handleNumber(num: string): CalculatorResult {
     if (num === ',') {
@@ -55,6 +58,7 @@ export class StandardOperations {
 
     if (currentInput === '0' && num !== '.') {
       this.calculator.input = num
+      this.parenthesesTracker.sync(this.calculator.input)
       return this.createResponse()
     }
 
@@ -65,14 +69,15 @@ export class StandardOperations {
     if (!this.validateNumberInput(num)) {
       return this.createResponse()
     }
+    
     this.calculator.input += num
+    this.parenthesesTracker.sync(this.calculator.input)
+    
     return this.createResponse()
   }
 
   /**
    * Handles arithmetic operator input
-   * @param {string} op - The operator to add (+, -, ×, ÷)
-   * @returns {Object} Updated input state and error message
    */
   handleOperator(op: string): CalculatorResult {
     const currentInput = this.calculator.input.trim()
@@ -89,15 +94,14 @@ export class StandardOperations {
       this.calculator.input = `${state.baseExpression} ${op} `
     }
 
+    this.parenthesesTracker.sync(this.calculator.input)
     return this.createResponse()
   }
 
   /**
    * Parse the current operator state of the input
-   * @param {string} input - Current input to parse
-   * @returns {Object} Parsed state information
    */
-  private parseOperatorState(input: string): {
+  protected parseOperatorState(input: string): {
     baseExpression: string;
     lastOperator: string | null;
     hasNegative: boolean;
@@ -129,7 +133,6 @@ export class StandardOperations {
 
   /**
    * Handles backspace operation
-   * @returns {Object} Updated input state and error message
    */
   handleBackspace(): CalculatorResult {
     const input = this.calculator.input
@@ -146,13 +149,12 @@ export class StandardOperations {
       .replace(/\s+/g, ' ')
       .replace(/^\s+|\s+$/g, '')
 
+    this.parenthesesTracker.sync(this.calculator.input)
     return this.createResponse()
   }
 
   /**
    * Handles clearing the last entered number or operator.
-   * This is a basic implementation for standard mode.
-   * @returns {Object} Updated input state and error message
    */
   handleClearEntry(): CalculatorResult {
     const input = this.calculator.input
@@ -172,94 +174,96 @@ export class StandardOperations {
     if (this.calculator.input.trim() === '') {
       this.calculator.input = '0'
     }
+    
+    this.parenthesesTracker.sync(this.calculator.input)
     return this.createResponse()
   }
 
   /**
    * Toggles the sign of the current number
-   * @returns {Object} Updated input state and error message
    */
   handleToggleSign(): CalculatorResult {
     const currentInput = this.calculator.input
     if (currentInput !== '0' && currentInput !== 'Error') {
       const parts = currentInput.split(/([+×÷])/)
       const lastPart = parts[parts.length - 1].trim()
+      
       if (lastPart) {
-        if (lastPart.startsWith('-')) parts[parts.length - 1] = lastPart.slice(1)
-        else parts[parts.length - 1] = '- ' + lastPart
+        if (lastPart.startsWith('-')) {
+           parts[parts.length - 1] = lastPart.slice(1)
+        } else if (lastPart.startsWith('(-')) {
+           parts[parts.length - 1] = lastPart.slice(2, -1) // Remove (- and )
+        } else {
+           parts[parts.length - 1] = '(-' + lastPart + ')'
+        }
         this.calculator.input = parts.join(' ').trim()
       }
     }
+    
+    this.parenthesesTracker.sync(this.calculator.input)
     return this.createResponse()
   }
 
   /**
-   * Squares the current value
-   * @returns {Object} Updated input state and error message
+   * Applies a function pattern to the last complex segment
    */
-  handleSquare(): CalculatorResult {
-    return this.handleOperation((value: number) => {
-      if (!Number.isFinite(value)) throw new Error('Overflow')
-      return Math.pow(value, 2)
-    })
-  }
-
-  /**
-   * Calculates the square root of the current value
-   * @returns {Object} Updated input state and error message
-   */
-  handleSquareRoot(): CalculatorResult {
-    return this.handleOperation((value: number) => {
-      if (value < 0)
-        throw new Error('Cannot calculate square root of negative number')
-      return Math.sqrt(value)
-    })
-  }
-
-  /**
-   * Calculates the reciprocal (1/x) of the current value
-   * @returns {Object} Updated input state and error message
-   */
-  handleReciprocal(): CalculatorResult {
-    return this.handleOperation((value: number) => {
-      if (value === 0) throw new Error('Cannot divide by zero')
-      return 1 / value
-    })
-  }
-
-  /**
-   * Converts the current value to a percentage
-   * @returns {Object} Updated input state and error message
-   */
-  handlePercentage(): CalculatorResult {
-    return this.handleOperation((value: number) => value / 100)
-  }
-
-  /**
-   * Generic handler for operations that transform the current value
-   * @param {Function} operation - Function that takes a number and returns a transformed number
-   * @returns {Object} Updated input state and error message
-   */
-  handleOperation(operation: (value: number) => number): CalculatorResult {
+  protected applyFunctionPattern(pattern: (val: string) => string): CalculatorResult {
     try {
-      const value = this.calculator.calculations.evaluateExpression(this.calculator.input)
-      const result = operation(value)
-      if (!Number.isFinite(result)) {
-        throw new Error('Overflow')
+      const currentInput = this.calculator.input
+      if (currentInput === '0' || currentInput === 'Error') {
+         this.calculator.input = pattern('0')
+         return this.createResponse()
       }
-      this.calculator.input = this.calculator.calculations.formatResult(result)
+
+      const lastPart = CalculatorUtils.getLastComplexSegment(currentInput)
+      
+      if (lastPart) {
+        const lastPartIndex = currentInput.lastIndexOf(lastPart)
+        // Ensure we don't accidentally match earlier occurrences if duplicates exist,
+        // though logic typically operates on the tail.
+        // A safer approach is string slicing if we know it's at the end.
+        
+        // Check if the input ends with the last part (ignoring trailing parens for a moment)
+        if (currentInput.endsWith(lastPart) || currentInput.includes(lastPart)) {
+             this.calculator.input =
+              currentInput.substring(0, lastPartIndex) +
+              pattern(lastPart)
+        } else {
+            // Fallback: append
+            this.calculator.input += ` × ${pattern(lastPart)}` 
+        }
+      } else {
+         this.calculator.input = pattern(currentInput)
+      }
+
+      this.parenthesesTracker.sync(this.calculator.input)
       return this.createResponse()
     } catch(err: any) {
-      if (err.message === 'Overflow')
-        return this.createResponse(CalculatorConstants.ERROR_MESSAGES.OVERFLOW)
       return this.createResponse(err.message)
     }
   }
 
+  handleSquare(): CalculatorResult {
+    return this.applyFunctionPattern(val => `sqr(${val})`)
+  }
+
+  handleSquareRoot(): CalculatorResult {
+    return this.applyFunctionPattern(val => `√(${val})`)
+  }
+
+  handleReciprocal(): CalculatorResult {
+    return this.applyFunctionPattern(val => `1/(${val})`)
+  }
+
+  handlePercentage(): CalculatorResult {
+    // Append % operator. mathjs handles 10% as 0.1
+    this.calculator.input += '%'
+    this.parenthesesTracker.sync(this.calculator.input)
+    return this.createResponse()
+  }
+
   /**
    * Validates if a number can be added to the current input
-   * @param {string} num - The number to validate
-   * @returns {boolean} Whether the number can be added
    */
   validateNumberInput(num: string): boolean {
     if (num === '.') {
@@ -269,20 +273,18 @@ export class StandardOperations {
     return true
   }
 
-  /**
-   * Checks if a character is an operator
-   * @param {string} char - Character to check
-   * @returns {boolean} Whether the character is an operator
-   */
   isOperator(char: string): boolean {
     return CalculatorUtils.isOperator(char)
   }
 
-  /**
-   * Creates a standardized response object
-   * @param {string} [error=""] - Optional error message
-   * @returns {Object} Standardized response with input and error
-   */
+  getParenthesesCount(): number {
+    return this.parenthesesTracker.getOpenCount()
+  }
+
+  resetParentheses(): void {
+    this.parenthesesTracker.reset()
+  }
+
   createResponse(error: string = ''): CalculatorResult {
     return CalculatorUtils.createResponse({
       input: this.calculator.input,

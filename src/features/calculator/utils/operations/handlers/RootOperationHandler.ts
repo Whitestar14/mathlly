@@ -1,17 +1,14 @@
 import { CalculatorResult } from '@features/calculator/services/factory/CalculatorFactory'
 import { CalculatorUtils } from '../../constants/CalculatorUtils'
-import { ParenthesesTracker } from '../../core/ParenthesesTracker'
 
 /**
  * Handles root-related operations (√, ∛, y√x, 1/x)
  */
 export class RootOperationHandler {
   private calculator: any
-  private parenthesesTracker: ParenthesesTracker
 
-  constructor(calculator: any, parenthesesTracker: ParenthesesTracker) {
+  constructor(calculator: any) {
     this.calculator = calculator
-    this.parenthesesTracker = parenthesesTracker
   }
 
   /**
@@ -23,7 +20,6 @@ export class RootOperationHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = '√('
-        this.parenthesesTracker.open(1)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
@@ -31,10 +27,8 @@ export class RootOperationHandler {
         if (isLastCharOperator) {
           const newInput = `${currentInput}√(`
           this.calculator.input = newInput
-          const parenPosition = currentInput.length + 1
-          this.parenthesesTracker.open(parenPosition)
         } else {
-          const openParenCount = ParenthesesTracker.getOpenParenthesesCount(currentInput)
+          const openParenCount = CalculatorUtils.getOpenParenthesesCount(currentInput)
 
           if (openParenCount > 0) {
             const lastOpenParen = currentInput.lastIndexOf('(')
@@ -43,19 +37,13 @@ export class RootOperationHandler {
             if (!contentAfterLastParen || CalculatorUtils.isOperator(contentAfterLastParen.slice(-1))) {
               const newInput = `${currentInput}√(`
               this.calculator.input = newInput
-              const parenPosition = currentInput.length + 1
-              this.parenthesesTracker.open(parenPosition)
             } else {
               const newInput = `${currentInput} × √(`
               this.calculator.input = newInput
-              const parenPosition = currentInput.length + 3
-              this.parenthesesTracker.open(parenPosition)
             }
           } else {
             const newInput = `${currentInput} × √(`
             this.calculator.input = newInput
-            const parenPosition = currentInput.length + 3
-            this.parenthesesTracker.open(parenPosition)
           }
         }
       }
@@ -75,17 +63,14 @@ export class RootOperationHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = '∛('
-        this.parenthesesTracker.open(2)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
 
         if (isLastCharOperator) {
           this.calculator.input = `${currentInput}∛(`
-          this.parenthesesTracker.open(currentInput.length + 2)
         } else {
           this.calculator.input = `${currentInput} × ∛(`
-          this.parenthesesTracker.open(currentInput.length + 4)
         }
       }
 
@@ -104,16 +89,14 @@ export class RootOperationHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = 'nthroot('
-        this.parenthesesTracker.open(8)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
 
         if (isLastCharOperator) {
           this.calculator.input = `${currentInput}nthroot(`
-          this.parenthesesTracker.open(currentInput.length + 8)
         } else {
-          const openParenCount = ParenthesesTracker.getOpenParenthesesCount(currentInput)
+          const openParenCount = CalculatorUtils.getOpenParenthesesCount(currentInput)
 
           if (openParenCount > 0) {
             const lastOpenParen = currentInput.lastIndexOf('(')
@@ -121,14 +104,11 @@ export class RootOperationHandler {
 
             if (!contentAfterLastParen || CalculatorUtils.isOperator(contentAfterLastParen.slice(-1))) {
               this.calculator.input = `${currentInput}nthroot(`
-              this.parenthesesTracker.open(currentInput.length + 8)
             } else {
               this.calculator.input = `${currentInput} × nthroot(`
-              this.parenthesesTracker.open(currentInput.length + 10)
             }
           } else {
             this.calculator.input = `${currentInput} × nthroot(`
-            this.parenthesesTracker.open(currentInput.length + 10)
           }
         }
       }
@@ -148,16 +128,14 @@ export class RootOperationHandler {
 
       if (currentInput === '0' || currentInput === 'Error') {
         this.calculator.input = '1/('
-        this.parenthesesTracker.open(1)
       } else {
         const lastChar = currentInput.trim().slice(-1)
         const isLastCharOperator = CalculatorUtils.isOperator(lastChar) || lastChar === '('
 
         if (isLastCharOperator) {
           this.calculator.input += '1/('
-          this.parenthesesTracker.open(currentInput.length + 1)
         } else {
-          const lastPart = ParenthesesTracker.getLastExpressionPart(currentInput)
+          const lastPart = CalculatorUtils.getLastComplexSegment(currentInput)
           if (lastPart) {
             const lastPartIndex = currentInput.lastIndexOf(lastPart)
 
