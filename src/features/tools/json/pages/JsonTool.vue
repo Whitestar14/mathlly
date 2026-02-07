@@ -5,12 +5,15 @@
     :is-tool-layout="true"
     main-class="flex flex-col flex-grow overflow-hidden h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] relative bg-background">
     
-    <JsonFileOverlay 
-      :active="isDragActive"
-      @file-dropped="handleDrop"
+    <BaseFileDrop
+      variant="overlay"
+      :show="isDragActive"
+      title="Drop JSON file"
+      description="Release to load content into the editor"
+      :icon="FileJson"
+      @files="handleDrop"
     />
 
-    <!-- Using flex-1 to fill the page, p-4 to give breathing room -->
     <div class="flex-1 min-h-0 w-full max-w-[1920px] mx-auto p-2 md:p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
       
       <!-- Input Panel -->
@@ -93,18 +96,18 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
-import { BasePage } from '@components/ui'
+import { FileJson } from 'lucide-vue-next'
+import { BasePage, BaseFileDrop } from '@components/ui'
 import { useJsonTool } from '../composables/useJsonTool'
-import { useJsonFileUI } from '../composables/useJsonFileUI'
+import { useDragDrop } from '@composables/useDragDrop'
 import { useKeyboardStore } from '@stores/keyboard'
-import JsonFileOverlay from '../components/JsonFileOverlay.vue'
 
 const JsonInputPanel = defineAsyncComponent(() => import('../components/JsonInputPanel.vue'))
 const JsonOutputPanel = defineAsyncComponent(() => import('../components/JsonOutputPanel.vue'))
 
 const { 
   input, 
-  setInput, // Import the setter!
+  setInput,
   parsed, 
   error, 
   viewMode, 
@@ -122,15 +125,18 @@ const {
   downloadFile
 } = useJsonTool()
 
-const { isDragActive } = useJsonFileUI()
+const { isDragActive } = useDragDrop()
 const keyboard = useKeyboardStore()
 
 const breadcrumbs = [{ label: 'Tools', path: '/' }, { label: 'JSON Editor' }]
 
 const getStats = computed(() => {
     if (!parsed.value) return ''
-    const size = new TextEncoder().encode(input.value).length
-    return `${(size / 1024).toFixed(2)} KB`
+    // Safe length check
+    const len = input.value?.length || 0
+    return len > 1024 * 1024 
+      ? `${(len / (1024 * 1024)).toFixed(2)} MB` 
+      : `${(len / 1024).toFixed(2)} KB`
 })
 
 const handleDrop = (files: FileList) => {
