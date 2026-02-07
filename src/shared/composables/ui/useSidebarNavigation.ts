@@ -11,7 +11,8 @@ import {
   RegexIcon,
   LineChartIcon,
   ArrowRightLeftIcon,
-  BinaryIcon
+  BinaryIcon,
+  FileJson2Icon
 } from 'lucide-vue-next'
 
 export interface NavigationItem {
@@ -67,7 +68,7 @@ export function useSidebarNavigation() {
           path: '/converter',
           icon: ArrowRightLeftIcon,
           comingSoon: false,
-          isNew: true
+          isNew: false
         },
         {
           name: 'Functions',
@@ -104,10 +105,17 @@ export function useSidebarNavigation() {
           name: 'Color',
           path: '/tools/color',
           icon: PaletteIcon,
-          isNew: true,
+          isNew: false,
           comingSoon: false,
           description: 'Convert and preview colors (hex, rgb, cmyk, oklch)'
-        }
+        },
+        {
+          name: 'JSON Viewer',
+          path: '/tools/json',
+          icon: FileJson2Icon,
+          isNew: true,
+          description: 'Description here...'
+        },
       ]
     },
     {

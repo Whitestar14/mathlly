@@ -39,6 +39,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { transition: 'fade', group: 'tools' }
   },
   {
+    path: '/tools/json',
+    name: 'json',
+    component: () => import('@features/tools/json/pages/JsonTool.vue'),
+    meta: { transition: 'fade', group: 'tools' }
+  },
+  {
     path: '/tools/color',
     name: 'color',
     component: () => import('@color/pages/ColorTool.vue'),
@@ -129,13 +135,6 @@ router.afterEach(to => {
   isInitialNavigation = false
 })
 
-/**
- * future maintainers, do not try to simplify this code without testing it first, as it
-  is critical to first-load performance and stability. The navigation guard for '/' is
-  intentionally included to avoid routing to the preferred page set in Settings instead
-  of staying put on the current page! Please, it took me way too much time than I'll allowed
-  to admit to discover why app rerouting and navigation didn't behave as expected.
- */
 router.beforeEach(async(to, _, next) => {
   isRouteLoading.value = true
 
