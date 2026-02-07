@@ -110,7 +110,7 @@ export function useSidebarNavigation() {
           description: 'Convert and preview colors (hex, rgb, cmyk, oklch)'
         },
         {
-          name: 'JSON Viewer',
+          name: 'JSON Editor',
           path: '/tools/json',
           icon: FileJson2Icon,
           isNew: true,
