@@ -1,6 +1,6 @@
 import { Base64Encoder } from '../encoders/Base64Encoder';
 import { Base64Decoder } from '../decoders/Base64Decoder';
-import type { Base64ServiceType, IBase64Encoder, IBase64Decoder, IBase64Service } from '../../types/base64';
+import type { Base64ServiceType, IBase64Encoder, IBase64Decoder, IBase64Service } from '@base64/types/base64';
 
 /**
  * Type guard to check if a service is a Base64Encoder.

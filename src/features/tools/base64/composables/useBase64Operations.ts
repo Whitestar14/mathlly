@@ -1,5 +1,5 @@
 import { ref, computed, shallowRef, type Ref } from 'vue'
-import type { Base64Options, TextStats, Base64ProcessingResult, IBase64Encoder, IBase64Decoder, Base64EncodingOptions, Base64DecodingOptions } from '../types/base64'
+import type { Base64Options, TextStats, Base64ProcessingResult, Base64EncodingOptions, Base64DecodingOptions } from '../types/base64'
 import { Base64ServiceFactory } from '../services/factory/Base64ServiceFactory'
 import { applyFormat } from '../utils/formatters/base64Formatter'
 import { Base64Constants } from '../utils/constants/Base64Constants'

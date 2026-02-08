@@ -3,7 +3,6 @@ import { useToast } from '@composables/ui/useToast'
 import { isBinaryExtension, isImageExtension, isMediaExtension } from '../utils/detectors/fileExtensionDetector'
 import { validateFileSize, generateDownloadFilename, downloadBlob, createBlobFromBinary, createBlobFromText } from '../utils/helpers/fileHelpers'
 import { getMimeTypeExtension, getDefaultMimeType } from '../utils/detectors/mimeDetector'
-import { Base64Constants } from '../utils/constants/Base64Constants'
 
 export function useFileOperations(
   input: Ref<string>,

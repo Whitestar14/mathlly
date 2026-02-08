@@ -1,32 +1,30 @@
-import { ref, shallowRef, computed, watch, onUnmounted, type Ref } from 'vue'
+import { ref, shallowRef, computed, watch, onUnmounted } from 'vue'
 import { useClipboard, useDebounceFn } from '@vueuse/core'
 import { useToast } from '@composables/ui/useToast'
 
-// Inner Composables
 import { useBase64Options } from './useBase64Options'
 import { useBase64Operations } from './useBase64Operations'
 import { useFileOperations } from './useFileOperations'
 import { useSampleData } from './useSampleData'
-import { useBase64FileUI } from './useBase64FileUI'
+
+// [REMOVED] import { useBase64FileUI } from './useBase64FileUI'
 
 export function useBase64Tool() {
   const { toast } = useToast()
   const { copy } = useClipboard()
   const { options } = useBase64Options()
   const sample = useSampleData()
-  const fileUI = useBase64FileUI()
+  
+  // [REMOVED] const fileUI = useBase64FileUI()
 
-  // --- 1. State Management (Buffers & Tabs) ---
   const currentTab = ref<'encode' | 'decode'>('encode')
   const selectedFileName = ref('')
   const activePreviewUrl = ref<string | null>(null)
   
-  // Use shallowRef for large strings to improve performance
   const singleInput = shallowRef('')
   const encodeBuffer = shallowRef('')
   const decodeBuffer = shallowRef('')
 
-  // The "Master" input computed property that handles Preserve Mode
   const input = computed<string>({
     get() {
       if (options.value.preserveMode) {
@@ -44,7 +42,6 @@ export function useBase64Tool() {
     }
   })
 
-  // --- 2. Wiring Sub-Composables ---
   const ops = useBase64Operations(input, options)
   
   const fileOps = useFileOperations(
@@ -55,8 +52,8 @@ export function useBase64Tool() {
     ops.rawFileBase64
   )
 
-  // --- 3. Result Processing Logic ---
   const outputValidationError = ref('')
+  const isFileProcessing = ref(false)
 
   const applyProcessResult = (showToastOnSuccess = false) => {
     const result = ops.processState.value
@@ -83,8 +80,7 @@ export function useBase64Tool() {
     applyProcessResult(false)
   }, 300)
 
-  // --- 4. User Actions ---
-
+  // Actions
   const handleInput = async () => {
     if (input.value.startsWith('[Binary File Loaded:')) {
       selectedFileName.value = ''
@@ -95,14 +91,12 @@ export function useBase64Tool() {
 
   const handleSwap = () => {
     const currOutput = ops.output.value
-    
     if (options.value.preserveMode) {
       if (currentTab.value === 'encode') decodeBuffer.value = currOutput
       else encodeBuffer.value = currOutput
     } else {
       singleInput.value = currOutput
     }
-
     selectedFileName.value = ''
     ops.rawFileBase64.value = ''
     currentTab.value = currentTab.value === 'encode' ? 'decode' : 'encode'
@@ -132,48 +126,34 @@ export function useBase64Tool() {
     }
   }
 
-  // --- 5. File Handling Glue ---
-  
-  const isFileProcessing = ref(false)
+  // File Handling
+  // [REMOVED] const onFileUpload = ... (Old complex handler)
+  // [REMOVED] const onDrop = ... (Old complex handler)
 
-  const onFileUpload = async (event: Event) => {
+  /**
+   * New Simplified File Processor
+   * Handles files from Drag&Drop or File Input
+   */
+  const processFiles = async (files: FileList) => {
+    if (!files.length) return
+    
+    // Create a mock event because fileOps expects an Event object currently
+    const mockEvent = { target: { files } } as unknown as Event
+
     try {
       isFileProcessing.value = true
-      // Wait for file read + smart switch
-      const success = await fileOps.handleFileUpload(event)
+      // Reuse the existing fileOps logic
+      const success = await fileOps.handleFileUpload(mockEvent)
       if (success) {
         await ops.processInput(currentTab.value)
         applyProcessResult(true)
       }
     } finally {
-      const target = event.target as HTMLInputElement
-      if (target) target.value = ''
       setTimeout(() => (isFileProcessing.value = false), 150)
     }
   }
 
-  const onDrop = async (event: DragEvent, realFileInputRef: Ref<HTMLInputElement | null>) => {
-    try {
-      isFileProcessing.value = true
-      await fileUI.handleDropEvent(
-        event,
-        async (e, _) => {
-          const success = await fileOps.handleDrop(e, realFileInputRef)
-          if (success) await ops.processInput(currentTab.value)
-        },
-        ops.processInput,
-        currentTab,
-        options
-      )
-      applyProcessResult(false)
-    } finally {
-      setTimeout(() => (isFileProcessing.value = false), 150)
-    }
-  }
-
-  // --- 6. Lifecycle & Watchers ---
-
-  // Preview Memory Management
+  // Watchers
   watch(() => ops.processState.value, (newState) => {
     if (activePreviewUrl.value) {
       URL.revokeObjectURL(activePreviewUrl.value)
@@ -192,7 +172,6 @@ export function useBase64Tool() {
     if (activePreviewUrl.value) URL.revokeObjectURL(activePreviewUrl.value)
   })
 
-  // Auto Process Watcher
   watch([options, currentTab], async () => {
     if (options.value.autoProcess && input.value.trim()) {
       await ops.processInput(currentTab.value)
@@ -201,7 +180,6 @@ export function useBase64Tool() {
   }, { deep: true })
 
   return {
-    // State
     currentTab,
     input,
     options,
@@ -210,20 +188,17 @@ export function useBase64Tool() {
     isFileProcessing,
     outputValidationError,
     
-    // Logic/Ops
     ops,
     fileOps,
-    fileUI,
+    // [REMOVED] fileUI,
     
-    // Actions
     handleInput,
     handleSwap,
     handleClear,
     handleSample,
-    onFileUpload,
-    onDrop,
+    processFiles, // New API
+    // [REMOVED] onFileUpload, onDrop
     
-    // Utilities
     toast,
     copy
   }
