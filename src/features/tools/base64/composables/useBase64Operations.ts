@@ -1,5 +1,8 @@
 import { ref, computed, shallowRef, type Ref } from 'vue'
-import type { Base64Options, TextStats, Base64ProcessingResult } from '../types/base64'
+import type { Base64Options, TextStats, Base64ProcessingResult, IBase64Encoder, IBase64Decoder, Base64EncodingOptions, Base64DecodingOptions } from '../types/base64'
+import { Base64ServiceFactory } from '../services/factory/Base64ServiceFactory'
+import { applyFormat } from '../utils/formatters/base64Formatter'
+import { Base64Constants } from '../utils/constants/Base64Constants'
 
 export function useBase64Operations(input: Ref<string>, options: Ref<Base64Options>) {
   const output = shallowRef('')
@@ -11,6 +14,9 @@ export function useBase64Operations(input: Ref<string>, options: Ref<Base64Optio
   // Cache for the raw base64 string of an uploaded file (Standard encoding)
   // This allows us to re-format (e.g. to URL-safe) without reading the file again
   const rawFileBase64 = ref<string>('')
+
+  const encoder = Base64ServiceFactory.createEncoder()
+  const decoder = Base64ServiceFactory.createDecoder()
 
   const inputStats = computed<TextStats>(() => ({
     characters: input.value.length,
@@ -24,121 +30,41 @@ export function useBase64Operations(input: Ref<string>, options: Ref<Base64Optio
     lines: output.value.split('\n').length
   }))
 
-  const isValidBase64 = (raw: string): boolean => {
-    if (!raw.trim()) return true
-    try {
-      const s = raw.replace(/\s/g, '').replace(/-/g, '+').replace(/_/g, '/')
-      if (options.value.outputFormat !== 'url-safe' && s.length % 4 !== 0) return false
-      atob(s)
-      return true
-    } catch {
-      return false
-    }
-  }
-
-  const detectMimeType = (bytes: Uint8Array): string | null => {
-    const signature = bytes.slice(0, 8).reduce((acc, byte) => acc + byte.toString(16).padStart(2, '0').toUpperCase(), '')
-    
-    // Common Signatures
-    if (signature.startsWith('89504E47')) return 'image/png'
-    if (signature.startsWith('FFD8FF')) return 'image/jpeg'
-    if (signature.startsWith('47494638')) return 'image/gif'
-    if (signature.startsWith('424D')) return 'image/bmp'
-    if (signature.startsWith('52494646') && bytes.slice(8, 12).reduce((acc, b) => acc + String.fromCharCode(b), '') === 'WEBP') return 'image/webp'
-    if (signature.startsWith('25504446')) return 'application/pdf'
-    if (signature.startsWith('504B0304')) return 'application/zip'
-    if (signature.startsWith('1F8B08')) return 'application/gzip'
-    if (signature.startsWith('494433')) return 'audio/mp3'
-    if (signature.startsWith('0000001866747970') || signature.startsWith('0000002066747970')) return 'video/mp4'
-
-    return null
-  }
-
-  const isBinaryData = (bytes: Uint8Array): boolean => {
-    // Check for control characters (excluding whitespace)
-    let nonPrintable = 0
-    const checkLen = Math.min(bytes.length, 1000)
-    for (let i = 0; i < checkLen; i++) {
-      const b = bytes[i]
-      if ((b < 32 && b !== 9 && b !== 10 && b !== 13) || b === 127) {
-        nonPrintable++
-      }
-    }
-    return (nonPrintable / checkLen) > 0.05
-  }
-
-  const chunkString = (str: string, length: number): string => {
-    const chunks = []
-    for (let i = 0; i < str.length; i += length) {
-      chunks.push(str.slice(i, i + length))
-    }
-    return chunks.join('\n')
-  }
-  
-  const applyFormat = (base64: string): string => {
-     if (options.value.outputFormat === 'url-safe') {
-       return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '')
-     } else if (options.value.outputFormat === 'mime') {
-       return chunkString(base64, options.value.lineLength)
-     }
-     return base64
-  }
-
   const encodeToBase64 = async(text: string): Promise<string> => {
     // If input is the placeholder for binary file, use cached raw base64 and apply current formatting options
     if (text.startsWith('[Binary File Loaded:') && rawFileBase64.value) {
-      return applyFormat(rawFileBase64.value)
+      return applyFormat(rawFileBase64.value, options.value.outputFormat, options.value.lineLength)
     }
 
     const processed = options.value.preserveWhitespace ? text : text.trim()
-    
-    // Handle larger strings via Blob/FileReader to avoid stack issues
-    const blob = new Blob([processed], { type: 'text/plain' })
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader()
-      reader.onload = () => {
-        const dataUrl = reader.result as string
-        const base64 = dataUrl.split(',')[1]
-        resolve(applyFormat(base64))
-      }
-      reader.onerror = reject
-      reader.readAsDataURL(blob)
-    })
+    const encodingOptions: Base64EncodingOptions = {
+      outputFormat: options.value.outputFormat,
+      lineLength: options.value.lineLength,
+      preserveWhitespace: options.value.preserveWhitespace
+    }
+    try {
+      const result = await encoder.encode(processed, encodingOptions)
+      return result.encoded
+    } catch (e) {
+      throw new Error('Encoding failed: ' + (e instanceof Error ? e.message : 'Unknown error'))
+    }
   }
 
   const decodeFromBase64 = async(base64: string): Promise<Partial<Base64ProcessingResult>> => {
-    let s = base64.replace(/\s/g, '').replace(/-/g, '+').replace(/_/g, '/')
-    while (s.length % 4 !== 0) s += '='
-    
-    const binString = atob(s)
-    const len = binString.length
-    const bytes = new Uint8Array(len)
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binString.charCodeAt(i)
+    const decodingOptions: Base64DecodingOptions = {
+      detectBinary: true,
+      detectMimeType: true
     }
-
-    const mime = detectMimeType(bytes)
-    const binaryFlag = isBinaryData(bytes) || !!mime
-
-    let textOutput = ''
     try {
-      // Decode as text for display if possible
-      textOutput = new TextDecoder('utf-8', { fatal: false }).decode(bytes)
-      
-      // If result looks binary (lots of replacement chars), don't show it in text area
-      const replacementCount = (textOutput.match(/\uFFFD/g) || []).length
-      if (replacementCount > textOutput.length * 0.1) {
-        textOutput = ''
+      const result = await decoder.decode(base64, decodingOptions)
+      return {
+        output: result.decoded,
+        binary: result.binary,
+        mime: result.mime,
+        isBinary: result.isBinary
       }
-    } catch {
-      textOutput = ''
-    }
-
-    return {
-      output: textOutput,
-      binary: bytes,
-      mime,
-      isBinary: binaryFlag
+    } catch (e) {
+      throw new Error('Decoding failed: ' + (e instanceof Error ? e.message : 'Unknown error'))
     }
   }
 
@@ -159,9 +85,9 @@ export function useBase64Operations(input: Ref<string>, options: Ref<Base64Optio
         output.value = result
         processState.value = { success: true, output: result }
       } else {
-        if (!isValidBase64(input.value)) {
+        if (!decoder.validate(input.value)) {
           output.value = ''
-          processState.value = { success: false, error: 'Invalid Base64 format' }
+          processState.value = { success: false, error: Base64Constants.ERROR_MESSAGES.INVALID_BASE64 }
           return processState.value
         }
         

@@ -17,7 +17,6 @@ export interface Base64Options {
   autoProcess: boolean;
   validateInput: boolean;
   showCharacterCount: boolean;
-  handleBinaryFiles: boolean;
 }
 
 export interface Base64ProcessingResult {

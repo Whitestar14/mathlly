@@ -1,5 +1,9 @@
 import { type Ref } from 'vue'
 import { useToast } from '@composables/ui/useToast'
+import { isBinaryExtension, isImageExtension, isMediaExtension } from '../utils/detectors/fileExtensionDetector'
+import { validateFileSize, generateDownloadFilename, downloadBlob, createBlobFromBinary, createBlobFromText } from '../utils/helpers/fileHelpers'
+import { getMimeTypeExtension, getDefaultMimeType } from '../utils/detectors/mimeDetector'
+import { Base64Constants } from '../utils/constants/Base64Constants'
 
 export function useFileOperations(
   input: Ref<string>,
@@ -9,10 +13,6 @@ export function useFileOperations(
   rawFileBase64Cache?: Ref<string>
 ) {
   
-  const isBinaryExtension = (name: string) => {
-    return /\.(png|jpg|jpeg|gif|webp|svg|ico|bmp|tiff|zip|rar|7z|tar|gz|pdf|doc|docx|xls|xlsx|ppt|pptx|mp3|mp4|wav|avi|mov|woff|woff2|ttf|eot|otf|bin|exe|dll|so|dat)$/i.test(name)
-  }
-
   // Helper: Checks if a string looks like a standard Base64 string (no spaces, valid chars)
   // Not sure where to use this yet, if I'll even ever need it
 
@@ -32,8 +32,9 @@ export function useFileOperations(
         return
       }
 
-      if (file.size > 25 * 1024 * 1024) { 
-        toast('File size exceeds 25MB limit', { type: 'error' })
+      const sizeValidation = validateFileSize(file.size)
+      if (!sizeValidation.valid) {
+        toast(sizeValidation.error!, { type: 'error' })
         target.value = ''
         resolve(false)
         return
@@ -47,7 +48,7 @@ export function useFileOperations(
         resolve(false)
       }
 
-      if (isBinaryExtension(file.name) || file.type.startsWith('image/') || file.type.startsWith('video/') || file.type.startsWith('audio/')) {
+      if (isBinaryExtension(file.name) || isImageExtension(file.name) || isMediaExtension(file.name)) {
         if (currentTab.value === 'decode') {
           toast(`Switched to 'Encode' for binary file: ${file.name}`, { type: 'info' })
           currentTab.value = 'encode'
@@ -113,29 +114,14 @@ export function useFileOperations(
     let filename: string
 
     if (currentTabValue === 'decode' && resultState?.success && resultState?.isBinary && resultState?.binary) {
-      const mime = resultState.mime || 'application/octet-stream'
-      blob = new Blob([resultState.binary as any], { type: mime })
-      
-      let ext = 'bin'
-      if (mime.includes('/')) {
-        ext = mime.split('/')[1].split('+')[0]
-      }
-      filename = `decoded_${Date.now()}.${ext}`
+      blob = createBlobFromBinary(resultState.binary, resultState.mime || getDefaultMimeType())
+      filename = generateDownloadFilename('decode', getMimeTypeExtension(resultState.mime || getDefaultMimeType()))
     } else {
-      blob = new Blob([outputContent], { type: 'text/plain' })
-      filename = currentTabValue === 'encode' ? 
-        `encoded_${Date.now()}.txt` : 
-        `decoded_${Date.now()}.txt`
+      blob = createBlobFromText(outputContent)
+      filename = generateDownloadFilename(currentTabValue)
     }
 
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = filename
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    downloadBlob(blob, filename)
 
     toast('File downloaded!', { type: 'success' })
   }

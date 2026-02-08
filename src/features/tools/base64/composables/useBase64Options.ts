@@ -8,7 +8,6 @@ const DEFAULT_BASE64_OPTIONS: Base64Options = {
   preserveMode: true,
   outputFormat: 'standard',
   lineLength: 76,
-  handleBinaryFiles: true,
   validateInput: true,
   showCharacterCount: true
 }
@@ -39,14 +38,6 @@ export function useBase64Options() {
         id: 'preserveWhitespace',
         label: 'Preserve Whitespace',
         description: 'Keep leading and trailing whitespace in input',
-        type: 'toggle',
-        value: options,
-        section: 'Processing'
-      },
-      {
-        id: 'handleBinaryFiles',
-        label: 'Handle Binary Files',
-        description: 'Enable file upload and binary data processing',
         type: 'toggle',
         value: options,
         section: 'Processing'
@@ -88,7 +79,6 @@ export function useBase64Options() {
     preserveMode: computed(() => options.value.preserveMode),
     outputFormat: computed(() => options.value.outputFormat),
     lineLength: computed(() => options.value.lineLength),
-    handleBinaryFiles: computed(() => options.value.handleBinaryFiles),
     validateInput: computed(() => options.value.validateInput),
     showCharacterCount: computed(() => options.value.showCharacterCount),
     isLoading

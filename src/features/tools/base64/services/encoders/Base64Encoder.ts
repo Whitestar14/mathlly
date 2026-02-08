@@ -1,4 +1,5 @@
 import type { Base64ServiceType, Base64EncodingOptions, Base64EncodingResult, IBase64Encoder, Base64DecodingOptions, Base64DecodingResult } from '../../types/base64';
+import { applyFormat, chunkString } from '../../utils/formatters/base64Formatter';
 
 /**
  * Service class for encoding data to Base64 format.
@@ -23,7 +24,7 @@ export class Base64Encoder implements IBase64Encoder {
       reader.onload = () => {
         const dataUrl = reader.result as string;
         const base64 = dataUrl.split(',')[1];
-        const formatted = this.applyFormat(base64, options);
+        const formatted = applyFormat(base64, options.outputFormat, options.lineLength);
         const encodedSize = new Blob([formatted]).size;
         resolve({
           encoded: formatted,
@@ -54,7 +55,7 @@ export class Base64Encoder implements IBase64Encoder {
           binaryString += String.fromCharCode(bytes[i]);
         }
         const base64 = btoa(binaryString);
-        const formatted = this.applyFormat(base64, options);
+        const formatted = applyFormat(base64, options.outputFormat, options.lineLength);
         const encodedSize = new Blob([formatted]).size;
         resolve({
           encoded: formatted,
@@ -75,36 +76,5 @@ export class Base64Encoder implements IBase64Encoder {
    */
   async process(input: string, options: Base64EncodingOptions | Base64DecodingOptions): Promise<Base64EncodingResult | Base64DecodingResult> {
     return this.encode(input, options as Base64EncodingOptions);
-  }
-
-  /**
-   * Applies formatting to the base64 string based on options.
-   * @private
-   * @param base64 - The raw base64 string.
-   * @param options - Encoding options.
-   * @returns The formatted base64 string.
-   */
-  private applyFormat(base64: string, options: Base64EncodingOptions): string {
-    if (options.outputFormat === 'url-safe') {
-      return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-    } else if (options.outputFormat === 'mime') {
-      return this.chunkString(base64, options.lineLength);
-    }
-    return base64;
-  }
-
-  /**
-   * Chunks a string into lines of specified length.
-   * @private
-   * @param str - The string to chunk.
-   * @param length - The length of each chunk.
-   * @returns The chunked string.
-   */
-  private chunkString(str: string, length: number): string {
-    const chunks = [];
-    for (let i = 0; i < str.length; i += length) {
-      chunks.push(str.slice(i, i + length));
-    }
-    return chunks.join('\n');
   }
 }
