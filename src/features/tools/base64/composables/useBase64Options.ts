@@ -19,17 +19,17 @@ export function useBase64Options() {
     DEFAULT_BASE64_OPTIONS,
     options => [
       {
-        id: 'preserveMode',
-        label: 'Preserve Mode Inputs',
-        description: 'Keep separate input buffers for Encode and Decode',
+        id: 'autoProcess',
+        label: 'Auto Process',
+        description: 'Process immediately as you type',
         type: 'toggle',
         value: options,
         section: 'Processing'
       },
       {
-        id: 'autoProcess',
-        label: 'Auto Process',
-        description: 'Automatically encode/decode as you type',
+        id: 'preserveMode',
+        label: 'Preserve Inputs',
+        description: 'Keep separate inputs for Encode and Decode tabs',
         type: 'toggle',
         value: options,
         section: 'Processing'
@@ -37,37 +37,43 @@ export function useBase64Options() {
       {
         id: 'preserveWhitespace',
         label: 'Preserve Whitespace',
-        description: 'Keep leading and trailing whitespace in input',
-        type: 'toggle',
-        value: options,
-        section: 'Processing'
-      },
-      {
-        id: 'validateInput',
-        label: 'Validate Input',
-        description: 'Show validation errors for invalid Base64',
+        description: 'Do not trim input (useful for testing formatting)',
         type: 'toggle',
         value: options,
         section: 'Processing'
       },
       {
         id: 'showCharacterCount',
-        label: 'Show Character Count',
-        description: 'Display character and byte counts',
+        label: 'Show Stats',
+        description: 'Display character and byte counts in footer',
         type: 'toggle',
         value: options,
         section: 'Display'
       },
       {
+        id: 'outputFormat',
+        label: 'Output Format',
+        description: 'Choose between Standard, URL-Safe, or MIME',
+        type: 'select',
+        options: [
+            { label: 'Standard', value: 'standard' },
+            { label: 'URL Safe', value: 'url-safe' },
+            { label: 'MIME', value: 'mime' }
+        ],
+        value: options,
+        section: 'Format'
+      },
+      {
         id: 'lineLength',
-        label: 'Line Length (MIME)',
-        description: 'Maximum characters per line for MIME format',
+        label: 'MIME Line Length',
+        description: 'Max chars per line (only affects MIME format)',
         type: 'range',
         value: options,
         min: 40,
         max: 120,
         step: 4,
-        section: 'Format'
+        section: 'Format',
+        disabled: () => options.value.outputFormat !== 'mime'
       }
     ]
   )
@@ -75,11 +81,6 @@ export function useBase64Options() {
   return {
     options,
     autoProcess: computed(() => options.value.autoProcess),
-    preserveWhitespace: computed(() => options.value.preserveWhitespace),
-    preserveMode: computed(() => options.value.preserveMode),
-    outputFormat: computed(() => options.value.outputFormat),
-    lineLength: computed(() => options.value.lineLength),
-    validateInput: computed(() => options.value.validateInput),
     showCharacterCount: computed(() => options.value.showCharacterCount),
     isLoading
   }

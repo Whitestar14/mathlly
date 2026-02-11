@@ -14,6 +14,3 @@ export * from './formatters/base64Formatter'
 
 // Export all helpers
 export * from './helpers/fileHelpers'
-
-// Export the main utils object
-export * from './Base64Utils'

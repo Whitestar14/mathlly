@@ -1,311 +1,229 @@
 <template>
   <BasePage 
-    title="Base64" 
-    :main-class="'flex'" 
+    title="Base64 Converter" 
     :breadcrumbs="breadcrumbs" 
-    :is-tool-layout="true">
+    :is-tool-layout="true"
+    main-class="flex flex-col flex-grow overflow-hidden h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] relative bg-background"
+  >
     
-    <div class="container mx-auto p-2 md:p-3">
-      <div class="max-w-6xl mx-auto space-y-3">
-        <div class="rounded-lg border border-border dark:border-border overflow-hidden">
+    <div class="flex-1 min-h-0 w-full max-w-[1920px] mx-auto p-2 md:p-4 flex flex-col gap-4 relative">
+      
+      <!-- 
+        1. SMART DROP OVERLAY 
+        Covers the entire tool content when dragging.
+        Uses Scale + Fade transition for tactile feel.
+      -->
+      <Transition name="scale-fade">
+        <div 
+          v-if="isDragActive"
+          class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-xl border-2 border-dashed border-primary/50 m-2 md:m-4"
+        >
+          <BaseFileDrop
+            variant="zone"
+            class="h-full w-full border-none bg-transparent"
+            title="Drop file to process"
+            description="Auto-detects binary or text"
+            :icon="UploadCloud"
+            @files="handleGlobalDrop"
+          />
+        </div>
+      </Transition>
 
-          <BaseTabs 
-            ref="tabsRef" 
-            v-model:model-value="tool.currentTab.value" 
-            :tabs="tabs"
-            @tab-change="handleTabChange">
+      <!-- Top Control Bar -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 px-1 flex-shrink-0">
+        <div class="w-full sm:w-auto">
+          <SegmentedControl
+            :model-value="tool.currentTab.value"
+            :options="[
+              { value: 'encode', label: 'Encode', icon: ArrowRight },
+              { value: 'decode', label: 'Decode', icon: ArrowLeft }
+            ]"
+            class="w-full sm:w-64"
+            @update:model-value="handleTabChange"
+          />
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar">
+           <div class="w-40 shrink-0">
+             <SelectBar
+               :model-value="tool.options.value.outputFormat"
+               :options="[
+                 { value: 'standard', label: 'Standard' },
+                 { value: 'url-safe', label: 'URL Safe' },
+                 { value: 'mime', label: 'MIME' }
+               ]"
+               size="sm"
+               @update:model-value="tool.options.value.outputFormat = $event"
+             />
+           </div>
+           
+           <div class="h-8 w-px bg-border shrink-0"></div>
+
+           <BaseButton v-tippy="'Sample Text'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleSample('text')">
+             <FileText class="size-4" />
+           </BaseButton>
+           <BaseButton v-tippy="'Sample Image'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleSample('base64')">
+             <ImageIcon class="size-4" />
+           </BaseButton>
+           <BaseButton v-tippy="'Random Data'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleRandomData()">
+             <Shuffle class="size-4" />
+           </BaseButton>
+        </div>
+      </div>
+
+      <!-- 
+        2. TACTILE PANEL TRANSITION 
+        Switches between Encode/Decode states with a subtle scale/fade.
+      -->
+      <div class="flex-1 min-h-0 relative">
+        <Transition name="panel-switch" mode="out-in">
+          
+          <!-- Key added to div to trigger transition on tab change -->
+          <div :key="tool.currentTab.value" class="h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
             
-            <template #actions>
-              <Base64Actions 
-                :options="tool.options.value"
-                :load-sample-text="() => tool.handleSample('text')"
-                :load-sample-base64="() => tool.handleSample('base64')"
-                :generate-random-data="() => { tool.input.value = 'Random...'; tool.selectedFileName.value = '' }"
-                :clear-all="tool.handleClear" 
-                :trigger-file-picker="triggerUiFilePicker" 
-              />
-            </template>
-          </BaseTabs>
-
-          <div class="p-3 md:p-6 bg-card">
-            <!-- Hidden Native Input -->
-            <input 
-              ref="fileInputRef" 
-              type="file" 
-              class="hidden" 
-              @change="onNativeInputChange" 
+            <!-- Input Panel -->
+            <Base64InputPanel
+              :model-value="tool.input.value"
+              :mode="tool.currentTab.value"
+              :auto-process="tool.options.value.autoProcess"
+              :show-stats="tool.options.value.showCharacterCount"
+              :file-name="tool.selectedFileName.value"
+              :stats="tool.ops.inputStats.value"
+              :is-processing="tool.isProcessing.value"
+              :placeholder="tool.currentTab.value === 'encode' ? 'Type content to encode...' : 'Paste Base64 to decode...'"
+              @update:model-value="tool.setInput"
+              @upload="tool.processFiles"
+              @process="tool.triggerProcess" 
+              @clear="tool.handleClear"
             />
 
-            <FileProcessingOverlay :open="tool.isFileProcessing.value" />
-
-            <!-- 
-               CONTAINER: Relative positioning allows the drop zone to overlay 
-               the grid without shifting layout. 
-            -->
-            <div class="relative min-h-[400px]">
-              
-              <!-- 
-                 DROP OVERLAY 
-                 Only visible when dragging. Covers the entire grid.
-              -->
-              <Transition name="fade">
-                <div 
-                  v-if="isDragActive"
-                  class="absolute inset-0 z-50 flex items-center justify-center bg-background/90 backdrop-blur-[2px] rounded-lg border-2 border-dashed border-primary/50"
-                >
-                  <BaseFileDrop
-                    variant="zone"
-                    class="h-full w-full border-none bg-transparent"
-                    title="Drop file to process"
-                    description="Supports Encode & Decode mode"
-                    :icon="UploadCloud"
-                    @files="handleDropFiles"
-                  />
-                </div>
-              </Transition>
-
-              <!-- MAIN GRID (Input/Output) -->
-              <div class="grid gap-2 md:gap-3 lg:grid-cols-2 h-full">
-                <!-- Input Panel -->
-                <BaseCard class="border-none h-full">
-                  <TextPanel 
-                    ref="inputArea" 
-                    v-model="tool.input.value"
-                    :label="tool.selectedFileName.value ? `Input (${tool.selectedFileName.value})` : 'Input'"
-                    :placeholder="tool.currentTab.value === 'encode' ? 'Enter text to encode...' : 'Enter Base64 to decode...'"
-                    :stats="tool.ops.inputStats.value"
-                    :show-stats="tool.options.value.showCharacterCount"
-                    :validation-error="tool.ops.validationError.value" 
-                    :show-paste-button="true"
-                    @input="tool.handleInput" 
-                    @paste="handleUiPaste">
-                    
-                    <template #actions>
-                      <div class="flex items-center gap-2">
-                        <BaseButton 
-                          v-if="!tool.options.value.autoProcess" 
-                          variant="outline"
-                          :disabled="tool.ops.isProcessing.value" 
-                          @click="handleProcess">
-                          <Loader2 v-if="tool.ops.isProcessing.value" class="size-4 animate-spin" />
-                          {{ tool.currentTab.value === 'encode' ? 'Encode' : 'Decode' }}
-                        </BaseButton>
-
-                        <BaseButton 
-                          v-if="tool.input.value" 
-                          variant="ghost"
-                          class="size-8 hover:bg-destructive/10 hover:text-destructive"
-                          size="icon" 
-                          @click="tool.handleClear">
-                          <X class="size-4" />
-                        </BaseButton>
-                      </div>
-                    </template>
-                  </TextPanel>
-                </BaseCard>
-
-                <!-- Output Panel -->
-                <BaseCard class="border-none h-full">
-                  <TextPanel 
-                    :model-value="tool.ops.output.value"
-                    :label="`Output (${outputFormatLabel})`"
-                    :placeholder="'Result will appear here...'" 
-                    :stats="tool.ops.outputStats.value"
-                    :show-stats="tool.options.value.showCharacterCount"
-                    :validation-error="tool.outputValidationError.value" 
-                    :read-only="true">
-                    
-                    <template #actions>
-                      <div class="flex items-center gap-2">
-                        <BaseButton 
-                          v-if="tool.activePreviewUrl.value || previewInfo"
-                          v-tippy="{ content: showPreview ? 'Show Text' : 'Show Preview' }"
-                          variant="ghost" size="icon" class="size-8"
-                          @click="showPreview = !showPreview">
-                          <component :is="showPreview ? FileTextIcon : EyeIcon" class="h-4" />
-                        </BaseButton>
-
-                        <div v-if="tool.activePreviewUrl.value || previewInfo" class="h-4 w-px bg-border mx-1"></div>
-
-                        <BaseButton 
-                          v-tippy="{ content: 'Swap' }" 
-                          variant="ghost" size="icon" class="size-8" 
-                          :disabled="!tool.ops.output.value"
-                          @click="tool.handleSwap">
-                          <ArrowDownUp class="size-4" />
-                        </BaseButton>
-
-                        <BaseButton 
-                          v-tippy="{ content: 'Download' }" 
-                          variant="ghost" size="icon" class="size-8"
-                          :disabled="!tool.ops.output.value && !tool.ops.processState.value.binary"
-                          @click="tool.fileOps.downloadOutput(tool.ops.output.value, tool.currentTab.value, tool.ops.processState.value)">
-                          <Download class="size-4" />
-                        </BaseButton>
-
-                        <BaseButton 
-                          v-tippy="{ content: 'Copy' }" 
-                          variant="ghost" size="icon" class="size-8" 
-                          :disabled="!tool.ops.output.value"
-                          @click="async () => { await tool.copy(tool.ops.output.value); tool.toast('Copied!', { type: 'success' }) }">
-                          <Copy class="size-4" />
-                        </BaseButton>
-                      </div>
-                    </template>
-                    
-                    <template #content>
-                      <div class="relative flex-1">
-                        <template v-if="showPreview && (tool.activePreviewUrl.value || previewInfo)">
-                          <div class="w-full h-full min-h-[192px] rounded-md border border-border bg-background p-4 flex flex-col items-center justify-center gap-4">
-                            <img 
-                              v-if="tool.activePreviewUrl.value && previewInfo?.mime.startsWith('image/')"
-                              :src="tool.activePreviewUrl.value"
-                              class="max-h-48 max-w-full object-contain rounded border border-border/50 bg-checkerboard" 
-                            />
-                            <iframe
-                              v-else-if="tool.activePreviewUrl.value && previewInfo?.mime === 'application/pdf'"
-                              :src="tool.activePreviewUrl.value"
-                              class="w-full h-full min-h-[250px] border border-border rounded"
-                              title="PDF Preview">
-                            </iframe>
-                            <div v-else class="flex flex-col items-center text-muted-foreground">
-                              <FileIcon class="h-12 w-12 mb-2 opacity-50" />
-                              <span class="text-sm font-medium">Binary Data</span>
-                            </div>
-                            <div class="text-xs text-muted-foreground text-center">
-                              <p class="font-medium text-foreground">{{ previewInfo?.mime }}</p>
-                              <p>{{ previewInfo?.size }}</p>
-                            </div>
-                          </div>
-                        </template>
-
-                        <textarea
-                          v-show="!showPreview || (!tool.activePreviewUrl.value && !previewInfo)"
-                          :value="tool.ops.output.value" 
-                          readonly
-                          class="w-full h-full min-h-[192px] rounded-md border border-border bg-background px-3 py-2 text-sm resize-none font-mono focus:outline-none focus:ring-2 focus:ring-ring"
-                          :class="{ 'border-destructive/50 bg-destructive/10': tool.outputValidationError.value }"
-                          placeholder="Result will appear here...">
-                        </textarea>
-                      </div>
-                    </template>
-                  </TextPanel>
-                </BaseCard>
-              </div>
-            </div>
+            <!-- Output Panel -->
+            <Base64OutputPanel
+              :model-value="tool.ops.output.value"
+              :format-label="outputFormatLabel"
+              :show-stats="tool.options.value.showCharacterCount"
+              :stats="tool.ops.outputStats.value"
+              :error="tool.outputValidationError.value"
+              :preview-url="tool.activePreviewUrl.value"
+              :preview-info="previewInfo"
+              @copy="copyOutput"
+              @download="downloadOutput"
+              @swap="tool.handleSwap"
+            />
           </div>
-        </div>
+        </Transition>
       </div>
     </div>
   </BasePage>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, onMounted, onUnmounted } from 'vue'
-import { Copy, ArrowDownUp, Download, X, Loader2, FileIcon, EyeIcon, FileTextIcon, UploadCloud } from 'lucide-vue-next'
-import { useKeyboardStore } from '@stores/keyboard'
-import { BaseButton, BaseTabs, BasePage, BaseCard, BaseFileDrop } from '@components/ui'
+import { computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
+import { ArrowRight, ArrowLeft, UploadCloud, FileText, Shuffle, Image as ImageIcon } from 'lucide-vue-next'
+import { BasePage, BaseButton, BaseFileDrop, SegmentedControl, SelectBar } from '@components/ui'
 import { useBase64Tool } from '../composables/useBase64Tool'
 import { useDragDrop } from '@composables/useDragDrop'
+import { useKeyboardStore } from '@stores/keyboard'
 
-import Base64Actions from '../components/Base64Actions.vue'
-import TextPanel from '../components/TextPanel.vue'
-import FileProcessingOverlay from '../components/FileProcessingOverlay.vue'
-import type { Tab } from '../types/base64'
-import type { BreadcrumbItem } from '@components/ui/BasePage.vue'
+const Base64InputPanel = defineAsyncComponent(() => import('../components/Base64InputPanel.vue'))
+const Base64OutputPanel = defineAsyncComponent(() => import('../components/Base64OutputPanel.vue'))
 
-const keyboard = useKeyboardStore()
 const tool = useBase64Tool()
-
 const { isDragActive } = useDragDrop()
+const keyboard = useKeyboardStore()
 
-const tabs: Tab[] = [
-    { value: 'encode', label: 'Encode' },
-    { value: 'decode', label: 'Decode' }
-]
-
-const tabsRef = ref<InstanceType<typeof BaseTabs> | null>(null)
-const fileInputRef = ref<HTMLInputElement | null>(null)
-const inputArea = ref<HTMLTextAreaElement | null>(null)
-const showPreview = ref(true)
+const breadcrumbs = [{ label: 'Tools', path: '/' }, { label: 'Base64 Converter' }]
 
 const outputFormatLabel = computed(() => {
-    const map: Record<string, string> = { 'url-safe': 'URL Safe', 'mime': 'MIME' }
+    const map: Record<string, string> = { 'url-safe': 'URL Safe', 'mime': 'MIME', 'standard': 'Standard' }
     return map[tool.options.value.outputFormat] || 'Standard'
 })
 
 const previewInfo = computed(() => {
     const result = tool.ops.processState.value
     if (result.success && result.isBinary) {
-        const size = result.binary ? `${(result.binary.byteLength / 1024).toFixed(2)} KB` : 'Unknown size'
-        return { mime: result.mime || 'Unknown Type', size }
+        const size = result.binary ? `${(result.binary.byteLength / 1024).toFixed(2)} KB` : '?? KB'
+        return { mime: result.mime || 'Unknown', size }
     }
     return null
 })
 
-const handleTabChange = (tabValue: string) => {
-    tool.currentTab.value = tabValue as 'encode' | 'decode'
-    nextTick(() => inputArea.value?.focus())
+const handleTabChange = (val: string) => {
+  tool.currentTab.value = val as 'encode' | 'decode'
 }
 
-const handleProcess = async () => {
-    await tool.ops.processInput(tool.currentTab.value)
+const handleGlobalDrop = (files: FileList) => {
+  // Little hack: reset drag active immediately so the overlay disappears instantly 
+  // while the file processes, feeling snappier.
+  isDragActive.value = false 
+  tool.processFiles(files)
 }
 
-const triggerUiFilePicker = () => {
-    fileInputRef.value?.click()
+const copyOutput = async () => {
+  if (tool.ops.output.value) {
+    await tool.copy(tool.ops.output.value)
+    tool.toast('Copied to clipboard', { type: 'success' })
+  }
 }
 
-const onNativeInputChange = (e: Event) => {
-    const target = e.target as HTMLInputElement
-    if (target.files) tool.processFiles(target.files)
-    target.value = ''
+const downloadOutput = () => {
+  tool.downloadOutput()
 }
 
-const handleDropFiles = (files: FileList) => {
-    isDragActive.value = false 
-    tool.processFiles(files)
-}
+const handleProcess = async () => tool.triggerProcess()
 
-const handleUiPaste = async () => {
-    try {
-        if (!navigator.clipboard) return
-        const text = await navigator.clipboard.readText()
-        tool.input.value = text
-        tool.handleInput()
-        tool.toast('Pasted from clipboard!', { type: 'success' })
-    } catch (err) {
-        tool.toast('Failed to read clipboard', { type: 'error' })
-    }
+const handlePasteShortcut = async () => {
+  try {
+    const text = await navigator.clipboard.readText()
+    tool.setInput(text)
+    tool.toast('Pasted!', { type: 'success' })
+  } catch (err) {
+    tool.toast('Failed to read clipboard', { type: 'error' })
+  }
 }
 
 onMounted(() => {
+    keyboard.pushContext('tools.base64')
     keyboard.attachAllForContext('tools.base64', {
         'Ctrl+Enter': handleProcess,
-        'Ctrl+V': handleUiPaste,
-        'Ctrl+C': async () => tool.ops.output.value && (await tool.copy(tool.ops.output.value)) && tool.toast('Copied!', { type: 'success' }),
+        'Ctrl+V': handlePasteShortcut,
+        'Ctrl+C': copyOutput,
         'Ctrl+S': tool.handleSwap
     })
-    keyboard.pushContext('tools.base64')
-    nextTick(() => tabsRef.value?.initializePills(tool.currentTab.value))
 })
 
 onUnmounted(() => {
     keyboard.popContext('tools.base64')
 })
-
-const breadcrumbs: BreadcrumbItem[] = [{ label: 'Tools', path: '/' }, { label: 'Base64' }]
 </script>
 
 <style scoped>
-/* Smooth fade for the overlay */
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
+/* 
+  ANIMATIONS 
+  Scale-Fade for Drop Zone
+  Panel-Switch for Tabs
+*/
+
+.scale-fade-enter-active,
+.scale-fade-leave-active {
+  transition: all 0.2s ease-out;
+}
+.scale-fade-enter-from,
+.scale-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
 }
 
-.fade-enter-from,
-.fade-leave-to {
+.panel-switch-enter-active,
+.panel-switch-leave-active {
+  transition: all 0.15s ease-out;
+}
+.panel-switch-enter-from {
   opacity: 0;
+  transform: scale(0.98) translateY(5px);
+}
+.panel-switch-leave-to {
+  opacity: 0;
+  transform: scale(0.98) translateY(-5px);
 }
 </style>
