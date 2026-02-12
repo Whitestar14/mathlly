@@ -120,7 +120,7 @@ const Base64InputPanel = defineAsyncComponent(() => import('../components/Base64
 const Base64OutputPanel = defineAsyncComponent(() => import('../components/Base64OutputPanel.vue'))
 
 const tool = useBase64Tool()
-const { isDragActive } = useDragDrop()
+const { isDragActive, resetDragState } = useDragDrop()
 const keyboard = useKeyboardStore()
 
 const breadcrumbs = [{ label: 'Tools', path: '/' }, { label: 'Base64 Converter' }]
@@ -144,7 +144,7 @@ const handleTabChange = (val: string) => {
 }
 
 const handleGlobalDrop = (files: FileList) => {
-  isDragActive.value = false 
+  resetDragState()
   tool.processFiles(files)
 }
 
@@ -167,10 +167,10 @@ const handlePasteShortcut = async () => {
     tool.setInput(text)
     tool.toast('Pasted!', { type: 'success' })
   } catch (err) {
+    console.warn('Clipboard read failed:', err)
     tool.toast('Failed to read clipboard', { type: 'error' })
   }
 }
-
 onMounted(() => {
     keyboard.pushContext('tools.base64')
     keyboard.attachAllForContext('tools.base64', {

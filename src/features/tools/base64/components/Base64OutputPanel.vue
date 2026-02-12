@@ -48,9 +48,9 @@
       <!-- Preview Mode -->
       <div v-if="showPreview && hasPreview && !error" class="flex-1 flex flex-col items-center justify-center p-4 bg-muted/5">
         <div class="relative max-w-full max-h-full flex flex-col items-center justify-center gap-4">
-          <img v-if="previewInfo?.mime.startsWith('image/')" :src="previewUrl!"
+          <img v-if="previewUrl && previewInfo?.mime.startsWith('image/')" :src="previewUrl"
             class="max-h-[300px] object-contain rounded-md border border-border shadow-sm bg-[url('/img/transparent-grid.png')]" />
-          <iframe v-else-if="previewInfo?.mime === 'application/pdf'" :src="previewUrl!"
+          <iframe v-else-if="previewUrl && previewInfo?.mime === 'application/pdf'" :src="previewUrl"
             class="w-full h-[300px] border border-border rounded shadow-sm"></iframe>
           <div v-else
             class="flex flex-col items-center text-muted-foreground p-8 border border-dashed border-border rounded-lg">
@@ -62,7 +62,6 @@
           </div>
         </div>
       </div>
-
       <!-- Text Mode -->
       <div v-else class="flex-1 relative w-full h-full">
         <!-- Binary Warning Overlay -->
@@ -97,10 +96,10 @@
           <span>{{ modelValue ? 'Success' : 'Idle' }}</span>
         </template>
       </div>
-      <div v-if="stats && !error">
+      <div v-if="stats?.characters != null && !error">
         {{ stats.characters.toLocaleString() }} chars
+      </div>   
       </div>
-    </div>
   </div>
 </template>
 
@@ -112,7 +111,7 @@ import { BaseButton } from '@components/ui'
 const props = defineProps<{
   modelValue: string
   formatLabel: string
-  stats?: any
+  stats?: { characters: number }
   showStats?: boolean
   error?: string
   previewUrl?: string | null
@@ -131,7 +130,7 @@ const showBinaryWarning = computed(() => {
 })
 
 // Reset force flag when content changes
-watch(() => props.modelValue, () => {
+watch([() => props.modelValue, () => props.previewInfo], () => {
   forceShowText.value = false
   // Auto-switch to preview if binary content arrives
   if (props.previewInfo?.isBinary) {

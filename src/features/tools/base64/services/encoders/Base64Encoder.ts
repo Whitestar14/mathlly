@@ -50,11 +50,13 @@ export class Base64Encoder implements IBase64Encoder {
       reader.onload = () => {
         const arrayBuffer = reader.result as ArrayBuffer;
         const bytes = new Uint8Array(arrayBuffer);
-        let binaryString = '';
-        for (let i = 0; i < bytes.length; i++) {
-          binaryString += String.fromCharCode(bytes[i]);
+        const CHUNK_SIZE = 8192;
+        const chunks: string[] = [];
+        for (let i = 0; i < bytes.length; i += CHUNK_SIZE) {
+          const chunk = bytes.subarray(i, i + CHUNK_SIZE);
+          chunks.push(String.fromCharCode(...chunk));
         }
-        const base64 = btoa(binaryString);
+        const binaryString = chunks.join('');        const base64 = btoa(binaryString);
         const formatted = applyFormat(base64, options.outputFormat, options.lineLength);
         const encodedSize = new Blob([formatted]).size;
         resolve({

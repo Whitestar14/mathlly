@@ -17,10 +17,22 @@ export class Base64Decoder implements IBase64Decoder {
   async decode(base64: string, options: Base64DecodingOptions): Promise<Base64DecodingResult> {
     const normalized = normalizeBase64(base64)
     
-    // Performance Optimization: Use Uint8Array.from mapping if available, otherwise optimized loop
-    const binString = atob(normalized)
+    let binString: string
+    try {
+      binString = atob(normalized)
+    } catch {
+      return {
+        success: false,
+        decoded: '',
+        binary: new Uint8Array(0),
+        mime: null,
+        isBinary: false,
+        originalSize: base64.length,
+        decodedSize: 0
+      }
+    }
     const len = binString.length
-    const bytes = new Uint8Array(len)
+        const bytes = new Uint8Array(len)
     
     // Unrolling for very small strings isn't necessary in JS engines, but avoiding charCodeAt in a massive loop 
     // on the main thread is tricky. For 25MB limits, this basic loop is usually 'okay', 
@@ -34,7 +46,7 @@ export class Base64Decoder implements IBase64Decoder {
     // Determine binary flag:
     // 1. Explicit mime type detection (e.g. image headers)
     // 2. Statistical analysis of non-printable characters
-    const isBinaryContent = !!mime || (options.detectBinary ? isBinaryData(bytes) : false)
+    let isBinaryContent = !!mime || (options.detectBinary ? isBinaryData(bytes) : false)
 
     let textOutput = ''
     try {
@@ -45,6 +57,7 @@ export class Base64Decoder implements IBase64Decoder {
       if (!isBinaryContent && hasExcessiveReplacementChars(textOutput)) {
         // We mark it as binary so the UI knows to warn the user
         // But we return the textOutput anyway so "Show Anyway" works
+        isBinaryContent = true
       }
     } catch {
       textOutput = ''

@@ -56,9 +56,9 @@ export function useBase64Options() {
         description: 'Choose between Standard, URL-Safe, or MIME',
         type: 'select',
         options: [
-            { label: 'Standard', value: 'standard' },
-            { label: 'URL Safe', value: 'url-safe' },
-            { label: 'MIME', value: 'mime' }
+          { label: 'Standard', value: 'standard' },
+          { label: 'URL Safe', value: 'url-safe' },
+          { label: 'MIME', value: 'mime' }
         ],
         value: options,
         section: 'Format'

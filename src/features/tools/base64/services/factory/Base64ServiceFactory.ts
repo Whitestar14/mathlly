@@ -72,10 +72,9 @@ export class Base64ServiceFactory {
    * const info = Base64ServiceFactory.getServiceInfo('encoder');
    * console.log(info.serviceType); // 'encoder'
    */
-  static getServiceInfo(type: Base64ServiceType) {
-    const service = this.create(type);
+  static getServiceInfo(type: Base64ServiceType): { serviceType: Base64ServiceType } {
     return {
-      serviceType: service.serviceType
+      serviceType: type
     };
   }
 }

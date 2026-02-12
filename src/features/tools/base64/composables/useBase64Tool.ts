@@ -104,7 +104,7 @@ export function useBase64Tool() {
     debouncedProcess()
   }
 
-  const handleSwap = () => {
+  const handleSwap = async () => {
     const currOutput = ops.output.value
     if (!currOutput) return toast('Nothing to swap', { type: 'warning' })
 
@@ -124,9 +124,10 @@ export function useBase64Tool() {
     
     currentTab.value = newTab
     
-    triggerProcess()
-    toast('Swapped', { type: 'success' })
-  }
+    await triggerProcess()
+    if (ops.processState.value.success) {
+      toast('Swapped', { type: 'success' })
+    }  }
 
   const handleClear = () => {
     singleInput.value = ''
@@ -156,10 +157,10 @@ export function useBase64Tool() {
   const handleRandomData = () => {
     inputMode.value = 'text'
     fileDetails.value = null
+    ops.rawFileBase64.value = ''
     input.value = sample.generateRandomData()
     triggerProcess()
   }
-
   const processFiles = async (files: FileList) => {
     if (!files.length) return
     const mockEvent = { target: { files } } as unknown as Event
