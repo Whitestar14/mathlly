@@ -35,7 +35,8 @@ describe('useFileOperations Smart Logic', () => {
     input.value = ''
     currentTab.value = 'encode'
     fileDetails.value = null
-    
+    inputMode.value = 'text'
+    rawCache.value = ''    
     // Mock DataTransfer for Drop tests
     global.DataTransfer = class {
       items = { _files: [] as File[], add(f: File) { this._files.push(f) } }

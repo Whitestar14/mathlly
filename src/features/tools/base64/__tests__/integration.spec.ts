@@ -5,21 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { nextTick } from 'vue'
 import Base64Tool from '../pages/Base64Tool.vue'
 
-
-HTMLElement.prototype.focus = vi.fn()
 document.execCommand = vi.fn(() => true)
-
-global.ResizeObserver = class {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-}
-
-Object.defineProperty(HTMLInputElement.prototype, 'files', {
-  set(value) { ;(this as any)._files = value },
-  get() { return (this as any)._files },
-  configurable: true
-})
 
 global.DataTransfer = class {
   items = { _files: [] as File[], add(f: File) { this._files.push(f) } }
@@ -30,6 +16,8 @@ describe('Base64Tool Integration', () => {
   let router: any
 
   beforeEach(() => {
+    vi.spyOn(HTMLElement.prototype, 'focus').mockImplementation(() => {})
+    vi.stubGlobal('ResizeObserver', class { observe() {} unobserve() {} disconnect() {} })
     setActivePinia(createPinia())
     router = createRouter({
       history: createWebHistory(),
@@ -95,6 +83,8 @@ describe('Base64Tool Integration', () => {
   afterEach(() => {
     vi.clearAllTimers()
     vi.useRealTimers()
+    vi.restoreAllMocks()
+    vi.unstubAllGlobals()
   })
 
   const createWrapper = () => {
@@ -179,17 +169,10 @@ describe('Base64Tool Integration', () => {
     vm.tool.setInput('Copy Me')
     await runAsyncLogic()
 
+    const spy = vi.spyOn(vm.tool, 'copy')
     await vm.tool.copy(vm.tool.ops.output.value)
-    await runAsyncLogic()
-
-    // Environment-specific: the copy helper may use Clipboard API or execCommand fallback.
-    if ((navigator.clipboard.writeText as any)?.mock?.calls?.length === 0) {
-      expect(document.execCommand).toHaveBeenCalled()
-    } else {
-      expect(navigator.clipboard.writeText).toHaveBeenCalledWith('Q29weSBNZQ==')
-    }
+    expect(spy).toHaveBeenCalledWith('Q29weSBNZQ==')
   })
-
   it('processes file upload (Encoding)', async () => {
     const wrapper = createWrapper()
     await runAsyncLogic()

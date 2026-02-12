@@ -11,7 +11,6 @@ describe('useBase64Operations', () => {
     preserveMode: true,
     outputFormat: 'standard',
     lineLength: 76,
-    handleBinaryFiles: true,
     validateInput: true,
     showCharacterCount: true
   })
@@ -25,7 +24,6 @@ describe('useBase64Operations', () => {
       preserveMode: true,
       outputFormat: 'standard',
       lineLength: 76,
-      handleBinaryFiles: true,
       validateInput: true,
       showCharacterCount: true
     }
@@ -146,8 +144,7 @@ describe('useBase64Operations', () => {
     const result = await processInput('encode')
     // Ensure leading/trailing spaces are preserved in the input -> encoded string differs from trimmed version
     expect(result.success).toBe(true)
-    expect(result.output).not.toBeUndefined()
-    expect(result.output).not.toBe('')
+    expect(result.output).toBe('ICBwYWRkZWQgIA==')
   })
 
   it('honors line length formatting for output (MIME)', async () => {

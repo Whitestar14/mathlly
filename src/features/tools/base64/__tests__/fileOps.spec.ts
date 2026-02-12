@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 
 // Mock the toast composable before importing the module under test
 const toastMock = vi.fn()
@@ -9,7 +9,7 @@ import { useFileOperations } from '../composables/useFileOperations'
 import { Base64Constants } from '../utils/constants/Base64Constants'
 
 // Helper to wait for FileReader async operations
-const waitForFileReader = () => new Promise((resolve) => setTimeout(resolve, 50))
+const flushPromises = () => new Promise(resolve => setImmediate(resolve))
 
 describe('useFileOperations', () => {
   // 1. Setup default refs aligned with new signature
@@ -72,9 +72,6 @@ describe('useFileOperations', () => {
     } as any
   })
 
-  afterEach(() => {
-    vi.clearAllMocks()
-  })
 
   describe('handleFileUpload', () => {
     it('shows error toast if file is too large (>25MB)', async () => {
@@ -98,7 +95,7 @@ describe('useFileOperations', () => {
       const event = { target: { files: [file] } } as unknown as Event
 
       const success = await handleFileUpload(event)
-      await waitForFileReader()
+      await flushPromises()
 
       expect(success).toBe(true)
       expect(fileDetails.value?.name).toBe('test.txt')
@@ -117,7 +114,7 @@ describe('useFileOperations', () => {
       const event = { target: { files: [file] } } as unknown as Event
 
       const success = await handleFileUpload(event)
-      await waitForFileReader()
+      await flushPromises()
 
       expect(success).toBe(true)
       expect(inputMode.value).toBe('text')
@@ -184,13 +181,13 @@ describe('useFileOperations', () => {
     it('processes dropped files', async () => {
       const { handleDrop } = useFileOperations(input, inputMode, fileDetails, currentTab, rawCache)
 
-      const file = new File(['content'], 'drop.txt')
+      const file = createMockFile('drop.txt', 'text/plain', 'content')
       const mockFileInput = ref<HTMLInputElement>({ files: null } as unknown as HTMLInputElement)
 
       const event = { preventDefault: vi.fn(), dataTransfer: { files: [file] } } as unknown as DragEvent
 
       await handleDrop(event, mockFileInput)
-      await waitForFileReader()
+      await flushPromises()
 
       expect(event.preventDefault).toHaveBeenCalled()
       expect(fileDetails.value?.name).toBe('drop.txt')
