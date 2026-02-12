@@ -1,10 +1,22 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+// Mock toast before importing module
+const toastMock = vi.fn()
+vi.mock('@composables/ui/useToast', () => ({ useToast: () => ({ toast: toastMock }) }))
+
 import { ref } from 'vue'
 import { useFileOperations } from '../composables/useFileOperations'
 
-// Simple helper to create files
+// Simple helper to create files (stable mock with readable content)
 const createMockFile = (name: string, type: string, content = 'content') => {
-  return new File([content], name, { type })
+  // Provide a small mock that supports .text() (used by FileReader) and holds readable content
+  return ({
+    name,
+    type,
+    size: content.length,
+    _content: content,
+    text: async () => content
+  } as unknown) as File
 }
 
 // Helper to wait for FileReader
@@ -12,8 +24,8 @@ const waitForFileReader = () => new Promise((resolve) => setTimeout(resolve, 50)
 
 describe('useFileOperations Smart Logic', () => {
   const input = ref('')
-  const selectedFileName = ref('')
-  const toastMock = vi.fn()
+  const inputMode = ref<'text' | 'file'>('text')
+  const fileDetails = ref<any>(null)
   const currentTab = ref<'encode' | 'decode'>('encode')
   const rawCache = ref('')
 
@@ -22,13 +34,16 @@ describe('useFileOperations Smart Logic', () => {
     vi.resetAllMocks()
     input.value = ''
     currentTab.value = 'encode'
-    selectedFileName.value = ''
+    fileDetails.value = null
     
     // Mock DataTransfer for Drop tests
     global.DataTransfer = class {
       items = { _files: [] as File[], add(f: File) { this._files.push(f) } }
       get files() { return this.items._files }
     } as any
+
+    // Minimal FileReader mock used by the composable
+    global.FileReader = class { onload: any; onerror: any; result: any; readAsDataURL(f:any){ if (f && typeof f.text === 'function') { f.text().then((text: string)=>{ const b64 = Buffer.from(text).toString('base64'); this.result = `data:text/plain;base64,${b64}`; if(this.onload) this.onload({ target: { result: this.result } }) }) } else { setTimeout(()=>{ const text = f instanceof Blob ? (f as any).parts?.join?.('') ?? '' : f; const b64 = Buffer.from(text).toString('base64'); this.result = `data:text/plain;base64,${b64}`; if(this.onload) this.onload({ target: { result: this.result } }) }, 0) } } readAsText(f:any){ if (f && typeof f.text === 'function') { f.text().then((text: string)=>{ this.result = text; if(this.onload) this.onload({ target: { result: this.result } }) }) } else { setTimeout(()=>{ this.result = f instanceof Blob ? (f as any).parts?.join?.('') ?? '' : f; if(this.onload) this.onload({ target: { result: this.result } }) }, 0) } } } as any
   })
 
   describe('Smart Tab Switching', () => {
@@ -37,7 +52,7 @@ describe('useFileOperations Smart Logic', () => {
       currentTab.value = 'decode'
 
       const { handleFileUpload } = useFileOperations(
-        input, selectedFileName, toastMock, currentTab, rawCache
+        input, inputMode, fileDetails, currentTab, rawCache
       )
 
       // 2. Upload an Image
@@ -50,15 +65,18 @@ describe('useFileOperations Smart Logic', () => {
 
       // 4. Assert: Should have switched to 'encode'
       expect(currentTab.value).toBe('encode')
-      expect(toastMock).toHaveBeenCalledWith(expect.stringContaining('Switched to \'Encode\''), expect.any(Object))
-      // Input should show binary placeholder
-      expect(input.value).toContain('[Binary File Loaded')
+      expect(toastMock).toHaveBeenCalledWith(expect.stringContaining("Switched to 'Encode'"), expect.any(Object))
+
+      // Composable should set file-mode metadata
+      expect(inputMode.value).toBe('file')
+      expect(fileDetails.value?.name).toBe('image.png')
+      expect(rawCache.value).toBeDefined()
     })
 
     it('switches to ENCODE if a Zip file is dropped while in DECODE tab', async () => {
       currentTab.value = 'decode'
       const { handleFileUpload } = useFileOperations(
-        input, selectedFileName, toastMock, currentTab, rawCache
+        input, inputMode, fileDetails, currentTab, rawCache
       )
 
       const file = createMockFile('archive.zip', 'application/zip')
@@ -73,7 +91,7 @@ describe('useFileOperations Smart Logic', () => {
     it('stays in DECODE mode if a standard .txt file is dropped', async () => {
       currentTab.value = 'decode'
       const { handleFileUpload } = useFileOperations(
-        input, selectedFileName, toastMock, currentTab, rawCache
+        input, inputMode, fileDetails, currentTab, rawCache
       )
 
       // A text file containing base64 data
@@ -92,7 +110,7 @@ describe('useFileOperations Smart Logic', () => {
     it('stays in ENCODE mode if an Image is dropped (Normal behavior)', async () => {
       currentTab.value = 'encode'
       const { handleFileUpload } = useFileOperations(
-        input, selectedFileName, toastMock, currentTab, rawCache
+        input, inputMode, fileDetails, currentTab, rawCache
       )
 
       const file = createMockFile('image.png', 'image/png')
@@ -102,7 +120,8 @@ describe('useFileOperations Smart Logic', () => {
       await waitForFileReader()
 
       expect(currentTab.value).toBe('encode')
-      expect(input.value).toContain('[Binary File Loaded')
+      expect(inputMode.value).toBe('file')
+      expect(fileDetails.value?.name).toBe('image.png')
     })
   })
 })
