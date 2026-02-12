@@ -15,11 +15,17 @@ export function useDragDrop() {
   })
 
   useEventListener(window, 'dragleave', (e: DragEvent) => {
-    e.preventDefault()
-    dragCounter.value--
-    if (dragCounter.value <= 0) {
-      dragCounter.value = 0
-      isDragActive.value = false
+    if (e.dataTransfer?.types?.includes('Files')) {
+      e.preventDefault()
+      dragCounter.value--
+      if (dragCounter.value <= 0) {
+        dragCounter.value = 0
+        isDragActive.value = false
+      }
+    }
+  useEventListener(window, 'dragover', (e: DragEvent) => {
+    if (e.dataTransfer?.types?.includes('Files')) {
+      e.preventDefault()
     }
   })
 
@@ -27,7 +33,12 @@ export function useDragDrop() {
     e.preventDefault()
     dragCounter.value = 0
     isDragActive.value = false
-  })
+  })  })
 
-  return { isDragActive }
+  const resetDragState = () => {
+    dragCounter.value = 0
+    isDragActive.value = false
+  }
+
+  return { isDragActive, resetDragState }
 }
