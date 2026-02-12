@@ -2,10 +2,8 @@ import { markRaw } from 'vue'
 import {
   CompassIcon,
   Code2Icon,
-  InfoIcon,
   MessagesSquareIcon,
   CogIcon,
-  SparklesIcon,
   PaletteIcon,
   FunctionSquareIcon,
   RegexIcon,
@@ -102,7 +100,7 @@ export function useSidebarNavigation() {
           description: 'Encode and decode Base64 strings'
         },
         {
-          name: 'Color',
+          name: 'Color Studio',
           path: '/tools/color',
           icon: PaletteIcon,
           isNew: false,
@@ -114,25 +112,8 @@ export function useSidebarNavigation() {
           path: '/tools/json',
           icon: FileJson2Icon,
           isNew: true,
-          description: 'Description here...'
+          description: 'Validate, format, minify and convert JSON data.'
         },
-      ]
-    },
-    {
-      title: 'Information',
-      items: [
-        {
-          name: 'Updates',
-          path: '/info/update',
-          comingSoon: false,
-          icon: SparklesIcon
-        },
-        {
-          name: 'About',
-          path: '/info/about',
-          comingSoon: false,
-          icon: InfoIcon
-        }
       ]
     }
   ])

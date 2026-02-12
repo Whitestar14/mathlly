@@ -47,6 +47,7 @@ export interface Settings {
   experimental: {
     commandPaletteEnabled: boolean;
     devDockEnabled: boolean;
+    homeLayout: 'classic' | 'dashboard';
   }
 }
 
