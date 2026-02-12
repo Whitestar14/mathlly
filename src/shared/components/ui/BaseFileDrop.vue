@@ -108,7 +108,7 @@ const onDragLeave = () => {
 
 const onDrop = (e: DragEvent) => {
   isDragOver.value = false
-  if (props.disabled) return
+  if (props.disabled || props.loading) return
   const files = e.dataTransfer?.files
   if (files && files.length > 0) emit('files', files)
 }
@@ -124,11 +124,11 @@ const ContentSlot = defineComponent({
       ]),
       createVNode('div', { class: 'space-y-1' }, [
         createVNode('h3', { class: 'text-lg font-semibold text-foreground' }, [
-          p.title || (slots.cta ? slots.cta() : p.title)
+          p.title
         ]),
-        p.description && createVNode('p', { class: 'text-sm text-muted-foreground' }, p.description)
-      ])
-    ])
+        p.description && createVNode('p', { class: 'text-sm text-muted-foreground' }, p.description),
+        slots.cta && createVNode('p', { class: 'text-sm text-muted-foreground mt-2' }, slots.cta())
+      ])    ])
   }
 })
 </script>
