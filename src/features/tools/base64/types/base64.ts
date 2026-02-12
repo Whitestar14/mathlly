@@ -29,10 +29,18 @@ export interface Base64ProcessingResult {
 }
 
 export type Base64Tab = 'encode' | 'decode';
+export type InputMode = 'text' | 'file';
+
+export interface FileDetails {
+  name: string;
+  size: number;
+  type: string;
+}
 
 export interface Base64State {
   currentTab: Base64Tab;
-  selectedFileName: string;
+  inputMode: InputMode;
+  fileDetails: FileDetails | null;
   activePreviewUrl: string | null;
   singleInput: string;
   encodeBuffer: string;

@@ -8,11 +8,6 @@
     
     <div class="flex-1 min-h-0 w-full max-w-[1920px] mx-auto p-2 md:p-4 flex flex-col gap-4 relative">
       
-      <!-- 
-        1. SMART DROP OVERLAY 
-        Covers the entire tool content when dragging.
-        Uses Scale + Fade transition for tactile feel.
-      -->
       <Transition name="scale-fade">
         <div 
           v-if="isDragActive"
@@ -71,23 +66,19 @@
         </div>
       </div>
 
-      <!-- 
-        2. TACTILE PANEL TRANSITION 
-        Switches between Encode/Decode states with a subtle scale/fade.
-      -->
       <div class="flex-1 min-h-0 relative">
         <Transition name="panel-switch" mode="out-in">
           
-          <!-- Key added to div to trigger transition on tab change -->
           <div :key="tool.currentTab.value" class="h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
             
             <!-- Input Panel -->
             <Base64InputPanel
               :model-value="tool.input.value"
               :mode="tool.currentTab.value"
+              :input-mode="tool.inputMode.value"
+              :file-details="tool.fileDetails.value"
               :auto-process="tool.options.value.autoProcess"
               :show-stats="tool.options.value.showCharacterCount"
-              :file-name="tool.selectedFileName.value"
               :stats="tool.ops.inputStats.value"
               :is-processing="tool.isProcessing.value"
               :placeholder="tool.currentTab.value === 'encode' ? 'Type content to encode...' : 'Paste Base64 to decode...'"
@@ -143,7 +134,7 @@ const previewInfo = computed(() => {
     const result = tool.ops.processState.value
     if (result.success && result.isBinary) {
         const size = result.binary ? `${(result.binary.byteLength / 1024).toFixed(2)} KB` : '?? KB'
-        return { mime: result.mime || 'Unknown', size }
+        return { mime: result.mime || 'Unknown', size, isBinary: true }
     }
     return null
 })
@@ -153,8 +144,6 @@ const handleTabChange = (val: string) => {
 }
 
 const handleGlobalDrop = (files: FileList) => {
-  // Little hack: reset drag active immediately so the overlay disappears instantly 
-  // while the file processes, feeling snappier.
   isDragActive.value = false 
   tool.processFiles(files)
 }
@@ -188,7 +177,8 @@ onMounted(() => {
         'Ctrl+Enter': handleProcess,
         'Ctrl+V': handlePasteShortcut,
         'Ctrl+C': copyOutput,
-        'Ctrl+S': tool.handleSwap
+        'Ctrl+S': tool.handleSwap,
+        'Escape': tool.handleClear
     })
 })
 
@@ -198,12 +188,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-/* 
-  ANIMATIONS 
-  Scale-Fade for Drop Zone
-  Panel-Switch for Tabs
-*/
-
 .scale-fade-enter-active,
 .scale-fade-leave-active {
   transition: all 0.2s ease-out;

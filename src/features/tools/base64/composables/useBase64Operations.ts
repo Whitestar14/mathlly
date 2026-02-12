@@ -1,10 +1,20 @@
 import { ref, computed, shallowRef, type Ref } from 'vue'
-import type { Base64Options, TextStats, Base64ProcessingResult, Base64EncodingOptions, Base64DecodingOptions } from '../types/base64'
+import type { Base64Options, TextStats, Base64ProcessingResult, Base64EncodingOptions, Base64DecodingOptions, InputMode } from '../types/base64'
 import { Base64ServiceFactory } from '../services/factory/Base64ServiceFactory'
 import { applyFormat } from '../utils/formatters/base64Formatter'
 import { Base64Constants } from '../utils/constants/Base64Constants'
 
-export function useBase64Operations(input: Ref<string>, options: Ref<Base64Options>) {
+// Helper for efficient byte counting
+const getByteCount = (str: string): number => {
+  if (str.length > 1_000_000) return str.length // Approximation for huge strings to avoid freezing
+  return new TextEncoder().encode(str).length
+}
+
+export function useBase64Operations(
+  input: Ref<string>, 
+  inputMode: Ref<InputMode>,
+  options: Ref<Base64Options>
+) {
   const output = shallowRef('')
   const isProcessing = ref(false)
   const validationError = ref('')
@@ -12,27 +22,30 @@ export function useBase64Operations(input: Ref<string>, options: Ref<Base64Optio
   const error = ref<unknown>(null)
   
   // Cache for the raw base64 string of an uploaded file (Standard encoding)
-  // This allows us to re-format (e.g. to URL-safe) without reading the file again
   const rawFileBase64 = ref<string>('')
 
   const encoder = Base64ServiceFactory.createEncoder()
   const decoder = Base64ServiceFactory.createDecoder()
 
-  const inputStats = computed<TextStats>(() => ({
-    characters: input.value.length,
-    bytes: new Blob([input.value]).size,
-    lines: input.value.split('\n').length
-  }))
+  const inputStats = computed<TextStats>(() => {
+    // If in file mode, we rely on file details passed elsewhere, or calculate based on raw buffer
+    const content = inputMode.value === 'file' ? rawFileBase64.value : input.value
+    return {
+      characters: content.length,
+      bytes: getByteCount(content),
+      lines: content.split(/\r\n|\r|\n/).length
+    }
+  })
 
   const outputStats = computed<TextStats>(() => ({
     characters: output.value.length,
-    bytes: new Blob([output.value]).size,
-    lines: output.value.split('\n').length
+    bytes: getByteCount(output.value),
+    lines: output.value.split(/\r\n|\r|\n/).length
   }))
 
   const encodeToBase64 = async(text: string): Promise<string> => {
-    // If input is the placeholder for binary file, use cached raw base64 and apply current formatting options
-    if (text.startsWith('[Binary File Loaded:') && rawFileBase64.value) {
+    // Use cached raw base64 if in file mode to avoid re-reading or string manipulation on huge DOM strings
+    if (inputMode.value === 'file' && rawFileBase64.value) {
       return applyFormat(rawFileBase64.value, options.value.outputFormat, options.value.lineLength)
     }
 
@@ -42,6 +55,7 @@ export function useBase64Operations(input: Ref<string>, options: Ref<Base64Optio
       lineLength: options.value.lineLength,
       preserveWhitespace: options.value.preserveWhitespace
     }
+    
     try {
       const result = await encoder.encode(processed, encodingOptions)
       return result.encoded
@@ -74,24 +88,28 @@ export function useBase64Operations(input: Ref<string>, options: Ref<Base64Optio
     error.value = null
     
     try {
-      if (!input.value.trim()) {
+      // Logic split based on input mode
+      const contentToProcess = inputMode.value === 'file' ? rawFileBase64.value : input.value
+
+      if (!contentToProcess && inputMode.value !== 'file') {
+        // If file mode but empty rawFileBase64, it might be an issue, but standard text empty is fine
         output.value = ''
         processState.value = { success: true }
         return processState.value
       }
 
       if (tab === 'encode') {
-        const result = await encodeToBase64(input.value)
+        const result = await encodeToBase64(contentToProcess)
         output.value = result
         processState.value = { success: true, output: result }
       } else {
-        if (!decoder.validate(input.value)) {
+        if (inputMode.value !== 'file' && !decoder.validate(contentToProcess)) {
           output.value = ''
           processState.value = { success: false, error: Base64Constants.ERROR_MESSAGES.INVALID_BASE64 }
           return processState.value
         }
         
-        const decoded = await decodeFromBase64(input.value)
+        const decoded = await decodeFromBase64(contentToProcess)
         output.value = decoded.output || ''
         
         processState.value = { 

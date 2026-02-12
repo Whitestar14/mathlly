@@ -5,6 +5,7 @@ import { useBase64Options } from './useBase64Options'
 import { useBase64Operations } from './useBase64Operations'
 import { useFileOperations } from './useFileOperations'
 import { useSampleData } from './useSampleData'
+import type { InputMode, FileDetails } from '../types/base64'
 
 export function useBase64Tool() {
   const { toast } = useToast()
@@ -14,14 +15,18 @@ export function useBase64Tool() {
 
   // State
   const currentTab = ref<'encode' | 'decode'>('encode')
-  const selectedFileName = ref('')
   const activePreviewUrl = ref<string | null>(null)
   
+  // Buffers for Preserve Mode
   const singleInput = shallowRef('')
   const encodeBuffer = shallowRef('')
   const decodeBuffer = shallowRef('')
 
-  // Preserve Mode Logic
+  // Input Mode States
+  const inputMode = ref<InputMode>('text')
+  const fileDetails = ref<FileDetails | null>(null)
+
+  // Computed input based on mode
   const input = computed<string>({
     get() {
       if (options.value.preserveMode) {
@@ -39,20 +44,15 @@ export function useBase64Tool() {
     }
   })
 
-  const ops = useBase64Operations(input, options)
-  const fileOps = useFileOperations(input, selectedFileName, toast, currentTab, ops.rawFileBase64)
+  const ops = useBase64Operations(input, inputMode, options)
+  const fileOps = useFileOperations(input, inputMode, fileDetails, currentTab, ops.rawFileBase64)
   const outputValidationError = ref('')
   
   // --- FLICKER FIX: Delayed Loading State ---
   const isProcessing = ref(false)
   
-  const startProcessing = () => {
-    isProcessing.value = true
-  }
-
-  const stopProcessing = () => {
-    isProcessing.value = false
-  }
+  const startProcessing = () => { isProcessing.value = true }
+  const stopProcessing = () => { isProcessing.value = false }
 
   const applyProcessResult = (showToastOnSuccess = false) => {
     const result = ops.processState.value
@@ -61,6 +61,8 @@ export function useBase64Tool() {
     if (!result.success) {
       outputValidationError.value = result.error?.includes('Invalid') ? result.error : ''
       if (!outputValidationError.value) {
+        // If it's not a validation error (logic error), we show a toast.
+        // Validation errors are now shown inline in the output panel.
         toast(result.error ?? 'Processing failed', { type: 'error' })
       }
     } else {
@@ -75,12 +77,10 @@ export function useBase64Tool() {
   const debouncedProcess = useDebounceFn(async () => {
     if (!options.value.autoProcess) return
     
-    // Only show loader if this takes time (avoid flicker on fast ops)
     const timer = setTimeout(() => startProcessing(), 100)
-    
     await ops.processInput(currentTab.value)
-    
     clearTimeout(timer)
+    
     stopProcessing()
     applyProcessResult(false)
   }, 200)
@@ -92,12 +92,15 @@ export function useBase64Tool() {
     applyProcessResult(true)
   }
 
+  // User manual typing
   const setInput = (val: string) => {
-    input.value = val
-    if (!val.startsWith('[Binary File Loaded:')) {
-      selectedFileName.value = ''
-      ops.rawFileBase64.value = ''
+    // If user types, we switch back to text mode automatically
+    if (inputMode.value === 'file') {
+       inputMode.value = 'text'
+       fileDetails.value = null
+       ops.rawFileBase64.value = ''
     }
+    input.value = val
     debouncedProcess()
   }
 
@@ -107,6 +110,11 @@ export function useBase64Tool() {
 
     const newTab = currentTab.value === 'encode' ? 'decode' : 'encode'
 
+    // We can't easily swap "file mode" to text input, so we convert result to text input
+    inputMode.value = 'text'
+    fileDetails.value = null
+    ops.rawFileBase64.value = ''
+
     if (options.value.preserveMode) {
       if (currentTab.value === 'encode') decodeBuffer.value = currOutput
       else encodeBuffer.value = currOutput
@@ -115,8 +123,6 @@ export function useBase64Tool() {
     }
     
     currentTab.value = newTab
-    selectedFileName.value = ''
-    ops.rawFileBase64.value = ''
     
     triggerProcess()
     toast('Swapped', { type: 'success' })
@@ -127,7 +133,8 @@ export function useBase64Tool() {
     encodeBuffer.value = ''
     decodeBuffer.value = ''
     ops.output.value = ''
-    selectedFileName.value = ''
+    inputMode.value = 'text'
+    fileDetails.value = null
     ops.rawFileBase64.value = ''
     outputValidationError.value = ''
     ops.processState.value = { success: true }
@@ -138,16 +145,18 @@ export function useBase64Tool() {
     if (type === 'base64') currentTab.value = 'decode'
     else currentTab.value = 'encode'
 
-    input.value = content
-    selectedFileName.value = ''
+    inputMode.value = 'text'
+    fileDetails.value = null
     ops.rawFileBase64.value = ''
+    input.value = content
     
-    triggerProcess() // Force run
+    triggerProcess()
   }
 
   const handleRandomData = () => {
+    inputMode.value = 'text'
+    fileDetails.value = null
     input.value = sample.generateRandomData()
-    selectedFileName.value = ''
     triggerProcess()
   }
 
@@ -155,19 +164,17 @@ export function useBase64Tool() {
     if (!files.length) return
     const mockEvent = { target: { files } } as unknown as Event
     
-    if (currentTab.value === 'decode') currentTab.value = 'encode'
-
+    // Logic for tab switching is inside handleFileUpload now, checking extension
     startProcessing()
     const success = await fileOps.handleFileUpload(mockEvent)
     if (success) {
       await ops.processInput(currentTab.value)
-      applyProcessResult(true)
+      applyProcessResult(false) 
     }
     stopProcessing()
   }
 
   const downloadOutput = () => {
-      // Pass the *entire* process state, including binary buffer
       fileOps.downloadOutput(
           ops.output.value, 
           currentTab.value, 
@@ -183,6 +190,7 @@ export function useBase64Tool() {
     }
     if (newState.success && newState.isBinary && newState.binary) {
       const mime = newState.mime || 'application/octet-stream'
+      // Create object URL for previewable content
       if (mime.startsWith('image/') || mime === 'application/pdf') {
         const blob = new Blob([newState.binary as unknown as BlobPart], { type: mime })
         activePreviewUrl.value = URL.createObjectURL(blob)
@@ -196,7 +204,7 @@ export function useBase64Tool() {
 
   // Watch options to re-run
   watch([() => options.value, currentTab], () => {
-     if (options.value.autoProcess && input.value) {
+     if (options.value.autoProcess) {
          ops.processInput(currentTab.value)
      }
   }, { deep: true })
@@ -204,10 +212,11 @@ export function useBase64Tool() {
   return {
     currentTab,
     input,
+    inputMode,
+    fileDetails,
     options,
-    selectedFileName,
     activePreviewUrl,
-    isProcessing, // Use the new debounced ref
+    isProcessing,
     outputValidationError,
     ops,
     fileOps,

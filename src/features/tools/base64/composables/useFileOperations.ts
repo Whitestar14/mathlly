@@ -3,23 +3,16 @@ import { useToast } from '@composables/ui/useToast'
 import { isBinaryExtension, isImageExtension, isMediaExtension } from '../utils/detectors/fileExtensionDetector'
 import { validateFileSize, generateDownloadFilename, downloadBlob, createBlobFromBinary, createBlobFromText } from '../utils/helpers/fileHelpers'
 import { getMimeTypeExtension, getDefaultMimeType } from '../utils/detectors/mimeDetector'
+import type { FileDetails, InputMode } from '../types/base64'
 
 export function useFileOperations(
   input: Ref<string>,
-  selectedFileName: Ref<string>,
-  toast: ReturnType<typeof useToast>['toast'],
+  inputMode: Ref<InputMode>,
+  fileDetails: Ref<FileDetails | null>,
   currentTab: Ref<'encode' | 'decode'>,
-  rawFileBase64Cache?: Ref<string>
+  rawFileBase64Cache: Ref<string>
 ) {
-  
-  // Helper: Checks if a string looks like a standard Base64 string (no spaces, valid chars)
-  // Not sure where to use this yet, if I'll even ever need it
-
-  // const isValidBase64String = (str: string) => {
-  //   if (str.length === 0 || str.length % 4 !== 0) return false
-  //   // Allow whitespace but check main chars
-  //   return /^[A-Za-z0-9+/=]+$/.test(str.trim())
-  // }
+  const { toast } = useToast()
 
   const handleFileUpload = (event: Event): Promise<boolean> => {
     return new Promise((resolve) => {
@@ -39,14 +32,7 @@ export function useFileOperations(
         return
       }
 
-      selectedFileName.value = file.name
-      const reader = new FileReader()
-
-      reader.onerror = () => {
-        toast('Failed to read file', { type: 'error' })
-        resolve(false)
-      }
-
+      // Detect mode switch requirement
       if (isBinaryExtension(file.name) || isImageExtension(file.name) || isMediaExtension(file.name)) {
         if (currentTab.value === 'decode') {
           toast(`Switched to 'Encode' for binary file: ${file.name}`, { type: 'info' })
@@ -54,27 +40,41 @@ export function useFileOperations(
         }
       }
 
+      const reader = new FileReader()
+      reader.onerror = () => {
+        toast('Failed to read file', { type: 'error' })
+        resolve(false)
+      }
+
       if (currentTab.value === 'encode') {
-        input.value = `[Binary File Loaded: ${file.name} (${(file.size / 1024).toFixed(2)} KB)]`
-        
         reader.onload = (e) => {
           const result = e.target?.result as string
+          // Extract base64 part from Data URL
           const base64 = result.split(',')[1] || ''
-
-          if (rawFileBase64Cache) {
-            rawFileBase64Cache.value = base64
+          
+          rawFileBase64Cache.value = base64
+          inputMode.value = 'file'
+          fileDetails.value = {
+            name: file.name,
+            size: file.size,
+            type: file.type
           }
           
+          // Clear text input to avoid confusion
+          input.value = ''
           resolve(true)
         }
         reader.readAsDataURL(file)
        } else {
+        // Decode Mode: Read as text
         reader.onload = (e) => {
           const result = e.target?.result as string
+          // In decode mode, we usually treat uploaded files as text containing base64 string
+          inputMode.value = 'text' 
           input.value = result
+          fileDetails.value = null // Not "file mode" in the UI logic sense for decode
           
           toast(`Loaded "${file.name}"`, { type: 'success' }) 
-          
           resolve(true)
         }
         reader.readAsText(file)
@@ -90,6 +90,7 @@ export function useFileOperations(
     const file = files[0]
     
     if (fileInput.value) {
+      // Manually assign files to input to reuse handleFileUpload logic
       const dt = new DataTransfer()
       dt.items.add(file)
       fileInput.value.files = dt.files

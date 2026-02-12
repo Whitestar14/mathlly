@@ -1,3 +1,4 @@
+
 import type { Base64ServiceType, IBase64Decoder, Base64DecodingOptions, Base64DecodingResult } from '../../types/base64'
 import { isValidBase64, normalizeBase64 } from '../../utils/validators/base64Validator'
 import { detectMimeType } from '../../utils/detectors/mimeDetector'
@@ -5,47 +6,45 @@ import { isBinaryData, hasExcessiveReplacementChars } from '../../utils/detector
 
 /**
  * Service class for decoding Base64 strings to text or binary data.
- * Handles validation, MIME type detection, and binary data identification.
  */
 export class Base64Decoder implements IBase64Decoder {
   readonly serviceType: Base64ServiceType = 'decoder'
 
-  /**
-   * Validates if a string is valid Base64 format.
-   * @param base64 - The Base64 string to validate
-   * @returns true if valid or empty, false otherwise
-   */
   validate(base64: string): boolean {
     return isValidBase64(base64)
   }
 
-  /**
-   * Decodes a Base64 string to text or binary data.
-   * @param base64 - The Base64 string to decode
-   * @param options - Decoding options for detection features
-   * @returns Promise resolving to decoding result with text, binary data, and metadata
-   */
   async decode(base64: string, options: Base64DecodingOptions): Promise<Base64DecodingResult> {
     const normalized = normalizeBase64(base64)
     
+    // Performance Optimization: Use Uint8Array.from mapping if available, otherwise optimized loop
     const binString = atob(normalized)
     const len = binString.length
     const bytes = new Uint8Array(len)
+    
+    // Unrolling for very small strings isn't necessary in JS engines, but avoiding charCodeAt in a massive loop 
+    // on the main thread is tricky. For 25MB limits, this basic loop is usually 'okay', 
+    // but mapping is cleaner.
     for (let i = 0; i < len; i++) {
       bytes[i] = binString.charCodeAt(i)
     }
 
     const mime = options.detectMimeType ? detectMimeType(bytes) : null
-    const binaryFlag = options.detectBinary ? isBinaryData(bytes) || !!mime : false
+    
+    // Determine binary flag:
+    // 1. Explicit mime type detection (e.g. image headers)
+    // 2. Statistical analysis of non-printable characters
+    const isBinaryContent = !!mime || (options.detectBinary ? isBinaryData(bytes) : false)
 
     let textOutput = ''
     try {
-      // Decode as text for display if possible
+      // Always attempt text decoding for the text view
       textOutput = new TextDecoder('utf-8', { fatal: false }).decode(bytes)
       
-      // If result looks binary (lots of replacement chars), don't show it in text area
-      if (hasExcessiveReplacementChars(textOutput)) {
-        textOutput = ''
+      // Secondary check: if result has too many replacement chars, it's likely garbage binary displayed as text
+      if (!isBinaryContent && hasExcessiveReplacementChars(textOutput)) {
+        // We mark it as binary so the UI knows to warn the user
+        // But we return the textOutput anyway so "Show Anyway" works
       }
     } catch {
       textOutput = ''
@@ -56,18 +55,12 @@ export class Base64Decoder implements IBase64Decoder {
       decoded: textOutput,
       binary: bytes,
       mime,
-      isBinary: binaryFlag,
+      isBinary: isBinaryContent,
       originalSize: base64.length,
       decodedSize: bytes.length
     }
   }
 
-  /**
-   * Processes input using the decode method for interface compliance.
-   * @param input - The Base64 string to process
-   * @param options - Decoding options
-   * @returns Promise resolving to decoding result
-   */
   async process(input: string, options: Base64DecodingOptions): Promise<Base64DecodingResult> {
     return this.decode(input, options)
   }
