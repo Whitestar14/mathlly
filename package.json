@@ -16,7 +16,8 @@
     "build:analyze": "vite build --mode production && open dist/stats.html",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "type-check": "vue-tsc --noEmit",
-    "version:bump": "node scripts/bump-version.js"
+    "version:bump": "node scripts/bump-version.js",
+    "scaffold": "node scripts/scaffold.js"
   },
   "dependencies": {
     "@lucide/lab": "^0.1.2",

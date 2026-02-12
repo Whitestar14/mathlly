@@ -90,6 +90,7 @@ export default defineConfig({
       '@calculator': resolve(__dirname, './src/features/calculator'),
       '@base64': resolve(__dirname, './src/features/tools/base64'),
       '@color': resolve(__dirname, './src/features/tools/color'),
+      '@json': resolve(__dirname, './src/features/tools/json'),
       '@converter': resolve(__dirname, './src/features/converter'),
       '@settings': resolve(__dirname, './src/features/settings')
     }
@@ -106,9 +107,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-vue': ['vue', 'vue-router', 'pinia'],
-          'vendor-ui': ['radix-vue', 'lucide-vue-next'],
-          'vendor-utils': ['@vueuse/core', '@vueuse/motion'],
+          'vendor-vue': ['vue', 'vue-router', 'pinia', 'dexie'],
+          'vendor-ui': ['radix-vue', 'lucide-vue-next', 'vue-tippy', 'tippy.js'],
+          'vendor-utils': ['@vueuse/core', 'anime.js', 'culori'],
           'vendor-math': ['mathjs', 'chart.js', 'vue-chartjs']
         }
       }

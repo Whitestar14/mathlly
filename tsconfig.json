@@ -39,6 +39,7 @@
       "@converter/*": ["features/converter/*"],
       "@base64/*" : ["features/tools/base64/*"],
       "@color/*" : ["features/tools/color/*"],
+      "@json/*": ["features/tools/json/*"],
       "@settings/*" : ["features/settings/*"],
     },
   },
