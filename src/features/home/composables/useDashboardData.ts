@@ -1,72 +1,67 @@
-
 import { computed } from 'vue'
 import { useAppStorageStore } from '@stores/appStorage'
-import { useCalculatorSession } from '@calculator/composables/useCalculatorSession'
-import { useRouter } from 'vue-router'
-import type { CalculatorMode } from '@calculator/composables/useCalculatorState'
+import { 
+  Calculator, 
+  ArrowRightLeft, 
+  Palette, 
+  Binary, 
+  FileJson, 
+  Rocket
+} from 'lucide-vue-next'
 
 export function useDashboardData() {
   const storage = useAppStorageStore()
-  const router = useRouter()
-  const calcSession = useCalculatorSession()
 
-  // 1. Smart Resume Logic
   const lastPath = computed(() => storage.get('router', 'lastVisitedPath', ''))
   
+  const lastActiveTime = computed(() => {
+      const ts = storage.get('router', 'lastVisitedTime', 0)
+      return ts ? new Date(ts) : null
+  })
+  
+  const hasHistory = computed(() => {
+      const p = lastPath.value
+      return p && p !== '/' && p !== '/dashboard'
+  })
+
   const resumeContext = computed(() => {
     const path = lastPath.value
     
     if (path.includes('calculator')) {
-      return {
-        type: 'calculator',
-        label: 'Calculator',
-        icon: 'Calculator',
-        detail: 'Resume Calculation'
-      }
+      return { type: 'calculator', label: 'Calculator', icon: Calculator, detail: 'Resume Calculation' }
     }
     if (path.includes('converter')) {
-      return {
-        type: 'converter',
-        label: 'Unit Converter',
-        icon: 'ArrowRightLeft',
-        detail: 'Convert Units'
-      }
+      return { type: 'converter', label: 'Unit Converter', icon: ArrowRightLeft, detail: 'Convert Units' }
     }
     if (path.includes('color')) {
       const color = storage.get('router', 'lastUsedColor', undefined)
       return {
         type: 'color',
-        label: 'Color Tool',
-        icon: 'Palette',
+        label: 'Color Studio',
+        icon: Palette,
         detail: color ? `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})` : 'Resume Editing',
         colorData: color
       }
     }
+    if (path.includes('base64')) {
+      return { type: 'base64', label: 'Base64 Tool', icon: Binary, detail: 'Encode / Decode' }
+    }
+    if (path.includes('json')) {
+      return { type: 'json', label: 'JSON Editor', icon: FileJson, detail: 'Format & Validate' }
+    }
     
-    return {
-      type: 'generic',
-      label: 'Welcome Back',
-      icon: 'Sparkles',
-      detail: 'Start a new task'
+    return { 
+      type: 'new', 
+      label: 'Start Creating', 
+      icon: Rocket, 
+      detail: 'Explore the developer toolkit' 
     }
   })
-
-  // 2. Quick Math Logic
-  const runQuickMath = (expression: string) => {
-    if (!expression) return
-    
-    // Determine mode based on input (hex/bin detection could go here)
-    const mode: CalculatorMode = 'Standard'
-    
-    // Pre-seed the calculator session
-    calcSession.saveInput(mode, expression)
-    
-    router.push('/calculator')
-  }
 
   return {
     lastPath,
     resumeContext,
-    runQuickMath
+    lastActiveTime,
+    hasHistory
   }
 }

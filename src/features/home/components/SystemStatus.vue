@@ -2,7 +2,7 @@
 <template>
   <div class="flex items-center gap-3 text-xs font-medium text-muted-foreground bg-card/50 px-3 py-1.5 rounded-full border border-border/50 backdrop-blur-sm">
     <div class="flex items-center gap-1.5">
-      <div class="size-2 rounded-full bg-emerald-500 animate-pulse"></div>
+      <div class="size-2 rounded-full bg-accent/70"></div>
       <span>v{{ version }}</span>
     </div>
     <div class="w-px h-3 bg-border"></div>

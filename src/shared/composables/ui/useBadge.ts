@@ -1,23 +1,60 @@
 /**
- * Available badge variant types for type safety
+ * Badge Variants
+ * 
+ * - 'default': Standard muted/gray (good for tags)
+ * - 'outline': Transparent background, border only
+ * - 'primary': Uses the theme's Primary color
+ * - 'accent': Uses the theme's Accent color
+ * - 'new'/'success': Green/Emerald indicators
+ * - 'beta'/'warning': Orange/Amber indicators
+ * - 'experimental'/'info': Blue/Indigo indicators
+ * - 'soon': Ghost/Muted state
  */
-export type BadgeVariant =
-  | 'default' | 'soon' | 'new' | 'custom' | 'accent' | 'special' |
-  'beta' | 'alpha' | 'warning' | 'success' | 'info'
+export type BadgeVariant = 
+  | 'default' | 'outline' | 'ghost'
+  | 'primary' | 'accent' | 'custom'
+  | 'new' | 'success' 
+  | 'beta' | 'warning' 
+  | 'experimental' | 'info' | 'special' | 'soon'
+
+export type BadgeSize = 'xs' | 'sm' | 'md' | 'lg'
 
 /**
- * Standard badge styling with your original sophisticated colors
+ * Shared Tailwind mappings for badge styles.
+ * Uses semantic opacity modifiers to ensure theming works (Dracula/Orion/etc).
  */
-export const BADGE_VARIANTS: Record<BadgeVariant, string> = {
-  default: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-600',
-  soon: 'bg-muted text-muted-foreground',
-  new: 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-800/30',
-  custom: 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary border border-primary/20 dark:border-primary/30',
-  accent: 'bg-accent/10 dark:bg-accent/20 text-accent border border-accent/20 dark:border-accent/30',
-  special: 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-300 border border-yellow-200 dark:border-yellow-800/30',
-  beta: 'bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800/30',
-  alpha: 'bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-300 border border-pink-200 dark:border-pink-800/30',
-  warning: 'bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800/30',
-  success: 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/30',
-  info: 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/30'
+export const BADGE_STYLES: Record<BadgeVariant, string> = {
+  // 1. Structural Variants
+  default: 'bg-muted/50 text-muted-foreground border-border/50 hover:bg-muted/80',
+  outline: 'bg-transparent border-border text-foreground hover:bg-muted/20',
+  ghost:   'bg-transparent border-transparent text-muted-foreground hover:bg-muted/20 hover:text-foreground',
+
+  // 2. Theme Variants (Respects CSS Variables)
+  primary: 'bg-primary/10 text-primary border-primary/20 hover:bg-primary/15',
+  accent:  'bg-accent/10 text-accent border-accent/20 hover:bg-accent/15',
+  custom:  'bg-primary/10 text-primary border-primary/20', // Legacy alias for primary
+
+  // 3. Status Variants (Hardcoded colors but with soft alpha for dark mode support)
+  // Green
+  new:     'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+  success: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20',
+  
+  // Orange/Amber
+  beta:    'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+  warning: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20',
+  
+  // Blue/Violet
+  info:         'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20',
+  experimental: 'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
+  special:      'bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20',
+
+  // Gray/Disabled
+  soon:    'bg-muted/30 text-muted-foreground/60 border-transparent cursor-not-allowed'
+}
+
+export const BADGE_SIZES: Record<BadgeSize, string> = {
+  xs: 'text-[10px] px-1.5 py-0.5 h-5', // Tight, good for dense lists
+  sm: 'text-xs px-2.5 py-0.5 h-6',     // Standard UI badge
+  md: 'text-sm px-3 py-1 h-7',         // Form status
+  lg: 'text-base px-4 py-1.5 h-8'      // Hero/Title badges
 }

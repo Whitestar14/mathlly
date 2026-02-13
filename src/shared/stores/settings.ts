@@ -1,4 +1,3 @@
-
 import { defineStore } from 'pinia'
 import db from '@services/storage/db'
 import type { Settings } from '@services/storage/db'
@@ -30,7 +29,7 @@ export const DEFAULT_SETTINGS: Settings = {
   experimental: {
     commandPaletteEnabled: false,
     devDockEnabled: false,
-    homeLayout: 'classic'
+    homeLayout: 'dashboard'
   }
 }
 

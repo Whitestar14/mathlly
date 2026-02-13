@@ -1,22 +1,19 @@
-
 <template>
   <BasePage
     :show-header="false"
     :show-footer="false"
     :show-back-button="false"
     title="Home"
-    main-class="min-h-screen bg-background p-0"
+    main-class="min-h-screen bg-background p-0 relative overflow-hidden"
   >
-    <!-- Background Texture -->
-    <div v-if="currentLayout === 'dashboard'" class="absolute inset-0 pattern-dots opacity-30 pointer-events-none z-0"></div>
 
-    <Transition name="fade" mode="out-in">
-        <component 
-            :is="currentView" 
-            @switch-layout="toggleLayout" 
-            class="relative z-10 h-full w-full"
-        />
-    </Transition>
+        <Transition name="fade" mode="out-in">
+            <component 
+                :is="currentView" 
+                class="relative z-10 h-full w-full"
+                @switch-layout="toggleLayout" 
+            />
+        </Transition>
 
     <WelcomeModal v-model="showWelcomeModal" />
   </BasePage>
@@ -30,6 +27,7 @@ import { useSettingsStore } from '@stores/settings'
 import { BasePage } from '@components/ui'
 import { WelcomeModal } from '@components/layout'
 
+// Async Views
 const ClassicView = defineAsyncComponent(() => import('@features/home/components/views/ClassicView.vue'))
 const DashboardView = defineAsyncComponent(() => import('@features/home/components/views/DashboardView.vue'))
 
@@ -51,21 +49,12 @@ const toggleLayout = () => {
 onMounted(() => {
   const hasShownWelcome = storageStore.get('onboarding', 'welcomeShown', false)
   if (!hasShownWelcome) {
-    useTimeoutFn(() => {
-      showWelcomeModal.value = true
-    }, 1000)
+    useTimeoutFn(() => showWelcomeModal.value = true, 800)
   }
 })
 </script>
 
 <style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

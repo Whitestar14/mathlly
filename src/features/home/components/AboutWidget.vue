@@ -7,7 +7,7 @@
 
     <div class="z-10">
       <div class="flex items-center gap-3 mb-3">
-        <div class="p-2 bg-background border border-border rounded-lg shadow-sm">
+        <div class="p-2 size-12 bg-background border border-border rounded-lg shadow-sm">
              <PrismLogo class="size-6 text-primary" />
         </div>
         <div>

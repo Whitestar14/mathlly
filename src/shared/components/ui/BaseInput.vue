@@ -24,7 +24,7 @@
       :aria-invalid="!!error"
       :aria-describedby="error ? `${id}-error` : undefined"
       :class="[
-        'w-full rounded-lg border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
+        'w-full rounded-lg border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-primary transition-all disabled:opacity-60 disabled:cursor-not-allowed',
         error ? 'border-destructive' : 'border-border',
         $slots.icon || icon ? 'pl-10' : 'pl-4',
         $slots.suffix ? 'pr-10' : 'pr-4',

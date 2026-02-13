@@ -27,10 +27,9 @@
               class="text-sm font-medium text-foreground">
               Dashboard Layout
             </label>
-            <BaseBadge variant="beta" text="Beta" size="sm" />
           </div>
           <p class="text-xs text-muted-foreground mt-1">
-            Try the new bento-grid style dashboard. This layout is experimental and subject to change. Please provide feedback via the feedback tool!
+            Try the new bento-grid style dashboard. This layout is experimental and subject to change.
           </p>
         </div>
         <ToggleBar
@@ -103,7 +102,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { AlertTriangleIcon, CircleHelp } from 'lucide-vue-next'
-import { BaseCollapsible, ToggleBar, BaseBadge } from '@components/ui'
+import { BaseCollapsible, ToggleBar } from '@components/ui'
 import type { Settings } from '@services/storage/db'
 
 interface Props {

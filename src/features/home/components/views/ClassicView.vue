@@ -1,10 +1,9 @@
-
 <template>
   <BasePage
     :breadcrumbs="breadcrumbs"
     :show-footer="true"
     title="Home"
-    main-class="transition-colors duration-300 mx-auto text-sm overflow-hidden">
+    main-class="transition-colors duration-300 mx-auto text-sm">
     
     <!-- Dashboard Beta Banner -->
     <div 
@@ -56,14 +55,10 @@
               :initial="{ opacity: 0, y: 20 }"
               :enter="{ opacity: 1, y: 0, transition: { delay: 0.2 } }"
               class="self-center md:self-start mb-2">
-              <RouterLink
-                to="/info/update"
-                class="inline-block">
-                <BaseBadge
-                  variant="accent"
-                  :text="`${version.versionInfo.full} › see changelog`"
-                  :show-notch="true" />
-              </RouterLink>
+              <BaseBadge
+                variant="accent"
+                :text="`v${version.versionInfo.full}`"
+                :show-notch="true" />
             </div>
 
             <h1
@@ -375,8 +370,6 @@
         </div>
       </div>
     </section>
-
-    <WelcomeModal v-model="showWelcomeModal" />
   </BasePage>
 </template>
 
@@ -391,7 +384,6 @@ import {
   AsteriskIcon,
   X
 } from 'lucide-vue-next'
-import { useTimeoutFn } from '@vueuse/core'
 import { useVersionStore } from '@stores/version'
 import { RouterLink } from 'vue-router'
 import {
@@ -402,9 +394,8 @@ import {
   BasePage
 } from '@components/ui'
 import PrismSvg from '@assets/icons/prism-hero.svg?raw'
-import { FeatureCard, WelcomeModal } from '@components/layout'
+import { FeatureCard } from '@components/layout'
 import type { BreadcrumbItem } from '@components/ui/BasePage.vue'
-import { useAppStorageStore } from '@stores/appStorage'
 
 defineEmits(['switch-layout'])
 
@@ -527,16 +518,4 @@ const reasons = [
   'Seamless integration with popular IDEs and text editors',
   'Extensive documentation and support resources'
 ]
-
-const showWelcomeModal = ref(false)
-
-onMounted(() => {
-  const storageStore = useAppStorageStore()
-  const hasShownWelcome = storageStore.get('onboarding', 'welcomeShown', false)
-  if (!hasShownWelcome) {
-    useTimeoutFn(() => {
-      showWelcomeModal.value = true
-    }, 1000)
-  }
-})
 </script>

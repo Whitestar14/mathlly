@@ -32,6 +32,7 @@ export interface AppDataBlob {
   }
   router?: {
     lastVisitedPath?: string
+    lastVisitedTime?: number
     toolOptions?: Record<string, any>
     lastUsedColor?: Record<string, number>
   }

@@ -86,7 +86,7 @@ export function useHomeNavigation() {
       ]
     },
     {
-      title: 'Labs (Coming Soon)',
+      title: 'Labs',
       items: [
         {
           id: 'regex',

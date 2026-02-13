@@ -52,15 +52,11 @@ const routes: Array<RouteRecordRaw> = [
   },
   {
     path: '/info/update',
-    name: 'updates',
-    component: () => import('@pages/UpdatePage.vue'),
-    meta: { transition: 'fade', group: 'information' }
+    redirect: '/'
   },
   {
     path: '/info/about',
-    name: 'about',
-    component: () => import('@pages/AboutPage.vue'),
-    meta: { transition: 'fade', group: 'information' }
+    redirect: '/'
   },
   {
     path: '/settings',
