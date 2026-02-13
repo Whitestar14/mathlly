@@ -51,6 +51,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { transition: 'fade', group: 'tools' }
   },
   {
+    path: '/tools/qrcode',
+    name: 'qrcode',
+    component: () => import('@features/tools/qrcode/pages/QrCodeTool.vue'),
+    meta: { transition: 'fade', group: 'tools' }
+  },
+  {
     path: '/info/update',
     redirect: '/'
   },
