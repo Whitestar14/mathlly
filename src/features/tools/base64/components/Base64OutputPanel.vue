@@ -1,7 +1,15 @@
 <template>
-  <div class="flex flex-col h-full min-h-0 border border-border rounded-lg bg-card overflow-hidden shadow-sm">
-    <!-- Toolbar -->
-    <div class="flex items-center justify-between p-2 border-b border-border bg-muted/30 h-[53px] flex-shrink-0">
+  <BaseEditor
+    :model-value="modelValue"
+    :readonly="true"
+    :show-line-numbers="true"
+    :error="error"
+    :stats="statsString"
+    :default-status="statusString"
+    :placeholder="!modelValue && !error ? 'Result will appear here...' : ''"
+    :textarea-class="!modelValue ? 'text-muted-foreground' : 'text-foreground'"
+  >
+    <template #toolbar>
       <div class="flex items-center gap-2">
         <label class="text-sm font-medium text-foreground px-2">Output</label>
         <div
@@ -28,25 +36,13 @@
           <Copy class="size-4 text-muted-foreground" />
         </BaseButton>
       </div>
-    </div>
+    </template>
 
-    <!-- Content -->
-    <div class="relative flex-1 min-h-0 bg-background flex flex-col">
-      <!-- Error Overlay (Kept for major blocking errors, but BaseEditor will also show in footer) -->
-      <div v-if="error" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/95 p-6 text-center space-y-3 animate-in fade-in">
-           <div class="p-3 bg-destructive/10 rounded-full text-destructive">
-             <AlertCircle class="size-8" />
-           </div>
-           <div>
-             <h3 class="text-sm font-medium text-destructive">Process Failed</h3>
-             <p class="text-xs text-muted-foreground max-w-xs mt-1 leading-relaxed">
-               {{ error }}
-             </p>
-           </div>
-      </div>
-
+    <!-- Custom Content: Preview Mode or Warning Overlay -->
+    <template #default v-if="(showPreview && hasPreview && !error) || (showBinaryWarning && !error)">
+      
       <!-- Preview Mode -->
-      <div v-if="showPreview && hasPreview && !error" class="flex-1 flex flex-col items-center justify-center p-4 bg-muted/5">
+      <div v-if="showPreview && hasPreview && !error" class="flex-1 flex flex-col items-center justify-center p-4 bg-muted/5 w-full h-full">
         <div class="relative max-w-full max-h-full flex flex-col items-center justify-center gap-4">
           <img v-if="previewUrl && previewInfo?.mime.startsWith('image/')" :src="previewUrl"
             class="max-h-[300px] object-contain rounded-md border border-border shadow-sm bg-[url('/img/transparent-grid.png')]" />
@@ -62,11 +58,9 @@
           </div>
         </div>
       </div>
-      
-      <!-- Text Mode -->
-      <div v-else class="flex-1 relative w-full h-full">
-        <!-- Binary Warning Overlay -->
-        <div v-if="showBinaryWarning && !error" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/95 p-6 text-center space-y-3 animate-in fade-in pointer-events-none">
+
+      <!-- Binary Warning Overlay (replaces text editor content if active) -->
+      <div v-if="showBinaryWarning && !error" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/95 p-6 text-center space-y-3 animate-in fade-in">
            <AlertTriangle class="size-10 text-amber-500 mb-1" />
            <h3 class="text-sm font-medium text-foreground">Binary Content Detected</h3>
            <p class="text-xs text-muted-foreground max-w-xs leading-relaxed">
@@ -75,21 +69,10 @@
            <BaseButton variant="secondary" size="sm" @click="forceShowText = true" class="pointer-events-auto">
              Show Anyway
            </BaseButton>
-        </div>
-
-        <BaseEditor
-          :model-value="modelValue"
-          :readonly="true"
-          :show-line-numbers="true"
-          :error="error"
-          :stats="statsString"
-          :default-status="statusString"
-          :placeholder="!modelValue && !error ? 'Result will appear here...' : ''"
-          :textarea-class="!modelValue ? 'text-muted-foreground' : 'text-foreground'"
-        />
       </div>
-    </div>
-  </div>
+
+    </template>
+  </BaseEditor>
 </template>
 
 <script setup lang="ts">

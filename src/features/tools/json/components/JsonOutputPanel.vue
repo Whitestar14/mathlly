@@ -1,10 +1,13 @@
 <template>
-  <div class="flex flex-col h-full min-h-0 border border-border rounded-lg bg-card overflow-hidden shadow-sm">
-    
-    <!-- HEADER / TOOLBAR -->
-    <div class="flex items-center justify-between p-2 border-b border-border bg-muted/30 h-[53px]">
-      
-      <!-- Control Wrapper: Allows shrinking -->
+  <BaseEditor
+    :model-value="currentTextContent || ''"
+    :readonly="true"
+    :show-line-numbers="true"
+    :error="error"
+    :textarea-class="getTextColorClass"
+  >
+    <template #toolbar>
+      <!-- Control Wrapper -->
       <div class="flex-1 min-w-0 mr-2 sm:mr-4" :class="{ 'opacity-50 pointer-events-none': !!error }">
         <SegmentedControl
           :model-value="viewMode"
@@ -23,33 +26,23 @@
           <Download class="size-4 text-muted-foreground" />
         </BaseButton>
       </div>
-    </div>
+    </template>
 
-    <!-- CONTENT AREA -->
-    <div class="flex-1 min-h-0 relative flex flex-col bg-background">
-      
-      <!-- Empty State -->
-      <div v-if="!hasData && !error" class="absolute inset-0 flex flex-col gap-2 items-center justify-center text-muted-foreground/40 z-10 pointer-events-none">
+    <!-- Custom Content Slot: Replaces textarea for Tree View or Empty State -->
+    <template #default v-if="!currentTextContent">
+       <!-- Empty State -->
+       <div v-if="!hasData && !error" class="absolute inset-0 flex flex-col gap-2 items-center justify-center text-muted-foreground/40 z-10 pointer-events-none">
         <FileJson class="size-10 opacity-20" />
         <span class="text-sm font-medium">Result will appear here...</span>
       </div>
 
       <!-- Tree View -->
-      <div v-if="viewMode === 'tree' && parsed" class="h-full overflow-auto p-4 custom-scrollbar">
+      <div v-if="viewMode === 'tree' && parsed" class="h-full w-full overflow-auto p-4 custom-scrollbar bg-background text-foreground">
         <JsonTreeItem :value="parsed" :is-last="true" :depth="0" />
       </div>
+    </template>
 
-      <!-- Code Views (Using BaseEditor) -->
-      <div v-else-if="currentTextContent !== null" class="h-full flex overflow-hidden">
-        <BaseEditor
-          :model-value="currentTextContent"
-          :readonly="true"
-          :show-line-numbers="true"
-          :textarea-class="getTextColorClass"
-        />
-      </div>
-    </div>
-  </div>
+  </BaseEditor>
 </template>
 
 <script setup lang="ts">

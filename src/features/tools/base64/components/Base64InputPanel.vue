@@ -1,9 +1,13 @@
 <template>
-  <div
-    class="flex flex-col h-full min-h-0 border border-border rounded-lg bg-card overflow-hidden shadow-sm relative group">
-
-    <!-- Toolbar -->
-    <div class="flex items-center justify-between p-2 border-b border-border bg-muted/30 h-[53px] flex-shrink-0">
+  <BaseEditor
+    :model-value="modelValue"
+    :show-line-numbers="true"
+    :stats="statsString"
+    :default-status="statusString"
+    placeholder="Type or paste content into the editor..."
+    @update:model-value="$emit('update:modelValue', $event)"
+  >
+    <template #toolbar>
       <div class="flex items-center gap-2">
         <label class="text-sm font-medium text-foreground px-2">Input</label>
       </div>
@@ -28,14 +32,12 @@
           <Trash2 class="size-4" />
         </BaseButton>
       </div>
-    </div>
+    </template>
 
-    <!-- Editor Area -->
-    <div class="relative flex-1 min-h-0 bg-background">
-      
-      <!-- File Mode UI -->
-      <div v-if="inputMode === 'file' && fileDetails" class="absolute inset-0 flex items-center justify-center p-6 z-20 pointer-events-auto">
-        <div class="w-full max-w-sm p-4 rounded-lg border border-border bg-muted/20 flex flex-col items-center gap-3 text-center animate-in zoom-in-95 backdrop-blur-sm">
+    <template #overlay>
+      <!-- File Mode UI Overlay -->
+      <div v-if="inputMode === 'file' && fileDetails" class="absolute inset-0 flex items-center justify-center p-6 z-20 pointer-events-auto bg-background/95 backdrop-blur-sm">
+        <div class="w-full max-w-sm p-4 rounded-lg border border-border bg-muted/20 flex flex-col items-center gap-3 text-center animate-in zoom-in-95">
            <div class="p-3 bg-primary/10 rounded-full text-primary">
              <FileIcon class="size-8" />
            </div>
@@ -49,33 +51,18 @@
         </div>
       </div>
 
-      <!-- Text Mode UI -->
-      <template v-else>
-        <BaseEditor
-          :model-value="modelValue"
-          :show-line-numbers="true"
-          :stats="statsString"
-          :default-status="statusString"
-          placeholder="Type or paste content into the editor..."
-          class="z-0"
-          @update:model-value="$emit('update:modelValue', $event)"
-        >
-          <template #overlay>
-            <!-- Loader with fade transition -->
-            <Transition name="fade">
-              <div v-if="isProcessing"
-                class="absolute inset-0 z-30 bg-background/50 backdrop-blur-[1px] flex items-center justify-center">
-                <div class="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg shadow-lg">
-                  <Loader2 class="size-4 animate-spin text-accent" />
-                  <span class="text-xs font-medium">Processing...</span>
-                </div>
-              </div>
-            </Transition>
-          </template>
-        </BaseEditor>
-      </template>
-    </div>
-  </div>
+      <!-- Loader with fade transition -->
+      <Transition name="fade">
+        <div v-if="isProcessing"
+          class="absolute inset-0 z-30 bg-background/50 backdrop-blur-[1px] flex items-center justify-center">
+          <div class="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg shadow-lg">
+            <Loader2 class="size-4 animate-spin text-accent" />
+            <span class="text-xs font-medium">Processing...</span>
+          </div>
+        </div>
+      </Transition>
+    </template>
+  </BaseEditor>
 </template>
 
 <script setup lang="ts">

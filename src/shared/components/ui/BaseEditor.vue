@@ -1,44 +1,57 @@
 <template>
-  <div class="flex flex-col h-full w-full overflow-hidden bg-background font-mono text-xs md:text-sm group border-0">
+  <div class="flex flex-col h-full w-full min-h-0 border border-border rounded-lg bg-card overflow-hidden shadow-sm group">
     
-    <!-- Editor Container (Gutter + Textarea) -->
-    <div class="relative flex-1 flex min-h-0 w-full overflow-hidden">
-      <!-- Line Numbers Gutter -->
-      <div
-        v-if="showLineNumbers"
-        ref="linesRef"
-        class="w-10 flex-shrink-0 bg-muted/10 border-r border-border text-right py-4 pr-2 text-muted-foreground/50 select-none overflow-hidden leading-6"
-        aria-hidden="true">
-        <div
-          v-for="n in lineCount"
-          :key="n"
-          class="transition-colors duration-200"
-          :class="{ 'text-destructive font-bold bg-destructive/10 -mr-2 pr-2': error && error.line === n }">
-          {{ n }}
+    <!-- Toolbar Slot -->
+    <div 
+      v-if="$slots.toolbar" 
+      class="flex items-center justify-between p-2 border-b border-border bg-muted/30 h-[53px] flex-shrink-0 overflow-x-auto no-scrollbar">
+      <slot name="toolbar"></slot>
+    </div>
+
+    <!-- Content Area (Editor or Custom View) -->
+    <div class="relative flex-1 flex min-h-0 w-full overflow-hidden bg-background">
+      
+      <slot>
+        <!-- Default Text Editor Implementation -->
+        <div class="flex w-full h-full font-mono text-sm">
+          <!-- Line Numbers Gutter -->
+          <div
+            v-if="showLineNumbers"
+            ref="linesRef"
+            class="w-10 flex-shrink-0 bg-muted/10 border-r border-border text-right py-4 pr-2 text-muted-foreground/50 select-none overflow-hidden leading-6"
+            aria-hidden="true">
+            <div
+              v-for="n in lineCount"
+              :key="n"
+              class="transition-colors duration-200"
+              :class="{ 'text-destructive font-bold bg-destructive/10 -mr-2 pr-2': normalizedError && normalizedError.line === n }">
+              {{ n }}
+            </div>
+          </div>
+
+          <!-- Editor Area -->
+          <textarea
+            ref="textareaRef"
+            :value="modelValue"
+            :readonly="readonly"
+            :placeholder="placeholder"
+            class="flex-1 h-full w-full p-4 resize-none bg-transparent outline-none leading-6 whitespace-pre placeholder:text-muted-foreground/30 focus:ring-0 border-0 font-mono"
+            :class="[
+              readonly ? 'cursor-default' : 'cursor-text',
+              textareaClass
+            ]"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            @input="handleInput"
+            @scroll="syncScroll"
+            @blur="$emit('blur', $event)"
+            @focus="$emit('focus', $event)"></textarea>
         </div>
-      </div>
+      </slot>
 
-      <!-- Editor Area -->
-      <textarea
-        ref="textareaRef"
-        :value="modelValue"
-        :readonly="readonly"
-        :placeholder="placeholder"
-        class="flex-1 h-full w-full p-4 resize-none bg-transparent outline-none leading-6 whitespace-pre placeholder:text-muted-foreground/30 focus:ring-0 border-0"
-        :class="[
-          readonly ? 'cursor-default' : 'cursor-text',
-          textareaClass
-        ]"
-        autocomplete="off"
-        autocorrect="off"
-        autocapitalize="off"
-        spellcheck="false"
-        @input="handleInput"
-        @scroll="syncScroll"
-        @blur="$emit('blur', $event)"
-        @focus="$emit('focus', $event)"></textarea>
-
-      <!-- Optional Slot for Overlays (like Loading Spinners) -->
+      <!-- Overlay Slot (Loaders, Messages) -->
       <slot name="overlay"></slot>
     </div>
 
@@ -60,7 +73,7 @@
 
       <!-- Right: Statistics -->
       <div class="flex items-center gap-3 shrink-0 opacity-80">
-        <span v-if="showLineNumbers && modelValue">Ln {{ lineCount }}</span>
+        <span v-if="showLineNumbers && modelValue && !readonly">Ln {{ lineCount }}</span>
         <span v-if="stats">{{ stats }}</span>
       </div>
     </div>
@@ -78,7 +91,7 @@ export interface EditorError {
 }
 
 interface Props {
-  modelValue: string
+  modelValue?: string
   readonly?: boolean
   showLineNumbers?: boolean
   placeholder?: string
@@ -151,7 +164,6 @@ const syncScroll = () => {
   }
 }
 
-// Ensure scroll sync if content changes programmatically (e.g. format/minify)
 watch(() => props.modelValue, () => {
   nextTick(syncScroll)
 })
