@@ -103,6 +103,8 @@ export function useDisplayFormatter() {
       })
       .join(' ')
       .replace(/\s+/g, ' ')
+      .replace(/\(\s+/g, '(')
+      .replace(/\s+\)/g, ')')
       .trim()
 
     return formattedParts
