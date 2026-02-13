@@ -3,7 +3,7 @@
     <slot name="prefix">
       <div
         v-if="$slots.icon || icon"
-        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground pointer-events-none">
         <slot name="icon">
           <component
             :is="icon"
@@ -35,7 +35,11 @@
       @blur="$emit('blur', $event)"
       @focus="handleFocus" />
 
-    <slot name="suffix"></slot>
+    <div
+      v-if="$slots.suffix"
+      class="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground flex items-center">
+      <slot name="suffix"></slot>
+    </div>
 
     <div
       v-if="error"
