@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { AlertTriangle, CircleHelp } from 'lucide-vue-next'
-import { BaseButton, BaseModal, BaseCollapsible } from '@components/ui'
+import { AlertTriangle, CircleHelp, Download, Upload, Database } from 'lucide-vue-next'
+import { BaseButton, BaseModal, BaseCollapsible, BaseLabel } from '@components/ui'
 import db, { resetDatabase } from '@services/storage/db'
 import { useToast } from '@composables/ui/useToast'
+import { BackupService } from '@shared/services/backup/BackupService'
+import { downloadBlob } from '@base64/utils/helpers/fileHelpers'
 
 interface Props {
   isVisible: boolean;
@@ -15,6 +17,9 @@ const { toast } = useToast()
 
 const showResetDatabaseModal = ref(false)
 const isResettingDatabase = ref(false)
+const isExporting = ref(false)
+const isImporting = ref(false)
+const fileInputRef = ref<HTMLInputElement | null>(null)
 
 const showResetConfirmation = (): void => {
   showResetDatabaseModal.value = true
@@ -45,6 +50,46 @@ const handleResetDatabase = async(): Promise<void> => {
 const cancelResetDatabase = (): void => {
   showResetDatabaseModal.value = false
 }
+
+const handleExport = async () => {
+  isExporting.value = true
+  try {
+    const blob = await BackupService.createBackup()
+    const filename = BackupService.getFilename()
+    downloadBlob(blob, filename)
+    toast({ type: 'success', title: 'Backup Created', description: 'Your data has been exported successfully.' })
+  } catch (error) {
+    console.error(error)
+    toast({ type: 'error', title: 'Export Failed', description: 'Could not create backup file.' })
+  } finally {
+    isExporting.value = false
+  }
+}
+
+const triggerImport = () => {
+  fileInputRef.value?.click()
+}
+
+const handleImport = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  isImporting.value = true
+  try {
+    await BackupService.restoreBackup(file)
+    // Note: App reloads on success, so no toast needed here usually, 
+    // but just in case logic changes:
+    toast({ type: 'success', title: 'Import Successful', description: 'Restoring data...' })
+  } catch (error: any) {
+    console.error(error)
+    toast({ type: 'error', title: 'Import Failed', description: error.message || 'Invalid backup file.' })
+    isImporting.value = false
+  }
+  
+  // Clear input
+  target.value = ''
+}
 </script>
 
 <template>
@@ -55,18 +100,56 @@ const cancelResetDatabase = (): void => {
     icon="Settings"
     :default-open="false">
     <div class="space-y-6">
+      
+      <!-- Data Management -->
+      <div class="space-y-3">
+        <BaseLabel class="text-sm font-medium">Data Management</BaseLabel>
+        <div class="p-4 border border-border bg-card rounded-lg space-y-4">
+          <div class="flex items-start gap-3">
+            <div class="p-2 bg-primary/10 rounded-lg text-primary">
+              <Database class="h-5 w-5" />
+            </div>
+            <div>
+              <h4 class="text-sm font-medium">Backup & Restore</h4>
+              <p class="text-xs text-muted-foreground mt-1">
+                Export your settings, history, and palettes to a JSON file, or restore from a previous backup.
+              </p>
+            </div>
+          </div>
+          
+          <div class="flex gap-3 pt-2">
+            <BaseButton variant="outline" size="sm" class="flex-1" :loading="isExporting" @click="handleExport">
+              <Download class="h-4 w-4 mr-2" />
+              Export Data
+            </BaseButton>
+            
+            <input
+              ref="fileInputRef"
+              type="file"
+              accept=".json"
+              class="hidden"
+              @change="handleImport"
+            />
+            <BaseButton variant="outline" size="sm" class="flex-1" :loading="isImporting" @click="triggerImport">
+              <Upload class="h-4 w-4 mr-2" />
+              Import Data
+            </BaseButton>
+          </div>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
       <div
         class="p-4 border border-destructive/20 bg-destructive/5 rounded-lg">
         <h3
           class="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
-          <AlertTriangle class="h-4 w-4" />
-          Database Management
+          <AlertTriangle class="h-4 w-4 text-destructive" />
+          Danger Zone
         </h3>
 
         <p class="text-sm text-muted-foreground mb-3">
           If you're experiencing issues with the app, you can reset the
-          database to default settings. Before attempting this, try disabling experimental features
-          if you have them enabled and see it it resolves your issue
+          database to default settings.
         </p>
 
         <div class="flex justify-end">
@@ -137,10 +220,7 @@ const cancelResetDatabase = (): void => {
         </div>
         <div>
           <p class="text-sm text-foreground">
-            <span class="font-medium">When to use this:</span> If you're
-            experiencing persistent issues with the application such as
-            incorrect calculations, settings not saving, or other unexpected
-            behavior.
+            <span class="font-medium">Tip:</span> Try exporting your data first using the backup tool above before resetting.
           </p>
         </div>
       </div>
