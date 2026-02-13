@@ -38,7 +38,17 @@ import {
   CollapsibleTrigger,
   CollapsibleContent
 } from 'radix-vue'
-import { MonitorIcon, CalculatorIcon, Settings2Icon, PowerIcon, PaletteIcon, ChevronDownIcon, KeyboardIcon, FlaskConical } from 'lucide-vue-next'
+import {
+  MonitorIcon,
+  CalculatorIcon,
+  Settings2Icon,
+  PowerIcon,
+  PaletteIcon,
+  ChevronDownIcon,
+  KeyboardIcon,
+  FlaskConical,
+  ShieldCheck
+} from 'lucide-vue-next'
 
 const props = defineProps({
   title: {
@@ -81,7 +91,8 @@ const getFeatureIcon = iconName => {
     'Power': PowerIcon,
     'Keyboard': KeyboardIcon,
     'Settings': Settings2Icon,
-    'FlaskConical': FlaskConical
+    'FlaskConical': FlaskConical,
+    'ShieldCheck': ShieldCheck
   }
 
   return iconMap[iconName] || CalculatorIcon

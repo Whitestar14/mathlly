@@ -11,6 +11,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_VERSION: string
   readonly DEV: boolean
   readonly PROD: boolean
+  readonly VITE_SENTRY_DSN: string
+  readonly VITE_ENABLE_SENTRY: string
 }
 
 interface ImportMeta {

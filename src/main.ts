@@ -6,6 +6,7 @@ import { router } from './router';
 import App from './App.vue';
 import { useDeviceStore } from '@stores/device';
 import { MotionPlugin } from '@vueuse/motion';
+import { TelemetryService } from '@shared/services/telemetry/TelemetryService';
 import '@assets/css/index.css';
 import 'tippy.js/dist/tippy.css';
 import 'tippy.js/dist/border.css';
@@ -31,6 +32,9 @@ const app = createApp(App);
 const pinia = createPinia();
 
 app.use(MotionPlugin).use(pinia).use(router);
+
+// Initialize Telemetry
+TelemetryService.getInstance().init(app);
 
 const tippyProps: TippyOptions = {
   placement: 'top',

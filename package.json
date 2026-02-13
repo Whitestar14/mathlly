@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@lucide/lab": "^0.1.2",
+    "@sentry/vue": "^10.38.0",
     "@vueuse/core": "^11.3.0",
     "@vueuse/motion": "^3.0.3",
     "animejs": "^3.2.2",

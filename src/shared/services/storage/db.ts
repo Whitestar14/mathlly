@@ -48,7 +48,10 @@ export interface Settings {
     commandPaletteEnabled: boolean;
     devDockEnabled: boolean;
     homeLayout: 'classic' | 'dashboard';
-  }
+  };
+  privacy: {
+    crashReportingEnabled: boolean;
+  };
 }
 
 export class PrismDatabase extends Dexie {
