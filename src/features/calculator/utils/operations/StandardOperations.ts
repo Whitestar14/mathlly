@@ -141,6 +141,14 @@ export class StandardOperations {
       return this.createResponse()
     }
 
+    // Check for special backspace patterns (functions)
+    const specialBackspace = CalculatorUtils.handleSpecialBackspace(input)
+    if (specialBackspace.handled) {
+      this.calculator.input = specialBackspace.input
+      this.parenthesesTracker.sync(this.calculator.input)
+      return this.createResponse()
+    }
+
     const newInput = input.slice(0, -1)
 
     this.calculator.input = newInput.trim().length === 0 ? '0' : newInput
