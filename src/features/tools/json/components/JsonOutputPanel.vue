@@ -29,9 +29,9 @@
     <div class="flex-1 min-h-0 relative flex flex-col bg-background">
       
       <!-- Empty State -->
-      <div v-if="!hasData && !error" class="absolute inset-0 flex flex-col gap-2 items-center justify-center text-muted-foreground/40 z-10">
+      <div v-if="!hasData && !error" class="absolute inset-0 flex flex-col gap-2 items-center justify-center text-muted-foreground/40 z-10 pointer-events-none">
         <FileJson class="size-10 opacity-20" />
-        <span class="text-sm font-medium">Result will appear here</span>
+        <span class="text-sm font-medium">Result will appear here...</span>
       </div>
 
       <!-- Tree View -->
@@ -39,34 +39,25 @@
         <JsonTreeItem :value="parsed" :is-last="true" :depth="0" />
       </div>
 
-      <!-- Code Views -->
+      <!-- Code Views (Using BaseEditor) -->
       <div v-else-if="currentTextContent !== null" class="h-full flex overflow-hidden">
-        <div ref="linesRef" class="hidden md:block w-10 flex-shrink-0 bg-muted/10 border-r border-border text-right py-4 pr-2 font-mono text-xs text-muted-foreground/50 select-none overflow-hidden leading-6">
-          <div v-for="n in getLineCount(currentTextContent)" :key="n">{{ n }}</div>
-        </div>
-        <textarea
-          ref="textareaRef"
-          readonly
-          class="flex-1 h-full p-4 resize-none bg-transparent outline-none font-mono text-xs md:text-sm leading-6 whitespace-pre w-full"
-          :class="getTextColorClass"
-          :value="currentTextContent"
-          @scroll="syncScroll">
-        </textarea>
+        <BaseEditor
+          :model-value="currentTextContent"
+          :readonly="true"
+          :show-line-numbers="true"
+          :textarea-class="getTextColorClass"
+        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue'
+import { computed } from 'vue'
 import { Copy, Code2, FileJson, FileType, Table, FileCode, Download } from 'lucide-vue-next'
-import { BaseButton, SegmentedControl } from '@components/ui'
+import { BaseButton, SegmentedControl, BaseEditor } from '@components/ui'
 import JsonTreeItem from './JsonTreeItem.vue'
 import type { ViewMode, ParseError } from '../composables/useJsonTool'
-
-import { useDeviceStore } from "@stores/device"
-
-const device = useDeviceStore();
 
 const props = defineProps<{
   viewMode: ViewMode
@@ -83,9 +74,6 @@ const emit = defineEmits<{
   (e: 'copy'): void
   (e: 'download'): void
 }>()
-
-const textareaRef = ref<HTMLTextAreaElement | null>(null)
-const linesRef = ref<HTMLElement | null>(null)
 
 const viewOptions = [
   { value: 'tree', label: 'Tree', icon: Code2 },
@@ -114,19 +102,5 @@ const getTextColorClass = computed(() => {
     case 'csv': return 'text-emerald-600 dark:text-emerald-400'
     default: return 'text-muted-foreground'
   }
-})
-
-const getLineCount = (text: string) => text.split('\n').length
-
-const syncScroll = () => {
-  if (textareaRef.value && linesRef.value) {
-    linesRef.value.scrollTop = textareaRef.value.scrollTop
-  }
-}
-
-// Reset scroll on view change
-watch(() => props.viewMode, () => {
-  if (textareaRef.value) textareaRef.value.scrollTop = 0
-  if (linesRef.value) linesRef.value.scrollTop = 0
 })
 </script>

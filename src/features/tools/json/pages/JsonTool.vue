@@ -14,7 +14,7 @@
       @files="handleDrop"
     />
 
-    <div class="flex-1 min-h-0 w-full max-w-[1920px] mx-auto p-2 md:p-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="flex-1 min-h-0 w-full max-w-[1920px] mx-auto p-2 md:p-4 grid grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 gap-4">
       
       <!-- Input Panel -->
       <Suspense>

@@ -32,7 +32,7 @@
 
     <!-- Content -->
     <div class="relative flex-1 min-h-0 bg-background flex flex-col">
-      <!-- Error Overlay -->
+      <!-- Error Overlay (Kept for major blocking errors, but BaseEditor will also show in footer) -->
       <div v-if="error" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/95 p-6 text-center space-y-3 animate-in fade-in">
            <div class="p-3 bg-destructive/10 rounded-full text-destructive">
              <AlertCircle class="size-8" />
@@ -62,51 +62,40 @@
           </div>
         </div>
       </div>
+      
       <!-- Text Mode -->
       <div v-else class="flex-1 relative w-full h-full">
         <!-- Binary Warning Overlay -->
-        <div v-if="showBinaryWarning && !error" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/95 p-6 text-center space-y-3 animate-in fade-in">
+        <div v-if="showBinaryWarning && !error" class="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/95 p-6 text-center space-y-3 animate-in fade-in pointer-events-none">
            <AlertTriangle class="size-10 text-amber-500 mb-1" />
            <h3 class="text-sm font-medium text-foreground">Binary Content Detected</h3>
            <p class="text-xs text-muted-foreground max-w-xs leading-relaxed">
              The file is not displayed in the editor because it is either binary or uses an unsupported text encoding.
            </p>
-           <BaseButton variant="secondary" size="sm" @click="forceShowText = true">
+           <BaseButton variant="secondary" size="sm" @click="forceShowText = true" class="pointer-events-auto">
              Show Anyway
            </BaseButton>
         </div>
 
-        <textarea :value="modelValue" readonly
-          class="absolute inset-0 w-full h-full p-4 resize-none bg-transparent outline-none font-mono text-sm leading-relaxed custom-scrollbar"
-          :class="{ 'text-muted-foreground': !modelValue }"
-          :placeholder="!modelValue && !error ? 'Result will appear here...' : ''"></textarea>
+        <BaseEditor
+          :model-value="modelValue"
+          :readonly="true"
+          :show-line-numbers="true"
+          :error="error"
+          :stats="statsString"
+          :default-status="statusString"
+          :placeholder="!modelValue && !error ? 'Result will appear here...' : ''"
+          :textarea-class="!modelValue ? 'text-muted-foreground' : 'text-foreground'"
+        />
       </div>
     </div>
-
-    <!-- Footer Stats -->
-    <div v-if="showStats"
-      class="flex items-center justify-between px-3 py-1.5 text-[11px] font-medium border-t border-border bg-muted/30 h-8 flex-shrink-0 select-none"
-      :class="error ? 'text-destructive bg-destructive/5' : 'text-muted-foreground'">
-      <div class="flex items-center gap-2 truncate max-w-[70%]">
-        <template v-if="error">
-          <AlertCircle class="size-3" />
-          <span>Error</span>
-        </template>
-        <template v-else>
-          <span>{{ modelValue ? 'Success' : 'Idle' }}</span>
-        </template>
-      </div>
-      <div v-if="stats?.characters != null && !error">
-        {{ stats.characters.toLocaleString() }} chars
-      </div>   
-      </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { Copy, Download, ArrowDownUp, Eye as EyeIcon, FileText as FileTextIcon, File as FileIcon, AlertCircle, AlertTriangle } from 'lucide-vue-next'
-import { BaseButton } from '@components/ui'
+import { BaseButton, BaseEditor } from '@components/ui'
 
 const props = defineProps<{
   modelValue: string
@@ -127,6 +116,15 @@ const hasPreview = computed(() => !!props.previewUrl || !!props.previewInfo)
 // Show warning if: content is binary AND not showing preview AND user hasn't forced text AND no error
 const showBinaryWarning = computed(() => {
   return props.previewInfo?.isBinary && !forceShowText.value && !props.error
+})
+
+const statsString = computed(() => {
+  if (!props.showStats || props.error) return ''
+  return props.stats?.characters != null ? `${props.stats.characters.toLocaleString()} chars` : ''
+})
+
+const statusString = computed(() => {
+  return props.modelValue ? 'Success' : 'Idle'
 })
 
 // Reset force flag when content changes

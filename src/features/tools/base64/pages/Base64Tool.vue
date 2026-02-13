@@ -69,7 +69,7 @@
       <div class="flex-1 min-h-0 relative">
         <Transition name="panel-switch" mode="out-in">
           
-          <div :key="tool.currentTab.value" class="h-full grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div :key="tool.currentTab.value" class="h-full grid grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 gap-4">
             
             <!-- Input Panel -->
             <Base64InputPanel
@@ -81,7 +81,6 @@
               :show-stats="tool.options.value.showCharacterCount"
               :stats="tool.ops.inputStats.value"
               :is-processing="tool.isProcessing.value"
-              :placeholder="tool.currentTab.value === 'encode' ? 'Type content to encode...' : 'Paste Base64 to decode...'"
               @update:model-value="tool.setInput"
               @upload="tool.processFiles"
               @process="tool.triggerProcess" 
