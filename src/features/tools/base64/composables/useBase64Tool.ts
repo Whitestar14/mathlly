@@ -5,6 +5,7 @@ import { useBase64Options } from './useBase64Options'
 import { useBase64Operations } from './useBase64Operations'
 import { useFileOperations } from './useFileOperations'
 import { useSampleData } from './useSampleData'
+import { globalBase64Tab } from './useBase64TabSwitcher'
 import type { InputMode, FileDetails } from '../types/base64'
 
 export function useBase64Tool() {
@@ -13,8 +14,8 @@ export function useBase64Tool() {
   const { options } = useBase64Options()
   const sample = useSampleData()
 
-  // State
-  const currentTab = ref<'encode' | 'decode'>('encode')
+  // State (Using shared tab state)
+  const currentTab = globalBase64Tab
   const activePreviewUrl = ref<string | null>(null)
   
   // Buffers for Preserve Mode

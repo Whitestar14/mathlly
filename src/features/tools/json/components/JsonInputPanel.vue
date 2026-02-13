@@ -2,10 +2,10 @@
   <div class="flex flex-col h-full min-h-0 border border-border rounded-lg bg-card overflow-hidden shadow-sm">
     
     <!-- TOOLBAR (Top) -->
-    <div class="flex items-center justify-between p-2 border-b border-border bg-muted/30 h-[53px] flex-shrink-0">
+    <div class="flex items-center justify-between p-2 border-b border-border bg-muted/30 h-[53px] flex-shrink-0 overflow-x-auto no-scrollbar">
       
       <!-- Left: File Actions -->
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 shrink-0 mr-4">
         <input ref="fileInputRef" type="file" accept=".json,.txt" class="hidden" @change="onFileSelected" />
         
         <BaseButton v-tippy="'Upload JSON'" variant="ghost" size="icon" class="size-8" :disabled="isProcessing" @click="fileInputRef?.click()">
@@ -24,7 +24,7 @@
       </div>
 
       <!-- Right: Formatting Tools -->
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2 shrink-0">
         <div class="w-28">
           <SelectBar
             :model-value="indentation"

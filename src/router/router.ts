@@ -1,3 +1,4 @@
+
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { ref } from 'vue'
 import ErrorFallback from '@pages/ErrorFallback.vue'
@@ -36,7 +37,7 @@ const routes: Array<RouteRecordRaw> = [
     path: '/tools/base64',
     name: 'base64',
     component: () => import('@base64/pages/Base64Tool.vue'),
-    meta: { transition: 'fade', group: 'tools' }
+    meta: { transition: 'fade', group: 'tools', header: { widgetNames: ['Base64TabSwitcher'] } }
   },
   {
     path: '/tools/json',

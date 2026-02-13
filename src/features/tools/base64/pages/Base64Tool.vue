@@ -25,20 +25,12 @@
       </Transition>
 
       <!-- Top Control Bar -->
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 px-1 flex-shrink-0">
-        <div class="w-full sm:w-auto">
-          <SegmentedControl
-            :model-value="tool.currentTab.value"
-            :options="[
-              { value: 'encode', label: 'Encode', icon: ArrowRight },
-              { value: 'decode', label: 'Decode', icon: ArrowLeft }
-            ]"
-            class="w-full sm:w-64"
-            @update:model-value="handleTabChange"
-          />
+      <div class="flex flex-row justify-between items-center gap-3 px-1 flex-shrink-0">
+        <!-- Spacer to push controls to right if needed, or hold secondary toggles -->
+        <div class="w-auto">
         </div>
 
-        <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar">
+        <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar justify-end">
            <div class="w-40 shrink-0">
              <SelectBar
                :model-value="tool.options.value.outputFormat"
@@ -109,8 +101,8 @@
 
 <script setup lang="ts">
 import { computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
-import { ArrowRight, ArrowLeft, UploadCloud, FileText, Shuffle, Image as ImageIcon } from 'lucide-vue-next'
-import { BasePage, BaseButton, BaseFileDrop, SegmentedControl, SelectBar } from '@components/ui'
+import { UploadCloud, FileText, Shuffle, Image as ImageIcon } from 'lucide-vue-next'
+import { BasePage, BaseButton, BaseFileDrop, SelectBar } from '@components/ui'
 import { useBase64Tool } from '../composables/useBase64Tool'
 import { useDragDrop } from '@composables/useDragDrop'
 import { useKeyboardStore } from '@stores/keyboard'
@@ -137,10 +129,6 @@ const previewInfo = computed(() => {
     }
     return null
 })
-
-const handleTabChange = (val: string) => {
-  tool.currentTab.value = val as 'encode' | 'decode'
-}
 
 const handleGlobalDrop = (files: FileList) => {
   resetDragState()

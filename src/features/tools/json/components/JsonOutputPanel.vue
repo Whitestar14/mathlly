@@ -5,7 +5,7 @@
     <div class="flex items-center justify-between p-2 border-b border-border bg-muted/30 h-[53px]">
       
       <!-- Control Wrapper: Allows shrinking -->
-      <div class="w-full sm:flex-1 sm:min-w-0 mr-4" :class="{ 'opacity-50 pointer-events-none': !!error }">
+      <div class="flex-1 min-w-0 mr-2 sm:mr-4" :class="{ 'opacity-50 pointer-events-none': !!error }">
         <SegmentedControl
           :model-value="viewMode"
           :options="viewOptions"

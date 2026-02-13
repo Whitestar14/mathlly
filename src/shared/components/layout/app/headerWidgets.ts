@@ -6,6 +6,9 @@ export const headerWidgetRegistry = {
   ),
   ConverterTypeSwitcher: defineAsyncComponent(
     () => import('@converter/components/ConverterTypeSwitcher.vue')
+  ),
+  Base64TabSwitcher: defineAsyncComponent(
+    () => import('@base64/components/Base64TabSwitcher.vue')
   )
 } as const
 
