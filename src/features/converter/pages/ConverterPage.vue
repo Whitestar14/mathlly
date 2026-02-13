@@ -2,60 +2,88 @@
   <BasePage title="Converter" :show-header="false" :is-tool-layout="true" main-class="flex p-2">
     <div class="container mx-auto max-h-full p-2 flex-1 overflow-hidden">
       <div class="p-2 h-full flex-1 md:p-6 rounded-lg bg-card">
-        <div class="grid h-full grid-cols-1 lg:grid-cols-[5fr_3.5fr] gap-2 md:gap-12">
+        <Suspense>
+          <template #default>
+            <div class="grid h-full grid-cols-1 lg:grid-cols-[5fr_3.5fr] gap-2 md:gap-12">
 
-          <div class="flex flex-col gap-1">
-            <div class="relative flex flex-1 flex-col gap-2">
-              <ConversionPanel
-                :class="{ 'flip-scale': isFlipping }" class="font-bold" :model-value="state.input"
-                label="From" :units="availableUnits" :selected-unit="state.fromUnit" :read-only="false"
-                :error="state.error" @reset="() => { if (state.input === '' || state.input === '-') setInput('0') }"
-                @update:model-value="setInput" @update:selected-unit="setFromUnit" />
+              <div class="flex flex-col gap-1">
+                <div class="relative flex flex-1 flex-col gap-2">
+                  <ConversionPanel
+                    :class="{ 'flip-scale': isFlipping }" class="font-bold" :model-value="state.input"
+                    label="From" :units="availableUnits" :selected-unit="state.fromUnit" :read-only="false"
+                    :error="state.error" @reset="() => { if (state.input === '' || state.input === '-') setInput('0') }"
+                    @update:model-value="setInput" @update:selected-unit="setFromUnit" />
 
-              <ConversionPanel
-                :class="{ 'flip-scale': isFlipping }" class="font-thin" :model-value="formattedResult"
-                label="To" :units="availableUnits" :selected-unit="state.toUnit" :read-only="true"
-                :show-copy-button="true" :show-refresh-button="state.activeConverter === 'currency'"
-                @update:selected-unit="setToUnit" @copy="handleCopy" @refresh="handleRefreshRates" />
+                  <ConversionPanel
+                    :class="{ 'flip-scale': isFlipping }" class="font-thin" :model-value="formattedResult"
+                    label="To" :units="availableUnits" :selected-unit="state.toUnit" :read-only="true"
+                    :show-copy-button="true" :show-refresh-button="state.activeConverter === 'currency'"
+                    @update:selected-unit="setToUnit" @copy="handleCopy" @refresh="handleRefreshRates" />
 
-              <div class="absolute top-[45.5%] md:top-[46.5%] md:left-1/2 left-[47%] flex justify-center">
-                <BaseButton
-                  v-tippy="{ content: 'Swap units' }" variant="primary" size="icon" class="active:scale-[0.98] transition-transform duration-[400ms] rounded-full"
-                  @click="flipAnimate">
-                  <ArrowDownUp class="h-4 w-4" />
-                </BaseButton>
+                  <div class="absolute top-[45.5%] md:top-[46.5%] md:left-1/2 left-[47%] flex justify-center">
+                    <BaseButton
+                      v-tippy="{ content: 'Swap units' }" variant="primary" size="icon" class="active:scale-[0.98] transition-transform duration-[400ms] rounded-full"
+                      @click="flipAnimate">
+                      <ArrowDownUp class="h-4 w-4" />
+                    </BaseButton>
+                  </div>
+                </div>
+                <div class="flex-initial max-h-10 h-10">
+
+                  <VisualizationDisplay
+                    :converter-type="state.activeConverter" :converter="converter"
+                    :input-value="state.input" :from-unit="state.fromUnit" :to-unit="state.toUnit" />
+                  <div v-show="state.activeConverter === 'currency'" class="text-xs text-muted-foreground text-center mt-1">
+                    Exchange rates powered by <a
+                      href="https://open.er-api.com" target="_blank"
+                      class="underline hover:no-underline">exchangerate-api.com</a>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex flex-1 justify-center lg:justify-end">
+                <ConverterNumpad
+                  :converter="state.activeConverter" :auto-convert="autoConvert" :disabled="state.isConverting"
+                  @button-click="handleNumpadClick" />
               </div>
             </div>
-            <div class="flex-initial max-h-10 h-10">
+          </template>
+          <template #fallback>
+            <div class="grid h-full grid-cols-1 lg:grid-cols-[5fr_3.5fr] gap-2 md:gap-12 animate-pulse">
+              <div class="flex flex-col gap-1 h-full">
+                <div class="relative flex flex-1 flex-col gap-2">
+                  <!-- Input Panel Skeleton -->
+                  <div class="flex-1 bg-muted/20 border border-border/50 rounded-lg"></div>
+                  <!-- Output Panel Skeleton -->
+                  <div class="flex-1 bg-muted/20 border border-border/50 rounded-lg"></div>
 
-              <VisualizationDisplay
-                :converter-type="state.activeConverter" :converter="converter"
-                :input-value="state.input" :from-unit="state.fromUnit" :to-unit="state.toUnit" />
-              <div v-show="state.activeConverter === 'currency'" class="text-xs text-muted-foreground text-center mt-1">
-                Exchange rates powered by <a
-                  href="https://open.er-api.com" target="_blank"
-                  class="underline hover:no-underline">exchangerate-api.com</a>
+                  <!-- Swap Button Skeleton -->
+                  <div class="absolute top-[45.5%] md:top-[46.5%] left-1/2 -translate-x-1/2 flex justify-center">
+                    <div class="h-10 w-10 rounded-full bg-muted border border-border"></div>
+                  </div>
+                </div>
+                <!-- Visualization Skeleton -->
+                <div class="flex-initial h-10 w-full bg-muted/20 rounded-md mt-1"></div>
+              </div>
+
+              <!-- Numpad Skeleton -->
+              <div class="flex flex-1 justify-center lg:justify-end h-full">
+                <div class="grid grid-cols-3 gap-1 w-full h-full">
+                  <div v-for="i in 15" :key="i" class="bg-muted/20 rounded-lg border border-border/30"></div>
+                </div>
               </div>
             </div>
-          </div>
-
-          <div class="flex flex-1 justify-center lg:justify-end">
-            <ConverterNumpad
-              :converter="state.activeConverter" :auto-convert="autoConvert" :disabled="state.isConverting"
-              @button-click="handleNumpadClick" />
-          </div>
-        </div>
+          </template>
+        </Suspense>
       </div>
     </div>
   </BasePage>
 </template>
 
 <script setup lang="ts">
-import { computed, watch, onMounted, onUnmounted, shallowRef } from 'vue'
+import { computed, watch, onMounted, onUnmounted, shallowRef, defineAsyncComponent } from 'vue'
 import { ArrowDownUp } from 'lucide-vue-next'
 import { BasePage, BaseButton } from '@components/ui'
-import { ConversionPanel, ConverterNumpad } from '@converter/components'
-import { VisualizationDisplay } from '@converter/components'
 import { useConverterState } from '../composables/useConverterState'
 import { useConverterController } from '../composables/useConverterController'
 import { useConverterOptions, useConverterTypeSwitcher } from '@converter/composables'
@@ -63,6 +91,10 @@ import { useKeyboardStore } from '@stores/keyboard'
 import { useClipboard } from '@vueuse/core'
 import { useToast } from '@composables/ui/useToast'
 import { isCurrencyConverter } from '../services/converters/BaseConverter'
+
+const ConversionPanel = defineAsyncComponent(() => import('@converter/components/ConversionPanel.vue'))
+const ConverterNumpad = defineAsyncComponent(() => import('@converter/components/ConverterNumpad.vue'))
+const VisualizationDisplay = defineAsyncComponent(() => import('@converter/components/VisualizationDisplay.vue'))
 
 const options = useConverterOptions()
 const isFlipping = shallowRef(false)

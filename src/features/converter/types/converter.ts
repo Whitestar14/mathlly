@@ -36,6 +36,7 @@ export interface ConverterOptions {
   baseFontSize: number
   swapUnitsOnFlip: boolean
   showThousandSeparators: boolean
+  hapticFeedback: boolean
 }
 
 /**

@@ -11,7 +11,8 @@ const DEFAULT_CONVERTER_OPTIONS: ConverterOptions = {
   enableVisualizations: true,
   baseFontSize: ConverterConstants.DEFAULT_BASE_FONT_SIZE,
   swapUnitsOnFlip: true,
-  showThousandSeparators: true
+  showThousandSeparators: true,
+  hapticFeedback: false
 }
 
 interface ConverterTypeOption {
@@ -55,6 +56,14 @@ export function useConverterOptions() {
         id: 'autoConvert',
         label: 'Auto Convert',
         description: 'Automatically convert values as you type',
+        type: 'toggle',
+        value: options,
+        section: 'General'
+      },
+      {
+        id: 'hapticFeedback',
+        label: 'Haptic Feedback',
+        description: 'Vibrate on button press (mobile devices only)',
         type: 'toggle',
         value: options,
         section: 'General'
@@ -127,6 +136,7 @@ export function useConverterOptions() {
     baseFontSize: computed(() => options.value.baseFontSize),
     swapUnitsOnFlip: computed(() => options.value.swapUnitsOnFlip),
     showThousandSeparators: computed(() => options.value.showThousandSeparators),
+    hapticFeedback: computed(() => options.value.hapticFeedback),
     isLoading
   }
 }

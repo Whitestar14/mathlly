@@ -12,22 +12,15 @@
   </div>
 
   <!-- Scrollable Segmented Control -->
-  <!-- 
-    CHANGE 1: used 'inline-flex' and 'max-w-full'. 
-    It will grow with content, but stop growing at 100% of parent.
-  -->
   <div
     v-else
     class="group relative inline-flex max-w-full items-center vertical-align-middle"
     role="radiogroup"
     :aria-label="ariaLabel">
     
-    <!-- 
-      CHANGE 2: Removed 'w-full'. Added 'min-w-0' to allow flex shrinking.
-    -->
     <div
       ref="scrollContainer"
-      class="flex min-w-0 items-center gap-1 overflow-x-auto rounded-lg border border-border bg-background p-1 shadow-sm no-scrollbar scroll-smooth"
+      class="flex w-full min-w-0 items-center gap-1 overflow-x-auto rounded-lg border border-border bg-background p-1 shadow-sm no-scrollbar scroll-smooth"
       @keydown="onKeydown">
       
       <button
@@ -40,7 +33,7 @@
         :data-value="opt.value"
         :tabindex="modelValue === opt.value ? 0 : -1"
         @click="select(opt.value)"
-        class="relative flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none disabled:opacity-50 select-none whitespace-nowrap"
+        class="relative flex-1 flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none disabled:opacity-50 select-none whitespace-nowrap"
         :class="[
           modelValue === opt.value
             ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/20 z-10'
