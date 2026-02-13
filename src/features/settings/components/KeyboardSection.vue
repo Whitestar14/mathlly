@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { BaseCollapsible, ToggleBar } from '@components/ui'
+import { Keyboard } from 'lucide-vue-next'
 import type { Settings } from '@services/storage/db'
 
 interface Props {
@@ -33,7 +34,7 @@ const disableShortcuts = computed({
     v-if="isVisible"
     id="keyboard"
     title="Keyboard Shortcuts"
-    icon="Keyboard"
+    :icon="Keyboard"
     :default-open="true">
     <div class="flex items-center justify-between py-2">
       <div class="max-w-[80%]">

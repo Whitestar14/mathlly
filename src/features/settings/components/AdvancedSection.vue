@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { AlertTriangle, CircleHelp, Download, Upload, Database } from 'lucide-vue-next'
+import { AlertTriangle, CircleHelp, Download, Upload, Database, Settings2 } from 'lucide-vue-next'
 import { BaseButton, BaseModal, BaseCollapsible, BaseLabel } from '@components/ui'
 import db, { resetDatabase } from '@services/storage/db'
 import { useToast } from '@composables/ui/useToast'
@@ -97,7 +97,7 @@ const handleImport = async (event: Event) => {
     v-if="isVisible"
     id="advanced"
     title="Advanced"
-    icon="Settings"
+    :icon="Settings2"
     :default-open="false">
     <div class="space-y-6">
       

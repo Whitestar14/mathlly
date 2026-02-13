@@ -1,10 +1,9 @@
-
 <template>
   <BaseCollapsible
     v-if="isVisible"
     id="experimental"
     title="Experimental"
-    icon="FlaskConical"
+    :icon="FlaskConical"
     :default-open="false">
     <div class="space-y-6">
 
@@ -101,7 +100,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { AlertTriangleIcon, CircleHelp } from 'lucide-vue-next'
+import { AlertTriangleIcon, CircleHelp, FlaskConical } from 'lucide-vue-next'
 import { BaseCollapsible, ToggleBar } from '@components/ui'
 import type { Settings } from '@services/storage/db'
 

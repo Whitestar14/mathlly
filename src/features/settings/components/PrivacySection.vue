@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { BaseCollapsible, ToggleBar } from '@components/ui'
+import { ShieldCheck } from 'lucide-vue-next'
 import type { Settings } from '@services/storage/db'
 
 interface Props {
@@ -26,7 +27,7 @@ const localSettings = computed({
     v-if="isVisible"
     id="privacy"
     title="Privacy"
-    icon="ShieldCheck"
+    :icon="ShieldCheck"
     :default-open="false">
     <div class="space-y-6">
       <div class="flex items-center justify-between py-2">
