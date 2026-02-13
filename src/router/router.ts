@@ -57,6 +57,12 @@ const routes: Array<RouteRecordRaw> = [
     meta: { transition: 'fade', group: 'tools' }
   },
   {
+    path: '/tools/hash',
+    name: 'hash',
+    component: () => import('@features/tools/hash/pages/HashTool.vue'),
+    meta: { transition: 'fade', group: 'tools' }
+  },
+  {
     path: '/info/update',
     redirect: '/'
   },

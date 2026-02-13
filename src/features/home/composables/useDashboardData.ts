@@ -6,7 +6,8 @@ import {
   Palette, 
   Binary, 
   FileJson, 
-  Rocket
+  Rocket,
+  Hash
 } from 'lucide-vue-next'
 
 export function useDashboardData() {
@@ -48,6 +49,9 @@ export function useDashboardData() {
     }
     if (path.includes('json')) {
       return { type: 'json', label: 'JSON Editor', icon: FileJson, detail: 'Format & Validate' }
+    }
+    if (path.includes('hash')) {
+      return { type: 'hash', label: 'Hash Generator', icon: Hash, detail: 'Generate Hashes' }
     }
     
     return { 

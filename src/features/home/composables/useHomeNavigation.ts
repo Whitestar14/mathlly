@@ -104,7 +104,7 @@ export function useHomeNavigation() {
           description: 'Generate secure MD5, SHA-1, and SHA-256 hashes.',
           path: '/tools/hash',
           icon: Hash,
-          badge: 'soon',
+          badge: 'new',
           keywords: ['crypto', 'security', 'md5', 'sha'],
         },
         {

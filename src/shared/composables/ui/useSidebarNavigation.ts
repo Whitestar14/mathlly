@@ -136,9 +136,9 @@ export function useSidebarNavigation() {
           name: 'Hash Generator',
           path: '/tools/hash',
           icon: HashIcon,
-          isNew: false,
-          comingSoon: true,
-          description: 'Generate cryptographic hashes (MD5, SHA-256)'
+          isNew: true,
+          comingSoon: false,
+          description: 'Generate cryptographic hashes (SHA-256, etc)'
         },
         {
           name: 'Diff Checker',

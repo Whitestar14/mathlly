@@ -65,6 +65,7 @@ import { colorManifest } from '@color/lib/shortcuts'
 import { converterManifest } from '@converter/lib/shortcuts'
 import { jsonManifest } from '@features/tools/json/lib/shortcuts'
 import { qrCodeManifest } from '@features/tools/qrcode/lib/shortcuts'
+import { hashManifest } from '@features/tools/hash/lib/shortcuts'
 
 import { RouterView } from 'vue-router'
 import { isRouteLoading } from '@router/router'
@@ -88,7 +89,7 @@ const settings = useSettingsStore()
 const keyboard = useKeyboardStore()
 const { toggleTheme } = useTheme()
 
-;[globalManifest, calculatorManifest, converterManifest, base64Manifest, colorManifest, jsonManifest, qrCodeManifest].flat().forEach(cfg => keyboard.register(cfg))
+;[globalManifest, calculatorManifest, converterManifest, base64Manifest, colorManifest, jsonManifest, qrCodeManifest, hashManifest].flat().forEach(cfg => keyboard.register(cfg))
 
 onMounted(() => {
   keyboard.attachListener()
