@@ -1,4 +1,3 @@
-
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { ref } from 'vue'
 import ErrorFallback from '@pages/ErrorFallback.vue'
@@ -127,6 +126,7 @@ router.afterEach(to => {
 
   if (!excludedRoutes.includes(to.name as string) && to.path !== '/') {
     storageStore.set('router', 'lastVisitedPath', to.fullPath)
+    storageStore.set('router', 'lastVisitedTime', Date.now())
   }
 
   isInitialNavigation = false

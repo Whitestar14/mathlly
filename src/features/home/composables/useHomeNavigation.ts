@@ -8,7 +8,12 @@ import {
   ArrowRightLeft, 
   FunctionSquare, 
   Regex, 
-  LineChart 
+  LineChart,
+  Shapes,
+  Landmark,
+  QrCode,
+  Hash,
+  FileDiff
 } from 'lucide-vue-next'
 
 export interface ToolItem {
@@ -82,12 +87,58 @@ export function useHomeNavigation() {
           icon: Palette,
           keywords: ['hex', 'rgb', 'picker', 'accessibility'],
           gradient: 'from-violet-500/10 to-purple-500/10 hover:from-violet-500/20 hover:to-purple-500/20'
+        },
+        {
+          id: 'qrcode',
+          name: 'QR Code',
+          description: 'Generate standard and styled QR codes.',
+          path: '/tools/qrcode',
+          icon: QrCode,
+          badge: 'new',
+          keywords: ['generator', 'image', 'scan'],
+          gradient: 'from-gray-500/10 to-slate-500/10 hover:from-gray-500/20 hover:to-slate-500/20'
+        },
+        {
+          id: 'hash',
+          name: 'Hash Generator',
+          description: 'Generate secure MD5, SHA-1, and SHA-256 hashes.',
+          path: '/tools/hash',
+          icon: Hash,
+          badge: 'soon',
+          keywords: ['crypto', 'security', 'md5', 'sha'],
+        },
+        {
+          id: 'diff',
+          name: 'Diff Checker',
+          description: 'Compare text or code to find differences.',
+          path: '/tools/diff',
+          icon: FileDiff,
+          badge: 'soon',
+          keywords: ['compare', 'text', 'code'],
         }
       ]
     },
     {
       title: 'Labs',
       items: [
+        {
+          id: 'geometry',
+          name: 'Geometry',
+          description: 'Calculate area, perimeter, and volume of shapes.',
+          path: '/geometry',
+          icon: Shapes,
+          badge: 'soon',
+          keywords: ['math', 'shape', 'area']
+        },
+        {
+          id: 'finance',
+          name: 'Finance',
+          description: 'Loan, mortgage, and interest calculators.',
+          path: '/finance',
+          icon: Landmark,
+          badge: 'soon',
+          keywords: ['money', 'loan', 'interest']
+        },
         {
           id: 'regex',
           name: 'Regex Tester',

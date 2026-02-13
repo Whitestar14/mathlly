@@ -8,19 +8,19 @@
     <!-- Dashboard Beta Banner -->
     <div 
       v-if="showBanner"
-      class="bg-primary/5 border-b border-primary/10 px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-3 relative z-20"
+      class="bg-primary/5 border-b border-primary/10 px-3 py-2 flex flex-row items-center justify-between gap-3 relative z-20"
     >
-       <span class="text-xs font-medium text-foreground/80 flex items-center gap-2">
-         <Sparkles class="size-3.5 text-primary" />
-         Try the new Dashboard layout
-         <BaseBadge variant="beta" text="Beta" size="sm" />
+       <span class="text-xs font-medium text-foreground/80 flex items-center gap-2 min-w-0">
+         <Sparkles class="size-3.5 text-primary shrink-0" />
+         <span class="truncate">Try the new Dashboard layout!</span>
+         <BaseBadge variant="beta" text="Beta" size="sm" class="shrink-0 hidden xs:inline-flex" />
        </span>
-       <div class="flex items-center gap-3">
-         <BaseButton size="xs" variant="outline" class="h-7 text-xs" @click="$emit('switch-layout')">
+       <div class="flex items-center gap-3 shrink-0">
+         <BaseButton size="xs" variant="outline" class="h-7 text-xs whitespace-nowrap" @click="$emit('switch-layout')">
            Switch Layout
          </BaseButton>
          <button 
-           class="text-muted-foreground hover:text-foreground transition-colors p-1"
+           class="text-muted-foreground hover:text-foreground transition-colors p-1 shrink-0"
            @click="showBanner = false"
            aria-label="Dismiss banner"
          >

@@ -10,7 +10,12 @@ import {
   LineChartIcon,
   ArrowRightLeftIcon,
   BinaryIcon,
-  FileJson2Icon
+  FileJson2Icon,
+  ShapesIcon,
+  LandmarkIcon,
+  QrCodeIcon,
+  HashIcon,
+  FileDiffIcon
 } from 'lucide-vue-next'
 
 export interface NavigationItem {
@@ -69,15 +74,21 @@ export function useSidebarNavigation() {
           isNew: false
         },
         {
-          name: 'Functions',
-          path: '/functions',
-          icon: FunctionSquareIcon,
+          name: 'Geometry',
+          path: '/geometry',
+          icon: ShapesIcon,
           comingSoon: true
         },
         {
-          name: 'Regex',
-          path: '/regex',
-          icon: RegexIcon,
+          name: 'Finance',
+          path: '/finance',
+          icon: LandmarkIcon,
+          comingSoon: true
+        },
+        {
+          name: 'Functions',
+          path: '/functions',
+          icon: FunctionSquareIcon,
           comingSoon: true
         },
         {
@@ -114,6 +125,35 @@ export function useSidebarNavigation() {
           isNew: true,
           description: 'Validate, format, minify and convert JSON data.'
         },
+        {
+          name: 'QR Code',
+          path: '/tools/qrcode',
+          icon: QrCodeIcon,
+          isNew: true,
+          description: 'Generate customizable QR codes'
+        },
+        {
+          name: 'Hash Generator',
+          path: '/tools/hash',
+          icon: HashIcon,
+          isNew: false,
+          comingSoon: true,
+          description: 'Generate cryptographic hashes (MD5, SHA-256)'
+        },
+        {
+          name: 'Diff Checker',
+          path: '/tools/diff',
+          icon: FileDiffIcon,
+          isNew: false,
+          comingSoon: true,
+          description: 'Compare text files and view differences'
+        },
+        {
+          name: 'Regex',
+          path: '/regex',
+          icon: RegexIcon,
+          comingSoon: true
+        }
       ]
     }
   ])

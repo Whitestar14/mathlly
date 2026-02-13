@@ -10,12 +10,12 @@
         <span class="text-xs font-bold text-muted-foreground uppercase tracking-widest">Updates</span>
       </div>
       
-      <div class="flex items-center gap-1">
-         <BaseButton variant="ghost" size="sm" v-tippy="'Check Update'" @click="handleCheckUpdate">
+      <div class="flex items-center border border-border bg-background/50 rounded-lg overflow-hidden shadow-sm h-7">
+         <BaseButton variant="ghost" size="icon" class="h-full w-8 rounded-none hover:bg-muted" v-tippy="'Check Update'" @click="handleCheckUpdate">
             <RefreshCw class="size-3.5" :class="{ 'animate-spin': isChecking }" />
-            <span class="sm:hidden">Check Updates</span>
          </BaseButton>
-         <BaseButton variant="ghost" size="sm" v-tippy="'History'" @click="openHistoryModal">
+         <div class="w-px h-4 bg-border/60"></div>
+         <BaseButton variant="ghost" size="icon" class="h-full w-8 rounded-none hover:bg-muted" v-tippy="'History'" @click="openHistoryModal">
             <History class="size-3.5" />
          </BaseButton>
       </div>
@@ -87,7 +87,7 @@ import { updates } from '@services/storage/changelog.json'
 import { usePWA } from '@composables/core/usePWA'
 import { useToast } from '@composables/ui/useToast'
 
-const { checkForVersionUpdates, latestVersion: pwaVersion } = usePWA()
+const { checkForVersionUpdates, latestVersion: pwaVersion, updateApp } = usePWA()
 const { toast } = useToast()
 
 const recentUpdates = computed(() => updates.slice(0, 1))
@@ -111,13 +111,22 @@ const handleCheckUpdate = async () => {
   try {
      await checkForVersionUpdates()
      await new Promise(r => setTimeout(r, 800))
+     
      if (pwaVersion.value && pwaVersion.value !== updates[0].version) {
-        toast({ title: 'Update Available', description: `Version ${pwaVersion.value}`, type: 'success' })
+        toast(`Version ${pwaVersion.value} is ready to install`, { 
+            title: 'Update Available', 
+            type: 'success',
+            duration: 8000,
+            action: {
+                label: 'Update Now',
+                onClick: () => updateApp()
+            }
+        })
      } else {
-        toast({ title: 'Up to date', type: 'info' })
+        toast('No new updates found', { title: 'Prism is up to date!', type: 'info' })
      }
   } catch (e) {
-     toast({ title: 'Check Failed', type: 'error' })
+     toast(e as string, { title: 'Check failed', type: 'error' })
   } finally {
      isChecking.value = false
   }

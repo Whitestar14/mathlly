@@ -19,14 +19,15 @@
            <!-- STATE: RESUME (History Exists) -->
            <div v-if="resumeContext.type !== 'new'">
                <div class="flex items-center gap-2 mb-0.5">
+                  <span class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Resume Session</span>
+               </div>
+               <div class="flex items-center gap-2">
                   <span class="relative flex h-2 w-2 shrink-0">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                     <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                   </span>
-                  <span class="text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Resume Session</span>
+                  <span class="text-xs font-medium text-foreground/70">{{ timeDisplay }}</span>
                </div>
-               <!-- FIX: Use the computed display string -->
-               <span class="text-xs font-medium text-foreground/70">{{ timeDisplay }}</span>
            </div>
 
            <!-- STATE: NEW USER -->

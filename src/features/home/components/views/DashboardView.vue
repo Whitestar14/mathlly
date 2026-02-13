@@ -9,16 +9,23 @@
 
     <!-- Header (Fade In) -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 shrink-0 relative z-10 animate-fade-in">
-      <div class="space-y-1">
+      <div class="flex flex-col gap-1 w-full md:w-auto">
+        <!-- Mobile Back Link -->
+         <button @click="$emit('switch-layout')" class="text-xs text-primary hover:underline font-medium flex md:hidden items-center gap-1 mb-1 pl-1">
+            <ArrowLeft class="size-3" /> Classic View
+        </button>
+
         <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-foreground flex items-center gap-3">
           <div class="size-10 md:size-12 p-2 bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl border border-primary/20 flex items-center justify-center shrink-0 shadow-sm backdrop-blur-sm">
              <PrismLogo class="text-primary w-full h-full" />
           </div>
           <span class="tracking-tight">Dashboard</span>
         </h1>
+        
         <div class="flex items-center gap-4 pl-1">
              <p class="text-sm text-muted-foreground hidden md:block">Developer utility belt. Precision at speed.</p>
-            <button @click="$emit('switch-layout')" class="text-xs text-primary hover:underline font-medium flex items-center gap-1">
+             <!-- Desktop Back Link -->
+            <button @click="$emit('switch-layout')" class="text-xs text-primary hover:underline font-medium hidden md:flex items-center gap-1">
                 <ArrowLeft class="size-3" /> Classic View
             </button>
         </div>
@@ -30,7 +37,7 @@
     <div class="flex-1 flex flex-col md:grid md:grid-cols-4 md:grid-rows-3 gap-4 min-h-0 relative z-10 pb-8 md:pb-0">
       
       <!-- 1. Smart Resume -->
-      <div class="md:col-span-2 md:row-span-2 flex-1 min-h-[260px] md:min-h-[auto] h-auto slide-enter" style="--delay: 0ms">
+      <div class="md:col-span-2 md:row-span-2 min-h-[340px] md:min-h-[auto] h-auto slide-enter flex flex-col" style="--delay: 0ms">
         <SmartResumeWidget />
       </div>
 
