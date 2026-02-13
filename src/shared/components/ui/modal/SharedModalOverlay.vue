@@ -11,8 +11,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
+import { useScrollLock } from '@vueuse/core'
 import { hasOpenModals, modalStackRef, closeTopModal } from '@composables/ui/useModal'
+
+const isLocked = useScrollLock(document.body)
+
+watch(hasOpenModals, (isOpen) => {
+  isLocked.value = isOpen
+}, { immediate: true })
 
 const overlayZ = computed(() => {
   const stackLength = modalStackRef.value.length ?? 0
