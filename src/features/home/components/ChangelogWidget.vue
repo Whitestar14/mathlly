@@ -13,11 +13,10 @@
       <div class="flex items-center gap-1">
          <BaseButton variant="ghost" size="sm" v-tippy="'Check Update'" @click="handleCheckUpdate">
             <RefreshCw class="size-3.5" :class="{ 'animate-spin': isChecking }" />
-            <span class="sm:hidden">Check for Updates</span>
+            <span class="sm:hidden">Check Updates</span>
          </BaseButton>
          <BaseButton variant="ghost" size="sm" v-tippy="'History'" @click="openHistoryModal">
             <History class="size-3.5" />
-            <span class="sm:hidden">View History</span>
          </BaseButton>
       </div>
     </div>

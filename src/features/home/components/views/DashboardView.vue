@@ -30,7 +30,7 @@
     <div class="flex-1 flex flex-col md:grid md:grid-cols-4 md:grid-rows-3 gap-4 min-h-0 relative z-10 pb-8 md:pb-0">
       
       <!-- 1. Smart Resume -->
-      <div class="md:col-span-2 md:row-span-2 min-h-[260px] md:min-h-[auto] h-auto slide-enter" style="--delay: 0ms">
+      <div class="md:col-span-2 md:row-span-2 flex-1 min-h-[260px] md:min-h-[auto] h-auto slide-enter" style="--delay: 0ms">
         <SmartResumeWidget />
       </div>
 
