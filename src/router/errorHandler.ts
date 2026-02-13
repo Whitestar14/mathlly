@@ -2,6 +2,7 @@ import { ref } from 'vue'
 import { useOnline } from '@vueuse/core'
 import type { Router, RouteLocationNormalized } from 'vue-router'
 import { RouteError } from './types'
+import { TelemetryService } from '@shared/services/telemetry/TelemetryService'
 
 export const routeError = ref<RouteError | null>(null)
 export const routePath = ref<string>('')
@@ -10,6 +11,8 @@ export const hasError = ref<boolean>(false)
 export const networkStatus = useOnline()
 
 export function setRouteError(error: RouteError | Error, path: string): void {
+  TelemetryService.getInstance().logError(error)
+
   console.error(`[Router Error] Path: ${path}`, error)
 
   if (error instanceof Error) {
