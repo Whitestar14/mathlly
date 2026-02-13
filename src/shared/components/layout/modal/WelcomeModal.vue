@@ -2,109 +2,109 @@
   <BaseModal
     id="welcome-modal"
     :open="modelValue"
-    size="md"
+    size="4xl"
+    :naked="true"
     :hide-close-button="true"
     :close-on-click-outside="false"
     :close-on-escape="true"
     @update:open="$emit('update:modelValue', $event)">
+    
+    <div class="flex flex-col md:flex-row min-h-[550px] bg-card text-card-foreground overflow-hidden">
+      
+      <!-- Hero Section -->
+      <div class="relative w-full md:w-[40%] bg-muted/10 overflow-hidden flex items-center justify-center p-10 md:p-0 border-b md:border-b-0 md:border-r border-border/50">
+         
+         <!-- Atmospheric Background -->
+         <div class="absolute inset-0 pointer-events-none select-none">
+            <div class="absolute inset-0 opacity-[0.08] dark:opacity-[0.15] blur-[60px]" 
+                 style="background: conic-gradient(from 0deg at 50% 50%, oklch(var(--color-primary)/0), oklch(var(--color-primary)/0.25) 50%, oklch(var(--color-accent)/0.25) 100%);">
+            </div>
+            <div class="absolute inset-0 pattern-grid opacity-[0.04]"></div>
+         </div>
 
-    <template #title>
-      <div class="flex items-center gap-3">
-        <div class="flex size-8 items-center justify-center rounded-full bg-primary/10 border border-primary/20">
-          <Sparkles class="size-4 text-primary" />
-        </div>
-        <div>
-          <h2 class="text-lg font-semibold text-foreground">
-            Welcome to Prism
-          </h2>
-          <p class="text-sm text-muted-foreground">
-            Your all-in-one dev toolkit (Beta)
-          </p>
-        </div>
-      </div>
-    </template>
-
-    <div class="space-y-6">
-
-      <p class="text-muted-foreground leading-relaxed">
-        Prism is a growing suite of tools built for
-        developers and power users. From quick math to encoding, color picking,
-        regex testing, and format conversion, Prism helps you move faster with
-        everyday tasks.
-      </p>
-
-      <div class="flex items-start gap-3 p-4 rounded-lg bg-accent/10 dark:bg-accent/20 border border-accent/30 mb-6">
-        <AlertTriangle class="h-4 w-4 text-accent flex-shrink-0 mt-0.5" />
-        <div>
-          <h3 class="text-sm font-semibold text-accent">
-            Beta Software Notice
-          </h3>
-          <p class="text-sm text-accent/80 mt-1">
-            Prism is currently in beta and data structure may change frequently as we improve the app (sorry!).
-            therefore settings and history might be lost during updates. We recommend exporting important data regularly.
-          </p>
-        </div>
+         <!-- Dynamic Logo -->
+         <div 
+           v-motion
+           :initial="{ opacity: 0, scale: 0.8, y: 20 }"
+           :enter="{ opacity: 1, scale: 1, y: 0, transition: { duration: 800, type: 'spring', stiffness: 100 } }"
+           class="relative z-10 size-32 md:size-56 drop-shadow-2xl"
+         >
+            <BaseMedia type="svg" :svg-content="PrismSvg" class="w-full h-full text-foreground/90 scale-150" />
+         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
-          <Calculator class="h-4 w-4 text-primary flex-shrink-0" />
-          <span class="text-sm font-medium text-foreground">Calculator</span>
+      <!-- Content Section -->
+      <div class="flex-1 p-6 md:p-10 flex flex-col">
+        
+        <div class="mb-8">
+           <h1 
+             v-motion
+             :initial="{ opacity: 0, x: 10 }"
+             :enter="{ opacity: 1, x: 0, transition: { delay: 200 } }"
+             class="text-3xl md:text-4xl font-bold tracking-tight mb-2 text-foreground"
+           >
+             Prism
+           </h1>
+           <p 
+             v-motion
+             :initial="{ opacity: 0, x: 10 }"
+             :enter="{ opacity: 1, x: 0, transition: { delay: 300 } }"
+             class="text-lg text-muted-foreground font-medium"
+           >
+             Clarity at Speed.
+           </p>
+           <p 
+             v-motion
+             :initial="{ opacity: 0 }"
+             :enter="{ opacity: 1, transition: { delay: 400 } }"
+             class="text-sm text-muted-foreground mt-3 leading-relaxed"
+           >
+             Your new all-in-one developer utility belt. Built for precision, performance, and modern workflows.
+           </p>
         </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
-          <Code class="h-4 w-4 text-primary flex-shrink-0" />
-          <span class="text-sm font-medium text-foreground">Base64</span>
-        </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
-          <Palette class="h-4 w-4 text-primary flex-shrink-0" />
-          <span class="text-sm font-medium text-foreground">Color Tools</span>
-        </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
-          <Regex class="h-4 w-4 text-primary flex-shrink-0" />
-          <span class="text-sm font-medium text-foreground">Regex Tester</span>
-        </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
-          <Repeat class="h-4 w-4 text-primary flex-shrink-0" />
-          <span class="text-sm font-medium text-foreground">Converters</span>
-        </div>
-        <div class="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border border-border/50">
-          <Shield class="h-4 w-4 text-primary flex-shrink-0" />
-          <span class="text-sm font-medium text-foreground">Privacy-First</span>
-        </div>
-      </div>
 
-      <div class="text-center p-4 rounded-lg border border-border/50">
-        <p class="text-sm text-muted-foreground mb-3">
-          Have ideas or found a bug?
-        </p>
-        <a
-          href="https://github.com/Whitestar14/Prism/issues"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-2 text-sm font-medium text-accent hover:text-accent/80  hover:underline underline-offset-4 bg-transparent transition-colors">
-          <Github class="h-4 w-4" /> Contribute on GitHub
-          <ExternalLink class="h-3 w-3" />
-        </a>
+        <!-- Features Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8 flex-1 content-start">
+          <div 
+             v-for="(feature, idx) in features" 
+             :key="feature.title"
+             v-motion
+             :initial="{ opacity: 0, y: 10 }"
+             :enter="{ opacity: 1, y: 0, transition: { delay: 500 + (idx * 50) } }"
+             class="flex items-start gap-3 p-3 rounded-xl bg-muted/40 border border-border/50 hover:bg-muted/60 transition-colors"
+          >
+            <div class="p-2 rounded-lg bg-background shadow-sm text-primary shrink-0">
+               <component :is="feature.icon" class="size-4" />
+            </div>
+            <div>
+              <h3 class="text-sm font-semibold">{{ feature.title }}</h3>
+              <p class="text-xs text-muted-foreground mt-0.5">{{ feature.desc }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-4 pt-6 border-t border-border/50 mt-auto">
+           <label class="flex items-center gap-2 cursor-pointer group select-none">
+            <input
+              v-model="dontShowAgain"
+              type="checkbox"
+              class="size-4 rounded border-border text-primary focus:ring-primary/20 bg-background" />
+            <span class="text-sm text-muted-foreground group-hover:text-foreground transition-colors">Don't show again</span>
+          </label>
+
+          <BaseButton
+            variant="primary"
+            size="lg"
+            class="w-full sm:w-auto shadow-lg shadow-primary/20"
+            @click="handleGetStarted">
+            Get Started
+            <ArrowRight class="ml-2 h-4 w-4" />
+          </BaseButton>
+        </div>
+
       </div>
     </div>
-
-    <template #footer>
-      <div class="flex flex-row items-center justify-between w-full">
-        <label class="flex items-center gap-2 cursor-pointer">
-          <input
-            v-model="dontShowAgain"
-            type="checkbox"
-            class="h-4 w-4 rounded border-border accent-checkbox focus:ring-2 focus:ring-primary/20 bg-background" />
-          <span class="text-sm text-muted-foreground">Don't show again</span>
-        </label>
-        <BaseButton
-          variant="primary"
-          @click="handleGetStarted">
-          Explore Tools
-          <ArrowRight class="h-4 w-4" />
-        </BaseButton>
-      </div>
-    </template>
   </BaseModal>
 </template>
 
@@ -112,19 +112,14 @@
 import { ref, computed } from 'vue'
 import { useAppStorageStore } from '@stores/appStorage'
 import {
-  Sparkles,
-  ExternalLink,
   Calculator,
-  Code,
   Palette,
-  Regex,
-  Repeat,
-  Shield,
-  ArrowRight,
-  Github,
-  AlertTriangle
+  ArrowRightLeft,
+  Binary,
+  ArrowRight
 } from 'lucide-vue-next'
-import { BaseModal, BaseButton } from '@components/ui'
+import { BaseModal, BaseButton, BaseMedia } from '@components/ui'
+import PrismSvg from '@assets/icons/prism-hero.svg?raw'
 
 interface Props {
   modelValue: boolean
@@ -143,6 +138,29 @@ const welcomeShown = computed({
 })
 const dontShowAgain = ref(false)
 
+const features = [
+  { 
+    title: 'Smart Calculator', 
+    desc: 'Programmer & Scientific modes', 
+    icon: Calculator 
+  },
+  { 
+    title: 'Universal Converter', 
+    desc: 'Units, currencies, and CSS', 
+    icon: ArrowRightLeft 
+  },
+  { 
+    title: 'Color Studio', 
+    desc: 'Palettes & Accessibility', 
+    icon: Palette 
+  },
+  { 
+    title: 'Dev Tools', 
+    desc: 'Base64, JSON & more', 
+    icon: Binary 
+  }
+]
+
 const handleGetStarted = (): void => {
   if (dontShowAgain.value) {
     welcomeShown.value = true
@@ -150,9 +168,3 @@ const handleGetStarted = (): void => {
   emit('update:modelValue', false)
 }
 </script>
-
-<style scoped>
-.accent-checkbox {
-  accent-color: oklch(var(--color-accent));
-}
-</style>
