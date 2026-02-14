@@ -7,31 +7,28 @@
       </div>
       <div class="flex items-center gap-1">
         <BaseButton
+          v-tippy="'Download'"
           variant="ghost"
           size="icon"
           class="size-6 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-          v-tippy="'Download'"
-          @click="downloadHash"
-        >
+          @click="downloadHash">
           <Download class="size-3" />
         </BaseButton>
         <BaseButton
+          v-tippy="'Copy'"
           variant="ghost"
           size="icon"
           class="size-6 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-          v-tippy="'Copy'"
-          @click="copyHash"
-        >
+          @click="copyHash">
           <Copy class="size-3" />
         </BaseButton>
       </div>
     </div>
-    
+
     <div class="relative">
-      <div 
+      <div
         class="font-mono text-sm break-all text-foreground bg-muted/30 p-2 rounded border border-transparent group-hover:border-border transition-colors cursor-pointer"
-        @click="copyHash"
-      >
+        @click="copyHash">
         {{ hash }}
       </div>
     </div>
@@ -53,23 +50,23 @@ const { copy } = useClipboard()
 const { toast } = useToast()
 
 const handleError = (action: string) => {
-   if (typeof window !== 'undefined' && !window.isSecureContext) {
-      toast({ 
-        title: 'Environment Restriction', 
-        description: `${action} requires a secure context (HTTPS/localhost). Current: ${window.location.host}`, 
-        type: 'error',
-        duration: 6000
-      })
-   } else {
-      toast({ title: 'Error', description: `Failed to ${action.toLowerCase()}.`, type: 'error' })
-   }
+  if (typeof window !== 'undefined' && !window.isSecureContext) {
+    toast({
+      title: 'Environment Restriction',
+      description: `${action} requires a secure context (HTTPS/localhost). Current: ${window.location.host}`,
+      type: 'error',
+      duration: 6000
+    })
+  } else {
+    toast({ title: 'Error', description: `Failed to ${action.toLowerCase()}.`, type: 'error' })
+  }
 }
 
-const copyHash = async () => {
+const copyHash = async() => {
   try {
     await copy(props.hash)
     toast({ title: 'Copied', description: `${props.algorithm} hash copied to clipboard`, type: 'success' })
-  } catch (e) {
+  } catch {
     handleError('Clipboard copy')
   }
 }
@@ -86,7 +83,7 @@ const downloadHash = () => {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
     toast({ title: 'Downloaded', description: 'Hash saved to file', type: 'success' })
-  } catch (e) {
+  } catch {
     handleError('Download')
   }
 }

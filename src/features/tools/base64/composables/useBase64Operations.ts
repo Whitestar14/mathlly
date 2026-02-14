@@ -11,7 +11,7 @@ const getByteCount = (str: string): number => {
 }
 
 export function useBase64Operations(
-  input: Ref<string>, 
+  input: Ref<string>,
   inputMode: Ref<InputMode>,
   options: Ref<Base64Options>
 ) {
@@ -20,7 +20,7 @@ export function useBase64Operations(
   const validationError = ref('')
   const processState = shallowRef<Base64ProcessingResult>({ success: true })
   const error = ref<unknown>(null)
-  
+
   // Cache for the raw base64 string of an uploaded file (Standard encoding)
   const rawFileBase64 = ref<string>('')
 
@@ -55,11 +55,11 @@ export function useBase64Operations(
       lineLength: options.value.lineLength,
       preserveWhitespace: options.value.preserveWhitespace
     }
-    
+
     try {
       const result = await encoder.encode(processed, encodingOptions)
       return result.encoded
-    } catch (e) {
+    } catch(e) {
       throw new Error('Encoding failed: ' + (e instanceof Error ? e.message : 'Unknown error'))
     }
   }
@@ -77,7 +77,7 @@ export function useBase64Operations(
         mime: result.mime,
         isBinary: result.isBinary
       }
-    } catch (e) {
+    } catch(e) {
       throw new Error('Decoding failed: ' + (e instanceof Error ? e.message : 'Unknown error'))
     }
   }
@@ -86,7 +86,7 @@ export function useBase64Operations(
     isProcessing.value = true
     validationError.value = ''
     error.value = null
-    
+
     try {
       // Logic split based on input mode
       const contentToProcess = inputMode.value === 'file' ? rawFileBase64.value : input.value
@@ -108,19 +108,19 @@ export function useBase64Operations(
           processState.value = { success: false, error: Base64Constants.ERROR_MESSAGES.INVALID_BASE64 }
           return processState.value
         }
-        
+
         const decoded = await decodeFromBase64(contentToProcess)
         output.value = decoded.output || ''
-        
-        processState.value = { 
-          success: true, 
+
+        processState.value = {
+          success: true,
           output: decoded.output,
           binary: decoded.binary,
           mime: decoded.mime,
           isBinary: decoded.isBinary
         }
       }
-      
+
       return processState.value
     } catch(e) {
       output.value = ''

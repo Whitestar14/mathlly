@@ -35,14 +35,14 @@ describe('useBase64Operations', () => {
 
     // Minimal Blob polyfill for size calculations
     global.Blob = class {
-      parts: any[]; type: string;
+      parts: any[]; type: string
       constructor(parts: any[], opts: any = {}) { this.parts = parts; this.type = opts.type || '' }
       get size() { return this.parts.join('').length }
     } as any
 
     // Mock FileReader for DataURL reads used by the encoder
     global.FileReader = class {
-      onload: any; onerror: any; result: any;
+      onload: any; onerror: any; result: any
       readAsDataURL(blob: any) {
         // Prefer async .text() if available on Blob/File
         if (blob && typeof blob.text === 'function') {
@@ -63,7 +63,7 @@ describe('useBase64Operations', () => {
     } as any
   })
 
-  it('encodes text correctly', async () => {
+  it('encodes text correctly', async() => {
     const input = ref('Hello World')
     const inputMode = ref<InputMode>('text')
     const { processInput } = useBase64Operations(input, inputMode, options)
@@ -73,7 +73,7 @@ describe('useBase64Operations', () => {
     expect(result.output).toBe('SGVsbG8gV29ybGQ=')
   })
 
-  it('decodes base64 correctly', async () => {
+  it('decodes base64 correctly', async() => {
     const input = ref('SGVsbG8gV29ybGQ=')
     const inputMode = ref<InputMode>('text')
     const { processInput } = useBase64Operations(input, inputMode, options)
@@ -83,7 +83,7 @@ describe('useBase64Operations', () => {
     expect(result.output).toBe('Hello World')
   })
 
-  it('reports validation error for invalid base64', async () => {
+  it('reports validation error for invalid base64', async() => {
     const input = ref('Invalid!!Base64')
     const inputMode = ref<InputMode>('text')
     const { processInput } = useBase64Operations(input, inputMode, options)
@@ -93,7 +93,7 @@ describe('useBase64Operations', () => {
     expect(result.error).toBe(Base64Constants.ERROR_MESSAGES.INVALID_BASE64)
   })
 
-  it('supports url-safe encoding format', async () => {
+  it('supports url-safe encoding format', async() => {
     options.value.outputFormat = 'url-safe'
     const input = ref('subjects? ')
     const inputMode = ref<InputMode>('text')
@@ -106,7 +106,7 @@ describe('useBase64Operations', () => {
     expect(result.output).toContain('_')
   })
 
-  it('uses rawFileBase64 when in file mode', async () => {
+  it('uses rawFileBase64 when in file mode', async() => {
     // Ensure standard format for this test
     options.value.outputFormat = 'standard'
 
@@ -122,7 +122,7 @@ describe('useBase64Operations', () => {
     expect((result.output ?? '').replace(/=+$/, '')).toBe('SGVsbG8gV29ybGQ')
   })
 
-  it('detects binary content when decoding image-like data', async () => {
+  it('detects binary content when decoding image-like data', async() => {
     // A short PNG header base64 (truncated) should be detected as binary
     const pngBase64 = 'iVBORw0KGgo='
     const input = ref(pngBase64)
@@ -135,7 +135,7 @@ describe('useBase64Operations', () => {
     expect(result.binary).toBeDefined()
   })
 
-  it('respects preserveWhitespace option when encoding', async () => {
+  it('respects preserveWhitespace option when encoding', async() => {
     options.value.preserveWhitespace = true
     const input = ref('  padded  ')
     const inputMode = ref<InputMode>('text')
@@ -147,7 +147,7 @@ describe('useBase64Operations', () => {
     expect(result.output).toBe('ICBwYWRkZWQgIA==')
   })
 
-  it('honors line length formatting for output (MIME)', async () => {
+  it('honors line length formatting for output (MIME)', async() => {
     options.value.lineLength = 4
     options.value.outputFormat = 'mime'
     const input = ref('abcdefghijk') // Will produce base64 longer than 4 chars
@@ -160,7 +160,7 @@ describe('useBase64Operations', () => {
     expect(result.output).toContain('\n')
   })
 
-  it('handles empty text input gracefully', async () => {
+  it('handles empty text input gracefully', async() => {
     const input = ref('')
     const inputMode = ref<InputMode>('text')
     const { processInput } = useBase64Operations(input, inputMode, options)
@@ -171,7 +171,7 @@ describe('useBase64Operations', () => {
     expect((result.output ?? '')).toBe('')
   })
 
-  it('returns failure when encoder throws', async () => {
+  it('returns failure when encoder throws', async() => {
     // Spy on Base64ServiceFactory to simulate an encoder that throws
     const factory = await import('../services/factory/Base64ServiceFactory')
     const spy = vi.spyOn(factory.Base64ServiceFactory, 'createEncoder').mockImplementation(() => ({ encode: () => Promise.reject(new Error('boom')) } as any))

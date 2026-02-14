@@ -81,7 +81,7 @@ export async function resetDatabase(dbInstance: PrismDatabase): Promise<boolean>
   try {
     (dbInstance as any).close()
     await Dexie.delete('prism-app')
-    
+
     // Targeted clear instead of localStorage.clear()
     // This prevents destroying data from other apps on the same domain (e.g. localhost)
     const keysToRemove = []

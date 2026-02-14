@@ -1,13 +1,13 @@
 <template>
   <div class="font-mono text-sm leading-6">
-    <div 
+    <div
       class="flex items-start hover:bg-muted/30 rounded px-1 -ml-1 transition-colors group"
       :class="{ 'cursor-pointer': isExpandable }"
       @click.stop="toggle">
-      
+
       <!-- Indentation -->
-      <div 
-        v-if="depth > 0" 
+      <div
+        v-if="depth > 0"
         class="shrink-0 border-l border-border/40 ml-1.5 mr-1.5"
         :style="{ height: '1.5em', width: '1px', opacity: 0.5 }">
       </div>
@@ -27,13 +27,13 @@
         <span v-if="isExpandable" class="text-muted-foreground">
           {{ isArray ? '[' : '{' }}
           <span v-if="!isOpen" class="text-xs mx-1">
-             {{ isArray ? `Array(${value.length})` : '{...}' }} 
+            {{ isArray ? `Array(${value.length})` : '{...}' }}
           </span>
         </span>
-        
+
         <!-- Primitive Value -->
         <span v-else :class="valueClass">
-           {{ formattedValue }}
+          {{ formattedValue }}
         </span>
 
         <!-- Object/Array End (if collapsed or empty) -->
@@ -50,13 +50,12 @@
     <!-- Children -->
     <div v-if="isOpen && isExpandable" class="pl-4 border-l border-border/20 ml-2.5">
       <JsonTreeItem
-        v-for="(val, key, index) in value"
+        v-for="(val, key, index) in (value as any)"
         :key="key"
         :obj-key="isArray ? undefined : key"
         :value="val"
         :is-last="index === Object.keys(value).length - 1"
-        :depth="depth + 1"
-      />
+        :depth="depth + 1" />
       <div class="pl-1 text-muted-foreground">
         {{ isArray ? ']' : '}' }}<span v-if="!isLast">,</span>
       </div>

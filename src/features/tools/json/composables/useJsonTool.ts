@@ -12,14 +12,14 @@ export interface ParseError {
 
 export function useJsonTool() {
   // Use shallowRef for large strings to prevent Vue from traversing them for reactivity
-  const input = shallowRef('') 
+  const input = shallowRef('')
   const parsed = shallowRef<any>(null)
-  
+
   const error = ref<ParseError | null>(null)
   const viewMode = ref<ViewMode>('tree')
   const indentation = ref<number | string>(2)
   const isProcessing = ref(false)
-  
+
   // Outputs
   const typeScriptOutput = shallowRef('')
   const xmlOutput = shallowRef('')
@@ -41,13 +41,11 @@ export function useJsonTool() {
       csvOutput.value = payload.csv
       error.value = null
       isProcessing.value = false
-    } 
-    else if (type === 'ERROR') {
+    } else if (type === 'ERROR') {
       error.value = workerError
       // We don't nullify parsed here, allowing the user to see the "stale" tree while fixing errors
       isProcessing.value = false
-    }
-    else if (type === 'FORMAT_SUCCESS' || type === 'MINIFY_SUCCESS') {
+    } else if (type === 'FORMAT_SUCCESS' || type === 'MINIFY_SUCCESS') {
       input.value = result
       triggerRef(input) // Manually trigger update since it's a shallowRef
       // After formatting, we re-parse to update the tree/outputs
@@ -66,10 +64,10 @@ export function useJsonTool() {
       return
     }
     // We don't set isProcessing = true here to avoid UI flickering on every keypress
-    worker.postMessage({ 
-      type: 'PROCESS', 
-      code: raw, 
-      indent: indentation.value 
+    worker.postMessage({
+      type: 'PROCESS',
+      code: raw,
+      indent: indentation.value
     })
   }
 
@@ -102,7 +100,7 @@ export function useJsonTool() {
     worker.postMessage({ type: 'MINIFY', code: input.value })
   }
 
-  const copyResult = async () => {
+  const copyResult = async() => {
     let content = ''
     switch (viewMode.value) {
       case 'typescript': content = typeScriptOutput.value; break
@@ -110,7 +108,7 @@ export function useJsonTool() {
       case 'csv': content = csvOutput.value; break
       default: content = JSON.stringify(parsed.value, null, typeof indentation.value === 'string' ? '\t' : Number(indentation.value)); break
     }
-    
+
     if (!content) return toast({ title: 'Nothing to copy', type: 'warning' })
 
     await copy(content)
@@ -128,11 +126,11 @@ export function useJsonTool() {
 
   const loadSample = () => {
     const sample = {
-      "project": "Prism",
-      "version": 0.15,
-      "features": ["Calculator", "Converter", "Tools"],
-      "settings": { "theme": "dark", "notifications": true },
-      "users": [{ "id": 1, "name": "Dev", "roles": ["admin", "contributor"] }]
+      'project': 'Prism',
+      'version': 0.15,
+      'features': ['Calculator', 'Converter', 'Tools'],
+      'settings': { 'theme': 'dark', 'notifications': true },
+      'users': [{ 'id': 1, 'name': 'Dev', 'roles': ['admin', 'contributor'] }]
     }
     const str = JSON.stringify(sample, null, 2)
     input.value = str
@@ -143,7 +141,7 @@ export function useJsonTool() {
     if (!file) return
     isProcessing.value = true
     const reader = new FileReader()
-    reader.onload = (e) => {
+    reader.onload = e => {
       const content = e.target?.result as string
       input.value = content
       parseJsonImmediate(content)
@@ -154,35 +152,35 @@ export function useJsonTool() {
   }
 
   const downloadFile = () => {
-      let content = ''
-      let ext = 'json'
-      let mime = 'application/json'
+    let content = ''
+    let ext = 'json'
+    let mime = 'application/json'
 
-      switch (viewMode.value) {
-        case 'typescript': 
-            content = typeScriptOutput.value; ext = 'ts'; mime = 'text/plain'; break;
-        case 'xml': 
-            content = xmlOutput.value; ext = 'xml'; mime = 'application/xml'; break;
-        case 'csv': 
-            content = csvOutput.value; ext = 'csv'; mime = 'text/csv'; break;
-        default: 
-            content = JSON.stringify(parsed.value, null, typeof indentation.value === 'string' ? '\t' : Number(indentation.value)); 
-            ext = 'json'; mime = 'application/json'; break;
-      }
+    switch (viewMode.value) {
+      case 'typescript':
+        content = typeScriptOutput.value; ext = 'ts'; mime = 'text/plain'; break
+      case 'xml':
+        content = xmlOutput.value; ext = 'xml'; mime = 'application/xml'; break
+      case 'csv':
+        content = csvOutput.value; ext = 'csv'; mime = 'text/csv'; break
+      default:
+        content = JSON.stringify(parsed.value, null, typeof indentation.value === 'string' ? '\t' : Number(indentation.value))
+        ext = 'json'; mime = 'application/json'; break
+    }
 
-      if (!content || !parsed.value) return
+    if (!content || !parsed.value) return
 
-      const blob = new Blob([content], { type: mime })
-      const url = URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `prism_export.${ext}`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-      
-      toast({ title: 'Download Started', description: `Exporting as .${ext}`, type: 'success' })
+    const blob = new Blob([content], { type: mime })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `prism_export.${ext}`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+
+    toast({ title: 'Download Started', description: `Exporting as .${ext}`, type: 'success' })
   }
 
   onBeforeUnmount(() => worker.terminate())
@@ -194,7 +192,7 @@ export function useJsonTool() {
     viewMode,
     indentation,
     isProcessing,
-    setInput,      // New setter that triggers debounce
+    setInput, // New setter that triggers debounce
     parseJson: parseJsonImmediate, // Direct access if needed
     formatInput,
     minifyInput,

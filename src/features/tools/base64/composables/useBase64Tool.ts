@@ -17,7 +17,7 @@ export function useBase64Tool() {
   // State (Using shared tab state)
   const currentTab = globalBase64Tab
   const activePreviewUrl = ref<string | null>(null)
-  
+
   // Buffers for Preserve Mode
   const singleInput = shallowRef('')
   const encodeBuffer = shallowRef('')
@@ -48,10 +48,10 @@ export function useBase64Tool() {
   const ops = useBase64Operations(input, inputMode, options)
   const fileOps = useFileOperations(input, inputMode, fileDetails, currentTab, ops.rawFileBase64)
   const outputValidationError = ref('')
-  
+
   // --- FLICKER FIX: Delayed Loading State ---
   const isProcessing = ref(false)
-  
+
   const startProcessing = () => { isProcessing.value = true }
   const stopProcessing = () => { isProcessing.value = false }
 
@@ -69,24 +69,24 @@ export function useBase64Tool() {
     } else {
       outputValidationError.value = ''
       if (showToastOnSuccess) {
-        toast(`Success`, { type: 'success' })
+        toast('Success', { type: 'success' })
       }
     }
   }
 
   // Debounce for typing
-  const debouncedProcess = useDebounceFn(async () => {
+  const debouncedProcess = useDebounceFn(async() => {
     if (!options.value.autoProcess) return
-    
+
     const timer = setTimeout(() => startProcessing(), 100)
     await ops.processInput(currentTab.value)
     clearTimeout(timer)
-    
+
     stopProcessing()
     applyProcessResult(false)
   }, 200)
 
-  const triggerProcess = async () => {
+  const triggerProcess = async() => {
     startProcessing()
     await ops.processInput(currentTab.value)
     stopProcessing()
@@ -97,15 +97,15 @@ export function useBase64Tool() {
   const setInput = (val: string) => {
     // If user types, we switch back to text mode automatically
     if (inputMode.value === 'file') {
-       inputMode.value = 'text'
-       fileDetails.value = null
-       ops.rawFileBase64.value = ''
+      inputMode.value = 'text'
+      fileDetails.value = null
+      ops.rawFileBase64.value = ''
     }
     input.value = val
     debouncedProcess()
   }
 
-  const handleSwap = async () => {
+  const handleSwap = async() => {
     const currOutput = ops.output.value
     if (!currOutput) return toast('Nothing to swap', { type: 'warning' })
 
@@ -122,13 +122,14 @@ export function useBase64Tool() {
     } else {
       singleInput.value = currOutput
     }
-    
+
     currentTab.value = newTab
-    
+
     await triggerProcess()
     if (ops.processState.value.success) {
       toast('Swapped', { type: 'success' })
-    }  }
+    }
+  }
 
   const handleClear = () => {
     singleInput.value = ''
@@ -142,7 +143,7 @@ export function useBase64Tool() {
     ops.processState.value = { success: true }
   }
 
-  const handleSample = async (type: 'text' | 'base64') => {
+  const handleSample = async(type: 'text' | 'base64') => {
     const content = type === 'text' ? sample.loadSampleText() : sample.loadSampleBase64()
     if (type === 'base64') currentTab.value = 'decode'
     else currentTab.value = 'encode'
@@ -151,7 +152,7 @@ export function useBase64Tool() {
     fileDetails.value = null
     ops.rawFileBase64.value = ''
     input.value = content
-    
+
     triggerProcess()
   }
 
@@ -162,30 +163,30 @@ export function useBase64Tool() {
     input.value = sample.generateRandomData()
     triggerProcess()
   }
-  const processFiles = async (files: FileList) => {
+  const processFiles = async(files: FileList) => {
     if (!files.length) return
     const mockEvent = { target: { files } } as unknown as Event
-    
+
     // Logic for tab switching is inside handleFileUpload now, checking extension
     startProcessing()
     const success = await fileOps.handleFileUpload(mockEvent)
     if (success) {
       await ops.processInput(currentTab.value)
-      applyProcessResult(false) 
+      applyProcessResult(false)
     }
     stopProcessing()
   }
 
   const downloadOutput = () => {
-      fileOps.downloadOutput(
-          ops.output.value, 
-          currentTab.value, 
-          ops.processState.value
-      )
+    fileOps.downloadOutput(
+      ops.output.value,
+      currentTab.value,
+      ops.processState.value
+    )
   }
 
   // Watchers
-  watch(() => ops.processState.value, (newState) => {
+  watch(() => ops.processState.value, newState => {
     if (activePreviewUrl.value) {
       URL.revokeObjectURL(activePreviewUrl.value)
       activePreviewUrl.value = null
@@ -206,9 +207,9 @@ export function useBase64Tool() {
 
   // Watch options to re-run
   watch([() => options.value, currentTab], () => {
-     if (options.value.autoProcess) {
-         ops.processInput(currentTab.value)
-     }
+    if (options.value.autoProcess) {
+      ops.processInput(currentTab.value)
+    }
   }, { deep: true })
 
   return {

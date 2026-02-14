@@ -13,7 +13,7 @@ export function useHash() {
   const input = ref('')
   const isUppercase = ref(false)
   const isProcessing = ref(false)
-  
+
   // Initialize with all algorithms enabled by default
   const enabledAlgorithms = ref<string[]>([...AVAILABLE_ALGORITHMS])
   const results = ref<HashResult[]>([])
@@ -32,7 +32,7 @@ export function useHash() {
     return `${chars} chars • ${bytes} bytes`
   })
 
-  const calculateHash = async (text: string, algorithm: string): Promise<string> => {
+  const calculateHash = async(text: string, algorithm: string): Promise<string> => {
     if (algorithm === 'MD5') {
       const hash = md5(text)
       return isUppercase.value ? hash.toUpperCase() : hash
@@ -46,7 +46,7 @@ export function useHash() {
     return isUppercase.value ? hashHex.toUpperCase() : hashHex
   }
 
-  const processAll = async () => {
+  const processAll = async() => {
     // Clear results if input is empty
     if (!input.value) {
       results.value = []
@@ -59,13 +59,13 @@ export function useHash() {
       const activeAlgos = AVAILABLE_ALGORITHMS.filter(algo => enabledAlgorithms.value.includes(algo))
 
       // Execute all hashing in parallel
-      const promises = activeAlgos.map(async (algo) => {
+      const promises = activeAlgos.map(async algo => {
         const hash = await calculateHash(input.value, algo)
         return { algorithm: algo, hash }
       })
-      
+
       results.value = await Promise.all(promises)
-    } catch (e) {
+    } catch(e) {
       console.error('Hashing failed', e)
     } finally {
       isProcessing.value = false

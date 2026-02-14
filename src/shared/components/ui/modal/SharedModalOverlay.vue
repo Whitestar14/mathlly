@@ -17,7 +17,7 @@ import { hasOpenModals, modalStackRef, closeTopModal } from '@composables/ui/use
 
 const isLocked = useScrollLock(document.body)
 
-watch(hasOpenModals, (isOpen) => {
+watch(hasOpenModals, isOpen => {
   isLocked.value = isOpen
 }, { immediate: true })
 

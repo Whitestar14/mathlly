@@ -42,24 +42,24 @@ export function md5(inputString: string): string {
     }
     return blocks
   }
-  
+
   const x = sb(inputString) as number[]
   const len = inputString.length * 8
-  
+
   x[len >> 5] |= 0x80 << (len % 32)
   x[(((len + 64) >>> 9) << 4) + 14] = len
-  
+
   let a = 1732584193
   let b = -271733879
   let c = -1732584194
   let d = 271733878
-  
+
   for (let i = 0; i < x.length; i += 16) {
     const olda = a
     const oldb = b
     const oldc = c
     const oldd = d
-    
+
     a = ff(a, b, c, d, x[i + 0] || 0, 7, -680876936)
     d = ff(d, a, b, c, x[i + 1] || 0, 12, -389564586)
     c = ff(c, d, a, b, x[i + 2] || 0, 17, 606105819)
@@ -76,7 +76,7 @@ export function md5(inputString: string): string {
     d = ff(d, a, b, c, x[i + 13] || 0, 12, -40341101)
     c = ff(c, d, a, b, x[i + 14] || 0, 17, -1502002290)
     b = ff(b, c, d, a, x[i + 15] || 0, 22, 1236535329)
-    
+
     a = gg(a, b, c, d, x[i + 1] || 0, 5, -165796510)
     d = gg(d, a, b, c, x[i + 6] || 0, 9, -1069501632)
     c = gg(c, d, a, b, x[i + 11] || 0, 14, 643717713)
@@ -93,7 +93,7 @@ export function md5(inputString: string): string {
     d = gg(d, a, b, c, x[i + 2] || 0, 9, -51403784)
     c = gg(c, d, a, b, x[i + 7] || 0, 14, 1735328473)
     b = gg(b, c, d, a, x[i + 12] || 0, 20, -1926607734)
-    
+
     a = hh(a, b, c, d, x[i + 5] || 0, 4, -378558)
     d = hh(d, a, b, c, x[i + 8] || 0, 11, -2022574463)
     c = hh(c, d, a, b, x[i + 11] || 0, 16, 1839030562)
@@ -110,7 +110,7 @@ export function md5(inputString: string): string {
     d = hh(d, a, b, c, x[i + 12] || 0, 11, -421815835)
     c = hh(c, d, a, b, x[i + 15] || 0, 16, 530742520)
     b = hh(b, c, d, a, x[i + 2] || 0, 23, -995338651)
-    
+
     a = ii(a, b, c, d, x[i + 0] || 0, 6, -198630844)
     d = ii(d, a, b, c, x[i + 7] || 0, 10, 1126891415)
     c = ii(c, d, a, b, x[i + 14] || 0, 15, -1416354905)
@@ -127,7 +127,7 @@ export function md5(inputString: string): string {
     d = ii(d, a, b, c, x[i + 11] || 0, 10, -1120210379)
     c = ii(c, d, a, b, x[i + 2] || 0, 15, 718787259)
     b = ii(b, c, d, a, x[i + 9] || 0, 21, -343485551)
-    
+
     a = ad(a, olda)
     b = ad(b, oldb)
     c = ad(c, oldc)

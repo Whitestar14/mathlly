@@ -111,8 +111,8 @@ export class ScientificOperations extends StandardOperations {
           this.parenthesesTracker.sync(this.calculator.input)
           return this.createResponse()
         }
-      } 
-      
+      }
+
       // Fallback to standard clear entry behavior
       return super.handleClearEntry()
     } catch(err: any) {

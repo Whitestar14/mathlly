@@ -25,9 +25,9 @@ export function generateTypeScript(json: any, rootName = 'RootObject'): string {
   }
 
   function generateInterfaceName(hint: string): string {
-    let name = hint.charAt(0).toUpperCase() + hint.slice(1)
+    const name = hint.charAt(0).toUpperCase() + hint.slice(1)
     if (!name.endsWith('Object') && !name.endsWith('Item')) {
-       // Keep simple names
+      // Keep simple names
     }
     // Ensure uniqueness handled by logic structure below
     return name
@@ -52,18 +52,18 @@ export function generateTypeScript(json: any, rootName = 'RootObject'): string {
     // Check if we've seen this object structure before to deduplicate interfaces
     const keys = Object.keys(obj).sort()
     const signature = keys.map(k => `${k}:${getType(obj[k])}`).join(';')
-    
+
     if (seenObjects.has(signature)) {
-        return seenObjects.get(signature)!
+      return seenObjects.get(signature)!
     }
 
     const interfaceName = generateInterfaceName(name)
     let uniqueName = interfaceName
     let counter = 1
     while (interfaces.has(uniqueName)) {
-        uniqueName = `${interfaceName}${counter++}`
+      uniqueName = `${interfaceName}${counter++}`
     }
-    
+
     seenObjects.set(signature, uniqueName)
 
     const props = keys.map(key => {
@@ -75,7 +75,7 @@ export function generateTypeScript(json: any, rootName = 'RootObject'): string {
 
     const definition = `interface ${uniqueName} {\n${props.join('\n')}\n}`
     interfaces.set(uniqueName, definition)
-    
+
     return uniqueName
   }
 

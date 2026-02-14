@@ -4,8 +4,7 @@
     :readonly="true"
     :show-line-numbers="true"
     :error="error"
-    :textarea-class="getTextColorClass"
-  >
+    :textarea-class="getTextColorClass">
     <template #toolbar>
       <!-- Control Wrapper -->
       <div class="flex-1 min-w-0 mr-2 sm:mr-4" :class="{ 'opacity-50 pointer-events-none': !!error }">
@@ -13,10 +12,9 @@
           :model-value="viewMode"
           :options="viewOptions"
           class="w-full max-w-full"
-          @update:model-value="$emit('update:viewMode', $event as ViewMode)" 
-        />
+          @update:model-value="$emit('update:viewMode', $event as ViewMode)" />
       </div>
-      
+
       <!-- Actions -->
       <div class="flex items-center gap-1 shrink-0">
         <BaseButton v-tippy="'Copy Content'" variant="ghost" size="icon" class="size-8" :disabled="!hasData" @click="$emit('copy')">
@@ -29,9 +27,9 @@
     </template>
 
     <!-- Custom Content Slot: Replaces textarea for Tree View or Empty State -->
-    <template #default v-if="!currentTextContent">
-       <!-- Empty State -->
-       <div v-if="!hasData && !error" class="absolute inset-0 flex flex-col gap-2 items-center justify-center text-muted-foreground/40 z-10 pointer-events-none">
+    <template v-if="!currentTextContent" #default>
+      <!-- Empty State -->
+      <div v-if="!hasData && !error" class="absolute inset-0 flex flex-col gap-2 items-center justify-center text-muted-foreground/40 z-10 pointer-events-none">
         <FileJson class="size-10 opacity-20" />
         <span class="text-sm font-medium">Result will appear here...</span>
       </div>
@@ -62,7 +60,7 @@ const props = defineProps<{
   error: ParseError | null
 }>()
 
-const emit = defineEmits<{
+defineEmits<{
   (e: 'update:viewMode', value: ViewMode): void
   (e: 'copy'): void
   (e: 'download'): void

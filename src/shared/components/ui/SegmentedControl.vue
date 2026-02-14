@@ -17,12 +17,12 @@
     class="group relative inline-flex max-w-full items-center vertical-align-middle"
     role="radiogroup"
     :aria-label="ariaLabel">
-    
+
     <div
       ref="scrollContainer"
       class="flex w-full min-w-0 items-center gap-1 overflow-x-auto rounded-lg border border-border bg-background p-1 shadow-sm no-scrollbar scroll-smooth"
       @keydown="onKeydown">
-      
+
       <button
         v-for="opt in options"
         :key="opt.value"
@@ -32,20 +32,18 @@
         :aria-checked="modelValue === opt.value"
         :data-value="opt.value"
         :tabindex="modelValue === opt.value ? 0 : -1"
-        @click="select(opt.value)"
         class="relative flex-1 flex-shrink-0 inline-flex items-center justify-center gap-1.5 px-3 py-1 text-sm font-medium rounded-md transition-all duration-200 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:outline-none disabled:opacity-50 select-none whitespace-nowrap"
         :class="[
           modelValue === opt.value
             ? 'bg-accent/10 text-accent shadow-sm ring-1 ring-accent/20 z-10'
             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
         ]"
-      >
+        @click="select(opt.value)">
         <component
           :is="opt.icon"
           v-if="opt.icon"
-          class="h-4 w-4 shrink-0 transition-colors" 
-          :class="modelValue === opt.value ? 'text-accent' : 'opacity-70'"
-        />
+          class="h-4 w-4 shrink-0 transition-colors"
+          :class="modelValue === opt.value ? 'text-accent' : 'opacity-70'" />
         <span>{{ opt.label }}</span>
       </button>
     </div>
@@ -126,7 +124,7 @@ function onKeydown(e: KeyboardEvent) {
   }
 }
 
-watch(() => props.modelValue, (val) => scrollToActive(val))
+watch(() => props.modelValue, val => scrollToActive(val))
 </script>
 
 <style scoped>

@@ -15,10 +15,10 @@ export function useFileOperations(
   const { toast } = useToast()
 
   const handleFileUpload = (event: Event): Promise<boolean> => {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const target = event.target as HTMLInputElement
       const file = target.files?.[0]
-      
+
       if (!file) {
         resolve(false)
         return
@@ -47,11 +47,11 @@ export function useFileOperations(
       }
 
       if (currentTab.value === 'encode') {
-        reader.onload = (e) => {
+        reader.onload = e => {
           const result = e.target?.result as string
           // Extract base64 part from Data URL
           const base64 = result.split(',')[1] || ''
-          
+
           rawFileBase64Cache.value = base64
           inputMode.value = 'file'
           fileDetails.value = {
@@ -59,22 +59,22 @@ export function useFileOperations(
             size: file.size,
             type: file.type
           }
-          
+
           // Clear text input to avoid confusion
           input.value = ''
           resolve(true)
         }
         reader.readAsDataURL(file)
-       } else {
+      } else {
         // Decode Mode: Read as text
-        reader.onload = (e) => {
+        reader.onload = e => {
           const result = e.target?.result as string
           // In decode mode, we usually treat uploaded files as text containing base64 string
-          inputMode.value = 'text' 
+          inputMode.value = 'text'
           input.value = result
           fileDetails.value = null // Not "file mode" in the UI logic sense for decode
-          
-          toast(`Loaded "${file.name}"`, { type: 'success' }) 
+
+          toast(`Loaded "${file.name}"`, { type: 'success' })
           resolve(true)
         }
         reader.readAsText(file)
@@ -88,7 +88,7 @@ export function useFileOperations(
     if (!files || files.length === 0) return false
 
     const file = files[0]
-    
+
     if (fileInput.value) {
       // Manually assign files to input to reuse handleFileUpload logic
       const dt = new DataTransfer()
@@ -101,7 +101,7 @@ export function useFileOperations(
   }
 
   const downloadOutput = (
-    outputContent: string, 
+    outputContent: string,
     currentTabValue: 'encode' | 'decode',
     resultState?: any
   ): void => {

@@ -11,7 +11,7 @@ export function useErrorRetry(
 ) {
   const { isOnline } = useNetwork()
   const { warning } = useToast()
-  
+
   const isOffline = computed(() => !isOnline.value)
   const isManualRetrying = ref(false)
   const manualRetryFeedbackMessage = ref('')
@@ -56,7 +56,7 @@ export function useErrorRetry(
     if (isOffline.value) {
       warning('Still offline. Please check your connection.')
       useTimeoutFn(() => { isManualRetrying.value = false }, 1500)
-      
+
       // Re-enable auto-retry if we are still offline and it's a retryable error
       if ((isRouteError || isGlobalError || (routeError.value && Object.keys(routeError.value).length > 0)) && !is404.value) {
         startAutomaticRetry()

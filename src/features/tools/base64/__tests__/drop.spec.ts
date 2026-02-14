@@ -15,12 +15,12 @@ const createMockFile = (name: string, type: string, content = 'content') => {
     type,
     size: content.length,
     _content: content,
-    text: async () => content
+    text: async() => content
   } as unknown) as File
 }
 
 // Helper to wait for FileReader
-const waitForFileReader = () => new Promise((resolve) => setTimeout(resolve, 50))
+const waitForFileReader = () => new Promise(resolve => setTimeout(resolve, 50))
 
 describe('useFileOperations Smart Logic', () => {
   const input = ref('')
@@ -36,7 +36,7 @@ describe('useFileOperations Smart Logic', () => {
     currentTab.value = 'encode'
     fileDetails.value = null
     inputMode.value = 'text'
-    rawCache.value = ''    
+    rawCache.value = ''
     // Mock DataTransfer for Drop tests
     global.DataTransfer = class {
       items = { _files: [] as File[], add(f: File) { this._files.push(f) } }
@@ -44,11 +44,11 @@ describe('useFileOperations Smart Logic', () => {
     } as any
 
     // Minimal FileReader mock used by the composable
-    global.FileReader = class { onload: any; onerror: any; result: any; readAsDataURL(f:any){ if (f && typeof f.text === 'function') { f.text().then((text: string)=>{ const b64 = Buffer.from(text).toString('base64'); this.result = `data:text/plain;base64,${b64}`; if(this.onload) this.onload({ target: { result: this.result } }) }) } else { setTimeout(()=>{ const text = f instanceof Blob ? (f as any).parts?.join?.('') ?? '' : f; const b64 = Buffer.from(text).toString('base64'); this.result = `data:text/plain;base64,${b64}`; if(this.onload) this.onload({ target: { result: this.result } }) }, 0) } } readAsText(f:any){ if (f && typeof f.text === 'function') { f.text().then((text: string)=>{ this.result = text; if(this.onload) this.onload({ target: { result: this.result } }) }) } else { setTimeout(()=>{ this.result = f instanceof Blob ? (f as any).parts?.join?.('') ?? '' : f; if(this.onload) this.onload({ target: { result: this.result } }) }, 0) } } } as any
+    global.FileReader = class { onload: any; onerror: any; result: any; readAsDataURL(f:any) { if (f && typeof f.text === 'function') { f.text().then((text: string)=>{ const b64 = Buffer.from(text).toString('base64'); this.result = `data:text/plain;base64,${b64}`; if (this.onload) this.onload({ target: { result: this.result } }) }) } else { setTimeout(()=>{ const text = f instanceof Blob ? (f as any).parts?.join?.('') ?? '' : f; const b64 = Buffer.from(text).toString('base64'); this.result = `data:text/plain;base64,${b64}`; if (this.onload) this.onload({ target: { result: this.result } }) }, 0) } } readAsText(f:any) { if (f && typeof f.text === 'function') { f.text().then((text: string)=>{ this.result = text; if (this.onload) this.onload({ target: { result: this.result } }) }) } else { setTimeout(()=>{ this.result = f instanceof Blob ? (f as any).parts?.join?.('') ?? '' : f; if (this.onload) this.onload({ target: { result: this.result } }) }, 0) } } } as any
   })
 
   describe('Smart Tab Switching', () => {
-    it('switches to ENCODE if a binary file (PNG) is dropped while in DECODE tab', async () => {
+    it('switches to ENCODE if a binary file (PNG) is dropped while in DECODE tab', async() => {
       // 1. Start in Decode mode
       currentTab.value = 'decode'
 
@@ -74,7 +74,7 @@ describe('useFileOperations Smart Logic', () => {
       expect(rawCache.value).toBeDefined()
     })
 
-    it('switches to ENCODE if a Zip file is dropped while in DECODE tab', async () => {
+    it('switches to ENCODE if a Zip file is dropped while in DECODE tab', async() => {
       currentTab.value = 'decode'
       const { handleFileUpload } = useFileOperations(
         input, inputMode, fileDetails, currentTab, rawCache
@@ -89,7 +89,7 @@ describe('useFileOperations Smart Logic', () => {
       expect(currentTab.value).toBe('encode')
     })
 
-    it('stays in DECODE mode if a standard .txt file is dropped', async () => {
+    it('stays in DECODE mode if a standard .txt file is dropped', async() => {
       currentTab.value = 'decode'
       const { handleFileUpload } = useFileOperations(
         input, inputMode, fileDetails, currentTab, rawCache
@@ -108,7 +108,7 @@ describe('useFileOperations Smart Logic', () => {
       expect(input.value).toBe('SGVsbG8=')
     })
 
-    it('stays in ENCODE mode if an Image is dropped (Normal behavior)', async () => {
+    it('stays in ENCODE mode if an Image is dropped (Normal behavior)', async() => {
       currentTab.value = 'encode'
       const { handleFileUpload } = useFileOperations(
         input, inputMode, fileDetails, currentTab, rawCache

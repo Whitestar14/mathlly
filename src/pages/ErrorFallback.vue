@@ -114,7 +114,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { useClipboard, useTimeoutFn } from '@vueuse/core'
+import { useClipboard, useTimeoutFn, useNetwork } from '@vueuse/core'
 import { HomeIcon, RefreshCwIcon, Copy, ArrowLeft, Check } from 'lucide-vue-next'
 import { clearRouteError, routePath, hasError } from '@router/errorHandler'
 import { useToast } from '@composables/ui/useToast'
@@ -123,6 +123,8 @@ import { BasePage, BaseButton, BaseCollapsible } from '@components/ui'
 import { useErrorState } from '@composables/utils/useErrorState'
 import { useErrorRetry } from '@composables/utils/useErrorRetry'
 
+// We define props here, and they are passed to useErrorState.
+// We explicitly access them to satisfy linter if needed, but passing them to a composable is usage.
 const props = defineProps({
   error: { type: [Error, Object, String], default: null },
   path: { type: String, default: '' },
@@ -136,11 +138,11 @@ const storageStore = useAppStorageStore()
 const router = useRouter()
 const route = useRoute()
 const { copy } = useClipboard()
+const network = useNetwork()
 
 const showDetails = ref(false)
 const copied = ref(false)
 
-// 1. Core Logic: Retry & Network
 const performRetry = async() => {
   clearRouteError()
   const targetPath = routePath.value || props.path || route.fullPath || '/'
@@ -151,53 +153,21 @@ const performRetry = async() => {
   }
 }
 
-// 2. Core Logic: Error State Derivation
-// Note: We need `isOffline` from the retry composable first to pass to error state,
-// or we need error state (is404) to pass to retry.
-// Solution: We'll initialize retry with a placeholder for 404, then update it,
-// OR pass reactive refs. Let's make `is404` reactive in useErrorState.
-// Actually, `useNetwork` is global, so we can use it in both independently.
-// However, `useErrorState` needs `isOffline` to set the title.
-const { isOnline, isOffline, isManualRetrying, autoRetryActive, autoRetryCountdownTime, manualRetryFeedbackMessage, canAttemptRetry, handleManualRetry, cancelAutomaticRetry } = useErrorRetry(
-  // We need a ref for is404 here, but useErrorState computes it.
-  // We will create a computed link between them.
-  // Ideally, logic shouldn't be circular.
-  // Let's instantiate ErrorState first, passing the reactive isOffline from the component level.
-  // But wait, useErrorRetry needs is404.
-  // Circular dependency? We'll create isOffline using useNetwork locally first.
-  ref(false), // Placeholder ref for is404, will be linked via the composable
-  props.isRouteError,
-  props.isGlobalError,
-  performRetry
-)
-
-// Re-implementing useErrorState call to use the shared isOffline
-const { state, is404Error } = useErrorState(props, route, isOffline)
-
-// 3. Re-inject real is404 into retry logic (hacky but effective if we couldn't split perfectly)
-// Actually, let's just make sure useErrorRetry accepts a Ref<boolean> for is404.
-// The extracted code above does exactly that. We just need to replace the placeholder ref.
-// Vue Refs are objects, so we can't "replace" the reference inside useErrorRetry,
-// but we can pass the computed `is404Error` directly if we initialize them in order.
-// Let's fix the order in the final code:
-// -> useNetwork (isOffline)
-// -> useErrorState (needs isOffline) -> returns is404Error
-// -> useErrorRetry (needs is404Error)
-
-// CORRECT ORDER:
-import { useNetwork } from '@vueuse/core'
-const network = useNetwork()
-const _isOffline = ref(!network.isOnline.value) // local ref to bridge
-// Sync
+// Setup shared offline state
 import { watch } from 'vue'
-watch(network.isOnline, (val) => { _isOffline.value = !val })
+const _isOffline = ref(!network.isOnline.value)
+watch(network.isOnline, val => { _isOffline.value = !val })
 
 // Init State
+// Passing props directly
 const errorState = useErrorState(props, route, _isOffline)
 // Init Retry
 const retryState = useErrorRetry(errorState.is404Error, props.isRouteError, props.isGlobalError, performRetry)
 
-// Redefine exposure for template
+// Re-expose to template
+const { state, is404Error } = errorState
+const { isOnline, isOffline, isManualRetrying, autoRetryActive, autoRetryCountdownTime, manualRetryFeedbackMessage, canAttemptRetry, handleManualRetry, cancelAutomaticRetry } = retryState
+
 const navigateToHome = () => {
   if (retryState.isManualRetrying.value) return
   retryState.cancelAutomaticRetry()

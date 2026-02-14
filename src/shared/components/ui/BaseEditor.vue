@@ -1,16 +1,16 @@
 <template>
   <div class="flex flex-col h-full w-full min-h-0 border border-border rounded-lg bg-card overflow-hidden shadow-sm group">
-    
+
     <!-- Toolbar Slot -->
-    <div 
-      v-if="$slots.toolbar" 
+    <div
+      v-if="$slots.toolbar"
       class="flex items-center justify-between p-2 border-b border-border bg-muted/30 h-[53px] flex-shrink-0 overflow-x-auto no-scrollbar">
       <slot name="toolbar"></slot>
     </div>
 
     <!-- Content Area (Editor or Custom View) -->
     <div class="relative flex-1 flex min-h-0 w-full overflow-hidden bg-background">
-      
+
       <slot>
         <!-- Default Text Editor Implementation -->
         <div class="flex w-full h-full font-mono text-sm">
@@ -56,10 +56,10 @@
     </div>
 
     <!-- Unified Footer / Status Bar -->
-    <div 
+    <div
       class="flex items-center justify-between px-3 py-1 text-[10px] uppercase tracking-wider font-medium border-t border-border h-7 select-none flex-shrink-0 transition-colors duration-200"
       :class="footerClasses">
-      
+
       <!-- Left: Status / Error Message -->
       <div class="flex items-center gap-2 overflow-hidden mr-4">
         <template v-if="error">

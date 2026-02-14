@@ -1,19 +1,16 @@
-
-import db, { type PrismDatabase } from '@services/storage/db'
+import db from '@services/storage/db'
 import { useAppStorageStore } from '@stores/appStorage'
-import { useVersionStore } from '@stores/version'
 import { migrateData } from './migrations'
 import type { BackupEnvelope, DatabasePayload, ThemePreferences } from './types'
 import pkg from '../../../../package.json'
 
 export class BackupService {
-  
   /**
    * Generates a complete backup of the application state
    */
   static async createBackup(): Promise<Blob> {
     const storageStore = useAppStorageStore()
-    
+
     // 1. Gather DB Data
     const dbPayload: DatabasePayload = {
       settings: await db.settings.toArray(),
@@ -65,7 +62,7 @@ export class BackupService {
       if (!envelope.meta || !envelope.data || !envelope.data.db) {
         throw new Error('Invalid backup file format')
       }
-    } catch (e) {
+    } catch {
       throw new Error('Failed to parse backup file')
     }
 
@@ -73,7 +70,7 @@ export class BackupService {
     const cleanedData = migrateData(envelope, pkg.version)
 
     // 3. Atomic Write (Clear & Fill)
-    await db.transaction('rw', db.settings, db.history, db.memory, db.palettes, async () => {
+    await db.transaction('rw', db.settings, db.history, db.memory, db.palettes, async() => {
       // Clear existing
       await Promise.all([
         db.settings.clear(),

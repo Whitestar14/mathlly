@@ -1,16 +1,16 @@
 <template>
-  <!-- 
-    VARIANT: OVERLAY 
+  <!--
+    VARIANT: OVERLAY
     Rendered as a full-screen fixed modal.
     Controlled by 'show' prop (usually from a composable).
   -->
-  <Transition name="fade" v-if="variant === 'overlay'">
+  <Transition v-if="variant === 'overlay'" name="fade">
     <div
       v-show="show"
       class="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4"
       @dragover.prevent
       @drop.prevent="onDrop">
-      
+
       <!-- Reusing the Inner Content Layout -->
       <div class="w-full max-w-lg border-2 border-dashed border-primary/50 bg-card rounded-xl p-10 text-center shadow-2xl animate-in zoom-in-95 duration-200">
         <ContentSlot :icon="icon" :title="title" :description="description" />
@@ -18,7 +18,7 @@
     </div>
   </Transition>
 
-  <!-- 
+  <!--
     VARIANT: ZONE (Default)
     Rendered as a static block on the page.
     Clickable to open file dialog.
@@ -27,8 +27,8 @@
     v-else
     class="group relative flex flex-col items-center justify-center w-full rounded-lg border-2 border-dashed transition-all duration-200 cursor-pointer"
     :class="[
-      isDragOver 
-        ? 'border-primary bg-primary/5 scale-[1.01]' 
+      isDragOver
+        ? 'border-primary bg-primary/5 scale-[1.01]'
         : 'border-border hover:border-primary/50 hover:bg-muted/50',
       disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''
     ]"
@@ -36,15 +36,14 @@
     @dragover.prevent="onDragOver"
     @dragleave.prevent="onDragLeave"
     @drop.prevent="onDrop">
-    
+
     <input
       ref="fileInput"
       type="file"
       class="hidden"
       :accept="accept"
       :multiple="multiple"
-      @change="onFileSelect" 
-    />
+      @change="onFileSelect" />
 
     <div class="py-10 px-6">
       <ContentSlot :icon="icon" :title="title" :description="description">
@@ -63,8 +62,8 @@ import { UploadCloud } from 'lucide-vue-next'
 // --- Props ---
 const props = withDefaults(defineProps<{
   variant?: 'overlay' | 'zone'
-  show?: boolean           // Only used for 'overlay'
-  accept?: string          // e.g. ".json, .txt"
+  show?: boolean // Only used for 'overlay'
+  accept?: string // e.g. ".json, .txt"
   multiple?: boolean
   disabled?: boolean
   loading?: boolean
@@ -74,6 +73,7 @@ const props = withDefaults(defineProps<{
 }>(), {
   variant: 'zone',
   show: false,
+  accept: '', // Default empty string satisfies validation
   title: 'Drop file here',
   description: 'Max file size: 10MB',
   icon: undefined
@@ -116,7 +116,11 @@ const onDrop = (e: DragEvent) => {
 // --- Sub-Component for Shared Layout ---
 // Defined inline to share standard styling between Overlay and Zone
 const ContentSlot = defineComponent({
-  props: ['icon', 'title', 'description'],
+  props: {
+    icon: { type: Object as () => Component, default: undefined },
+    title: { type: String, required: true },
+    description: { type: String, default: '' }
+  },
   setup(p, { slots }) {
     return () => createVNode('div', { class: 'flex flex-col items-center justify-center space-y-3 text-center pointer-events-none' }, [
       createVNode('div', { class: 'p-3 rounded-full bg-primary/10 text-primary' }, [
@@ -128,7 +132,7 @@ const ContentSlot = defineComponent({
         ]),
         p.description && createVNode('p', { class: 'text-sm text-muted-foreground' }, p.description),
         slots.cta && createVNode('p', { class: 'text-sm text-muted-foreground mt-2' }, slots.cta())
-      ])    ])
+      ])])
   }
 })
 </script>

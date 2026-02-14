@@ -33,10 +33,9 @@
             @click.stop>
 
             <!-- Standard Header (Only if NOT naked) -->
-            <div 
-              v-if="!naked" 
-              class="sticky top-0 z-10 flex-shrink-0 bg-background border-b border-border rounded-t-xl"
-            >
+            <div
+              v-if="!naked"
+              class="sticky top-0 z-10 flex-shrink-0 bg-background border-b border-border rounded-t-xl">
               <div class="flex items-center justify-between p-3 pb-2">
                 <div
                   :id="titleId"
@@ -64,13 +63,12 @@
 
             <!-- Absolute close button for Naked mode -->
             <div v-else-if="!hideCloseButton" class="absolute top-2 right-2 z-20">
-               <button 
-                  @click="closeModal" 
-                  class="p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/50 transition-colors"
-                  :aria-label="closeButtonLabel"
-               >
-                 <XIcon class="h-4 w-4" />
-               </button>
+              <button
+                class="p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/50 transition-colors"
+                :aria-label="closeButtonLabel"
+                @click="closeModal">
+                <XIcon class="h-4 w-4" />
+              </button>
             </div>
 
             <div class="flex-1 overflow-y-auto min-h-0">

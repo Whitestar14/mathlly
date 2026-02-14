@@ -119,7 +119,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    css: true,
+    css: true
   },
   server: {
     port: 8080,

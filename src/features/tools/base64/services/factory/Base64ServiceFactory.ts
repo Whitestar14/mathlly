@@ -1,6 +1,6 @@
-import { Base64Encoder } from '../encoders/Base64Encoder';
-import { Base64Decoder } from '../decoders/Base64Decoder';
-import type { Base64ServiceType, IBase64Encoder, IBase64Decoder, IBase64Service } from '@base64/types/base64';
+import { Base64Encoder } from '../encoders/Base64Encoder'
+import { Base64Decoder } from '../decoders/Base64Decoder'
+import type { Base64ServiceType, IBase64Encoder, IBase64Decoder, IBase64Service } from '@base64/types/base64'
 
 /**
  * Type guard to check if a service is a Base64Encoder.
@@ -8,7 +8,7 @@ import type { Base64ServiceType, IBase64Encoder, IBase64Decoder, IBase64Service 
  * @returns True if the service is an encoder, false otherwise.
  */
 export function isBase64Encoder(service: IBase64Service): service is IBase64Encoder {
-  return service.serviceType === 'encoder';
+  return service.serviceType === 'encoder'
 }
 
 /**
@@ -17,7 +17,7 @@ export function isBase64Encoder(service: IBase64Service): service is IBase64Enco
  * @returns True if the service is a decoder, false otherwise.
  */
 export function isBase64Decoder(service: IBase64Service): service is IBase64Decoder {
-  return service.serviceType === 'decoder';
+  return service.serviceType === 'decoder'
 }
 
 /**
@@ -36,11 +36,11 @@ export class Base64ServiceFactory {
   static create(type: Base64ServiceType): IBase64Service {
     switch (type) {
       case 'encoder':
-        return new Base64Encoder();
+        return new Base64Encoder()
       case 'decoder':
-        return new Base64Decoder();
+        return new Base64Decoder()
       default:
-        throw new Error(`Unsupported Base64 service type: ${type}`);
+        throw new Error(`Unsupported Base64 service type: ${type}`)
     }
   }
 
@@ -51,7 +51,7 @@ export class Base64ServiceFactory {
    * const encoder = Base64ServiceFactory.createEncoder();
    */
   static createEncoder(): IBase64Encoder {
-    return new Base64Encoder();
+    return new Base64Encoder()
   }
 
   /**
@@ -61,7 +61,7 @@ export class Base64ServiceFactory {
    * const decoder = Base64ServiceFactory.createDecoder();
    */
   static createDecoder(): IBase64Decoder {
-    return new Base64Decoder();
+    return new Base64Decoder()
   }
 
   /**
@@ -75,9 +75,9 @@ export class Base64ServiceFactory {
   static getServiceInfo(type: Base64ServiceType): { serviceType: Base64ServiceType } {
     return {
       serviceType: type
-    };
+    }
   }
 }
 
 // Re-export types for convenience
-export type { IBase64Service, IBase64Encoder, IBase64Decoder, Base64ServiceType };
+export type { IBase64Service, IBase64Encoder, IBase64Decoder, Base64ServiceType }

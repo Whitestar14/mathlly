@@ -8,7 +8,7 @@
 
     <template #header-actions>
       <div class="size-12 flex items-center justify-center">
-      <PrismLogo class="p-2" />
+        <PrismLogo class="p-2" />
       </div>
     </template>
 

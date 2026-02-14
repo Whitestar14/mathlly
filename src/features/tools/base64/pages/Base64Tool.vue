@@ -1,26 +1,23 @@
 <template>
-  <BasePage 
-    title="Base64 Converter" 
-    :breadcrumbs="breadcrumbs" 
+  <BasePage
+    title="Base64 Converter"
+    :breadcrumbs="breadcrumbs"
     :is-tool-layout="true"
-    main-class="flex flex-col flex-grow overflow-hidden h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] relative bg-background"
-  >
-    
+    main-class="flex flex-col flex-grow overflow-hidden h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] relative bg-background">
+
     <div class="flex-1 min-h-0 w-full max-w-[1920px] mx-auto p-2 md:p-4 flex flex-col gap-4 relative">
-      
+
       <Transition name="scale-fade">
-        <div 
+        <div
           v-if="isDragActive"
-          class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-xl border-2 border-dashed border-primary/50 m-2 md:m-4"
-        >
+          class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-xl border-2 border-dashed border-primary/50 m-2 md:m-4">
           <BaseFileDrop
             variant="zone"
             class="h-full w-full border-none bg-transparent"
             title="Drop file to process"
             description="Auto-detects binary or text"
             :icon="UploadCloud"
-            @files="handleGlobalDrop"
-          />
+            @files="handleGlobalDrop" />
         </div>
       </Transition>
 
@@ -31,38 +28,37 @@
         </div>
 
         <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar justify-end">
-           <div class="w-40 shrink-0">
-             <SelectBar
-               :model-value="tool.options.value.outputFormat"
-               :options="[
-                 { value: 'standard', label: 'Standard' },
-                 { value: 'url-safe', label: 'URL Safe' },
-                 { value: 'mime', label: 'MIME' }
-               ]"
-               size="sm"
-               @update:model-value="tool.options.value.outputFormat = $event"
-             />
-           </div>
-           
-           <div class="h-8 w-px bg-border shrink-0"></div>
+          <div class="w-40 shrink-0">
+            <SelectBar
+              :model-value="tool.options.value.outputFormat"
+              :options="[
+                { value: 'standard', label: 'Standard' },
+                { value: 'url-safe', label: 'URL Safe' },
+                { value: 'mime', label: 'MIME' }
+              ]"
+              size="sm"
+              @update:model-value="tool.options.value.outputFormat = $event" />
+          </div>
 
-           <BaseButton v-tippy="'Sample Text'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleSample('text')">
-             <FileText class="size-4" />
-           </BaseButton>
-           <BaseButton v-tippy="'Sample Image'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleSample('base64')">
-             <ImageIcon class="size-4" />
-           </BaseButton>
-           <BaseButton v-tippy="'Random Data'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleRandomData()">
-             <Shuffle class="size-4" />
-           </BaseButton>
+          <div class="h-8 w-px bg-border shrink-0"></div>
+
+          <BaseButton v-tippy="'Sample Text'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleSample('text')">
+            <FileText class="size-4" />
+          </BaseButton>
+          <BaseButton v-tippy="'Sample Image'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleSample('base64')">
+            <ImageIcon class="size-4" />
+          </BaseButton>
+          <BaseButton v-tippy="'Random Data'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleRandomData()">
+            <Shuffle class="size-4" />
+          </BaseButton>
         </div>
       </div>
 
       <div class="flex-1 min-h-0 relative">
         <Transition name="panel-switch" mode="out-in">
-          
+
           <div :key="tool.currentTab.value" class="h-full grid grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 gap-4">
-            
+
             <!-- Input Panel -->
             <Base64InputPanel
               :model-value="tool.input.value"
@@ -75,9 +71,8 @@
               :is-processing="tool.isProcessing.value"
               @update:model-value="tool.setInput"
               @upload="tool.processFiles"
-              @process="tool.triggerProcess" 
-              @clear="tool.handleClear"
-            />
+              @process="tool.triggerProcess"
+              @clear="tool.handleClear" />
 
             <!-- Output Panel -->
             <Base64OutputPanel
@@ -90,8 +85,7 @@
               :preview-info="previewInfo"
               @copy="copyOutput"
               @download="downloadOutput"
-              @swap="tool.handleSwap"
-            />
+              @swap="tool.handleSwap" />
           </div>
         </Transition>
       </div>
@@ -117,17 +111,17 @@ const keyboard = useKeyboardStore()
 const breadcrumbs = [{ label: 'Tools', path: '/' }, { label: 'Base64 Converter' }]
 
 const outputFormatLabel = computed(() => {
-    const map: Record<string, string> = { 'url-safe': 'URL Safe', 'mime': 'MIME', 'standard': 'Standard' }
-    return map[tool.options.value.outputFormat] || 'Standard'
+  const map: Record<string, string> = { 'url-safe': 'URL Safe', 'mime': 'MIME', 'standard': 'Standard' }
+  return map[tool.options.value.outputFormat] || 'Standard'
 })
 
 const previewInfo = computed(() => {
-    const result = tool.ops.processState.value
-    if (result.success && result.isBinary) {
-        const size = result.binary ? `${(result.binary.byteLength / 1024).toFixed(2)} KB` : '?? KB'
-        return { mime: result.mime || 'Unknown', size, isBinary: true }
-    }
-    return null
+  const result = tool.ops.processState.value
+  if (result.success && result.isBinary) {
+    const size = result.binary ? `${(result.binary.byteLength / 1024).toFixed(2)} KB` : '?? KB'
+    return { mime: result.mime || 'Unknown', size, isBinary: true }
+  }
+  return null
 })
 
 const handleGlobalDrop = (files: FileList) => {
@@ -135,7 +129,7 @@ const handleGlobalDrop = (files: FileList) => {
   tool.processFiles(files)
 }
 
-const copyOutput = async () => {
+const copyOutput = async() => {
   if (tool.ops.output.value) {
     await tool.copy(tool.ops.output.value)
     tool.toast('Copied to clipboard', { type: 'success' })
@@ -146,31 +140,31 @@ const downloadOutput = () => {
   tool.downloadOutput()
 }
 
-const handleProcess = async () => tool.triggerProcess()
+const handleProcess = async() => tool.triggerProcess()
 
-const handlePasteShortcut = async () => {
+const handlePasteShortcut = async() => {
   try {
     const text = await navigator.clipboard.readText()
     tool.setInput(text)
     tool.toast('Pasted!', { type: 'success' })
-  } catch (err) {
+  } catch(err) {
     console.warn('Clipboard read failed:', err)
     tool.toast('Failed to read clipboard', { type: 'error' })
   }
 }
 onMounted(() => {
-    keyboard.pushContext('tools.base64')
-    keyboard.attachAllForContext('tools.base64', {
-        'Ctrl+Enter': handleProcess,
-        'Ctrl+V': handlePasteShortcut,
-        'Ctrl+C': copyOutput,
-        'Ctrl+S': tool.handleSwap,
-        'Escape': tool.handleClear
-    })
+  keyboard.pushContext('tools.base64')
+  keyboard.attachAllForContext('tools.base64', {
+    'Ctrl+Enter': handleProcess,
+    'Ctrl+V': handlePasteShortcut,
+    'Ctrl+C': copyOutput,
+    'Ctrl+S': tool.handleSwap,
+    'Escape': tool.handleClear
+  })
 })
 
 onUnmounted(() => {
-    keyboard.popContext('tools.base64')
+  keyboard.popContext('tools.base64')
 })
 </script>
 

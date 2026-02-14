@@ -20,7 +20,7 @@ describe('useFileOperations', () => {
   const rawCache = ref('')
 
   // Helper to create readable mock files for testing
-  const createMockFile = (name: string, type = 'text/plain', content = 'content') => ({ name, type, size: content.length, _content: content, text: async () => content } as unknown as File)
+  const createMockFile = (name: string, type = 'text/plain', content = 'content') => ({ name, type, size: content.length, _content: content, text: async() => content } as unknown as File)
 
   // URL mocks
   const createObjectURLMock = vi.fn(() => 'mock-blob-url')
@@ -40,7 +40,7 @@ describe('useFileOperations', () => {
 
     // Fix JSDOM FileList constraint for tests
     Object.defineProperty(HTMLInputElement.prototype, 'files', {
-      set(value) { ;(this as any)._files = value },
+      set(value) { (this as any)._files = value },
       get() { return (this as any)._files },
       configurable: true
     })
@@ -72,9 +72,8 @@ describe('useFileOperations', () => {
     } as any
   })
 
-
   describe('handleFileUpload', () => {
-    it('shows error toast if file is too large (>25MB)', async () => {
+    it('shows error toast if file is too large (>25MB)', async() => {
       const { handleFileUpload } = useFileOperations(input, inputMode, fileDetails, currentTab, rawCache)
 
       // Minimal object with size > limit to trigger validation
@@ -88,7 +87,7 @@ describe('useFileOperations', () => {
       expect(fileDetails.value).toBe(null)
     })
 
-    it('ENCODE mode: reads file and caches raw base64', async () => {
+    it('ENCODE mode: reads file and caches raw base64', async() => {
       const { handleFileUpload } = useFileOperations(input, inputMode, fileDetails, currentTab, rawCache)
 
       const file = createMockFile('test.txt', 'text/plain', 'Hello World')
@@ -105,7 +104,7 @@ describe('useFileOperations', () => {
       expect(input.value).toBe('')
     })
 
-    it('DECODE mode: reads file as text into input', async () => {
+    it('DECODE mode: reads file as text into input', async() => {
       currentTab.value = 'decode'
       const { handleFileUpload } = useFileOperations(input, inputMode, fileDetails, currentTab, rawCache)
 
@@ -123,7 +122,7 @@ describe('useFileOperations', () => {
       expect(toastMock).toHaveBeenCalledWith(expect.stringContaining('Loaded "encoded.txt"'), { type: 'success' })
     })
 
-    it('SMART SWITCH: switches to encode if binary file dropped in decode tab', async () => {
+    it('SMART SWITCH: switches to encode if binary file dropped in decode tab', async() => {
       currentTab.value = 'decode'
       const { handleFileUpload } = useFileOperations(input, inputMode, fileDetails, currentTab, rawCache)
 
@@ -178,7 +177,7 @@ describe('useFileOperations', () => {
   })
 
   describe('handleDrop', () => {
-    it('processes dropped files', async () => {
+    it('processes dropped files', async() => {
       const { handleDrop } = useFileOperations(input, inputMode, fileDetails, currentTab, rawCache)
 
       const file = createMockFile('drop.txt', 'text/plain', 'content')

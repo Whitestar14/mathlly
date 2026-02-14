@@ -7,13 +7,12 @@
     :stats="stats"
     default-status="JSON Editor Ready"
     placeholder="Paste your JSON here..."
-    @update:model-value="$emit('update:modelValue', $event)"
-  >
+    @update:model-value="$emit('update:modelValue', $event)">
     <template #toolbar>
       <!-- Left: File Actions -->
       <div class="flex items-center gap-1 shrink-0 mr-4">
         <input ref="fileInputRef" type="file" accept=".json,.txt" class="hidden" @change="onFileSelected" />
-        
+
         <BaseButton v-tippy="'Upload JSON'" variant="ghost" size="icon" class="size-8" :disabled="isProcessing" @click="fileInputRef?.click()">
           <UploadCloud class="size-4 text-muted-foreground" />
         </BaseButton>
@@ -36,8 +35,7 @@
             :model-value="indentation"
             :options="indentOptions"
             size="xs"
-            @update:model-value="$emit('update:indentation', $event)" 
-          />
+            @update:model-value="$emit('update:indentation', $event)" />
         </div>
         <div class="w-px h-4 bg-border mx-1"></div>
         <BaseButton variant="ghost" size="sm" class="h-7 text-xs" :disabled="disableActions || isProcessing" @click="$emit('minify')">
@@ -68,7 +66,7 @@ import { BaseButton, SelectBar, BaseEditor } from '@components/ui'
 import { useToast } from '@composables/ui/useToast'
 import type { ParseError } from '../composables/useJsonTool'
 
-const props = defineProps<{
+defineProps<{
   modelValue: string
   error: ParseError | null
   indentation: number | string
@@ -96,14 +94,14 @@ const indentOptions = [
   { value: 'tab', label: 'Tab' }
 ]
 
-const handlePaste = async () => {
+const handlePaste = async() => {
   try {
     const text = await navigator.clipboard.readText()
     if (text) {
       emit('update:modelValue', text)
       toast({ title: 'Pasted', description: 'Content pasted from clipboard', type: 'success' })
     }
-  } catch (e) {
+  } catch {
     toast({ title: 'Error', description: 'Failed to read clipboard', type: 'error' })
   }
 }

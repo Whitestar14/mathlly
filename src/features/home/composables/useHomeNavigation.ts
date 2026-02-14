@@ -1,13 +1,12 @@
-
 import { computed } from 'vue'
-import { 
-  Calculator, 
-  Binary, 
-  Palette, 
-  FileJson, 
-  ArrowRightLeft, 
-  FunctionSquare, 
-  Regex, 
+import {
+  Calculator,
+  Binary,
+  Palette,
+  FileJson,
+  ArrowRightLeft,
+  FunctionSquare,
+  Regex,
   LineChart,
   Shapes,
   Landmark,
@@ -24,7 +23,7 @@ export interface ToolItem {
   icon: any
   badge?: 'new' | 'beta' | 'soon'
   keywords: string[]
-  gradient?: string // New property for visual flair
+  gradient?: string
 }
 
 export interface ToolCategory {
@@ -105,7 +104,7 @@ export function useHomeNavigation() {
           path: '/tools/hash',
           icon: Hash,
           badge: 'new',
-          keywords: ['crypto', 'security', 'md5', 'sha'],
+          keywords: ['crypto', 'security', 'md5', 'sha']
         },
         {
           id: 'diff',
@@ -114,7 +113,7 @@ export function useHomeNavigation() {
           path: '/tools/diff',
           icon: FileDiff,
           badge: 'soon',
-          keywords: ['compare', 'text', 'code'],
+          keywords: ['compare', 'text', 'code']
         }
       ]
     },
@@ -156,6 +155,15 @@ export function useHomeNavigation() {
           icon: FunctionSquare,
           badge: 'soon',
           keywords: ['graph', 'plot', 'math']
+        },
+        {
+          id: 'graphing',
+          name: 'Graphing',
+          description: 'Advanced graphing calculator for mathematical functions.',
+          path: '/graphing',
+          icon: LineChart,
+          badge: 'soon',
+          keywords: ['graph', 'plot', 'math', 'chart']
         }
       ]
     }

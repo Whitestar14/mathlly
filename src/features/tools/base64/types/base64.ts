@@ -28,8 +28,8 @@ export interface Base64ProcessingResult {
   error?: string;
 }
 
-export type Base64Tab = Tab['value'];
-export type InputMode = 'text' | 'file';
+export type Base64Tab = Tab['value']
+export type InputMode = 'text' | 'file'
 
 export interface FileDetails {
   name: string;
@@ -49,11 +49,11 @@ export interface Base64State {
   outputValidationError: string;
 }
 
-export type Base64StateUpdates = Partial<Base64State>;
+export type Base64StateUpdates = Partial<Base64State>
 
-export type Base64ServiceType = 'encoder' | 'decoder';
+export type Base64ServiceType = 'encoder' | 'decoder'
 
-export interface Base64EncodingOptions extends Pick<Base64Options, 'outputFormat' | 'lineLength' | 'preserveWhitespace'> {}
+export type Base64EncodingOptions = Pick<Base64Options, 'outputFormat' | 'lineLength' | 'preserveWhitespace'>
 export interface Base64DecodingOptions {
   detectBinary: boolean;
   detectMimeType: boolean;

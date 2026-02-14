@@ -16,7 +16,7 @@ export class Base64Decoder implements IBase64Decoder {
 
   async decode(base64: string, options: Base64DecodingOptions): Promise<Base64DecodingResult> {
     const normalized = normalizeBase64(base64)
-    
+
     let binString: string
     try {
       binString = atob(normalized)
@@ -32,17 +32,17 @@ export class Base64Decoder implements IBase64Decoder {
       }
     }
     const len = binString.length
-        const bytes = new Uint8Array(len)
-    
-    // Unrolling for very small strings isn't necessary in JS engines, but avoiding charCodeAt in a massive loop 
-    // on the main thread is tricky. For 25MB limits, this basic loop is usually 'okay', 
+    const bytes = new Uint8Array(len)
+
+    // Unrolling for very small strings isn't necessary in JS engines, but avoiding charCodeAt in a massive loop
+    // on the main thread is tricky. For 25MB limits, this basic loop is usually 'okay',
     // but mapping is cleaner.
     for (let i = 0; i < len; i++) {
       bytes[i] = binString.charCodeAt(i)
     }
 
     const mime = options.detectMimeType ? detectMimeType(bytes) : null
-    
+
     // Determine binary flag:
     // 1. Explicit mime type detection (e.g. image headers)
     // 2. Statistical analysis of non-printable characters
@@ -52,7 +52,7 @@ export class Base64Decoder implements IBase64Decoder {
     try {
       // Always attempt text decoding for the text view
       textOutput = new TextDecoder('utf-8', { fatal: false }).decode(bytes)
-      
+
       // Secondary check: if result has too many replacement chars, it's likely garbage binary displayed as text
       if (!isBinaryContent && hasExcessiveReplacementChars(textOutput)) {
         // We mark it as binary so the UI knows to warn the user

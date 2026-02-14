@@ -40,7 +40,7 @@ export class ScientificParenthesesHandler {
   private canCloseParenthesis(expr: string): boolean {
     // Ensure tracker is in sync with current input before check
     this.parenthesesTracker.sync(expr)
-    
+
     if (this.parenthesesTracker.getOpenCount() <= 0) return false
     if (!expr.trim()) return false
 

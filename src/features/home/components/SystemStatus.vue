@@ -11,8 +11,8 @@
     </div>
     <div class="hidden sm:block w-px h-3 bg-border"></div>
     <div class="hidden sm:flex items-center gap-1.5">
-       <Wifi v-if="isOnline" class="size-3" />
-       <WifiOff v-else class="size-3 text-destructive" />
+      <Wifi v-if="isOnline" class="size-3" />
+      <WifiOff v-else class="size-3 text-destructive" />
     </div>
   </div>
 </template>
@@ -31,8 +31,8 @@ let timer: number
 
 onMounted(() => {
   const updateTime = () => {
-    timeDisplay.value = new Date().toLocaleTimeString(undefined, { 
-      hour: '2-digit', 
+    timeDisplay.value = new Date().toLocaleTimeString(undefined, {
+      hour: '2-digit',
       minute: '2-digit',
       hour12: false
     })

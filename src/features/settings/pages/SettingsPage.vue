@@ -3,6 +3,7 @@ import { ref, onMounted, computed, type Component } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSettingsStore, DEFAULT_SETTINGS } from '@stores/settings'
 import { useKeyboardStore } from '@stores/keyboard'
+import { useDeviceStore } from '@stores/device'
 import { BasePage, BaseButton } from '@components/ui'
 import { useToast } from '@composables/ui/useToast'
 import { usePWAInstallPrompt } from '@composables/core/usePWAInstallPrompt'
@@ -37,6 +38,7 @@ const settingsStore = useSettingsStore()
 const keyboardStore = useKeyboardStore()
 const { toast } = useToast()
 const { dismissedInstall, promptInstall, installPromptSeen, isInstalled, resetDismissal, canInstall } = usePWAInstallPrompt()
+const deviceStore = useDeviceStore()
 
 const searchQuery = ref<string>('')
 const showUnsavedChangesModal = ref<boolean>(false)
@@ -54,19 +56,13 @@ const sectionComponents: Record<string, Component> = {
 
 const visibleSections = computed(() => {
   const filtered = filterByQuery(settingsManifest, searchQuery.value, ['title', 'keywords'])
-  
+
   return filtered.filter(section => {
-    if (section.id === 'keyboard' && isMobile.value) return false
-    
+    if (section.id === 'keyboard' && deviceStore.isMobile) return false
+
     return !!sectionComponents[section.id]
   })
 })
-
-const isMobile = computed(() => {
-  return (useDeviceStore().isMobile)
-})
-import { useDeviceStore } from '@stores/device'
-
 
 const storeSnapshot = computed((): Settings => ({
   id: settingsStore.id ?? DEFAULT_SETTINGS.id,
@@ -230,8 +226,7 @@ const handleManualPWAInstall = async() => {
               :key="item.id"
               :settings="localSettings"
               :is-visible="true"
-              @update:settings="updateSettings"
-            />
+              @update:settings="updateSettings" />
           </TransitionGroup>
         </div>
 

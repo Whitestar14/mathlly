@@ -3,7 +3,7 @@ import type { RouteLocationNormalizedLoaded } from 'vue-router'
 import { routeError } from '@router/errorHandler'
 
 export interface ErrorProps {
-  error: Error | Object | String | null
+  error: Error | object | string | null
   path: string
   isRouteError: boolean
   isGlobalError: boolean

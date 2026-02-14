@@ -1,5 +1,3 @@
-import type { Ref } from 'vue'
-
 export type ErrorCorrectionLevel = 'L' | 'M' | 'Q' | 'H'
 export type QrContentType = 'text' | 'url' | 'wifi' | 'email' | 'twitter' | 'crypto' | 'pdf' | 'app'
 export type WifiEncryption = 'WPA/WPA2' | 'WEP' | 'None'
@@ -51,7 +49,7 @@ export interface QrOptions {
   color: {
     dark: string
     light: string
-    eye: string // Explicitly string, we handle default fallback in logic
+    eye: string
   }
   backgroundImage?: string | null
   width: number

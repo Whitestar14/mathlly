@@ -5,8 +5,7 @@
     :stats="statsString"
     :default-status="statusString"
     placeholder="Type or paste content into the editor..."
-    @update:model-value="$emit('update:modelValue', $event)"
-  >
+    @update:model-value="$emit('update:modelValue', $event)">
     <template #toolbar>
       <div class="flex items-center gap-2">
         <label class="text-sm font-medium text-foreground px-2">Input</label>
@@ -14,7 +13,8 @@
 
       <div class="flex items-center gap-1">
         <!-- Manual Process Button (Only visible if Auto-Process is OFF) -->
-        <BaseButton v-tippy="'Run'" v-if="!autoProcess" variant="secondary" size="icon" class="size-8 mr-2 animate-in fade-in"
+        <BaseButton
+          v-if="!autoProcess" v-tippy="'Run'" variant="secondary" size="icon" class="size-8 mr-2 animate-in fade-in"
           :disabled="isProcessing" @click="$emit('process')">
           <Play class="size-3.5" />
         </BaseButton>
@@ -27,7 +27,8 @@
         <BaseButton v-tippy="'Paste'" variant="ghost" size="icon" class="size-8" @click="handlePaste">
           <ClipboardPaste class="size-4 text-muted-foreground" />
         </BaseButton>
-        <BaseButton v-tippy="'Clear'" variant="ghost" size="icon" class="size-8 hover:text-destructive"
+        <BaseButton
+          v-tippy="'Clear'" variant="ghost" size="icon" class="size-8 hover:text-destructive"
           @click="$emit('clear')">
           <Trash2 class="size-4" />
         </BaseButton>
@@ -38,22 +39,23 @@
       <!-- File Mode UI Overlay -->
       <div v-if="inputMode === 'file' && fileDetails" class="absolute inset-0 flex items-center justify-center p-6 z-20 pointer-events-auto bg-background/95 backdrop-blur-sm">
         <div class="w-full max-w-sm p-4 rounded-lg border border-border bg-muted/20 flex flex-col items-center gap-3 text-center animate-in zoom-in-95">
-           <div class="p-3 bg-primary/10 rounded-full text-primary">
-             <FileIcon class="size-8" />
-           </div>
-           <div>
-             <h3 class="font-medium text-foreground text-sm truncate max-w-[250px]">{{ fileDetails.name }}</h3>
-             <p class="text-xs text-muted-foreground mt-0.5">{{ formatFileSize(fileDetails.size) }} • {{ fileDetails.type || 'Unknown Type' }}</p>
-           </div>
-           <BaseButton variant="outline" size="sm" class="mt-2" @click="$emit('clear')">
-             Remove File
-           </BaseButton>
+          <div class="p-3 bg-primary/10 rounded-full text-primary">
+            <FileIcon class="size-8" />
+          </div>
+          <div>
+            <h3 class="font-medium text-foreground text-sm truncate max-w-[250px]">{{ fileDetails.name }}</h3>
+            <p class="text-xs text-muted-foreground mt-0.5">{{ formatFileSize(fileDetails.size) }} • {{ fileDetails.type || 'Unknown Type' }}</p>
+          </div>
+          <BaseButton variant="outline" size="sm" class="mt-2" @click="$emit('clear')">
+            Remove File
+          </BaseButton>
         </div>
       </div>
 
       <!-- Loader with fade transition -->
       <Transition name="fade">
-        <div v-if="isProcessing"
+        <div
+          v-if="isProcessing"
           class="absolute inset-0 z-30 bg-background/50 backdrop-blur-[1px] flex items-center justify-center">
           <div class="flex items-center gap-2 px-4 py-2 bg-card border border-border rounded-lg shadow-lg">
             <Loader2 class="size-4 animate-spin text-accent" />
@@ -75,11 +77,9 @@ import { formatFileSize } from '../utils/formatters/base64Formatter'
 
 const props = defineProps<{
   modelValue: string
-  mode: 'encode' | 'decode'
   inputMode?: InputMode
   fileDetails?: FileDetails | null
   autoProcess: boolean
-  placeholder?: string
   stats?: any
   showStats?: boolean
   isProcessing?: boolean
@@ -101,12 +101,12 @@ const onFileSelected = (e: Event) => {
   target.value = ''
 }
 
-const handlePaste = async () => {
+const handlePaste = async() => {
   try {
     const text = await navigator.clipboard.readText()
     emit('update:modelValue', text)
     toast({ title: 'Pasted', description: 'Content from clipboard', type: 'success' })
-  } catch (e) {
+  } catch {
     toast({ title: 'Error', description: 'Could not read clipboard', type: 'error' })
   }
 }

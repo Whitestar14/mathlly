@@ -117,7 +117,7 @@ const contrastLevel = computed((): { variant: BadgeVariant; text: string } => {
   if (ratio >= 7) return { variant: 'success', text: 'AAA' }
   if (ratio >= 4.5) return { variant: 'info', text: 'AA' }
   if (ratio >= 3) return { variant: 'warning', text: 'AA Large' }
-  return { variant: 'alpha', text: 'Fail' }
+  return { variant: 'destructive', text: 'Fail' }
 })
 
 const contrastBgRgba = computed(() => ({ ...contrastBg.value, a: 1 }))

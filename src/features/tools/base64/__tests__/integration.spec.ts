@@ -27,10 +27,10 @@ describe('Base64Tool Integration', () => {
     Object.assign(navigator, {
       clipboard: {
         readText: vi.fn(),
-        writeText: vi.fn().mockResolvedValue(undefined),
-      },
+        writeText: vi.fn().mockResolvedValue(undefined)
+      }
     })
-    
+
     global.URL.createObjectURL = vi.fn(() => 'blob:mock')
     global.URL.revokeObjectURL = vi.fn()
 
@@ -96,14 +96,14 @@ describe('Base64Tool Integration', () => {
     })
   }
 
-  const runAsyncLogic = async () => {
+  const runAsyncLogic = async() => {
     await flushPromises()
     vi.advanceTimersByTime(400)
     await flushPromises()
     await nextTick()
   }
 
-  it('encodes text input to Base64 output', async () => {
+  it('encodes text input to Base64 output', async() => {
     const wrapper = createWrapper()
     await runAsyncLogic()
     const vm = wrapper.vm as any
@@ -115,7 +115,7 @@ describe('Base64Tool Integration', () => {
     expect(vm.tool.ops.output.value).toBe('SGVsbG8gV29ybGQ=')
   })
 
-  it('decodes Base64 input to Text output', async () => {
+  it('decodes Base64 input to Text output', async() => {
     const wrapper = createWrapper()
     await runAsyncLogic()
     const vm = wrapper.vm as any
@@ -130,7 +130,7 @@ describe('Base64Tool Integration', () => {
     expect(vm.tool.ops.output.value).toBe('Hello World')
   })
 
-  it('swaps input and output', async () => {
+  it('swaps input and output', async() => {
     const wrapper = createWrapper()
     await runAsyncLogic()
     const vm = wrapper.vm as any
@@ -147,7 +147,7 @@ describe('Base64Tool Integration', () => {
     expect(vm.tool.input.value).toBe('QQ==')
   })
 
-  it('clears all fields', async () => {
+  it('clears all fields', async() => {
     const wrapper = createWrapper()
     await runAsyncLogic()
     const vm = wrapper.vm as any
@@ -161,7 +161,7 @@ describe('Base64Tool Integration', () => {
     expect(vm.tool.ops.output.value).toBe('')
   })
 
-  it('copies output to clipboard', async () => {
+  it('copies output to clipboard', async() => {
     const wrapper = createWrapper()
     await runAsyncLogic()
     const vm = wrapper.vm as any
@@ -173,12 +173,12 @@ describe('Base64Tool Integration', () => {
     await vm.tool.copy(vm.tool.ops.output.value)
     expect(spy).toHaveBeenCalledWith('Q29weSBNZQ==')
   })
-  it('processes file upload (Encoding)', async () => {
+  it('processes file upload (Encoding)', async() => {
     const wrapper = createWrapper()
     await runAsyncLogic()
     const vm = wrapper.vm as any
 
-    const file = ({ name: 'foo.txt', type: 'text/plain', size: 3, _content: 'foo', text: async () => 'foo' } as unknown) as File
+    const file = ({ name: 'foo.txt', type: 'text/plain', size: 3, _content: 'foo', text: async() => 'foo' } as unknown) as File
     const dt = new DataTransfer()
     dt.items.add(file)
 
@@ -190,7 +190,7 @@ describe('Base64Tool Integration', () => {
     expect(vm.tool.ops.output.value).toBe('Zm9v')
   }, 10000)
 
-  it('smart-switches to Encode if binary file dropped in Decode tab', async () => {
+  it('smart-switches to Encode if binary file dropped in Decode tab', async() => {
     const wrapper = createWrapper()
     await runAsyncLogic()
     const vm = wrapper.vm as any
@@ -198,7 +198,7 @@ describe('Base64Tool Integration', () => {
     vm.tool.currentTab.value = 'decode'
     await runAsyncLogic()
 
-    const file = ({ name: 'image.png', type: 'image/png', size: 6, _content: 'binary', text: async () => 'binary' } as unknown) as File
+    const file = ({ name: 'image.png', type: 'image/png', size: 6, _content: 'binary', text: async() => 'binary' } as unknown) as File
 
     const dt = new DataTransfer()
     dt.items.add(file)

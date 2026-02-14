@@ -11,7 +11,7 @@ export class TelemetryService {
   private static instance: TelemetryService
   private isInitialized = false
   private app: App | null = null
-  
+
   private readonly dsn = import.meta.env.VITE_SENTRY_DSN || ''
 
   static getInstance(): TelemetryService {
@@ -36,7 +36,7 @@ export class TelemetryService {
     // 2. Watch for changes in settings
     watch(
       () => settings.privacy.crashReportingEnabled,
-      (enabled) => {
+      enabled => {
         if (enabled) {
           this.startSentry()
         } else {
@@ -65,29 +65,29 @@ export class TelemetryService {
         dsn: this.dsn,
         integrations: [
           Sentry.browserTracingIntegration(),
-          Sentry.replayIntegration(),
+          Sentry.replayIntegration()
         ],
         // Performance Monitoring
         tracesSampleRate: 0.2, // Capture 20% of transactions for performance
         // Session Replay
         replaysSessionSampleRate: 0.0, // Don't record normal sessions
         replaysOnErrorSampleRate: 1.0, // Record session when an error occurs
-        
+
         beforeSend(event) {
           // Filter out specific errors if needed
           return event
-        },
+        }
       })
       this.isInitialized = true
       console.log(`[Telemetry] Sentry initialized${import.meta.env.DEV ? ' (Forced Dev Mode)' : ''}`)
-    } catch (e) {
+    } catch(e) {
       console.error('[Telemetry] Failed to initialize Sentry', e)
     }
   }
 
   private stopSentry() {
     if (!this.isInitialized) return
-    
+
     const client = Sentry.getClient()
     if (client) {
       client.close().then(() => {
@@ -102,7 +102,7 @@ export class TelemetryService {
    */
   logError(error: unknown) {
     if (!this.isInitialized) return
-    
+
     const forceEnable = import.meta.env.VITE_ENABLE_SENTRY === 'true'
 
     if (import.meta.env.DEV && !forceEnable) {

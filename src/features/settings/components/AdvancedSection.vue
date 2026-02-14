@@ -51,14 +51,14 @@ const cancelResetDatabase = (): void => {
   showResetDatabaseModal.value = false
 }
 
-const handleExport = async () => {
+const handleExport = async() => {
   isExporting.value = true
   try {
     const blob = await BackupService.createBackup()
     const filename = BackupService.getFilename()
     downloadBlob(blob, filename)
     toast({ type: 'success', title: 'Backup Created', description: 'Your data has been exported successfully.' })
-  } catch (error) {
+  } catch(error) {
     console.error(error)
     toast({ type: 'error', title: 'Export Failed', description: 'Could not create backup file.' })
   } finally {
@@ -70,7 +70,7 @@ const triggerImport = () => {
   fileInputRef.value?.click()
 }
 
-const handleImport = async (event: Event) => {
+const handleImport = async(event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   if (!file) return
@@ -78,15 +78,15 @@ const handleImport = async (event: Event) => {
   isImporting.value = true
   try {
     await BackupService.restoreBackup(file)
-    // Note: App reloads on success, so no toast needed here usually, 
+    // Note: App reloads on success, so no toast needed here usually,
     // but just in case logic changes:
     toast({ type: 'success', title: 'Import Successful', description: 'Restoring data...' })
-  } catch (error: any) {
+  } catch(error: any) {
     console.error(error)
     toast({ type: 'error', title: 'Import Failed', description: error.message || 'Invalid backup file.' })
     isImporting.value = false
   }
-  
+
   // Clear input
   target.value = ''
 }
@@ -100,7 +100,7 @@ const handleImport = async (event: Event) => {
     :icon="Settings2"
     :default-open="false">
     <div class="space-y-6">
-      
+
       <!-- Data Management -->
       <div class="space-y-3">
         <BaseLabel class="text-sm font-medium">Data Management</BaseLabel>
@@ -116,20 +116,19 @@ const handleImport = async (event: Event) => {
               </p>
             </div>
           </div>
-          
+
           <div class="flex gap-3 pt-2">
             <BaseButton variant="outline" size="sm" class="flex-1" :loading="isExporting" @click="handleExport">
               <Download class="h-4 w-4 mr-2" />
               Export Data
             </BaseButton>
-            
+
             <input
               ref="fileInputRef"
               type="file"
               accept=".json"
               class="hidden"
-              @change="handleImport"
-            />
+              @change="handleImport" />
             <BaseButton variant="outline" size="sm" class="flex-1" :loading="isImporting" @click="triggerImport">
               <Upload class="h-4 w-4 mr-2" />
               Import Data

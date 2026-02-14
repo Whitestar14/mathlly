@@ -4,16 +4,14 @@
     :show-footer="false"
     :show-back-button="false"
     title="Home"
-    main-class="min-h-screen bg-background p-0 relative overflow-hidden"
-  >
+    main-class="min-h-screen bg-background p-0 relative overflow-hidden">
 
-        <Transition name="fade" mode="out-in">
-            <component 
-                :is="currentView" 
-                class="relative z-10 h-full w-full"
-                @switch-layout="toggleLayout" 
-            />
-        </Transition>
+    <Transition name="fade" mode="out-in">
+      <component
+        :is="currentView"
+        class="relative z-10 h-full w-full"
+        @switch-layout="toggleLayout" />
+    </Transition>
 
     <WelcomeModal v-model="showWelcomeModal" />
   </BasePage>
@@ -38,12 +36,12 @@ const settingsStore = useSettingsStore()
 const currentLayout = computed(() => settingsStore.experimental.homeLayout || 'classic')
 
 const currentView = computed(() => {
-    return currentLayout.value === 'dashboard' ? DashboardView : ClassicView
+  return currentLayout.value === 'dashboard' ? DashboardView : ClassicView
 })
 
 const toggleLayout = () => {
-    const next = currentLayout.value === 'dashboard' ? 'classic' : 'dashboard'
-    settingsStore.updateSetting('experimental.homeLayout', next)
+  const next = currentLayout.value === 'dashboard' ? 'classic' : 'dashboard'
+  settingsStore.updateSetting('experimental.homeLayout', next)
 }
 
 onMounted(() => {
