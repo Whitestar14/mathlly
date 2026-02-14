@@ -123,8 +123,6 @@ import { BasePage, BaseButton, BaseCollapsible } from '@components/ui'
 import { useErrorState } from '@composables/utils/useErrorState'
 import { useErrorRetry } from '@composables/utils/useErrorRetry'
 
-// We define props here, and they are passed to useErrorState.
-// We explicitly access them to satisfy linter if needed, but passing them to a composable is usage.
 const props = defineProps({
   error: { type: [Error, Object, String], default: null },
   path: { type: String, default: '' },

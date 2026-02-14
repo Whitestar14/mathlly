@@ -116,7 +116,7 @@ interface Props {
   closeOnEscape?: boolean;
   closeButtonLabel?: string;
   hideCloseButton?: boolean;
-  naked?: boolean; // New prop to strip header/footer structure
+  naked?: boolean;
 }
 
 interface Emits {
