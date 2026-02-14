@@ -2,10 +2,14 @@
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA, type ManifestOptions } from 'vite-plugin-pwa'
-import { resolve } from 'path'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
 import manifestJson from './public/manifest.json'
 const manifest: Partial<ManifestOptions> = manifestJson as Partial<ManifestOptions>
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export default defineConfig({
   plugins: [
@@ -109,7 +113,7 @@ export default defineConfig({
         manualChunks: {
           'vendor-vue': ['vue', 'vue-router', 'pinia', 'dexie'],
           'vendor-ui': ['radix-vue', 'lucide-vue-next', 'vue-tippy', 'tippy.js'],
-          'vendor-utils': ['@vueuse/core', 'anime.js', 'culori'],
+          'vendor-utils': ['@vueuse/core', 'animejs', 'culori'],
           'vendor-math': ['mathjs', 'chart.js', 'vue-chartjs']
         }
       }

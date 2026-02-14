@@ -50,7 +50,7 @@
     <!-- Children -->
     <div v-if="isOpen && isExpandable" class="pl-4 border-l border-border/20 ml-2.5">
       <JsonTreeItem
-        v-for="(val, key, index) in (value as any)"
+        v-for="(val, key, index) in (value as Record<string, any>)"
         :key="key"
         :obj-key="isArray ? undefined : key"
         :value="val"
