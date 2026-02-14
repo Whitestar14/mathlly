@@ -1,6 +1,27 @@
 {
   "updates": [
     {
+      "version": "0.16.0",
+      "date": "February 14, 2026",
+      "features": [
+        "@milestone: Added Hash Generator, JSON Editor and QR code tool to the Prism Toolset Family!",
+        "@milestone: Redesigned the Home Page to serve as a dashboard and optimized other pages with polish",
+        "QOL: Added the ability backup Prism data via manual export/import. Cloud support pending",
+        "QOL: Added haptics to the numpad in the converter page, activated via the tool options panel",
+        "Removed system status in the app header on desktop devices, made available in the new Dashboard",
+        "Removed the UpdatePage and the AboutPage as these pages now have substitutes in the Dashboard",
+        "Enhanced Base64 with a throrough redesign and performance improvements",
+        "Improved buggy segmented controls and enhanced application layout",
+        "Added the ability to manually trigger a check for newer updates",
+        "Added a robust (opt-in) error tracking system with Sentry to improve Prism and catch errors faster. Note: Your personal info is not tracked, we will only collect logs, metrics and stack traces",
+        "Added support for binary file reading in Base64",
+        "Renamed Color Tool to Color Studio",
+        "Fixed app crashing when PWA service worker attempted connecting in unsupported environments",
+        "Fixed programmer mode bug where extraneous spaces were added between parentheses",
+        "Fixed standard mode bug that caused failure in handling backspaces of special characters"
+      ]
+    },
+    {
       "version": "0.15.2",
       "date": "February 6, 2026",
       "features": [
