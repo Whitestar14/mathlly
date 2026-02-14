@@ -69,10 +69,10 @@ export class StandardOperations {
     if (!this.validateNumberInput(num)) {
       return this.createResponse()
     }
-    
+
     this.calculator.input += num
     this.parenthesesTracker.sync(this.calculator.input)
-    
+
     return this.createResponse()
   }
 
@@ -141,6 +141,14 @@ export class StandardOperations {
       return this.createResponse()
     }
 
+    // Check for special backspace patterns (functions)
+    const specialBackspace = CalculatorUtils.handleSpecialBackspace(input)
+    if (specialBackspace.handled) {
+      this.calculator.input = specialBackspace.input
+      this.parenthesesTracker.sync(this.calculator.input)
+      return this.createResponse()
+    }
+
     const newInput = input.slice(0, -1)
 
     this.calculator.input = newInput.trim().length === 0 ? '0' : newInput
@@ -174,7 +182,7 @@ export class StandardOperations {
     if (this.calculator.input.trim() === '') {
       this.calculator.input = '0'
     }
-    
+
     this.parenthesesTracker.sync(this.calculator.input)
     return this.createResponse()
   }
@@ -187,19 +195,19 @@ export class StandardOperations {
     if (currentInput !== '0' && currentInput !== 'Error') {
       const parts = currentInput.split(/([+×÷])/)
       const lastPart = parts[parts.length - 1].trim()
-      
+
       if (lastPart) {
         if (lastPart.startsWith('-')) {
-           parts[parts.length - 1] = lastPart.slice(1)
+          parts[parts.length - 1] = lastPart.slice(1)
         } else if (lastPart.startsWith('(-')) {
-           parts[parts.length - 1] = lastPart.slice(2, -1) // Remove (- and )
+          parts[parts.length - 1] = lastPart.slice(2, -1) // Remove (- and )
         } else {
-           parts[parts.length - 1] = '(-' + lastPart + ')'
+          parts[parts.length - 1] = '(-' + lastPart + ')'
         }
         this.calculator.input = parts.join(' ').trim()
       }
     }
-    
+
     this.parenthesesTracker.sync(this.calculator.input)
     return this.createResponse()
   }
@@ -211,29 +219,29 @@ export class StandardOperations {
     try {
       const currentInput = this.calculator.input
       if (currentInput === '0' || currentInput === 'Error') {
-         this.calculator.input = pattern('0')
-         return this.createResponse()
+        this.calculator.input = pattern('0')
+        return this.createResponse()
       }
 
       const lastPart = CalculatorUtils.getLastComplexSegment(currentInput)
-      
+
       if (lastPart) {
         const lastPartIndex = currentInput.lastIndexOf(lastPart)
         // Ensure we don't accidentally match earlier occurrences if duplicates exist,
         // though logic typically operates on the tail.
         // A safer approach is string slicing if we know it's at the end.
-        
+
         // Check if the input ends with the last part (ignoring trailing parens for a moment)
         if (currentInput.endsWith(lastPart) || currentInput.includes(lastPart)) {
-             this.calculator.input =
-              currentInput.substring(0, lastPartIndex) +
+          this.calculator.input =
+            currentInput.substring(0, lastPartIndex) +
               pattern(lastPart)
         } else {
-            // Fallback: append
-            this.calculator.input += ` × ${pattern(lastPart)}` 
+          // Fallback: append
+          this.calculator.input += ` × ${pattern(lastPart)}`
         }
       } else {
-         this.calculator.input = pattern(currentInput)
+        this.calculator.input = pattern(currentInput)
       }
 
       this.parenthesesTracker.sync(this.calculator.input)

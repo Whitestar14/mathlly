@@ -69,7 +69,7 @@ const storageStore = useAppStorageStore()
 
 const breadcrumbs: BreadcrumbItem[] = [
   { label: 'Tools', path: '/' },
-  { label: 'Color' }
+  { label: 'Color Studio' }
 ]
 
 interface SuspenseWrapperProps {
@@ -304,7 +304,7 @@ defineExpose({ refreshPalettes })
 
 <template>
   <BasePage
-    title="Color Tool"
+    title="Color Studio"
     :breadcrumbs="breadcrumbs"
     :is-tool-layout="true"
     main-class="flex">

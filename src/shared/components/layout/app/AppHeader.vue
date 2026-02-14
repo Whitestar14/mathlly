@@ -12,7 +12,6 @@
             :is="isSidebarOpen ? CircleMinus : CircleEqual"
             class="h-5 w-5" />
         </BaseButton>
-        <OfflineIndicator />
       </div>
 
       <div class="flex-grow flex justify-center sm:justify-end items-center">
@@ -55,7 +54,6 @@ import {
   CircleMinus
 } from 'lucide-vue-next'
 import { BaseButton } from '@components/ui'
-import { OfflineIndicator } from '@components/layout'
 import { defineAsyncComponent } from 'vue'
 
 interface Props {

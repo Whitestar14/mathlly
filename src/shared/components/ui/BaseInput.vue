@@ -3,7 +3,7 @@
     <slot name="prefix">
       <div
         v-if="$slots.icon || icon"
-        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground pointer-events-none">
         <slot name="icon">
           <component
             :is="icon"
@@ -24,7 +24,7 @@
       :aria-invalid="!!error"
       :aria-describedby="error ? `${id}-error` : undefined"
       :class="[
-        'w-full rounded-lg border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-primary transition-colors disabled:opacity-60 disabled:cursor-not-allowed',
+        'w-full rounded-lg border bg-input text-foreground focus:outline-none focus:ring-2 focus:ring-ring dark:focus:ring-primary transition-all disabled:opacity-60 disabled:cursor-not-allowed',
         error ? 'border-destructive' : 'border-border',
         $slots.icon || icon ? 'pl-10' : 'pl-4',
         $slots.suffix ? 'pr-10' : 'pr-4',
@@ -35,7 +35,11 @@
       @blur="$emit('blur', $event)"
       @focus="handleFocus" />
 
-    <slot name="suffix"></slot>
+    <div
+      v-if="$slots.suffix"
+      class="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground flex items-center">
+      <slot name="suffix"></slot>
+    </div>
 
     <div
       v-if="error"

@@ -3,7 +3,7 @@
     v-if="isVisible"
     id="experimental"
     title="Experimental"
-    icon="FlaskConical"
+    :icon="FlaskConical"
     :default-open="false">
     <div class="space-y-6">
 
@@ -17,6 +17,23 @@
         <p class="text-xs text-amber-700 dark:text-amber-300">
           These features are in early development and may be unstable or removed in future updates.
         </p>
+      </div>
+
+      <div class="flex items-center justify-between py-2">
+        <div class="max-w-[80%]">
+          <div class="flex items-center gap-2">
+            <label
+              class="text-sm font-medium text-foreground">
+              Dashboard Layout
+            </label>
+          </div>
+          <p class="text-xs text-muted-foreground mt-1">
+            Try the new bento-grid style dashboard. This layout is experimental and subject to change.
+          </p>
+        </div>
+        <ToggleBar
+          :model-value="localSettings.experimental.homeLayout === 'dashboard'"
+          @update:model-value="val => localSettings.experimental.homeLayout = val ? 'dashboard' : 'classic'" />
       </div>
 
       <div class="flex items-center justify-between py-2">
@@ -83,7 +100,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { AlertTriangleIcon, CircleHelp } from 'lucide-vue-next'
+import { AlertTriangleIcon, CircleHelp, FlaskConical } from 'lucide-vue-next'
 import { BaseCollapsible, ToggleBar } from '@components/ui'
 import type { Settings } from '@services/storage/db'
 

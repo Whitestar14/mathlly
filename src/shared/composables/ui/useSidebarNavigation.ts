@@ -2,16 +2,20 @@ import { markRaw } from 'vue'
 import {
   CompassIcon,
   Code2Icon,
-  InfoIcon,
   MessagesSquareIcon,
   CogIcon,
-  SparklesIcon,
   PaletteIcon,
   FunctionSquareIcon,
   RegexIcon,
   LineChartIcon,
   ArrowRightLeftIcon,
-  BinaryIcon
+  BinaryIcon,
+  FileJson2Icon,
+  ShapesIcon,
+  LandmarkIcon,
+  QrCodeIcon,
+  HashIcon,
+  FileDiffIcon
 } from 'lucide-vue-next'
 
 export interface NavigationItem {
@@ -67,18 +71,24 @@ export function useSidebarNavigation() {
           path: '/converter',
           icon: ArrowRightLeftIcon,
           comingSoon: false,
-          isNew: true
+          isNew: false
+        },
+        {
+          name: 'Geometry',
+          path: '/geometry',
+          icon: ShapesIcon,
+          comingSoon: true
+        },
+        {
+          name: 'Finance',
+          path: '/finance',
+          icon: LandmarkIcon,
+          comingSoon: true
         },
         {
           name: 'Functions',
           path: '/functions',
           icon: FunctionSquareIcon,
-          comingSoon: true
-        },
-        {
-          name: 'Regex',
-          path: '/regex',
-          icon: RegexIcon,
           comingSoon: true
         },
         {
@@ -101,29 +111,48 @@ export function useSidebarNavigation() {
           description: 'Encode and decode Base64 strings'
         },
         {
-          name: 'Color',
+          name: 'Color Studio',
           path: '/tools/color',
           icon: PaletteIcon,
-          isNew: true,
+          isNew: false,
           comingSoon: false,
           description: 'Convert and preview colors (hex, rgb, cmyk, oklch)'
-        }
-      ]
-    },
-    {
-      title: 'Information',
-      items: [
-        {
-          name: 'Updates',
-          path: '/info/update',
-          comingSoon: false,
-          icon: SparklesIcon
         },
         {
-          name: 'About',
-          path: '/info/about',
+          name: 'JSON Editor',
+          path: '/tools/json',
+          icon: FileJson2Icon,
+          isNew: true,
+          description: 'Validate, format, minify and convert JSON data.'
+        },
+        {
+          name: 'QR Code',
+          path: '/tools/qrcode',
+          icon: QrCodeIcon,
+          isNew: true,
+          description: 'Generate customizable QR codes'
+        },
+        {
+          name: 'Hash Generator',
+          path: '/tools/hash',
+          icon: HashIcon,
+          isNew: true,
           comingSoon: false,
-          icon: InfoIcon
+          description: 'Generate cryptographic hashes (SHA-256, etc)'
+        },
+        {
+          name: 'Diff Checker',
+          path: '/tools/diff',
+          icon: FileDiffIcon,
+          isNew: false,
+          comingSoon: true,
+          description: 'Compare text files and view differences'
+        },
+        {
+          name: 'Regex',
+          path: '/regex',
+          icon: RegexIcon,
+          comingSoon: true
         }
       ]
     }

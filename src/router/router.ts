@@ -36,6 +36,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/tools/base64',
     name: 'base64',
     component: () => import('@base64/pages/Base64Tool.vue'),
+    meta: { transition: 'fade', group: 'tools', header: { widgetNames: ['Base64TabSwitcher'] } }
+  },
+  {
+    path: '/tools/json',
+    name: 'json',
+    component: () => import('@features/tools/json/pages/JsonTool.vue'),
     meta: { transition: 'fade', group: 'tools' }
   },
   {
@@ -45,16 +51,16 @@ const routes: Array<RouteRecordRaw> = [
     meta: { transition: 'fade', group: 'tools' }
   },
   {
-    path: '/info/update',
-    name: 'updates',
-    component: () => import('@pages/UpdatePage.vue'),
-    meta: { transition: 'fade', group: 'information' }
+    path: '/tools/qrcode',
+    name: 'qrcode',
+    component: () => import('@features/tools/qrcode/pages/QrCodeTool.vue'),
+    meta: { transition: 'fade', group: 'tools' }
   },
   {
-    path: '/info/about',
-    name: 'about',
-    component: () => import('@pages/AboutPage.vue'),
-    meta: { transition: 'fade', group: 'information' }
+    path: '/tools/hash',
+    name: 'hash',
+    component: () => import('@features/tools/hash/pages/HashTool.vue'),
+    meta: { transition: 'fade', group: 'tools' }
   },
   {
     path: '/settings',
@@ -124,18 +130,12 @@ router.afterEach(to => {
 
   if (!excludedRoutes.includes(to.name as string) && to.path !== '/') {
     storageStore.set('router', 'lastVisitedPath', to.fullPath)
+    storageStore.set('router', 'lastVisitedTime', Date.now())
   }
 
   isInitialNavigation = false
 })
 
-/**
- * future maintainers, do not try to simplify this code without testing it first, as it
-  is critical to first-load performance and stability. The navigation guard for '/' is
-  intentionally included to avoid routing to the preferred page set in Settings instead
-  of staying put on the current page! Please, it took me way too much time than I'll allowed
-  to admit to discover why app rerouting and navigation didn't behave as expected.
- */
 router.beforeEach(async(to, _, next) => {
   isRouteLoading.value = true
 

@@ -1,461 +1,194 @@
+<template>
+  <BasePage
+    title="Base64 Converter"
+    :breadcrumbs="breadcrumbs"
+    :is-tool-layout="true"
+    main-class="flex flex-col flex-grow overflow-hidden h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] relative bg-background">
+
+    <div class="flex-1 min-h-0 w-full max-w-[1920px] mx-auto p-2 md:p-4 flex flex-col gap-4 relative">
+
+      <Transition name="scale-fade">
+        <div
+          v-if="isDragActive"
+          class="absolute inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm rounded-xl border-2 border-dashed border-primary/50 m-2 md:m-4">
+          <BaseFileDrop
+            variant="zone"
+            class="h-full w-full border-none bg-transparent"
+            title="Drop file to process"
+            description="Auto-detects binary or text"
+            :icon="UploadCloud"
+            @files="handleGlobalDrop" />
+        </div>
+      </Transition>
+
+      <!-- Top Control Bar -->
+      <div class="flex flex-row justify-between items-center gap-3 px-1 flex-shrink-0">
+        <!-- Spacer to push controls to right if needed, or hold secondary toggles -->
+        <div class="w-auto">
+        </div>
+
+        <div class="flex items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar justify-end">
+          <div class="w-40 shrink-0">
+            <SelectBar
+              :model-value="tool.options.value.outputFormat"
+              :options="[
+                { value: 'standard', label: 'Standard' },
+                { value: 'url-safe', label: 'URL Safe' },
+                { value: 'mime', label: 'MIME' }
+              ]"
+              size="sm"
+              @update:model-value="tool.options.value.outputFormat = $event" />
+          </div>
+
+          <div class="h-8 w-px bg-border shrink-0"></div>
+
+          <BaseButton v-tippy="'Sample Text'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleSample('text')">
+            <FileText class="size-4" />
+          </BaseButton>
+          <BaseButton v-tippy="'Sample Image'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleSample('base64')">
+            <ImageIcon class="size-4" />
+          </BaseButton>
+          <BaseButton v-tippy="'Random Data'" variant="outline" size="icon" class="size-9 shrink-0" @click="tool.handleRandomData()">
+            <Shuffle class="size-4" />
+          </BaseButton>
+        </div>
+      </div>
+
+      <div class="flex-1 min-h-0 relative">
+        <Transition name="panel-switch" mode="out-in">
+
+          <div :key="tool.currentTab.value" class="h-full grid grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 gap-4">
+
+            <!-- Input Panel -->
+            <Base64InputPanel
+              :model-value="tool.input.value"
+              :mode="tool.currentTab.value"
+              :input-mode="tool.inputMode.value"
+              :file-details="tool.fileDetails.value"
+              :auto-process="tool.options.value.autoProcess"
+              :show-stats="tool.options.value.showCharacterCount"
+              :stats="tool.ops.inputStats.value"
+              :is-processing="tool.isProcessing.value"
+              @update:model-value="tool.setInput"
+              @upload="tool.processFiles"
+              @process="tool.triggerProcess"
+              @clear="tool.handleClear" />
+
+            <!-- Output Panel -->
+            <Base64OutputPanel
+              :model-value="tool.ops.output.value"
+              :format-label="outputFormatLabel"
+              :show-stats="tool.options.value.showCharacterCount"
+              :stats="tool.ops.outputStats.value"
+              :error="tool.outputValidationError.value"
+              :preview-url="tool.activePreviewUrl.value"
+              :preview-info="previewInfo"
+              @copy="copyOutput"
+              @download="downloadOutput"
+              @swap="tool.handleSwap" />
+          </div>
+        </Transition>
+      </div>
+    </div>
+  </BasePage>
+</template>
+
 <script setup lang="ts">
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue'
-import { useClipboard, useDebounceFn } from '@vueuse/core'
-import { Copy, ArrowDownUp, Download, X, Loader2 } from 'lucide-vue-next'
-import { useToast } from '@composables/ui/useToast'
-
-import Base64Actions from '../components/Base64Actions.vue'
-import { useBase64Options } from '../composables/useBase64Options'
-import { useBase64Operations } from '../composables/useBase64Operations'
-import { useFileOperations } from '../composables/useFileOperations'
-import { useSampleData } from '../composables/useSampleData'
-import { useBase64FileUI } from '../composables/useBase64FileUI'
-import { Tab } from '../types/base64'
-
-import TextPanel from '../components/TextPanel.vue'
-import FileUpload from '../components/FileUpload.vue'
-import FileProcessingOverlay from '../components/FileProcessingOverlay.vue'
-import { BaseButton, BaseTabs, BasePage, BaseCard } from '@components/ui'
-import type { BreadcrumbItem } from '@components/ui/BasePage.vue'
-
+import { computed, defineAsyncComponent, onMounted, onUnmounted } from 'vue'
+import { UploadCloud, FileText, Shuffle, Image as ImageIcon } from 'lucide-vue-next'
+import { BasePage, BaseButton, BaseFileDrop, SelectBar } from '@components/ui'
+import { useBase64Tool } from '../composables/useBase64Tool'
+import { useDragDrop } from '@composables/useDragDrop'
 import { useKeyboardStore } from '@stores/keyboard'
 
+const Base64InputPanel = defineAsyncComponent(() => import('../components/Base64InputPanel.vue'))
+const Base64OutputPanel = defineAsyncComponent(() => import('../components/Base64OutputPanel.vue'))
+
+const tool = useBase64Tool()
+const { isDragActive, resetDragState } = useDragDrop()
 const keyboard = useKeyboardStore()
 
-const tabs: Tab[] = [
-  { value: 'encode', label: 'Encode' },
-  { value: 'decode', label: 'Decode' }
-]
+const breadcrumbs = [{ label: 'Tools', path: '/' }, { label: 'Base64 Converter' }]
 
-const singleInput = ref('')
-const encodeBuffer = ref('')
-const decodeBuffer = ref('')
-const currentTab = ref<'encode' | 'decode'>('encode')
-const selectedFileName = ref('')
-
-const inputArea = ref<HTMLTextAreaElement | null>(null)
-const tabsRef = ref<InstanceType<typeof BaseTabs> | null>(null as any)
-const isFileProcessing = ref(false)
-
-const outputValidationError = ref('')
-
-const { copy } = useClipboard()
-const { toast } = useToast()
-const base64Options = useBase64Options()
-
-const input = computed<string>({
-  get() {
-    return base64Options.options.value.preserveMode ?
-      currentTab.value === 'encode' ?
-        encodeBuffer.value :
-        decodeBuffer.value :
-      singleInput.value
-  },
-  set(v: string) {
-    if (base64Options.options.value.preserveMode) {
-      if (currentTab.value === 'encode') encodeBuffer.value = v
-      else decodeBuffer.value = v
-    } else {
-      singleInput.value = v
-    }
-  }
+const outputFormatLabel = computed(() => {
+  const map: Record<string, string> = { 'url-safe': 'URL Safe', 'mime': 'MIME', 'standard': 'Standard' }
+  return map[tool.options.value.outputFormat] || 'Standard'
 })
 
-const {
-  output,
-  isProcessing,
-  validationError,
-  inputStats,
-  outputStats,
-  processInput,
-  processState
-} = useBase64Operations(input, base64Options.options)
-
-const { handleFileUpload, handleDrop, downloadOutput } = useFileOperations(
-  input,
-  selectedFileName,
-  toast
-)
-const { fileInput, isDragActive, triggerFilePicker, handleDropEvent } =
-  useBase64FileUI()
-
-const sample = useSampleData()
-
-function applyProcessResult(showToastOnSuccess = false) {
-  const result = processState.value
-  if (!result) return
-
-  if (!result.success) {
-    if (result.error?.includes('Invalid Base64')) {
-      outputValidationError.value = result.error
-    } else {
-      outputValidationError.value = ''
-      toast(result.error ?? 'Processing failed', { type: 'error' })
-    }
-  } else {
-    outputValidationError.value = ''
-    if (showToastOnSuccess) {
-      toast(
-        `Successfully ${
-          currentTab.value === 'encode' ? 'encoded' : 'decoded'
-        }!`,
-        { type: 'success' }
-      )
-    }
+const previewInfo = computed(() => {
+  const result = tool.ops.processState.value
+  if (result.success && result.isBinary) {
+    const size = result.binary ? `${(result.binary.byteLength / 1024).toFixed(2)} KB` : '?? KB'
+    return { mime: result.mime || 'Unknown', size, isBinary: true }
   }
-}
-
-const debouncedProcess = useDebounceFn(async(tab: 'encode' | 'decode') => {
-  if (!base64Options.options.value.autoProcess) return
-  await processInput(tab)
-  applyProcessResult(false)
-}, 300)
-
-const outputFormat = computed(() => {
-  const format = base64Options.options.value.outputFormat
-  return format === 'url-safe' ?
-    'URL Safe' :
-    format === 'mime' ?
-      'MIME' :
-      'Standard'
+  return null
 })
 
-const handleInput = async(): Promise<void> => {
-  selectedFileName.value = ''
-  await debouncedProcess(currentTab.value)
+const handleGlobalDrop = (files: FileList) => {
+  resetDragState()
+  tool.processFiles(files)
 }
 
-const handleProcess = async(): Promise<void> => {
-  await processInput(currentTab.value)
-  applyProcessResult(true)
-}
-
-const onFileUpload = async(event: Event): Promise<void> => {
-  try {
-    isFileProcessing.value = true
-    await handleFileUpload(event)
-    if (base64Options.options.value.autoProcess) {
-      await processInput(currentTab.value)
-      applyProcessResult(false)
-    }
-  } finally {
-    setTimeout(() => (isFileProcessing.value = false), 150)
+const copyOutput = async() => {
+  if (tool.ops.output.value) {
+    await tool.copy(tool.ops.output.value)
+    tool.toast('Copied to clipboard', { type: 'success' })
   }
 }
 
-const onDrop = async(event: DragEvent): Promise<void> => {
-  try {
-    isFileProcessing.value = true
-    await handleDropEvent(
-      event,
-      handleDrop,
-      processInput,
-      currentTab,
-      base64Options.options
-    )
-    applyProcessResult(false)
-  } finally {
-    setTimeout(() => (isFileProcessing.value = false), 150)
-  }
+const downloadOutput = () => {
+  tool.downloadOutput()
 }
 
-const handleTabChange = async(tabValue: string): Promise<void> => {
-  currentTab.value = tabValue as 'encode' | 'decode'
-  if (input.value.trim() && base64Options.options.value.autoProcess) {
-    await processInput(currentTab.value)
-    applyProcessResult(false)
-  }
-  nextTick(() => inputArea.value?.focus())
-}
+const handleProcess = async() => tool.triggerProcess()
 
-const pasteFromClipboard = async(): Promise<void> => {
+const handlePasteShortcut = async() => {
   try {
     const text = await navigator.clipboard.readText()
-    input.value = text
-    selectedFileName.value = ''
-    if (base64Options.options.value.autoProcess) {
-      await processInput(currentTab.value)
-      applyProcessResult(false)
-    }
-    toast('Pasted from clipboard!', { type: 'success' })
-  } catch {
-    toast('Failed to paste', { type: 'error' })
+    tool.setInput(text)
+    tool.toast('Pasted!', { type: 'success' })
+  } catch(err) {
+    console.warn('Clipboard read failed:', err)
+    tool.toast('Failed to read clipboard', { type: 'error' })
   }
 }
-
-const handleCopy = async(): Promise<void> => {
-  if (!output.value) return toast('Nothing to copy', { type: 'warning' })
-  try {
-    await copy(output.value)
-    toast('Copied to clipboard!', { type: 'success' })
-  } catch {
-    toast('Failed to copy', { type: 'error' })
-  }
-}
-
-const handleSampleText = async() => {
-  input.value = sample.loadSampleText()
-  selectedFileName.value = ''
-  if (base64Options.options.value.autoProcess) {
-    await processInput('encode')
-    applyProcessResult(true)
-  }
-}
-
-const handleSampleBase64 = async() => {
-  input.value = sample.loadSampleBase64()
-  selectedFileName.value = ''
-  if (base64Options.options.value.autoProcess) {
-    await processInput('decode')
-    applyProcessResult(true)
-  }
-}
-
-const handleRandomData = () => {
-  input.value = sample.generateRandomData()
-  selectedFileName.value = ''
-}
-
-const handleSwap = (): void => {
-  const currInput = input.value
-  const currOutput = output.value
-
-  if (base64Options.options.value.preserveMode) {
-    if (currentTab.value === 'encode') decodeBuffer.value = currOutput
-    else encodeBuffer.value = currOutput
-    output.value = currInput
-  } else {
-    input.value = currOutput
-    output.value = currInput
-  }
-
-  selectedFileName.value = ''
-  currentTab.value = currentTab.value === 'encode' ? 'decode' : 'encode'
-  toast('Input and output swapped!', { type: 'success' })
-}
-
-const clearInput = (): void => {
-  if (base64Options.options.value.preserveMode) {
-    if (currentTab.value === 'encode') encodeBuffer.value = ''
-    else decodeBuffer.value = ''
-  } else {
-    singleInput.value = ''
-  }
-  selectedFileName.value = ''
-  if (base64Options.options.value.autoProcess) output.value = ''
-}
-
-const clearAll = (): void => {
-  singleInput.value = ''
-  encodeBuffer.value = ''
-  decodeBuffer.value = ''
-  output.value = ''
-  selectedFileName.value = ''
-  validationError.value = ''
-  outputValidationError.value = ''
-  toast('All fields cleared!', { type: 'success' })
-}
-
-watch(currentTab, async newTab => {
-  if (input.value.trim() && base64Options.options.value.autoProcess) {
-    await processInput(newTab)
-    applyProcessResult(false)
-  }
-})
-
-watch(
-  () => base64Options.options.value,
-  async() => {
-    if (base64Options.options.value.autoProcess && input.value.trim()) {
-      await processInput(currentTab.value)
-      applyProcessResult(false)
-    }
-  },
-  { deep: true }
-)
-
-nextTick(() => {
-  if (tabsRef.value?.initializePills) tabsRef.value.initializePills('encode')
-})
-
-const breadcrumbs: BreadcrumbItem[] = [
-  { label: 'Tools', path: '/' },
-  { label: 'Base64' }
-]
-
 onMounted(() => {
-  keyboard.attachAllForContext('tools.base64', {
-    'Ctrl+Enter': () => handleProcess(),
-    'Ctrl+V': () => pasteFromClipboard(),
-    'Ctrl+C': () => handleCopy(),
-    'Ctrl+S': () => handleSwap()
-  })
   keyboard.pushContext('tools.base64')
+  keyboard.attachAllForContext('tools.base64', {
+    'Ctrl+Enter': handleProcess,
+    'Ctrl+V': handlePasteShortcut,
+    'Ctrl+C': copyOutput,
+    'Ctrl+S': tool.handleSwap,
+    'Escape': tool.handleClear
+  })
 })
 
 onUnmounted(() => {
   keyboard.popContext('tools.base64')
 })
-
 </script>
 
-<template>
-  <BasePage
-    title="Base64"
-    :main-class="'flex'"
-    :breadcrumbs="breadcrumbs"
-    :is-tool-layout="true">
-    <div class="container mx-auto p-2 md:p-3">
-      <div class="max-w-6xl mx-auto space-y-3">
+<style scoped>
+.scale-fade-enter-active,
+.scale-fade-leave-active {
+  transition: all 0.2s ease-out;
+}
+.scale-fade-enter-from,
+.scale-fade-leave-to {
+  opacity: 0;
+  transform: scale(0.95);
+}
 
-        <div
-          class="rounded-lg border border-border dark:border-border overflow-hidden">
-          <BaseTabs
-            ref="tabsRef"
-            v-model:model-value="currentTab"
-            :tabs="tabs"
-            @tab-change="handleTabChange">
-            <template #actions>
-              <Base64Actions
-                :load-sample-text="handleSampleText"
-                :load-sample-base64="handleSampleBase64"
-                :generate-random-data="handleRandomData"
-                :clear-all="clearAll"
-                :trigger-file-picker="triggerFilePicker" />
-            </template>
-          </BaseTabs>
-
-          <div class="p-3 md:p-6 bg-card">
-            <input
-              ref="fileInput"
-              type="file"
-              class="hidden"
-              @change="onFileUpload" />
-            <FileProcessingOverlay :open="isFileProcessing" />
-
-            <div class="relative">
-              <div
-                v-if="isDragActive"
-                class="absolute inset-0 z-20 flex items-center justify-center pointer-events-auto">
-                <Transition
-                  name="fade-scale"
-                  enter-active-class="transition ease-out duration-200"
-                  enter-from-class="opacity-0 scale-95"
-                  enter-to-class="opacity-100 scale-100"
-                  leave-active-class="transition ease-in duration-150"
-                  leave-from-class="opacity-100 scale-100"
-                  leave-to-class="opacity-0 scale-95">
-                  <FileUpload
-                    :handle-binary-files="true"
-                    :current-tab="currentTab"
-                    class="w-full max-w-md mx-auto"
-                    @file-upload="onFileUpload"
-                    @drop="onDrop" />
-                </Transition>
-              </div>
-
-              <div
-                :class="{ invisible: isDragActive }"
-                class="grid gap-2 md:gap-3 lg:grid-cols-2">
-
-                <BaseCard class="border-none">
-                  <TextPanel
-                    :model-value="input"
-                    :label="`Input${
-                      selectedFileName ? ` (${selectedFileName})` : ''
-                    }`"
-                    :placeholder="
-                      currentTab === 'encode'
-                        ? 'Enter text to encode or upload a file...'
-                        : 'Enter Base64 to decode...'
-                    "
-                    :stats="inputStats"
-                    :show-stats="base64Options.options.value.showCharacterCount"
-                    :validation-error="validationError"
-                    :show-paste-button="true"
-                    @update:model-value="(v) => (input = v)"
-                    @input="handleInput"
-                    @drop="onDrop"
-                    @paste="pasteFromClipboard">
-                    <template #actions>
-                      <div class="flex items-center gap-2">
-                        <BaseButton
-                          v-if="!base64Options.options.value.autoProcess"
-                          variant="outline"
-                          size="sm"
-                          :disabled="isProcessing"
-                          @click="handleProcess">
-                          <Loader2
-                            v-if="isProcessing"
-                            class="h-3 w-3 animate-spin mr-1" />
-                          {{ currentTab === 'encode' ? 'Encode' : 'Decode' }}
-                        </BaseButton>
-
-                        <BaseButton
-                          v-if="input"
-                          variant="ghost"
-                          class="h-6 w-6"
-                          size="icon"
-                          @click="clearInput">
-                          <X class="h-3 w-3" />
-                        </BaseButton>
-                      </div>
-                    </template>
-                  </TextPanel>
-                </BaseCard>
-
-                <BaseCard class="border-none">
-                  <TextPanel
-                    :model-value="output"
-                    :label="`Output (${outputFormat})`"
-                    placeholder="Result will appear here..."
-                    :stats="outputStats"
-                    :show-stats="
-                      base64Options.options.value.showCharacterCount && !!output
-                    "
-                    :read-only="true"
-                    :validation-error="outputValidationError"
-                    @update:model-value="(v) => (output = v)">
-                    <template #actions>
-                      <div class="flex items-center gap-2">
-                        <BaseButton
-                          v-tippy="{ content: 'Swap input/output' }"
-                          variant="ghost"
-                          size="icon"
-                          class="h-6 w-6"
-                          :disabled="!output"
-                          @click="handleSwap">
-                          <ArrowDownUp class="h-3 w-3" />
-                        </BaseButton>
-
-                        <BaseButton
-                          v-tippy="{ content: 'Download as file' }"
-                          variant="ghost"
-                          size="icon"
-                          class="h-6 w-6"
-                          :disabled="!output"
-                          @click="downloadOutput(output, currentTab)">
-                          <Download class="h-3 w-3" />
-                        </BaseButton>
-
-                        <BaseButton
-                          v-tippy="{ content: 'Copy to clipboard' }"
-                          variant="ghost"
-                          size="icon"
-                          class="h-6 w-6"
-                          :disabled="!output"
-                          @click="handleCopy">
-                          <Copy class="h-3 w-3" />
-                        </BaseButton>
-                      </div>
-                    </template>
-                  </TextPanel>
-                </BaseCard>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </BasePage>
-</template>
+.panel-switch-enter-active,
+.panel-switch-leave-active {
+  transition: all 0.15s ease-out;
+}
+.panel-switch-enter-from {
+  opacity: 0;
+  transform: scale(0.98) translateY(5px);
+}
+.panel-switch-leave-to {
+  opacity: 0;
+  transform: scale(0.98) translateY(-5px);
+}
+</style>

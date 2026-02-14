@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { SelectBar, BaseCollapsible } from '@components/ui'
+import { Power } from 'lucide-vue-next'
 import type { Settings } from '@services/storage/db'
 
 interface Props {
@@ -32,7 +33,7 @@ const localSettings = computed({
     v-if="isVisible"
     id="startup"
     title="Startup"
-    icon="Power"
+    :icon="Power"
     :default-open="true">
     <div>
       <label

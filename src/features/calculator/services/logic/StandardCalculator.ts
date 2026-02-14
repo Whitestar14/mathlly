@@ -53,13 +53,13 @@ export class StandardCalculator extends ICalculator {
     try {
       const openCount = this.operations.getParenthesesCount()
       const finalExpr = openCount > 0 ? this.input + ')'.repeat(openCount) : this.input
-      
+
       this.currentExpression = finalExpr
       const result = this.evaluateExpression(this.currentExpression)
       const formattedResult = this.formatResult(result)
-      
+
       this.input = formattedResult
-      
+
       // Reset tracker since we have a new result
       this.operations.resetParentheses()
 

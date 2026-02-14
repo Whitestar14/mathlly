@@ -37,7 +37,7 @@
   }
 
   textarea {
-    @apply outline-none text-foreground bg-background transition-[border-color] duration-200 ease-linear focus:ring-1 focus:ring-ring/50 focus:border-ring/50;
+    @apply outline-none text-foreground bg-background transition-[border-color] duration-200 ease-linear;
   }
 
   /* Accessibility: reduced motion */

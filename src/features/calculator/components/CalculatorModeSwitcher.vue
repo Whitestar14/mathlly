@@ -1,7 +1,7 @@
 <template>
   <Suspense>
     <SegmentedControl
-      class="w-full flex-1"
+      class="w-full"
       :model-value="currentMode"
       :options="modeOptions"
       :disable-overflow="true"

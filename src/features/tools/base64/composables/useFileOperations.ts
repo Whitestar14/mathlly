@@ -1,88 +1,127 @@
 import { type Ref } from 'vue'
 import { useToast } from '@composables/ui/useToast'
+import { isBinaryExtension, isImageExtension, isMediaExtension } from '../utils/detectors/fileExtensionDetector'
+import { validateFileSize, generateDownloadFilename, downloadBlob, createBlobFromBinary, createBlobFromText } from '../utils/helpers/fileHelpers'
+import { getMimeTypeExtension, getDefaultMimeType } from '../utils/detectors/mimeDetector'
+import type { FileDetails, InputMode } from '../types/base64'
 
 export function useFileOperations(
   input: Ref<string>,
-  selectedFileName: Ref<string>,
-  toast: ReturnType<typeof useToast>['toast']
+  inputMode: Ref<InputMode>,
+  fileDetails: Ref<FileDetails | null>,
+  currentTab: Ref<'encode' | 'decode'>,
+  rawFileBase64Cache: Ref<string>
 ) {
-  const handleFileUpload = async(event: Event): Promise<void> => {
-    const target = event.target as HTMLInputElement
-    const file = target.files?.[0]
+  const { toast } = useToast()
 
-    if (!file) return
+  const handleFileUpload = (event: Event): Promise<boolean> => {
+    return new Promise(resolve => {
+      const target = event.target as HTMLInputElement
+      const file = target.files?.[0]
 
-    if (file.size > 10 * 1024 * 1024) {
-      toast('File size exceeds 10MB limit', { type: 'error' })
-      return
-    }
+      if (!file) {
+        resolve(false)
+        return
+      }
 
-    selectedFileName.value = file.name
+      const sizeValidation = validateFileSize(file.size)
+      if (!sizeValidation.valid) {
+        toast(sizeValidation.error!, { type: 'error' })
+        target.value = ''
+        resolve(false)
+        return
+      }
 
-    try {
+      // Detect mode switch requirement
+      if (isBinaryExtension(file.name) || isImageExtension(file.name) || isMediaExtension(file.name)) {
+        if (currentTab.value === 'decode') {
+          toast(`Switched to 'Encode' for binary file: ${file.name}`, { type: 'info' })
+          currentTab.value = 'encode'
+        }
+      }
+
       const reader = new FileReader()
+      reader.onerror = () => {
+        toast('Failed to read file', { type: 'error' })
+        resolve(false)
+      }
 
-      return new Promise(resolve => {
+      if (currentTab.value === 'encode') {
         reader.onload = e => {
           const result = e.target?.result as string
+          // Extract base64 part from Data URL
+          const base64 = result.split(',')[1] || ''
+
+          rawFileBase64Cache.value = base64
+          inputMode.value = 'file'
+          fileDetails.value = {
+            name: file.name,
+            size: file.size,
+            type: file.type
+          }
+
+          // Clear text input to avoid confusion
+          input.value = ''
+          resolve(true)
+        }
+        reader.readAsDataURL(file)
+      } else {
+        // Decode Mode: Read as text
+        reader.onload = e => {
+          const result = e.target?.result as string
+          // In decode mode, we usually treat uploaded files as text containing base64 string
+          inputMode.value = 'text'
           input.value = result
-          toast(`File "${file.name}" loaded successfully`, { type: 'success' })
-          resolve()
-        }
+          fileDetails.value = null // Not "file mode" in the UI logic sense for decode
 
-        reader.onerror = () => {
-          toast('Failed to read file', { type: 'error' })
-          resolve()
+          toast(`Loaded "${file.name}"`, { type: 'success' })
+          resolve(true)
         }
-
-        if (file.type.startsWith('text/') || file.type === 'application/json') {
-          reader.readAsText(file)
-        } else {
-          reader.readAsDataURL(file)
-        }
-      })
-    } catch(error) {
-      console.error('File upload error:', error)
-      toast('Failed to read file', { type: 'error' })
-    }
+        reader.readAsText(file)
+      }
+    })
   }
 
-  const handleDrop = async(event: DragEvent, fileInput: Ref<HTMLInputElement | null>): Promise<void> => {
+  const handleDrop = async(event: DragEvent, fileInput: Ref<HTMLInputElement | null>): Promise<boolean> => {
     event.preventDefault()
-
     const files = event.dataTransfer?.files
-    if (!files || files.length === 0) return
+    if (!files || files.length === 0) return false
 
     const file = files[0]
 
     if (fileInput.value) {
+      // Manually assign files to input to reuse handleFileUpload logic
       const dt = new DataTransfer()
       dt.items.add(file)
       fileInput.value.files = dt.files
 
-      await handleFileUpload({ target: fileInput.value } as any)
+      return await handleFileUpload({ target: fileInput.value } as unknown as Event)
     }
+    return false
   }
 
-  const downloadOutput = (output: string, currentTab: 'encode' | 'decode'): void => {
-    if (!output) {
+  const downloadOutput = (
+    outputContent: string,
+    currentTabValue: 'encode' | 'decode',
+    resultState?: any
+  ): void => {
+    if (!outputContent && !resultState?.binary) {
       toast('Nothing to download', { type: 'warning' })
       return
     }
 
-    const blob = new Blob([output], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
+    let blob: Blob
+    let filename: string
 
-    a.href = url
-    a.download = currentTab === 'encode' ?
-      `encoded_${Date.now()}.txt` :
-      `decoded_${Date.now()}.txt`
+    if (currentTabValue === 'decode' && resultState?.success && resultState?.isBinary && resultState?.binary) {
+      blob = createBlobFromBinary(resultState.binary, resultState.mime || getDefaultMimeType())
+      filename = generateDownloadFilename('decode', getMimeTypeExtension(resultState.mime || getDefaultMimeType()))
+    } else {
+      blob = createBlobFromText(outputContent)
+      filename = generateDownloadFilename(currentTabValue)
+    }
 
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    downloadBlob(blob, filename)
 
     toast('File downloaded!', { type: 'success' })
   }

@@ -1,40 +1,41 @@
 {
-  "version": "0.12.2",
-  "date": "June 27, 2025",
+  "version": "0.15.2",
+  "date": "February 6, 2026",
   "features": [
-    "Optimized calculator buttons for low-end devices",
-    "Rectified dev dock beta testpoint inconsistent appearance on mobile devices"
+    "Fixed the parentheses tracking algorithm into a simpler, much more robust parser",
+    "Improved performance in calculator mode by consolidating threading logic",
+    "Enhanced standard mode by implementing wrap functions for square and square root"
   ],
   "fullFeatures": [
-    "@milestone: migrated to new domain: mathlly.vercel.app",
-    "Optimized calculator buttons for low-end devices",
-    "Rectified dev dock beta testpoint inconsistent appearance on mobile devices"
+    "Fixed the parentheses tracking algorithm into a simpler, much more robust parser",
+    "Improved performance in calculator mode by consolidating threading logic",
+    "Enhanced standard mode by implementing wrap functions for square and square root"
   ],
   "hasChangelog": true,
   "source": "changelog",
-  "currentDeployedVersion": "0.12.2",
-  "totalUpdates": 37,
+  "currentDeployedVersion": "0.15.2",
+  "totalUpdates": 43,
   "updateType": "patch",
   "versionInfo": {
     "major": 0,
-    "minor": 12,
+    "minor": 15,
     "patch": 2,
     "prerelease": null,
     "prereleaseNumber": 0,
     "isBeta": false,
     "isAlpha": false,
     "isStable": true,
-    "raw": "0.12.2"
+    "raw": "0.15.2"
   },
   "currentVersionInfo": {
     "major": 0,
-    "minor": 12,
+    "minor": 15,
     "patch": 2,
     "prerelease": null,
     "prereleaseNumber": 0,
     "isBeta": false,
     "isAlpha": false,
     "isStable": true,
-    "raw": "0.12.2"
+    "raw": "0.15.2"
   }
 }

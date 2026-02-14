@@ -28,7 +28,7 @@ function getColorDistance(c1: CuloriRgb, c2: CuloriRgb): number {
 
 export function getColorName(rgb: RGB | RGBA | undefined | null): string {
   if (!rgb) return 'Unknown'
-  
+
   try {
     const target = toCuloriRgb(rgb)
     let minDistance = Infinity
@@ -41,7 +41,7 @@ export function getColorName(rgb: RGB | RGBA | undefined | null): string {
         nearestName = name
       }
     }
-    
+
     return nearestName
   } catch {
     return 'Unknown'

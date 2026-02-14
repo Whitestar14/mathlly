@@ -3,30 +3,23 @@ export function useSampleData() {
 
   const loadSampleText = (): string => {
     const samples = [
-      'Hello, World! This is a sample text for Base64 encoding.',
-      'Base64 is a group of binary-to-text encoding schemes.',
-      'Mathlly/Prism is an awesome tool!',
-      'Vue.js is a progressive JavaScript framework.',
-      'TypeScript extends JavaScript by adding types.'
+      '   Indented Text   \n\tWith Tabs and Newlines\n', // Dirty sample
+      'Hello, World!',
+      'Vue.js + TypeScript = ❤️',
+      'The quick brown fox jumps over the lazy dog.'
     ]
     return pick(samples)
   }
 
   const loadSampleBase64 = (): string => {
-    const samples = [
-      'SGVsbG8sIFdvcmxkIQ==',
-      'VGhlIHF1aWNrIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZy4=',
-      'QmFzZTY0IGlzIGEgZ3JvdXAgb2YgYmluYXJ5LXRvLXRleHQgZW5jb2Rpbmcgc2NoZW1lcy4=',
-      'TWF0aGxseSBpcyBhbiBhd2Vzb21lIHRvb2wh',
-      'TG9yZW0gaXBzdW0gZG9sb3Igc2l0IGFtZXQsIGNvbnNlY3RldHVyIGFkaXBpc2NpbmcgZWxpdC4='
-    ]
-    return pick(samples)
+    // A small 1x1 Red Dot (PNG)
+    return 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='
   }
 
   const generateRandomData = (): string => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()'
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
     let s = ''
-    for (let i = 0; i < 32; i++) s += chars.charAt(Math.floor(Math.random() * chars.length))
+    for (let i = 0; i < 64; i++) s += chars.charAt(Math.floor(Math.random() * chars.length))
     return s
   }
 

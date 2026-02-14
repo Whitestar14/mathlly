@@ -1,4 +1,3 @@
-
 export { default as PrismLogo } from './PrismLogo.vue'
 export { default as BaseCard } from './BaseCard.vue'
 export { default as BasePage } from './BasePage.vue'
@@ -26,3 +25,5 @@ export { default as BasePopover } from './BasePopover.vue'
 export { default as BaseColorPicker } from './BaseColorPicker.vue'
 export { default as PopoverItem } from './PopoverItem.vue'
 export { default as SegmentedControl } from './SegmentedControl.vue'
+export { default as BaseFileDrop } from './BaseFileDrop.vue'
+export { default as BaseEditor } from './BaseEditor.vue'

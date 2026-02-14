@@ -167,12 +167,14 @@ export function usePWA() {
     updateFeatures.value = []
   }
 
-  navigator.serviceWorker.addEventListener('message', event => {
-    if (event.data?.type === 'DOWNLOAD_PROGRESS') {
-      const { downloadedBytes, totalBytes } = event.data
-      downloadProgress.value = Math.round((downloadedBytes / totalBytes) * 100)
-    }
-  })
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data?.type === 'DOWNLOAD_PROGRESS') {
+        const { downloadedBytes, totalBytes } = event.data
+        downloadProgress.value = Math.round((downloadedBytes / totalBytes) * 100)
+      }
+    })
+  }
 
   void initPWA()
 

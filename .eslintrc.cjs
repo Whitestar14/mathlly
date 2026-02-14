@@ -28,11 +28,12 @@ module.exports = {
     'vue/no-required-prop-with-default': 'warn',
     'vue/no-undef-components': 'warn',
     'vue/no-unused-components': 'warn',
-    'vue/no-unused-properties': 'warn',
+    'vue/no-unused-properties': 'off',
     'vue/multi-word-component-names': 'off',
     '@typescript-eslint/no-unused-vars': 'warn',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/no-empty-object-type': 'off',
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
 
@@ -108,7 +109,6 @@ module.exports = {
   },
   overrides: [
     {
-
       files: ['src/**/*.ts', 'src/**/*.tsx'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
@@ -120,7 +120,6 @@ module.exports = {
       }
     },
     {
-
       files: ['*.config.ts', 'vite.config.ts', '*.config.js'],
       parser: '@typescript-eslint/parser',
       parserOptions: {
@@ -136,12 +135,11 @@ module.exports = {
       }
     },
     {
-
       files: ['scripts/**/*.js', 'scripts/**/*.cjs', '*.js', '*.cjs'],
       parser: 'espree',
       parserOptions: {
         ecmaVersion: 2022,
-        sourceType: 'script'
+        sourceType: 'module'
       },
       env: {
         node: true

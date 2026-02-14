@@ -1,7 +1,7 @@
 <template>
   <ErrorFallback
     v-if="hasError"
-    :error="error"
+    :error="error || undefined"
     :is-global-error="true" />
   <Suspense v-else>
     <AppProvider />
@@ -28,6 +28,7 @@ import ErrorFallback from '@pages/ErrorFallback.vue'
 import { hasError } from '@router/errorHandler'
 import { useTheme } from '@composables/core/useTheme'
 import router from '@router/router'
+import { TelemetryService } from '@shared/services/telemetry/TelemetryService'
 
 const settings = useSettingsStore()
 useTheme()
@@ -56,6 +57,9 @@ const error = shallowRef<Error | null>(null)
 
 onErrorCaptured((err: Error, instance: ComponentPublicInstance | null, info: string) => {
   console.error('[global error boundary]:', err, instance, info)
+
+  TelemetryService.getInstance().logError(err)
+
   error.value = err
   hasError.value = true
   return false

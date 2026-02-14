@@ -524,7 +524,7 @@ export const CalculatorUtils = {
 
       /√\($/, /∛\($/, /nthroot\($/,
 
-      /sqr\($/, /cube\($/,
+      /sqr\($/, /cube\($/, /1\/\($/,
 
       /abs\($/, /ceil\($/, /floor\($/, /round\($/, /dms\($/, /deg\($/, /gcd\($/, /lcm\($/, /mod$/,
 

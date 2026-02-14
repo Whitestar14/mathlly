@@ -11,9 +11,11 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { markRaw, computed } from 'vue'
 import { Delete } from 'lucide-vue-next'
+import { useVibrate } from '@vueuse/core'
+import { useConverterOptions } from '@converter/composables/useConverterOptions'
 import ConverterButton from './ConverterButton.vue'
 
 const props = defineProps({
@@ -32,6 +34,15 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['button-click'])
+
+const { hapticFeedback } = useConverterOptions()
+const { vibrate } = useVibrate({ pattern: 50 })
+
+type Button = {
+  value: string;
+  variant: 'number' | 'function';
+  icon?: any;
+}
 
 const staticRows = markRaw([
   [
@@ -71,9 +82,12 @@ const lastRow = computed(() => !props.autoConvert ? [
   { value: '.', variant: 'number' }
 ])
 
-const numpadRows = computed(() => [firstRow.value, ...staticRows, lastRow.value])
+const numpadRows = computed(() => [firstRow.value, ...staticRows, lastRow.value] as Button[][])
 
-const handleClick = value => {
+const handleClick = (value: string) => {
+  if (hapticFeedback.value) {
+    vibrate()
+  }
   emit('button-click', value)
 }
 </script>

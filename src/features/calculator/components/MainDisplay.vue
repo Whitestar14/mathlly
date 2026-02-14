@@ -43,7 +43,6 @@
 
         <div
           v-if="preview && !error"
-          ref="previewContainer"
           class="font-normal text-foreground/75 overflow-x-auto whitespace-nowrap scrollbar-hide"
           aria-live="polite"
           aria-atomic="true">
@@ -115,7 +114,6 @@ const calculatorOptions = useCalculatorOptions()
 const displayContainer: Ref<HTMLElement | null> = shallowRef(null)
 const resultContainer: Ref<HTMLElement | null> = shallowRef(null)
 const inputContainer: Ref<HTMLElement | null> = shallowRef(null)
-// const previewContainer: Ref<HTMLElement | null> = shallowRef(null)
 
 const animationService: SlideAnimationControls = (() => {
   const { createSlideAnimation } = useAnimation()

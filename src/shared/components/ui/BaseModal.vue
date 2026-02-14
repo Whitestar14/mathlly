@@ -24,7 +24,7 @@
           <DialogContent
             ref="contentRef"
             :class="[
-              'relative flex flex-col bg-background border border-border rounded-xl shadow-2xl w-full max-h-[90vh]',
+              'relative flex flex-col bg-background border border-border rounded-xl shadow-2xl w-full overflow-clip max-h-[90vh]',
               sizeClasses
             ]"
             :aria-labelledby="titleId"
@@ -32,13 +32,14 @@
             aria-modal="true"
             @click.stop>
 
-            <div class="sticky top-0 z-10 flex-shrink-0 bg-background border-b border-border rounded-t-xl">
+            <!-- Standard Header (Only if NOT naked) -->
+            <div
+              v-if="!naked"
+              class="sticky top-0 z-10 flex-shrink-0 bg-background border-b border-border rounded-t-xl">
               <div class="flex items-center justify-between p-3 pb-2">
-
                 <div
                   :id="titleId"
-                  class="flex-1 min-w-0 pr-4"
-                  :class="hideCloseButton ? '' : 'pr-4'">
+                  class="flex-1 min-w-0 pr-4">
                   <DialogTitle
                     as="h2"
                     class="text-lg font-medium text-foreground leading-tight">
@@ -60,14 +61,25 @@
               </div>
             </div>
 
+            <!-- Absolute close button for Naked mode -->
+            <div v-else-if="!hideCloseButton" class="absolute top-2 right-2 z-20">
+              <button
+                class="p-2 text-muted-foreground hover:text-foreground rounded-full hover:bg-muted/50 transition-colors"
+                :aria-label="closeButtonLabel"
+                @click="closeModal">
+                <XIcon class="h-4 w-4" />
+              </button>
+            </div>
+
             <div class="flex-1 overflow-y-auto min-h-0">
-              <div class="p-6 pt-4">
+              <div :class="naked ? 'p-0' : 'p-6 pt-4'">
                 <slot></slot>
               </div>
             </div>
 
+            <!-- Standard Footer (Only if NOT naked and slot exists) -->
             <div
-              v-if="$slots.footer"
+              v-if="!naked && $slots.footer"
               class="sticky bottom-0 z-10 flex-shrink-0 bg-background border-t border-border rounded-b-xl">
               <div class="p-6 pt-4">
                 <slot name="footer"></slot>
@@ -82,7 +94,6 @@
 
 <script setup lang="ts">
 import { computed, type ComputedRef, onMounted, onBeforeUnmount, watch, ref, nextTick } from 'vue'
-import { useScrollLock } from '@vueuse/core'
 import { useFocusTrap } from '@shared/composables/utils/useFocusTrap'
 import {
   DialogRoot,
@@ -92,7 +103,7 @@ import {
 import { useEventListener } from '@vueuse/core'
 import BaseButton from '@components/ui/BaseButton.vue'
 import { XIcon } from 'lucide-vue-next'
-import { registerModal, unregisterModal, openModal as openModalManager, closeModal as closeModalManager, useModal, hasOpenModals } from '@shared/composables/ui/useModal'
+import { registerModal, unregisterModal, openModal as openModalManager, closeModal as closeModalManager, useModal } from '@shared/composables/ui/useModal'
 
 type ModalSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' | 'full'
 
@@ -102,15 +113,12 @@ interface Props {
   size?: ModalSize;
   id?: string;
   closeOnClickOutside?: boolean;
-  /** Whether pressing Escape closes the modal */
   closeOnEscape?: boolean;
   closeButtonLabel?: string;
   hideCloseButton?: boolean;
+  naked?: boolean; // New prop to strip header/footer structure
 }
 
-/**
- * Component emits interface
- */
 interface Emits {
   (e: 'update:open', value: boolean): void;
   (e: 'close'): void;
@@ -125,7 +133,8 @@ const props = withDefaults(defineProps<Props>(), {
   closeOnClickOutside: true,
   closeOnEscape: true,
   closeButtonLabel: 'Close dialog',
-  hideCloseButton: false
+  hideCloseButton: false,
+  naked: false
 })
 
 const emit = defineEmits<Emits>()
@@ -169,8 +178,6 @@ const modal = useModal(props.id)
 const zIndex = modal.zIndex
 const isTopModal = modal.isTopModal
 
-const isLocked = useScrollLock(document.body)
-
 const contentRef = ref<HTMLElement | null>(null)
 const focusTrap = useFocusTrap(contentRef)
 
@@ -180,19 +187,14 @@ watch([modal.isOpen, isTopModal], async([isOpen, isTop]) => {
     await nextTick()
     if (contentRef.value && contentRef.value instanceof HTMLElement) {
       focusTrap.activate()
-      isLocked.value = true
     }
   } else {
     focusTrap.deactivate()
-    if (!hasOpenModals.value) {
-      isLocked.value = false
-    }
   }
 }, { immediate: true })
 
 onBeforeUnmount(() => {
   focusTrap.deactivate()
-  isLocked.value = false
 })
 
 const handleOpenChange = (isOpen: boolean): void => {
@@ -227,7 +229,6 @@ useEventListener(document, 'keydown', handleEscapeKey, {
 </script>
 
 <style scoped>
-/* Backdrop transitions */
 .backdrop-enter-active,
 .backdrop-leave-active {
   transition: opacity 0.3s ease;
@@ -237,23 +238,13 @@ useEventListener(document, 'keydown', handleEscapeKey, {
   opacity: 0;
 }
 
-/* Ensure proper focus management */
 [role="dialog"]:focus {
   outline: none;
 }
 
-/* Mobile responsive adjustments */
 @media (max-width: 640px) {
-  .p-6 {
-    @apply p-4;
-  }
-
-  .pb-4 {
-    @apply pb-3;
-  }
-
-  .pt-4 {
-    @apply pt-3;
-  }
+  .p-6 { @apply p-4; }
+  .pb-4 { @apply pb-3; }
+  .pt-4 { @apply pt-3; }
 }
 </style>

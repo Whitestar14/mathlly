@@ -28,7 +28,11 @@ export const DEFAULT_SETTINGS: Settings = {
   },
   experimental: {
     commandPaletteEnabled: false,
-    devDockEnabled: false
+    devDockEnabled: false,
+    homeLayout: 'dashboard'
+  },
+  privacy: {
+    crashReportingEnabled: false
   }
 }
 
@@ -46,7 +50,8 @@ export const useSettingsStore = defineStore('settings', {
     appearance: (state): any => createSettingsProxy(state, 'appearance'),
     startup: (state): any => createSettingsProxy(state, 'startup'),
     keyboard: (state): any => createSettingsProxy(state, 'keyboard'),
-    experimental: (state): any => createSettingsProxy(state, 'experimental')
+    experimental: (state): any => createSettingsProxy(state, 'experimental'),
+    privacy: (state): any => createSettingsProxy(state, 'privacy')
   },
 
   actions: {

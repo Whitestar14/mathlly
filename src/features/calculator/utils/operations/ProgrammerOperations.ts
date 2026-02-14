@@ -184,7 +184,7 @@ export class ProgrammerOperations {
     try {
       const state = this.calculator.states[this.calculator.activeBase]
       const currentInput = state.input.trim()
-      
+
       // Sync before operation to ensure clean state
       this.parenthesesTracker.sync(currentInput)
 

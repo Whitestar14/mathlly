@@ -89,7 +89,10 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from 'vue'
 import { useVModel, useElementBounding } from '@vueuse/core'
-import { BasePopover, BaseSlider, BaseInput, BaseButton } from '@components/ui'
+import BasePopover from './BasePopover.vue'
+import BaseSlider from './BaseSlider.vue'
+import BaseInput from './BaseInput.vue'
+import BaseButton from './BaseButton.vue'
 import { Palette } from 'lucide-vue-next'
 import { type RGBA, hexToHsva, hsvaToRgba, rgbaToHex } from '@color/lib/color'
 import { useDeviceStore } from '@stores/device'

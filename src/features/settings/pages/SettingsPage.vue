@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, type Component } from 'vue'
 import { useRouter } from 'vue-router'
 import { useSettingsStore, DEFAULT_SETTINGS } from '@stores/settings'
 import { useKeyboardStore } from '@stores/keyboard'
+import { useDeviceStore } from '@stores/device'
 import { BasePage, BaseButton } from '@components/ui'
 import { useToast } from '@composables/ui/useToast'
 import { usePWAInstallPrompt } from '@composables/core/usePWAInstallPrompt'
@@ -10,7 +11,17 @@ import type { Settings } from '@services/storage/db'
 import { filterByQuery } from '@utils/string/queryFilter'
 import { cloneDeep } from '@utils/object/objectUtils'
 import { settingsManifest } from '@settings/composables/settingsManifest'
-import { SettingsSearch, StartupSection, AppearanceSection, AdvancedSection, KeyboardSection, SettingsActions, UnsavedChangesModal, ExperimentalSection } from '@settings/components'
+import {
+  SettingsSearch,
+  StartupSection,
+  AppearanceSection,
+  AdvancedSection,
+  KeyboardSection,
+  SettingsActions,
+  UnsavedChangesModal,
+  ExperimentalSection,
+  PrivacySection
+} from '@settings/components'
 
 defineProps<Props>()
 
@@ -27,20 +38,31 @@ const settingsStore = useSettingsStore()
 const keyboardStore = useKeyboardStore()
 const { toast } = useToast()
 const { dismissedInstall, promptInstall, installPromptSeen, isInstalled, resetDismissal, canInstall } = usePWAInstallPrompt()
+const deviceStore = useDeviceStore()
 
 const searchQuery = ref<string>('')
 const showUnsavedChangesModal = ref<boolean>(false)
 const isSaving = ref<boolean>(false)
+const localSettings = ref<Settings>(cloneDeep(DEFAULT_SETTINGS))
 
-const filteredManifest = computed(() =>
-  filterByQuery(settingsManifest, searchQuery.value, ['title', 'keywords'])
-)
-
-const isRendered = (sectionId: string): boolean => {
-  return filteredManifest.value.some(section => section.id === sectionId)
+const sectionComponents: Record<string, Component> = {
+  startup: StartupSection,
+  themes: AppearanceSection,
+  privacy: PrivacySection,
+  keyboard: KeyboardSection,
+  experimental: ExperimentalSection,
+  advanced: AdvancedSection
 }
 
-const localSettings = ref<Settings>(cloneDeep(DEFAULT_SETTINGS))
+const visibleSections = computed(() => {
+  const filtered = filterByQuery(settingsManifest, searchQuery.value, ['title', 'keywords'])
+
+  return filtered.filter(section => {
+    if (section.id === 'keyboard' && deviceStore.isMobile) return false
+
+    return !!sectionComponents[section.id]
+  })
+})
 
 const storeSnapshot = computed((): Settings => ({
   id: settingsStore.id ?? DEFAULT_SETTINGS.id,
@@ -66,7 +88,11 @@ const storeSnapshot = computed((): Settings => ({
   },
   experimental: {
     commandPaletteEnabled: settingsStore.experimental?.commandPaletteEnabled ?? DEFAULT_SETTINGS.experimental.commandPaletteEnabled,
-    devDockEnabled: settingsStore.experimental?.devDockEnabled ?? DEFAULT_SETTINGS.experimental?.commandPaletteEnabled
+    devDockEnabled: settingsStore.experimental?.devDockEnabled ?? DEFAULT_SETTINGS.experimental.devDockEnabled,
+    homeLayout: settingsStore.experimental?.homeLayout ?? DEFAULT_SETTINGS.experimental.homeLayout
+  },
+  privacy: {
+    crashReportingEnabled: settingsStore.privacy?.crashReportingEnabled ?? DEFAULT_SETTINGS.privacy.crashReportingEnabled
   }
 }))
 
@@ -169,6 +195,7 @@ const handleManualPWAInstall = async() => {
       <div class="space-y-8 mx-auto max-w-4xl">
         <SettingsSearch v-model="searchQuery" />
 
+        <!-- PWA Install Banner -->
         <div
           v-if="(dismissedInstall || installPromptSeen || canInstall) && !isInstalled"
           class="bg-primary/5 border border-border rounded-md p-3 flex items-center justify-between">
@@ -190,31 +217,22 @@ const handleManualPWAInstall = async() => {
           </div>
         </div>
 
-        <StartupSection
-          :settings="localSettings"
-          :is-visible="isRendered('startup')"
-          @update:settings="updateSettings" />
+        <!-- Dynamic Section Loop -->
+        <div class="space-y-6">
+          <TransitionGroup name="list">
+            <component
+              :is="sectionComponents[item.id]"
+              v-for="item in visibleSections"
+              :key="item.id"
+              :settings="localSettings"
+              :is-visible="true"
+              @update:settings="updateSettings" />
+          </TransitionGroup>
+        </div>
 
-        <AppearanceSection
-          :settings="localSettings"
-          :is-visible="isRendered('themes')"
-          @update:settings="updateSettings" />
-
-        <KeyboardSection
-          v-show="!isMobile"
-          :settings="localSettings"
-          :is-visible="isRendered('keyboard')"
-          @update:settings="updateSettings" />
-
-        <ExperimentalSection
-          :settings="localSettings"
-          :is-visible="isRendered('experimental')"
-          @update:settings="updateSettings" />
-
-        <AdvancedSection :is-visible="isRendered('advanced')" />
-
+        <!-- Empty State -->
         <div
-          v-if="filteredManifest.length === 0 && searchQuery"
+          v-if="visibleSections.length === 0 && searchQuery"
           class="text-center py-10">
           <p class="text-foreground text-md">
             No settings found for "{{ searchQuery }}".
@@ -239,3 +257,15 @@ const handleManualPWAInstall = async() => {
       @cancel="cancelNavigation" />
   </div>
 </template>
+
+<style scoped>
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
+</style>

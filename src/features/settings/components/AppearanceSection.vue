@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { CircleHelp } from 'lucide-vue-next'
+import { CircleHelp, Palette } from 'lucide-vue-next'
 import { RadioGroupRoot, RadioGroupItem, Separator } from 'radix-vue'
 import { ToggleBar, BaseCollapsible } from '@components/ui'
 import type { Settings } from '@services/storage/db'
@@ -40,7 +40,7 @@ const localSettings = computed({
     v-if="isVisible"
     id="themes"
     title="Appearance"
-    icon="Palette"
+    :icon="Palette"
     :default-open="true">
     <div class="space-y-6">
       <div class="px-3 py-2 rounded-md bg-muted/40 border border-border/40">

@@ -2,10 +2,14 @@
 import { defineConfig } from 'vitest/config'
 import vue from '@vitejs/plugin-vue'
 import { VitePWA, type ManifestOptions } from 'vite-plugin-pwa'
-import { resolve } from 'path'
+import { resolve, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
 import manifestJson from './public/manifest.json'
 const manifest: Partial<ManifestOptions> = manifestJson as Partial<ManifestOptions>
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 export default defineConfig({
   plugins: [
@@ -90,6 +94,7 @@ export default defineConfig({
       '@calculator': resolve(__dirname, './src/features/calculator'),
       '@base64': resolve(__dirname, './src/features/tools/base64'),
       '@color': resolve(__dirname, './src/features/tools/color'),
+      '@json': resolve(__dirname, './src/features/tools/json'),
       '@converter': resolve(__dirname, './src/features/converter'),
       '@settings': resolve(__dirname, './src/features/settings')
     }
@@ -106,9 +111,9 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-vue': ['vue', 'vue-router', 'pinia'],
-          'vendor-ui': ['radix-vue', 'lucide-vue-next'],
-          'vendor-utils': ['@vueuse/core', '@vueuse/motion'],
+          'vendor-vue': ['vue', 'vue-router', 'pinia', 'dexie'],
+          'vendor-ui': ['radix-vue', 'lucide-vue-next', 'vue-tippy', 'tippy.js'],
+          'vendor-utils': ['@vueuse/core', 'animejs', 'culori'],
           'vendor-math': ['mathjs', 'chart.js', 'vue-chartjs']
         }
       }
@@ -118,7 +123,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    css: true,
+    css: true
   },
   server: {
     port: 8080,

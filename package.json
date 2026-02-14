@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --open && node scripts/generate-version-info.cjs",
-    "serve": "vite --open --host && scripts/generate-version-info.cjs",
+    "dev": "vite --open && node scripts/generate-version-info.js",
+    "serve": "vite --open --host && scripts/generate-version-info.js",
     "build": "vue-tsc && vite build",
-    "prebuild": "node scripts/generate-version-info.cjs",
+    "prebuild": "node scripts/generate-version-info.js",
     "preview": "vite preview",
     "test": "vitest",
     "test:run": "vitest run",
@@ -16,10 +16,12 @@
     "build:analyze": "vite build --mode production && open dist/stats.html",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "type-check": "vue-tsc --noEmit",
-    "version:bump": "node scripts/bump-version.js"
+    "version:bump": "node scripts/bump-version.js",
+    "scaffold": "node scripts/scaffold.js"
   },
   "dependencies": {
     "@lucide/lab": "^0.1.2",
+    "@sentry/vue": "^10.38.0",
     "@vueuse/core": "^11.3.0",
     "@vueuse/motion": "^3.0.3",
     "animejs": "^3.2.2",
@@ -31,6 +33,7 @@
     "lucide-vue-next": "^0.469.0",
     "mathjs": "^14.2.1",
     "pinia": "^2.3.0",
+    "qrcode": "^1.5.4",
     "radix-vue": "^1.9.12",
     "tippy.js": "^6.3.7",
     "vue": "^3.5.13",
@@ -43,6 +46,7 @@
     "@stylistic/eslint-plugin": "^5.5.0",
     "@types/culori": "^4.0.1",
     "@types/node": "^22.0.0",
+    "@types/qrcode": "^1.5.6",
     "@typescript-eslint/eslint-plugin": "^8.33.1",
     "@typescript-eslint/parser": "^8.33.1",
     "@vitejs/plugin-vue": "^6.0.4",

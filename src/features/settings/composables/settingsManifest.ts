@@ -44,6 +44,19 @@ export const settingsManifest: SettingsManifestItem[] = [
     ]
   },
   {
+    id: 'privacy',
+    title: 'Privacy',
+    icon: 'ShieldCheckIcon',
+    keywords: [
+      'tracking',
+      'error reporting',
+      'analytics',
+      'crash',
+      'security',
+      'telemetry'
+    ]
+  },
+  {
     id: 'advanced',
     title: 'Advanced Settings',
     icon: 'SettingsIcon',

@@ -7,7 +7,9 @@
     :default-desktop-state="true">
 
     <template #header-actions>
-      <PrismLogo class="-left-20 absolute scale-[0.125]" />
+      <div class="size-12 flex items-center justify-center">
+        <PrismLogo class="p-2" />
+      </div>
     </template>
 
     <div class="flex-1 overflow-y-auto">

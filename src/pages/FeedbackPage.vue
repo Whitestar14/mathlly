@@ -1,85 +1,83 @@
 <template>
   <BasePage
     title="Feedback"
-    :breadcrumbs="[ { label: 'Feedback' } ]">
-    <div class="space-y-8 max-w-4xl mx-auto">
-      <section class="space-y-6">
-        <h2 class="text-lg font-medium tracking-tight text-foreground">
-          Submit Feedback
-        </h2>
-        <div class="bg-background rounded-lg border border-border p-6 space-y-6">
-          <div class="flex flex-col gap-2 justify-between space-y-2 sm:flex-row sm:items-center group">
-            <div>
-              <h3 class="text-sm font-medium text-foreground">
-                Report an Issue
-              </h3>
-              <p class="text-sm text-muted-foreground">
-                Found a bug? Create an issue on GitHub
-              </p>
-            </div>
-            <a
-              href="https://github.com/Whitestar14/mathlly/issues/new?template=bug_report.md"
-              target="_blank"
-              rel="noopener noreferrer">
-              <BaseButton
-                variant="primary"
-                class="w-full sm:w-auto">
-                Report Bug
-              </BaseButton>
-            </a>
-          </div>
+    :breadcrumbs="[{ label: 'Home', path: '/' }, { label: 'Feedback' }]"
+    main-class="flex flex-col items-center py-12 px-4">
+    <div class="w-full max-w-3xl space-y-10">
 
-          <div class="border-t border-border pt-6">
-            <div class="flex flex-col gap-2 justify-between space-y-2 sm:flex-row sm:items-center group">
-              <div>
-                <h3 class="text-sm font-medium text-foreground">
-                  Feature Request
-                </h3>
-                <p class="text-sm text-muted-foreground">
-                  Have an idea? Share it with us
-                </p>
-              </div>
-              <a
-                href="https://github.com/Whitestar14/mathlly-app/issues/new?template=feature_request.md"
-                target="_blank"
-                rel="noopener noreferrer">
-                <BaseButton
-                  variant="primary"
-                  class="w-full sm:w-auto">
-                  Request Feature
-                </BaseButton>
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+      <!-- Header Section -->
+      <div class="text-center space-y-3">
+        <h1 class="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
+          Help us improve
+        </h1>
+        <p class="text-muted-foreground text-lg max-w-lg mx-auto leading-relaxed">
+          Your feedback shapes the future of Prism. Let us know if you found a bug or have an idea for a new feature.
+        </p>
+      </div>
 
-      <section class="space-y-6">
-        <h2 class="text-lg font-medium tracking-tight text-foreground">
+      <!-- Action Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <a
+          href="https://github.com/Whitestar14/mathlly/issues/new?template=bug_report.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group relative flex flex-col p-6 rounded-2xl border border-border bg-card hover:bg-accent/5 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+          <div class="size-12 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <Bug class="size-6" />
+          </div>
+          <h3 class="text-lg font-semibold text-foreground mb-2">Report a Bug</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">
+            Found something broken? Help us fix it by providing a detailed bug report.
+          </p>
+          <div class="flex items-center text-xs font-medium text-primary mt-auto group-hover:translate-x-1 transition-transform">
+            Open GitHub Issue <ArrowUpRight class="ml-1 size-3" />
+          </div>
+        </a>
+
+        <a
+          href="https://github.com/Whitestar14/mathlly-app/issues/new?template=feature_request.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="group relative flex flex-col p-6 rounded-2xl border border-border bg-card hover:bg-accent/5 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300">
+          <div class="size-12 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <Lightbulb class="size-6" />
+          </div>
+          <h3 class="text-lg font-semibold text-foreground mb-2">Request Feature</h3>
+          <p class="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">
+            Have an idea for a new tool or improvement? We'd love to hear your suggestions.
+          </p>
+          <div class="flex items-center text-xs font-medium text-primary mt-auto group-hover:translate-x-1 transition-transform">
+            Submit Request <ArrowUpRight class="ml-1 size-3" />
+          </div>
+        </a>
+      </div>
+
+      <!-- Guidelines -->
+      <div class="bg-muted/30 border border-border/50 rounded-xl p-6">
+        <h4 class="text-sm font-semibold text-foreground mb-4 uppercase tracking-wider flex items-center gap-2">
+          <Info class="size-4 text-muted-foreground" />
           Submission Guidelines
-        </h2>
-        <div class="bg-background rounded-lg border border-border p-6">
-          <ul class="space-y-4">
-            <li
-              v-for="(guideline, index) in [
-                'Be specific about the issue or feature request',
-                'Include steps to reproduce if reporting a bug',
-                'Provide screenshots or code examples if applicable',
-                'Check if a similar issue already exists'
-              ]"
-              :key="index"
-              class="flex items-start group">
-              <CheckCircleIcon class="h-4 w-4 text-primary mt-1 mr-3 shrink-0 opacity-75 group-hover:opacity-100 transition-opacity" />
-              <span class="text-sm text-muted-foreground">{{ guideline }}</span>
-            </li>
-          </ul>
+        </h4>
+        <div class="grid gap-3">
+          <div v-for="(tip, i) in guidelines" :key="i" class="flex items-start gap-3 text-sm text-muted-foreground">
+            <CheckCircle2 class="size-4 text-primary shrink-0 mt-0.5" />
+            <span>{{ tip }}</span>
+          </div>
         </div>
-      </section>
+      </div>
+
     </div>
   </BasePage>
 </template>
 
 <script setup lang="ts">
-import { CheckCircleIcon } from 'lucide-vue-next'
-import { BasePage, BaseButton } from '@components/ui'
+import { Bug, Lightbulb, ArrowUpRight, Info, CheckCircle2 } from 'lucide-vue-next'
+import { BasePage } from '@components/ui'
+
+const guidelines = [
+  'Be specific: clearly describe the issue or the feature you envision.',
+  'Reproducibility: if reporting a bug, include steps to reproduce it.',
+  'Context: screenshots or code snippets are extremely helpful.',
+  'Search first: check if a similar issue has already been reported.'
+]
 </script>

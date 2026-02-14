@@ -8,7 +8,7 @@
       :class="headerClass">
       <div class="flex items-center space-x-3">
         <component
-          :is="getFeatureIcon(icon)"
+          :is="icon"
           v-if="icon"
           class="h-5 w-5 text-primary"
           :class="iconClass"
@@ -38,7 +38,7 @@ import {
   CollapsibleTrigger,
   CollapsibleContent
 } from 'radix-vue'
-import { MonitorIcon, CalculatorIcon, Settings2Icon, PowerIcon, PaletteIcon, ChevronDownIcon, KeyboardIcon, FlaskConical } from 'lucide-vue-next'
+import { ChevronDownIcon } from 'lucide-vue-next'
 
 const props = defineProps({
   title: {
@@ -46,8 +46,8 @@ const props = defineProps({
     required: true
   },
   icon: {
-    type: String,
-    default: ''
+    type: [Object, Function, String],
+    default: null
   },
   defaultOpen: {
     type: Boolean,
@@ -72,20 +72,6 @@ const props = defineProps({
 })
 
 const isOpen = ref(props.defaultOpen)
-
-const getFeatureIcon = iconName => {
-  const iconMap = {
-    'Calculator': CalculatorIcon,
-    'Palette': PaletteIcon,
-    'Monitor': MonitorIcon,
-    'Power': PowerIcon,
-    'Keyboard': KeyboardIcon,
-    'Settings': Settings2Icon,
-    'FlaskConical': FlaskConical
-  }
-
-  return iconMap[iconName] || CalculatorIcon
-}
 </script>
 
 <style>
