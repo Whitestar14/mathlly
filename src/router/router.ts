@@ -63,14 +63,6 @@ const routes: Array<RouteRecordRaw> = [
     meta: { transition: 'fade', group: 'tools' }
   },
   {
-    path: '/info/update',
-    redirect: '/'
-  },
-  {
-    path: '/info/about',
-    redirect: '/'
-  },
-  {
     path: '/settings',
     name: 'settings',
     component: () => import('@settings/pages/SettingsPage.vue'),
