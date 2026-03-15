@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="h-full prism-card flex flex-col relative group">
     <button
       class="h-full w-full bg-card border border-border rounded-lg p-5 flex flex-col justify-between relative overflow-hidden group text-left hover:border-primary/50 transition-all duration-300 shadow-sm"
       @click="showModal = true">

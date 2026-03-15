@@ -89,7 +89,6 @@ const storeSnapshot = computed((): Settings => ({
   experimental: {
     commandPaletteEnabled: settingsStore.experimental?.commandPaletteEnabled ?? DEFAULT_SETTINGS.experimental.commandPaletteEnabled,
     devDockEnabled: settingsStore.experimental?.devDockEnabled ?? DEFAULT_SETTINGS.experimental.devDockEnabled,
-    homeLayout: settingsStore.experimental?.homeLayout ?? DEFAULT_SETTINGS.experimental.homeLayout
   },
   privacy: {
     crashReportingEnabled: settingsStore.privacy?.crashReportingEnabled ?? DEFAULT_SETTINGS.privacy.crashReportingEnabled

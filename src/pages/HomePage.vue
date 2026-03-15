@@ -8,9 +8,9 @@
 
     <Transition name="fade" mode="out-in">
       <component
-        :is="currentView"
+        :is="DashboardView"
         class="relative z-10 h-full w-full"
-        @switch-layout="toggleLayout" />
+         />
     </Transition>
 
     <WelcomeModal v-model="showWelcomeModal" />
@@ -18,31 +18,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
+import { ref, onMounted, defineAsyncComponent } from 'vue'
 import { useTimeoutFn } from '@vueuse/core'
 import { useAppStorageStore } from '@stores/appStorage'
-import { useSettingsStore } from '@stores/settings'
 import { BasePage } from '@components/ui'
 import { WelcomeModal } from '@components/layout'
 
-// Async Views
-const ClassicView = defineAsyncComponent(() => import('@features/home/components/views/ClassicView.vue'))
 const DashboardView = defineAsyncComponent(() => import('@features/home/components/views/DashboardView.vue'))
 
 const showWelcomeModal = ref(false)
 const storageStore = useAppStorageStore()
-const settingsStore = useSettingsStore()
-
-const currentLayout = computed(() => settingsStore.experimental.homeLayout || 'classic')
-
-const currentView = computed(() => {
-  return currentLayout.value === 'dashboard' ? DashboardView : ClassicView
-})
-
-const toggleLayout = () => {
-  const next = currentLayout.value === 'dashboard' ? 'classic' : 'dashboard'
-  settingsStore.updateSetting('experimental.homeLayout', next)
-}
 
 onMounted(() => {
   const hasShownWelcome = storageStore.get('onboarding', 'welcomeShown', false)

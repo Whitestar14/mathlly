@@ -29,7 +29,6 @@ export const DEFAULT_SETTINGS: Settings = {
   experimental: {
     commandPaletteEnabled: false,
     devDockEnabled: false,
-    homeLayout: 'dashboard'
   },
   privacy: {
     crashReportingEnabled: false
