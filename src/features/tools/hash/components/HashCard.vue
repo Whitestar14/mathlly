@@ -1,3 +1,4 @@
+
 <template>
   <div class="bg-card border border-border rounded-lg p-4 transition-all duration-200 hover:border-primary/40 group">
     <div class="flex items-center justify-between mb-2">
@@ -40,6 +41,7 @@ import { Copy, Download } from 'lucide-vue-next'
 import { BaseButton } from '@components/ui'
 import { useClipboard } from '@vueuse/core'
 import { useToast } from '@composables/ui/useToast'
+import { downloadBlob } from '@shared/utils/file/download'
 
 const props = defineProps<{
   algorithm: string
@@ -74,14 +76,7 @@ const copyHash = async() => {
 const downloadHash = () => {
   try {
     const blob = new Blob([props.hash], { type: 'text/plain' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${props.algorithm.toLowerCase()}_hash.txt`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
+    downloadBlob(blob, `${props.algorithm.toLowerCase()}_hash.txt`)
     toast({ title: 'Downloaded', description: 'Hash saved to file', type: 'success' })
   } catch {
     handleError('Download')

@@ -1,3 +1,4 @@
+
 <template>
   <BasePage title="Converter" :show-header="false" :is-tool-layout="true" main-class="flex p-2">
     <div class="container mx-auto max-h-full p-2 flex-1 overflow-hidden">
@@ -49,27 +50,40 @@
             </div>
           </template>
           <template #fallback>
-            <div class="grid h-full grid-cols-1 lg:grid-cols-[5fr_3.5fr] gap-2 md:gap-12 animate-pulse">
-              <div class="flex flex-col gap-1 h-full">
-                <div class="relative flex flex-1 flex-col gap-2">
+            <div class="grid h-full grid-cols-1 lg:grid-cols-[5fr_3.5fr] gap-4 md:gap-12 animate-pulse">
+              <div class="flex flex-col gap-4 h-full">
+                <div class="relative flex flex-1 flex-col gap-4">
                   <!-- Input Panel Skeleton -->
-                  <div class="flex-1 bg-muted/20 border border-border/50 rounded-lg"></div>
+                  <div class="flex-1 bg-muted/10 border border-border rounded-lg p-6 flex flex-col justify-center">
+                     <div class="h-12 w-3/4 bg-muted/40 rounded-md self-end mb-4"></div>
+                     <div class="flex justify-between items-center">
+                        <div class="h-8 w-32 bg-muted/40 rounded-md"></div>
+                        <div class="h-8 w-8 bg-muted/30 rounded-md"></div>
+                     </div>
+                  </div>
+
                   <!-- Output Panel Skeleton -->
-                  <div class="flex-1 bg-muted/20 border border-border/50 rounded-lg"></div>
+                  <div class="flex-1 bg-muted/10 border border-border rounded-lg p-6 flex flex-col justify-center">
+                     <div class="h-12 w-1/2 bg-muted/30 rounded-md self-end mb-4"></div>
+                     <div class="flex justify-between items-center">
+                        <div class="h-8 w-32 bg-muted/40 rounded-md"></div>
+                        <div class="h-8 w-8 bg-muted/30 rounded-md"></div>
+                     </div>
+                  </div>
 
                   <!-- Swap Button Skeleton -->
-                  <div class="absolute top-[45.5%] md:top-[46.5%] left-1/2 -translate-x-1/2 flex justify-center">
-                    <div class="h-10 w-10 rounded-full bg-muted border border-border"></div>
+                  <div class="absolute top-[48%] left-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center z-10">
+                    <div class="h-10 w-10 rounded-full bg-muted border-4 border-card"></div>
                   </div>
                 </div>
                 <!-- Visualization Skeleton -->
-                <div class="flex-initial h-10 w-full bg-muted/20 rounded-md mt-1"></div>
+                <div class="flex-initial h-6 w-2/3 bg-muted/20 rounded-md mt-1 self-center"></div>
               </div>
 
               <!-- Numpad Skeleton -->
               <div class="flex flex-1 justify-center lg:justify-end h-full">
                 <div class="grid grid-cols-3 gap-1 w-full h-full">
-                  <div v-for="i in 15" :key="i" class="bg-muted/20 rounded-lg border border-border/30"></div>
+                  <div v-for="i in 12" :key="i" class="bg-muted/30 rounded-lg border border-border/20"></div>
                 </div>
               </div>
             </div>

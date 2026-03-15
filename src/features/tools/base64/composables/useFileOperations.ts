@@ -1,8 +1,9 @@
 import { type Ref } from 'vue'
 import { useToast } from '@composables/ui/useToast'
 import { isBinaryExtension, isImageExtension, isMediaExtension } from '../utils/detectors/fileExtensionDetector'
-import { validateFileSize, generateDownloadFilename, downloadBlob, createBlobFromBinary, createBlobFromText } from '../utils/helpers/fileHelpers'
+import { validateFileSize, generateDownloadFilename, createBlobFromBinary, createBlobFromText } from '../utils/helpers/fileHelpers'
 import { getMimeTypeExtension, getDefaultMimeType } from '../utils/detectors/mimeDetector'
+import { downloadBlob } from '@shared/utils/file/download'
 import type { FileDetails, InputMode } from '../types/base64'
 
 export function useFileOperations(

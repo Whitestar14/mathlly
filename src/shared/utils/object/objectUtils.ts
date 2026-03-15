@@ -2,6 +2,11 @@
  * Utility functions for object manipulation
  */
 
+// Prevent prototype pollution by checking for dangerous keys
+function isValidKey(key: string): boolean {
+  return key === '__proto__' || key === 'constructor' || key === 'prototype';
+}
+
 /**
  * Deep clone an object
  */
@@ -14,6 +19,7 @@ export function cloneDeep<T>(obj: T): T {
 
   for (const key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      if (isValidKey(key)) continue;
       (clone as any)[key] = cloneDeep((obj as any)[key])
     }
   }
@@ -33,6 +39,8 @@ export function merge<T extends Record<string, any>>(
 
   if (isObject(target) && isObject(source)) {
     for (const key in source) {
+      if (isValidKey(key)) continue;
+
       if (isObject(source[key])) {
         if (!target[key]) Object.assign(target, { [key]: {} })
         merge(target[key], source[key])
@@ -68,6 +76,8 @@ export function get<T = any>(
   let result: any = obj
 
   for (const key of keys) {
+    if (isValidKey(key)) return defaultValue as T;
+
     if (result === undefined || result === null) {
       return defaultValue as T
     }
@@ -94,6 +104,8 @@ export function set(
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i]
+    if (isValidKey(key)) return obj;
+
     if (current[key] === undefined) {
       current[key] = {}
     } else if (typeof current[key] !== 'object') {
@@ -102,7 +114,10 @@ export function set(
     current = current[key]
   }
 
-  current[keys[keys.length - 1]] = value
+  const lastKey = keys[keys.length - 1]
+  if (isValidKey(lastKey)) return obj;
+
+  current[lastKey] = value
   return obj
 }
 
@@ -118,6 +133,7 @@ export function flattenObject(
   function flatten(current: Record<string, any>, prefix: string = ''): void {
     for (const key in current) {
       if (!Object.prototype.hasOwnProperty.call(current, key)) continue
+      if (isValidKey(key)) continue;
 
       if (key === 'id' && prefix === '') {
         result[key] = current[key]
@@ -149,6 +165,7 @@ export function unflattenObject(
 
   for (const key in obj) {
     if (!Object.prototype.hasOwnProperty.call(obj, key)) continue
+    if (isValidKey(key)) continue;
 
     if (key === 'id') {
       result.id = obj.id
@@ -159,14 +176,19 @@ export function unflattenObject(
     let current = result
 
     for (let i = 0; i < keys.length - 1; i++) {
-      const currentKey = keys[i]
+          const currentKey = keys[i]
+          if (isValidKey(currentKey)) break;
+
       if (!current[currentKey]) {
         current[currentKey] = {}
       }
       current = current[currentKey]
     }
 
-    current[keys[keys.length - 1]] = obj[key]
+    const lastKey = keys[keys.length - 1]
+    if (lastKey !== '__proto__' && lastKey !== 'constructor' && lastKey !== 'prototype') {
+      current[lastKey] = obj[key]
+    }
   }
 
   return result

@@ -236,6 +236,7 @@ import { Plus, Download, Upload, Trash2, Edit3, Palette, MoreVertical, Copy } fr
 import { type RGB, rgbToHex } from '@color/lib/color'
 import { useToast } from '@composables/ui/useToast'
 import { useClipboard, useVModel } from '@vueuse/core'
+import { downloadBlob } from '@shared/utils/file/download'
 
 import {
   nameExists,
@@ -465,12 +466,7 @@ const removeColorFromPalette = async(id: string, index: number) => {
 
 const exportPalette = (palette: PaletteEntity, format: ExportFormat) => {
   const { blob, filename } = serializePalette(palette, format)
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = filename
-  a.click()
-  URL.revokeObjectURL(url)
+  downloadBlob(blob, filename)
 }
 
 const importPalette = async(event: Event) => {

@@ -44,14 +44,3 @@ export function isMediaExtension(filename: string): boolean {
   const extension = getFileExtension(filename).toLowerCase()
   return mediaExtensions.includes(extension)
 }
-
-/**
- * Checks if the filename has a document file extension
- * @param filename - The filename to check
- * @returns true if the extension is a document extension, false otherwise
- */
-export function isDocumentExtension(filename: string): boolean {
-  const documentExtensions = ['.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
-  const extension = getFileExtension(filename).toLowerCase()
-  return documentExtensions.includes(extension)
-}

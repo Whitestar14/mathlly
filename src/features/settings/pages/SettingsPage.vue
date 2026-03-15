@@ -198,7 +198,7 @@ const handleManualPWAInstall = async() => {
         <!-- PWA Install Banner -->
         <div
           v-if="(dismissedInstall || installPromptSeen || canInstall) && !isInstalled"
-          class="bg-primary/5 border border-border rounded-md p-3 flex items-center justify-between">
+          class="bg-primary/5 border border-primary/5 rounded-md p-3 flex items-center justify-between">
           <div>
             <h4 class="text-sm font-semibold">
               Install Prism App

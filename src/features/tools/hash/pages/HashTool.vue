@@ -1,3 +1,4 @@
+
 <template>
   <BasePage
     title="Hash Generator"
@@ -87,14 +88,24 @@
 
         <div class="flex-1 overflow-y-auto p-3 custom-scrollbar">
           <TransitionGroup name="list" tag="div" class="flex flex-col gap-3">
+             <template v-if="isProcessing && results.length === 0">
+                 <div v-for="i in 4" :key="i" class="bg-card border border-border rounded-lg p-4 animate-pulse">
+                    <div class="flex justify-between mb-2">
+                       <div class="h-3 w-12 bg-muted rounded"></div>
+                    </div>
+                    <div class="h-6 w-full bg-muted/40 rounded"></div>
+                 </div>
+             </template>
+
             <HashCard
+              v-else
               v-for="res in results"
               :key="res.algorithm"
               :algorithm="res.algorithm"
               :hash="res.hash" />
           </TransitionGroup>
 
-          <div v-if="results.length === 0" class="h-full flex flex-col items-center justify-center text-muted-foreground/40 min-h-[300px]">
+          <div v-if="results.length === 0 && !isProcessing" class="h-full flex flex-col items-center justify-center text-muted-foreground/40 min-h-[300px]">
             <Fingerprint class="size-12 mb-3 opacity-20" />
             <p class="text-sm font-medium">No hashes generated</p>
             <p class="text-xs mt-1">Enter text or select algorithms</p>
@@ -118,7 +129,7 @@ import { useToast } from '@composables/ui/useToast'
 const HashCard = defineAsyncComponent(() => import('../components/HashCard.vue'))
 
 const breadcrumbs = [{ label: 'Tools', path: '/' }, { label: 'Hash Generator' }]
-const { input, results, isUppercase, inputStatus, inputStats, clear, enabledAlgorithms, toggleAlgorithm } = useHash()
+const { input, results, isUppercase, inputStatus, inputStats, clear, enabledAlgorithms, toggleAlgorithm, isProcessing } = useHash()
 const keyboard = useKeyboardStore()
 const { copy } = useClipboard()
 const { toast } = useToast()
@@ -184,8 +195,4 @@ onUnmounted(() => {
   opacity: 0;
   transform: translateY(10px);
 }
-
-.custom-scrollbar::-webkit-scrollbar { width: 6px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: oklch(var(--color-border)); border-radius: 3px; }
 </style>

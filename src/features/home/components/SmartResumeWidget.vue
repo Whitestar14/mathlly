@@ -1,7 +1,7 @@
 <template>
   <RouterLink
     :to="hasHistory ? (lastPath || '/calculator') : '/calculator'"
-    class="flex flex-col flex-1 h-full w-full group relative overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur-sm transition-all duration-500 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 p-5 md:p-8">
+    class="flex flex-col flex-1 h-full w-full group relative overflow-hidden rounded-lg border border-border bg-card/50 backdrop-blur-sm transition-all duration-500 hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 p-5 md:p-8">
     <!-- Backgrounds -->
     <div class="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50 transition-opacity duration-500 group-hover:opacity-100"></div>
     <div v-if="resumeContext.type === 'color' && resumeContext.colorData" class="absolute right-0 top-0 w-80 h-80 blur-[100px] opacity-20 rounded-full translate-x-1/3 -translate-y-1/3 transition-transform duration-700 group-hover:scale-125 pointer-events-none" :style="{ backgroundColor: `rgb(${resumeContext.colorData.r}, ${resumeContext.colorData.g}, ${resumeContext.colorData.b})` }"></div>
@@ -10,7 +10,7 @@
 
       <!-- Top Section -->
       <div class="flex items-center gap-4">
-        <div class="relative p-3 rounded-2xl bg-background border border-border shadow-sm group-hover:scale-110 transition-transform duration-300 group-hover:border-primary/30 text-primary shrink-0">
+        <div class="relative p-3 rounded-lg bg-background border border-border shadow-sm group-hover:scale-110 transition-transform duration-300 group-hover:border-primary/30 text-primary shrink-0">
           <component :is="resumeContext.icon" class="size-6 md:size-7" />
         </div>
 

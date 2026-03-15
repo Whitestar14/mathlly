@@ -1,0 +1,11 @@
+
+@layer utilities {
+  /* Dashboard Specialized Atmosphere */
+  .dashboard-gradient {
+    background: conic-gradient(from 0deg at 50% 30%, oklch(var(--color-primary)/0), oklch(var(--color-primary)/0.1) 40%, oklch(var(--color-accent)/0.1) 60%, oklch(var(--color-primary)/0));
+  }
+
+  .scroll-mask {
+    mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
+  }
+}

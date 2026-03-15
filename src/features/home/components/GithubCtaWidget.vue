@@ -3,7 +3,7 @@
     href="https://github.com/Whitestar14/mathlly"
     target="_blank"
     rel="noopener noreferrer"
-    class="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5">
+    class="group relative flex h-full w-full flex-col justify-between overflow-hidden rounded-lg border border-border bg-card p-6 transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5">
     <!-- Theme Glow -->
     <div class="absolute -right-12 -top-12 h-48 w-48 rounded-full bg-primary/10 blur-3xl transition-opacity opacity-0 group-hover:opacity-100"></div>
 

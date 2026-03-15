@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="h-full w-full bg-card border border-border rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden group text-left hover:border-primary/50 transition-all duration-300 shadow-sm"
+      class="h-full w-full bg-card border border-border rounded-lg p-5 flex flex-col justify-between relative overflow-hidden group text-left hover:border-primary/50 transition-all duration-300 shadow-sm"
       @click="showModal = true">
 
       <!-- Decor -->
@@ -9,7 +9,7 @@
 
       <div class="z-10 relative">
         <div class="flex items-center gap-3 mb-3">
-          <div class="p-2 size-12 bg-background border border-border rounded-lg shadow-sm flex items-center justify-center">
+          <div class="p-2 size-12 shadow-sm flex items-center justify-center">
             <PrismLogo class="size-6 text-primary" />
           </div>
           <div>

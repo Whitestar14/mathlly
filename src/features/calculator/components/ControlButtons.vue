@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex items-center left-0 top-0 absolute z-5 opacity-50 transition-opacity hover:opacity-100 group">
+    class="flex items-center left-0 top-0 absolute z-10 opacity-50 transition-opacity hover:opacity-100 group">
     <div
       class="flex items-center m-2 border border-border bg-background rounded-lg overflow-hidden shadow-sm">
       <BaseButton

@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full bg-card border border-border rounded-2xl flex flex-col relative overflow-hidden group hover:border-primary/50 transition-all duration-300 shadow-sm">
+  <div class="h-full prism-card flex flex-col relative group">
 
     <!-- Header -->
     <div class="px-5 py-4 border-b border-border/10 bg-card/50 backdrop-blur-md flex justify-between items-center z-10 shrink-0">
@@ -34,7 +34,7 @@
         </div>
 
         <!-- The Inner Card: Feature List -->
-        <div class="bg-muted/20 border border-border/30 rounded-xl p-4 space-y-3 hover:bg-muted/30 transition-colors">
+        <div class="bg-muted/20 border border-border/30 rounded-lg p-4 space-y-3 hover:bg-muted/30 transition-colors">
           <div v-for="(feat, idx) in update.features.slice(0, 3)" :key="idx" class="flex items-start gap-3">
             <!-- Soft Bullet -->
             <div class="mt-1.5 size-1.5 rounded-full bg-primary/60 shadow-[0_0_8px_rgba(var(--primary),0.5)] shrink-0"></div>
@@ -56,7 +56,7 @@
     <!-- History Modal (Matching Style) -->
     <BaseModal id="changelog-history" v-model:open="showHistory" title="History" size="lg">
       <div class="space-y-4 pr-1">
-        <div v-for="update in visibleHistory" :key="update.version" class="bg-muted/10 border border-border/40 rounded-xl p-4">
+        <div v-for="update in visibleHistory" :key="update.version" class="bg-muted/10 border border-border/40 rounded-lg p-4">
           <div class="flex justify-between items-center mb-3">
             <span class="font-bold text-sm text-foreground">v{{ update.version }}</span>
             <span class="text-xs text-muted-foreground font-mono opacity-70">{{ update.date }}</span>
@@ -131,12 +131,3 @@ const handleCheckUpdate = async() => {
   }
 }
 </script>
-
-<style scoped>
-.scroll-mask {
-  mask-image: linear-gradient(to bottom, black 90%, transparent 100%);
-}
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: oklch(var(--color-border)); border-radius: 4px; }
-</style>
