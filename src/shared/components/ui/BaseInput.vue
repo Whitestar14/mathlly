@@ -3,12 +3,9 @@
     <slot name="prefix">
       <div
         v-if="$slots.icon || icon"
-        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground pointer-events-none">
+        class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground select-none">
         <slot name="icon">
-          <component
-            :is="icon"
-            v-if="icon"
-            class="h-4 w-4" />
+          <component :is="icon" v-if="icon" class="size-4" />
         </slot>
       </div>
     </slot>
@@ -28,23 +25,22 @@
         error ? 'border-destructive' : 'border-border',
         $slots.icon || icon ? 'pl-10' : 'pl-4',
         $slots.suffix ? 'pr-10' : 'pr-4',
-        'py-2'
+        'py-2',
       ]"
       v-bind="$attrs"
-      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+      @input="
+        $emit('update:modelValue', ($event.target as HTMLInputElement).value)
+      "
       @blur="$emit('blur', $event)"
       @focus="handleFocus" />
 
     <div
       v-if="$slots.suffix"
-      class="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground flex items-center">
+      class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground select-none">
       <slot name="suffix"></slot>
     </div>
 
-    <div
-      v-if="error"
-      :id="`${id}-error`"
-      class="mt-1 text-sm text-destructive">
+    <div v-if="error" :id="`${id}-error`" class="mt-1 text-sm text-destructive">
       {{ error }}
     </div>
   </div>
@@ -97,9 +93,9 @@ const props = defineProps({
 })
 
 const emit = defineEmits<{
-  'update:modelValue': [value: string | number],
-  'blur': [event: FocusEvent],
-  'focus': [event: FocusEvent]
+  'update:modelValue': [value: string | number];
+  blur: [event: FocusEvent];
+  focus: [event: FocusEvent];
 }>()
 
 const inputRef = ref<HTMLInputElement | null>(null)

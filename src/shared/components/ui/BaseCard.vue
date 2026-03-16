@@ -9,21 +9,16 @@ defineProps({
 <template>
   <component
     :is="as || 'div'"
-    class="rounded-lg border bg-card border-border overflow-hidden border-collapse"
+    class="rounded-lg flex min-h-0 h-full flex-col border bg-card border-border overflow-hidden border-collapse"
     v-bind="$attrs">
-
     <div
       v-if="title || subtitle || $slots.head || $slots.header"
-      class="px-4 py-2 bg-muted/50 dark:bg-muted/40 border-b border-border">
+      class="px-4 py-2 bg-muted/50 dark:bg-muted/40 border-b border-border shrink-0 min-h-[45px]">
       <div class="flex items-center justify-between gap-4">
-
         <div class="flex items-center gap-3 min-w-0">
-
           <slot name="head">
             <div v-if="title || subtitle">
-              <h3
-                v-if="title"
-                class="text-sm font-medium leading-6 truncate">
+              <h3 v-if="title" class="text-sm font-medium leading-6 truncate">
                 {{ title }}
               </h3>
               <p
@@ -41,7 +36,7 @@ defineProps({
       </div>
     </div>
 
-    <div class="p-3 md:p-6 bg-card">
+    <div class="p-3 md:p-6 min-h-0 overflow-y-auto flex-1 bg-card">
       <slot></slot>
     </div>
 

@@ -36,28 +36,28 @@
           <div class="flex flex-col h-full min-h-0 border border-border rounded-lg bg-card overflow-hidden animate-pulse">
             <!-- Header Skeleton -->
             <div class="flex justify-between items-center h-[53px] px-2 border-b border-border bg-muted/30">
-               <div class="flex items-center gap-1">
-                  <div class="size-8 bg-muted rounded"></div>
-                  <div class="size-8 bg-muted rounded"></div>
-                  <div class="size-8 bg-muted rounded"></div>
-               </div>
-               <div class="flex items-center gap-2">
-                  <div class="h-7 w-24 bg-muted rounded"></div>
-                  <div class="h-7 w-12 bg-muted rounded"></div>
-               </div>
+              <div class="flex items-center gap-1">
+                <div class="size-8 bg-muted rounded"></div>
+                <div class="size-8 bg-muted rounded"></div>
+                <div class="size-8 bg-muted rounded"></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="h-7 w-24 bg-muted rounded"></div>
+                <div class="h-7 w-12 bg-muted rounded"></div>
+              </div>
             </div>
             <!-- Editor Skeleton -->
             <div class="flex-1 min-h-0 bg-muted/5 flex">
-               <div class="w-10 border-r border-border/50 bg-muted/10"></div>
-               <div class="flex-1 p-4 space-y-2">
-                  <div class="h-4 w-3/4 bg-muted/20 rounded"></div>
-                  <div class="h-4 w-1/2 bg-muted/20 rounded"></div>
-                  <div class="h-4 w-5/6 bg-muted/20 rounded"></div>
-               </div>
+              <div class="w-10 border-r border-border/50 bg-muted/10"></div>
+              <div class="flex-1 p-4 space-y-2">
+                <div class="h-4 w-3/4 bg-muted/20 rounded"></div>
+                <div class="h-4 w-1/2 bg-muted/20 rounded"></div>
+                <div class="h-4 w-5/6 bg-muted/20 rounded"></div>
+              </div>
             </div>
-             <!-- Footer Skeleton -->
-             <div class="h-7 border-t border-border bg-muted/30 flex items-center px-3">
-               <div class="h-3 w-16 bg-muted rounded"></div>
+            <!-- Footer Skeleton -->
+            <div class="h-7 border-t border-border bg-muted/30 flex items-center px-3">
+              <div class="h-3 w-16 bg-muted rounded"></div>
             </div>
           </div>
         </template>
@@ -79,21 +79,21 @@
           <div class="flex flex-col h-full min-h-0 border border-border rounded-lg bg-card overflow-hidden animate-pulse">
             <!-- Header Skeleton -->
             <div class="flex justify-between items-center h-[53px] px-2 border-b border-border bg-muted/30">
-               <div class="h-8 w-64 bg-muted rounded"></div>
-               <div class="flex gap-1">
-                  <div class="size-8 bg-muted rounded"></div>
-                  <div class="size-8 bg-muted rounded"></div>
-               </div>
+              <div class="h-8 w-64 bg-muted rounded"></div>
+              <div class="flex gap-1">
+                <div class="size-8 bg-muted rounded"></div>
+                <div class="size-8 bg-muted rounded"></div>
+              </div>
             </div>
             <!-- Content Skeleton -->
             <div class="flex-1 min-h-0 bg-muted/5 flex items-center justify-center">
-               <div class="text-center">
-                  <div class="size-10 bg-muted/30 rounded mb-2 mx-auto"></div>
-                  <div class="h-4 w-32 bg-muted/30 rounded"></div>
-               </div>
+              <div class="text-center">
+                <div class="size-10 bg-muted/30 rounded mb-2 mx-auto"></div>
+                <div class="h-4 w-32 bg-muted/30 rounded"></div>
+              </div>
             </div>
-             <!-- Footer Skeleton -->
-             <div class="h-7 border-t border-border bg-muted/30"></div>
+            <!-- Footer Skeleton -->
+            <div class="h-7 border-t border-border bg-muted/30"></div>
           </div>
         </template>
       </Suspense>

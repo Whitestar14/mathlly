@@ -19,9 +19,9 @@ export function exportJSON(data: any, filename: string, metadata?: Record<string
     }
     const jsonString = JSON.stringify(payload, null, 2)
     const blob = new Blob([jsonString], { type: 'application/json' })
-    
+
     downloadBlob(blob, filename)
-    
+
     const { success } = useToast()
     success(`Successfully exported to ${filename}`, { title: 'Exported!' })
     return { success: true }

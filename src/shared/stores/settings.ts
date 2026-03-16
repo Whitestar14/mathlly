@@ -28,7 +28,7 @@ export const DEFAULT_SETTINGS: Settings = {
   },
   experimental: {
     commandPaletteEnabled: false,
-    devDockEnabled: false,
+    devDockEnabled: false
   },
   privacy: {
     crashReportingEnabled: false

@@ -122,21 +122,21 @@ export function useSidebarNavigation() {
           name: 'JSON Editor',
           path: '/tools/json',
           icon: FileJson2Icon,
-          isNew: true,
+          isNew: false,
           description: 'Validate, format, minify and convert JSON data.'
         },
         {
           name: 'QR Code',
           path: '/tools/qrcode',
           icon: QrCodeIcon,
-          isNew: true,
+          isNew: false,
           description: 'Generate customizable QR codes'
         },
         {
           name: 'Hash Generator',
           path: '/tools/hash',
           icon: HashIcon,
-          isNew: true,
+          isNew: false,
           comingSoon: false,
           description: 'Generate cryptographic hashes (SHA-256, etc)'
         },
@@ -144,15 +144,16 @@ export function useSidebarNavigation() {
           name: 'Diff Checker',
           path: '/tools/diff',
           icon: FileDiffIcon,
-          isNew: false,
-          comingSoon: true,
+          isNew: true,
+          comingSoon: false,
           description: 'Compare text files and view differences'
         },
         {
           name: 'Regex',
-          path: '/regex',
+          path: '/tools/regex',
           icon: RegexIcon,
-          comingSoon: true
+          isNew: true,
+          comingSoon: false
         }
       ]
     }

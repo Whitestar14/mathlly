@@ -1,9 +1,19 @@
 /* styles/base/typography.css */
 @layer base {
-  /* Headings & paragraph defaults */
-  p { @apply text-[0.875rem]; }
 
-  h1, h2, h3, h4, h5, h6 { @apply font-medium text-foreground; }
+  /* Headings & paragraph defaults */
+  p {
+    @apply text-[0.895rem];
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-medium text-foreground;
+  }
 
   /* Keyboard glyphs */
   kbd {
@@ -11,8 +21,23 @@
   }
 
   /* Text size utilities (semantic helpers) */
-  .ts-small   { font-size: 0.875rem; }  /* 14px */
-  .ts-normal  { font-size: 0.975rem; }
-  .ts-medium  { font-size: 1rem; }      /* 16px */
-  .ts-large   { font-size: 1.125rem; }  /* 18px */
+  .ts-small {
+    font-size: 0.895rem;
+  }
+
+  /* 14px */
+  .ts-normal {
+    font-size: 0.99rem;
+  }
+
+  .ts-medium {
+    font-size: 1.05rem;
+  }
+
+  /* 16px */
+  .ts-large {
+    font-size: 1.15rem;
+  }
+
+  /* 18px */
 }

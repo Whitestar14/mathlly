@@ -87,39 +87,39 @@
               @download="downloadOutput"
               @swap="tool.handleSwap" />
           </div>
-          
+
           <div v-else class="h-full grid grid-rows-2 lg:grid-rows-1 lg:grid-cols-2 gap-4 animate-pulse">
             <!-- Skeleton Input -->
             <div class="flex flex-col h-full border border-border rounded-lg bg-card overflow-hidden">
-               <div class="flex items-center justify-between p-2 border-b border-border h-[53px] bg-muted/30">
-                  <div class="h-4 w-20 bg-muted rounded"></div>
-                  <div class="flex gap-1">
-                     <div class="size-8 bg-muted rounded"></div>
-                     <div class="size-8 bg-muted rounded"></div>
-                     <div class="size-8 bg-muted rounded"></div>
-                  </div>
-               </div>
-               <div class="flex-1 bg-muted/5"></div>
-               <div class="h-7 border-t border-border bg-muted/30 flex items-center justify-between px-3">
-                  <div class="h-3 w-16 bg-muted rounded"></div>
-                  <div class="h-3 w-24 bg-muted rounded"></div>
-               </div>
+              <div class="flex items-center justify-between p-2 border-b border-border h-[53px] bg-muted/30">
+                <div class="h-4 w-20 bg-muted rounded"></div>
+                <div class="flex gap-1">
+                  <div class="size-8 bg-muted rounded"></div>
+                  <div class="size-8 bg-muted rounded"></div>
+                  <div class="size-8 bg-muted rounded"></div>
+                </div>
+              </div>
+              <div class="flex-1 bg-muted/5"></div>
+              <div class="h-7 border-t border-border bg-muted/30 flex items-center justify-between px-3">
+                <div class="h-3 w-16 bg-muted rounded"></div>
+                <div class="h-3 w-24 bg-muted rounded"></div>
+              </div>
             </div>
 
             <!-- Skeleton Output -->
             <div class="flex flex-col h-full border border-border rounded-lg bg-card overflow-hidden">
-               <div class="flex items-center justify-between p-2 border-b border-border h-[53px] bg-muted/30">
-                  <div class="h-4 w-20 bg-muted rounded"></div>
-                  <div class="flex gap-1">
-                     <div class="size-8 bg-muted rounded"></div>
-                     <div class="size-8 bg-muted rounded"></div>
-                  </div>
-               </div>
-               <div class="flex-1 bg-muted/5"></div>
-               <div class="h-7 border-t border-border bg-muted/30 flex items-center justify-between px-3">
-                  <div class="h-3 w-16 bg-muted rounded"></div>
-                  <div class="h-3 w-24 bg-muted rounded"></div>
-               </div>
+              <div class="flex items-center justify-between p-2 border-b border-border h-[53px] bg-muted/30">
+                <div class="h-4 w-20 bg-muted rounded"></div>
+                <div class="flex gap-1">
+                  <div class="size-8 bg-muted rounded"></div>
+                  <div class="size-8 bg-muted rounded"></div>
+                </div>
+              </div>
+              <div class="flex-1 bg-muted/5"></div>
+              <div class="h-7 border-t border-border bg-muted/30 flex items-center justify-between px-3">
+                <div class="h-3 w-16 bg-muted rounded"></div>
+                <div class="h-3 w-24 bg-muted rounded"></div>
+              </div>
             </div>
           </div>
         </Transition>

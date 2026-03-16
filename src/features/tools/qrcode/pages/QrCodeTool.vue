@@ -51,30 +51,30 @@
                 @download="download" />
             </div>
           </div>
-          
+
           <div v-else class="h-full w-full grid grid-cols-1 md:grid-cols-2 gap-4 animate-pulse">
-             <!-- Input Skeleton -->
-             <div class="h-full flex flex-col gap-3">
-                <div class="flex justify-between items-center h-10">
-                   <div class="h-8 w-40 bg-muted/40 rounded"></div>
-                   <div class="flex gap-1">
-                      <div class="size-8 bg-muted/40 rounded"></div>
-                      <div class="size-8 bg-muted/40 rounded"></div>
-                   </div>
+            <!-- Input Skeleton -->
+            <div class="h-full flex flex-col gap-3">
+              <div class="flex justify-between items-center h-10">
+                <div class="h-8 w-40 bg-muted/40 rounded"></div>
+                <div class="flex gap-1">
+                  <div class="size-8 bg-muted/40 rounded"></div>
+                  <div class="size-8 bg-muted/40 rounded"></div>
                 </div>
-                <div class="space-y-4 pr-2">
-                   <div class="h-40 bg-muted/10 border border-border rounded-lg"></div>
-                   <div class="h-32 bg-muted/10 border border-border rounded-lg"></div>
-                </div>
-             </div>
-             
-             <!-- Output Skeleton -->
-             <div class="h-full bg-card border border-border rounded-lg flex flex-col overflow-hidden">
-                <div class="h-[53px] bg-muted/30 border-b border-border"></div>
-                <div class="flex-1 flex items-center justify-center bg-muted/5">
-                   <div class="size-64 bg-muted/20 rounded-lg"></div>
-                </div>
-             </div>
+              </div>
+              <div class="space-y-4 pr-2">
+                <div class="h-40 bg-muted/10 border border-border rounded-lg"></div>
+                <div class="h-32 bg-muted/10 border border-border rounded-lg"></div>
+              </div>
+            </div>
+
+            <!-- Output Skeleton -->
+            <div class="h-full bg-card border border-border rounded-lg flex flex-col overflow-hidden">
+              <div class="h-[53px] bg-muted/30 border-b border-border"></div>
+              <div class="flex-1 flex items-center justify-center bg-muted/5">
+                <div class="size-64 bg-muted/20 rounded-lg"></div>
+              </div>
+            </div>
           </div>
         </Transition>
       </div>

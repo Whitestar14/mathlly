@@ -34,15 +34,15 @@
           <ChangelogWidget />
           <template #fallback>
             <div class="h-full w-full bg-card/50 border border-border rounded-lg p-5 flex flex-col gap-4 animate-pulse">
-               <div class="flex justify-between items-center border-b border-border/50 pb-3">
-                  <div class="h-4 w-20 bg-muted rounded"></div>
-                  <div class="h-6 w-16 bg-muted rounded"></div>
-               </div>
-               <div class="space-y-3">
-                  <div class="h-24 w-full bg-muted/30 rounded-lg"></div>
-                  <div class="h-24 w-full bg-muted/30 rounded-lg"></div>
-                  <div class="h-24 w-full bg-muted/30 rounded-lg"></div>
-               </div>
+              <div class="flex justify-between items-center border-b border-border/50 pb-3">
+                <div class="h-4 w-20 bg-muted rounded"></div>
+                <div class="h-6 w-16 bg-muted rounded"></div>
+              </div>
+              <div class="space-y-3">
+                <div class="h-24 w-full bg-muted/30 rounded-lg"></div>
+                <div class="h-24 w-full bg-muted/30 rounded-lg"></div>
+                <div class="h-24 w-full bg-muted/30 rounded-lg"></div>
+              </div>
             </div>
           </template>
         </Suspense>
@@ -53,22 +53,22 @@
         <Suspense>
           <ToolsWidget />
           <template #fallback>
-             <div class="h-full w-full bg-card/50 border border-border rounded-lg p-3 flex flex-col gap-3 animate-pulse">
-                <div class="h-9 w-full bg-muted/40 rounded-md"></div>
-                <div class="space-y-4 pt-2">
-                   <div class="grid grid-cols-2 gap-2">
-                      <div class="h-20 bg-muted/20 rounded-lg"></div>
-                      <div class="h-20 bg-muted/20 rounded-lg"></div>
-                      <div class="h-20 bg-muted/20 rounded-lg"></div>
-                      <div class="h-20 bg-muted/20 rounded-lg"></div>
-                   </div>
-                   <div class="h-4 w-24 bg-muted/30 rounded mb-2"></div>
-                   <div class="grid grid-cols-2 gap-2">
-                      <div class="h-20 bg-muted/20 rounded-lg"></div>
-                      <div class="h-20 bg-muted/20 rounded-lg"></div>
-                   </div>
+            <div class="h-full w-full bg-card/50 border border-border rounded-lg p-3 flex flex-col gap-3 animate-pulse">
+              <div class="h-9 w-full bg-muted/40 rounded-md"></div>
+              <div class="space-y-4 pt-2">
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="h-20 bg-muted/20 rounded-lg"></div>
+                  <div class="h-20 bg-muted/20 rounded-lg"></div>
+                  <div class="h-20 bg-muted/20 rounded-lg"></div>
+                  <div class="h-20 bg-muted/20 rounded-lg"></div>
                 </div>
-             </div>
+                <div class="h-4 w-24 bg-muted/30 rounded mb-2"></div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="h-20 bg-muted/20 rounded-lg"></div>
+                  <div class="h-20 bg-muted/20 rounded-lg"></div>
+                </div>
+              </div>
+            </div>
           </template>
         </Suspense>
       </div>
@@ -78,18 +78,18 @@
         <Suspense>
           <GithubCtaWidget />
           <template #fallback>
-             <div class="h-full w-full bg-card/50 border border-border rounded-lg p-6 flex flex-col justify-between animate-pulse">
-                <div class="space-y-3">
-                   <div class="h-5 w-24 bg-muted/50 rounded-full"></div>
-                   <div class="h-6 w-48 bg-muted/40 rounded"></div>
-                   <div class="h-3 w-32 bg-muted/30 rounded"></div>
-                </div>
-                <div class="h-px w-full bg-border/50"></div>
-                <div class="flex gap-4">
-                   <div class="h-4 w-12 bg-muted/30 rounded"></div>
-                   <div class="h-4 w-12 bg-muted/30 rounded"></div>
-                </div>
-             </div>
+            <div class="h-full w-full bg-card/50 border border-border rounded-lg p-6 flex flex-col justify-between animate-pulse">
+              <div class="space-y-3">
+                <div class="h-5 w-24 bg-muted/50 rounded-full"></div>
+                <div class="h-6 w-48 bg-muted/40 rounded"></div>
+                <div class="h-3 w-32 bg-muted/30 rounded"></div>
+              </div>
+              <div class="h-px w-full bg-border/50"></div>
+              <div class="flex gap-4">
+                <div class="h-4 w-12 bg-muted/30 rounded"></div>
+                <div class="h-4 w-12 bg-muted/30 rounded"></div>
+              </div>
+            </div>
           </template>
         </Suspense>
       </div>
@@ -99,16 +99,16 @@
         <Suspense>
           <AboutWidget />
           <template #fallback>
-             <div class="h-full w-full bg-card/50 border border-border rounded-lg p-5 flex flex-col justify-between animate-pulse">
-                <div class="flex items-center gap-3">
-                   <div class="size-12 rounded-lg bg-muted/40"></div>
-                   <div class="space-y-2">
-                      <div class="h-4 w-20 bg-muted/40 rounded"></div>
-                      <div class="h-3 w-16 bg-muted/30 rounded"></div>
-                   </div>
+            <div class="h-full w-full bg-card/50 border border-border rounded-lg p-5 flex flex-col justify-between animate-pulse">
+              <div class="flex items-center gap-3">
+                <div class="size-12 rounded-lg bg-muted/40"></div>
+                <div class="space-y-2">
+                  <div class="h-4 w-20 bg-muted/40 rounded"></div>
+                  <div class="h-3 w-16 bg-muted/30 rounded"></div>
                 </div>
-                <div class="h-3 w-24 bg-muted/20 rounded self-end"></div>
-             </div>
+              </div>
+              <div class="h-3 w-24 bg-muted/20 rounded self-end"></div>
+            </div>
           </template>
         </Suspense>
       </div>

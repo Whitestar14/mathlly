@@ -93,7 +93,6 @@ export function useHomeNavigation() {
           description: 'Generate standard and styled QR codes.',
           path: '/tools/qrcode',
           icon: QrCode,
-          badge: 'new',
           keywords: ['generator', 'image', 'scan'],
           gradient: 'from-gray-500/10 to-slate-500/10 hover:from-gray-500/20 hover:to-slate-500/20'
         },
@@ -103,7 +102,6 @@ export function useHomeNavigation() {
           description: 'Generate secure MD5, SHA-1, and SHA-256 hashes.',
           path: '/tools/hash',
           icon: Hash,
-          badge: 'new',
           keywords: ['crypto', 'security', 'md5', 'sha']
         },
         {
@@ -112,7 +110,7 @@ export function useHomeNavigation() {
           description: 'Compare text or code to find differences.',
           path: '/tools/diff',
           icon: FileDiff,
-          badge: 'soon',
+          badge: 'new',
           keywords: ['compare', 'text', 'code']
         }
       ]
@@ -142,9 +140,9 @@ export function useHomeNavigation() {
           id: 'regex',
           name: 'Regex Tester',
           description: 'Debug and test regular expressions in real-time.',
-          path: '/regex',
+          path: '/tools/regex',
           icon: Regex,
-          badge: 'soon',
+          badge: 'new',
           keywords: ['regexp', 'pattern', 'match']
         },
         {

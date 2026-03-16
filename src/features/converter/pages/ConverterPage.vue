@@ -55,20 +55,20 @@
                 <div class="relative flex flex-1 flex-col gap-4">
                   <!-- Input Panel Skeleton -->
                   <div class="flex-1 bg-muted/10 border border-border rounded-lg p-6 flex flex-col justify-center">
-                     <div class="h-12 w-3/4 bg-muted/40 rounded-md self-end mb-4"></div>
-                     <div class="flex justify-between items-center">
-                        <div class="h-8 w-32 bg-muted/40 rounded-md"></div>
-                        <div class="h-8 w-8 bg-muted/30 rounded-md"></div>
-                     </div>
+                    <div class="h-12 w-3/4 bg-muted/40 rounded-md self-end mb-4"></div>
+                    <div class="flex justify-between items-center">
+                      <div class="h-8 w-32 bg-muted/40 rounded-md"></div>
+                      <div class="h-8 w-8 bg-muted/30 rounded-md"></div>
+                    </div>
                   </div>
 
                   <!-- Output Panel Skeleton -->
                   <div class="flex-1 bg-muted/10 border border-border rounded-lg p-6 flex flex-col justify-center">
-                     <div class="h-12 w-1/2 bg-muted/30 rounded-md self-end mb-4"></div>
-                     <div class="flex justify-between items-center">
-                        <div class="h-8 w-32 bg-muted/40 rounded-md"></div>
-                        <div class="h-8 w-8 bg-muted/30 rounded-md"></div>
-                     </div>
+                    <div class="h-12 w-1/2 bg-muted/30 rounded-md self-end mb-4"></div>
+                    <div class="flex justify-between items-center">
+                      <div class="h-8 w-32 bg-muted/40 rounded-md"></div>
+                      <div class="h-8 w-8 bg-muted/30 rounded-md"></div>
+                    </div>
                   </div>
 
                   <!-- Swap Button Skeleton -->

@@ -88,18 +88,18 @@
 
         <div class="flex-1 overflow-y-auto p-3 custom-scrollbar">
           <TransitionGroup name="list" tag="div" class="flex flex-col gap-3">
-             <template v-if="isProcessing && results.length === 0">
-                 <div v-for="i in 4" :key="i" class="bg-card border border-border rounded-lg p-4 animate-pulse">
-                    <div class="flex justify-between mb-2">
-                       <div class="h-3 w-12 bg-muted rounded"></div>
-                    </div>
-                    <div class="h-6 w-full bg-muted/40 rounded"></div>
-                 </div>
-             </template>
+            <template v-if="isProcessing && results.length === 0">
+              <div v-for="i in 4" :key="i" class="bg-card border border-border rounded-lg p-4 animate-pulse">
+                <div class="flex justify-between mb-2">
+                  <div class="h-3 w-12 bg-muted rounded"></div>
+                </div>
+                <div class="h-6 w-full bg-muted/40 rounded"></div>
+              </div>
+            </template>
 
             <HashCard
-              v-else
               v-for="res in results"
+              v-else
               :key="res.algorithm"
               :algorithm="res.algorithm"
               :hash="res.hash" />

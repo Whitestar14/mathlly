@@ -9,8 +9,7 @@
     <Transition name="fade" mode="out-in">
       <component
         :is="DashboardView"
-        class="relative z-10 h-full w-full"
-         />
+        class="relative z-10 h-full w-full" />
     </Transition>
 
     <WelcomeModal v-model="showWelcomeModal" />
