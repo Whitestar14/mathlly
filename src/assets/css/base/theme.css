@@ -4,19 +4,19 @@
 @import '../themes/siena.css';
 @import '../themes/dracula.css';
 
-@layer base {
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: oklch(var(--color-muted)) transparent;
+@layer components {
+
+  /* Override all radius variables to 0px when sharp mode is enabled */
+  .border-style-sharp {
+    --radius: 0px;
+    --radius-sm: 0px;
+    --radius-md: 0px;
+    --radius-lg: 0px;
+    --radius-xl: 0px;
   }
 
-  * ::-webkit-scrollbar {
-  width: 8px;
-  background-color: transparent; 
-}
-}
-
-@layer components {
-  .border-style-sharp   { --radius: 0px; }
-  .border-style-rounded { --radius: 0.5rem; }
+  .border-style-rounded {
+    --radius: 0.55rem;
+    /* Variables automatically recalculate based on :root definitions in reset.css */
+  }
 }

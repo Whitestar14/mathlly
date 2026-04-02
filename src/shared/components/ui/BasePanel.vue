@@ -55,7 +55,7 @@
 
       <Transition :name="animationEnabled ? 'fade' : ''">
         <div
-          v-show="isOpen"
+          v-if="isOpen"
           class="fixed inset-0 z-20"
           :class="backdropClasses"
           aria-hidden="true"
@@ -191,7 +191,7 @@ const isDraggingDelayed = computed(() => last.value?.snapshot ?? false)
 const backdropClasses = computed(() => [
   isDraggingDelayed.value ? 'bg-backdrop/20' : 'bg-backdrop/40',
   animationEnabled.value ?
-    'backdrop-blur-sm transition-colors duration-300' :
+    'backdrop-blur-sm' :
     'bg-backdrop/50'
 ])
 

@@ -7,20 +7,23 @@
 
 /* Components */
 @import './components/buttons.css';
+@import './components/cards.css';
 @import './components/tooltip.css';
 @import './components/logo.css';
 @import './components/syntax.css';
 @import './components/calc-buttons.css';
+@import './components/scrollbars.css';
 
 /* Utilities */
 @import './utilities/patterns.css';
-@import './utilities/zIndex.css';
+@import './utilities/effects.css';
 @import './utilities/focus.css';
 
 /* Animations */
 @import './animations/fade.css';
 @import './animations/scale.css';
 @import './animations/slide.css';
+@import './animations/custom.css';
 
 @tailwind base;
 @tailwind components;

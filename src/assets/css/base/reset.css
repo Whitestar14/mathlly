@@ -1,5 +1,13 @@
 /* styles/base/reset.css */
 @layer base {
+  :root {
+    --radius: 0.55rem;
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+  }
+
   /* Body + html base styles */
   body {
     @apply bg-background text-foreground
@@ -8,7 +16,6 @@
   }
 
   body, html {
-    --radius: 0.5rem;
     scrollbar-width: thin;
     scroll-behavior: smooth;
     scrollbar-color: oklch(var(--color-muted-foreground) / 0.5) transparent;

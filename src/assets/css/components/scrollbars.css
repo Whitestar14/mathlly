@@ -1,0 +1,36 @@
+
+@layer components {
+  /* 
+    Consolidated Scrollbar Component 
+    Clean, thin, stable scrollbar.
+  */
+
+  .custom-scrollbar {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: oklch(var(--color-border)) transparent;
+  }
+
+  /* WebKit */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: oklch(var(--color-border));
+    border-radius: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: oklch(var(--color-muted-foreground) / 0.5);
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}

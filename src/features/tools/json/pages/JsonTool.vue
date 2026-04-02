@@ -1,3 +1,4 @@
+
 <template>
   <BasePage
     title="JSON Editor"
@@ -32,28 +33,31 @@
           @clear="clear"
           @upload="handleFileUpload" />
         <template #fallback>
-          <div class="flex flex-col h-full min-h-0 gap-2 animate-pulse">
+          <div class="flex flex-col h-full min-h-0 border border-border rounded-lg bg-card overflow-hidden animate-pulse">
             <!-- Header Skeleton -->
-            <div class="flex justify-between items-center h-9 px-1 flex-shrink-0">
-              <div class="h-4 w-20 bg-muted/40 rounded"></div>
+            <div class="flex justify-between items-center h-[53px] px-2 border-b border-border bg-muted/30">
               <div class="flex items-center gap-1">
-                <div class="size-8 bg-muted/40 rounded"></div>
-                <div class="size-8 bg-muted/40 rounded"></div>
-                <div class="size-8 bg-muted/40 rounded"></div>
-                <div class="w-px h-4 bg-border/50 mx-1"></div>
-                <div class="size-8 bg-muted/40 rounded"></div>
-                <div class="size-8 bg-muted/40 rounded"></div>
+                <div class="size-8 bg-muted rounded"></div>
+                <div class="size-8 bg-muted rounded"></div>
+                <div class="size-8 bg-muted rounded"></div>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="h-7 w-24 bg-muted rounded"></div>
+                <div class="h-7 w-12 bg-muted rounded"></div>
               </div>
             </div>
             <!-- Editor Skeleton -->
-            <div class="flex-1 min-h-0 border border-border/40 rounded-lg bg-muted/5"></div>
-            <!-- Toolbar Skeleton -->
-            <div class="flex items-center justify-between gap-2 p-1.5 bg-card border border-border/40 rounded-lg flex-shrink-0 h-[46px]">
-              <div class="w-32 h-8 bg-muted/40 rounded"></div>
-              <div class="flex gap-2">
-                <div class="h-8 w-16 bg-muted/40 rounded"></div>
-                <div class="h-8 w-16 bg-muted/40 rounded"></div>
+            <div class="flex-1 min-h-0 bg-muted/5 flex">
+              <div class="w-10 border-r border-border/50 bg-muted/10"></div>
+              <div class="flex-1 p-4 space-y-2">
+                <div class="h-4 w-3/4 bg-muted/20 rounded"></div>
+                <div class="h-4 w-1/2 bg-muted/20 rounded"></div>
+                <div class="h-4 w-5/6 bg-muted/20 rounded"></div>
               </div>
+            </div>
+            <!-- Footer Skeleton -->
+            <div class="h-7 border-t border-border bg-muted/30 flex items-center px-3">
+              <div class="h-3 w-16 bg-muted rounded"></div>
             </div>
           </div>
         </template>
@@ -72,17 +76,24 @@
           @copy="copyResult"
           @download="downloadFile" />
         <template #fallback>
-          <div class="flex flex-col h-full min-h-0 gap-2 animate-pulse">
+          <div class="flex flex-col h-full min-h-0 border border-border rounded-lg bg-card overflow-hidden animate-pulse">
             <!-- Header Skeleton -->
-            <div class="flex flex-col sm:flex-row justify-between sm:items-center h-auto sm:h-9 gap-2 flex-shrink-0">
-              <div class="w-full sm:max-w-xs h-8 bg-muted/40 rounded"></div>
-              <div class="flex items-center gap-1 self-end sm:self-auto">
-                <div class="size-8 bg-muted/40 rounded"></div>
-                <div class="h-8 w-16 bg-muted/40 rounded"></div>
+            <div class="flex justify-between items-center h-[53px] px-2 border-b border-border bg-muted/30">
+              <div class="h-8 w-64 bg-muted rounded"></div>
+              <div class="flex gap-1">
+                <div class="size-8 bg-muted rounded"></div>
+                <div class="size-8 bg-muted rounded"></div>
               </div>
             </div>
             <!-- Content Skeleton -->
-            <div class="flex-1 min-h-0 border border-border/40 rounded-lg bg-muted/5"></div>
+            <div class="flex-1 min-h-0 bg-muted/5 flex items-center justify-center">
+              <div class="text-center">
+                <div class="size-10 bg-muted/30 rounded mb-2 mx-auto"></div>
+                <div class="h-4 w-32 bg-muted/30 rounded"></div>
+              </div>
+            </div>
+            <!-- Footer Skeleton -->
+            <div class="h-7 border-t border-border bg-muted/30"></div>
           </div>
         </template>
       </Suspense>

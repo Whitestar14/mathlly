@@ -1,4 +1,3 @@
-export { default as FeatureCard } from './FeatureCard.vue'
 export { default as ToolOption } from './sidebar/ToolOptions.vue'
 export { default as MainMenu } from './sidebar/MainMenu.vue'
 export { default as SidebarMenu } from './sidebar/SidebarMenu.vue'

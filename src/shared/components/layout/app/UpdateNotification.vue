@@ -9,8 +9,7 @@ import {
   SparklesIcon,
   DownloadIcon,
   BookOpenIcon,
-  ExternalLinkIcon,
-  Loader2
+  ExternalLinkIcon
 } from 'lucide-vue-next'
 
 import { usePWA } from '@composables/core/usePWA'
@@ -24,12 +23,13 @@ const {
   shouldShowUpdate,
   updateApp,
   dismissUpdate,
-  currentVersion
+  currentVersion,
+  isUpdating,
+  downloadProgress
 } = usePWA()
 
 // Local UI state
 const showDetails: Ref<boolean> = ref(false)
-const isUpdating: Ref<boolean> = ref(false)
 
 // Derived flags and helpers
 const hasReleaseNotes: ComputedRef<boolean> = computed(() => {
@@ -99,13 +99,17 @@ const getUpdateDescription = (): string => {
 
 const handleUpdate = async(): Promise<void> => {
   try {
-    isUpdating.value = true
-    await new Promise(resolve => setTimeout(resolve, 1000))
     await updateApp()
   } catch(error) {
     console.error('Failed to update:', error)
   }
 }
+
+const buttonText = computed(() => {
+  if (!isUpdating.value) return 'Update App'
+  if (downloadProgress.value > 0 && downloadProgress.value < 100) return `Downloading ${downloadProgress.value}%`
+  return 'Activating...'
+})
 </script>
 
 <template>
@@ -125,7 +129,7 @@ const handleUpdate = async(): Promise<void> => {
             <!-- Icon -->
             <div class="flex-shrink-0 mt-0.5">
               <div class="bg-primary/10 p-2 rounded-lg">
-                <RefreshCwIcon class="h-4 w-4 text-primary" />
+                <RefreshCwIcon class="h-4 w-4 text-primary" :class="{ 'animate-spin': isUpdating }" />
               </div>
             </div>
 
@@ -142,13 +146,14 @@ const handleUpdate = async(): Promise<void> => {
                     v-if="updateFeatures.length > 0"
                     variant="ghost"
                     size="icon"
+                    :disabled="isUpdating"
                     @click="toggleDetails">
                     <ChevronDownIcon
                       class="h-4 w-4 transition-transform duration-200"
                       :class="{ 'rotate-180': showDetails }" />
                   </BaseButton>
 
-                  <BaseButton variant="ghost" size="icon" @click="dismissUpdate">
+                  <BaseButton variant="ghost" size="icon" :disabled="isUpdating" @click="dismissUpdate">
                     <XIcon class="h-4 w-4" />
                   </BaseButton>
                 </div>
@@ -219,7 +224,7 @@ const handleUpdate = async(): Promise<void> => {
             <div class="border-t border-border"></div>
 
             <div class="p-4">
-              <div class="max-h-40 overflow-y-auto">
+              <div class="max-h-40 overflow-y-auto custom-scrollbar">
                 <h4 class="text-xs font-medium text-card-foreground mb-3 flex items-center">
                   <div class="size-1 bg-primary rounded-full mr-2"></div>
                   {{ isServiceWorkerUpdate ? 'Service Worker Updates' : `What's new in ${formatVersion(displayLatestVersion)}` }}
@@ -251,11 +256,11 @@ const handleUpdate = async(): Promise<void> => {
         <!-- Footer actions -->
         <div class="border-t border-border bg-muted/30 p-3">
           <div class="flex gap-2 justify-end">
-            <BaseButton variant="outline" size="sm" @click="dismissUpdate">Later</BaseButton>
+            <BaseButton variant="outline" size="sm" :disabled="isUpdating" @click="dismissUpdate">Later</BaseButton>
 
-            <BaseButton variant="primary" size="sm" class="min-w-36" @click="handleUpdate">
+            <BaseButton variant="primary" size="sm" class="min-w-36" :loading="isUpdating" @click="handleUpdate">
               <template v-if="isUpdating">
-                <Loader2 class="w-4 h-4 duration-500 animate-spin" />
+                {{ buttonText }}
               </template>
               <template v-else>
                 <span class="w-full flex flex-row gap-1 justify-center items-center">

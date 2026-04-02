@@ -21,21 +21,17 @@
       class="bg-muted/50 border-l-4 border-destructive p-3 mb-4">
       <div class="flex items-center gap-2">
         <AlertTriangle class="size-4 text-destructive" />
-        <span class="text-sm text-muted-foreground">Keyboard shortcuts are currently disabled. Enable them in Settings to use these shortcuts.</span>
-        <RouterLink
-          to="/settings"
-          class="text-sm underline text-primary">
+        <span class="text-sm text-muted-foreground">Keyboard shortcuts are currently disabled. Enable them in Settings to
+          use these shortcuts.</span>
+        <RouterLink to="/settings" class="text-sm underline text-primary">
           Go to Settings
         </RouterLink>
       </div>
     </div>
 
     <div class="mt-2">
-      <BaseTabs
-        ref="tabsRef"
-        v-model:model-value="currentTab"
-        :tabs="tabs" />
-      <div class="relative overflow-hidden h-[260px] overflow-y-auto">
+      <BaseTabs ref="tabsRef" v-model:model-value="currentTab" :tabs="tabs" />
+      <div class="relative overflow-hidden h-72 overflow-y-auto">
         <TransitionGroup
           enter-active-class="transition-transform duration-200 ease-out"
           enter-from-class="opacity-0 translate-x-4"
@@ -44,22 +40,22 @@
           leave-from-class="opacity-100 translate-x-0"
           leave-to-class="opacity-0 -translate-x-4">
           <div
-            v-for="(subgroups, top) in grouped"
-            v-show="currentTab === top"
-            :key="top"
+            v-for="groupItem in groupedArray"
+            v-show="currentTab === groupItem.name"
+            :key="groupItem.name"
             class="p-4 space-y-4">
             <div
-              v-for="(items, subgroup) in subgroups"
+              v-for="(items, subgroup) in groupItem.subgroups"
               :key="subgroup">
               <div class="text-xs font-medium text-muted-foreground mb-2">
-                {{ subgroupLabel(top, subgroup) }}
+                {{ subgroupLabel(groupItem.name, String(subgroup)) }}
               </div>
               <div
                 v-for="item in items"
                 :key="item.id"
                 :class="[
                   'flex items-center justify-between px-3 py-2 rounded-lg transition-colors',
-                  item.enabled ? 'hover:bg-muted/50' : 'opacity-60'
+                  item.enabled ? 'hover:bg-muted/50' : 'opacity-60',
                 ]">
                 <span class="text-sm text-foreground">
                   {{ item.description }}
@@ -70,7 +66,8 @@
                       v-for="(part, idx) in item.key.split('+')"
                       :key="idx"
                       class="inline-flex items-center gap-1.5">
-                      <kbd class="px-2 py-1 text-xs font-medium bg-background text-primary rounded-md border border-border shadow-sm">{{ part }}</kbd>
+                      <kbd
+                        class="px-2 py-1 text-xs font-medium bg-background text-primary rounded-md border border-border shadow-sm">{{ part }}</kbd>
                       <span
                         v-if="idx < item.key.split('+').length - 1"
                         class="text-muted-foreground">+</span>
@@ -86,9 +83,7 @@
         </TransitionGroup>
       </div>
 
-      <div
-        v-if="collisions.length"
-        class="p-4 border-t border-border mt-2">
+      <div v-if="collisions.length" class="p-4 border-t border-border mt-2">
         <div class="text-xs font-medium text-destructive mb-2">
           Conflicts detected
         </div>
@@ -123,10 +118,12 @@ import { BaseModal, BaseTabs } from '@components/ui'
 import { useKeyboardStore } from '@stores/keyboard'
 import { AlertTriangle } from 'lucide-vue-next'
 
-interface Props { show: boolean }
+interface Props {
+  show: boolean;
+}
 interface Emits {
-  (e: 'update:show', value: boolean): void
-  (e: 'close'): void
+  (e: 'update:show', value: boolean): void;
+  (e: 'close'): void;
 }
 defineProps<Props>()
 const emit = defineEmits<Emits>()
@@ -152,7 +149,9 @@ const grouped = computed(() => {
   const obj: Record<string, Record<string, any[]>> = {}
   for (const [top, sub] of tree.entries()) {
     const sortedSub: Record<string, any[]> = {}
-    for (const [sg, items] of Array.from(sub.entries()).sort((a, b) => a[0].localeCompare(b[0]))) {
+    for (const [sg, items] of Array.from(sub.entries()).sort((a, b) =>
+      a[0].localeCompare(b[0])
+    )) {
       sortedSub[sg] = items.sort((a, b) => a.key.localeCompare(b.key))
     }
     obj[topLabel(top)] = sortedSub
@@ -160,12 +159,25 @@ const grouped = computed(() => {
   return obj
 })
 
+const groupedArray = computed(() => {
+  return Object.keys(grouped.value).map(k => ({
+    name: k,
+    subgroups: grouped.value[k]
+  }))
+})
+
 function topLabel(top: string) {
   switch (top) {
-    case 'global': return 'Global'
-    case 'calculator': return 'Calculator'
-    case 'tools': return 'Tools'
-    default: return top[0].toUpperCase() + top.slice(1)
+    case 'global':
+      return 'Global'
+    case 'calculator':
+      return 'Calculator'
+    case 'converter':
+      return 'Converter'
+    case 'tools':
+      return 'Tools'
+    default:
+      return top[0].toUpperCase() + top.slice(1)
   }
 }
 
@@ -175,7 +187,9 @@ function subgroupLabel(top: string, subgroup: string) {
   return parts.slice(1).join(' › ')
 }
 
-const tabs = computed(() => Object.keys(grouped.value).map(k => ({ value: k, label: k })))
+const tabs = computed(() =>
+  Object.keys(grouped.value).map(k => ({ value: k, label: k }))
+)
 const currentTab = ref('Global')
 
 function handleModalUpdate(isOpen: boolean) {

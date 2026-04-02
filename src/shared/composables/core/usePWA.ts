@@ -21,6 +21,7 @@ export function usePWA() {
   const offlineReady = ref(false)
   const isInitialized = ref(false)
   const downloadProgress = ref(0)
+  const isUpdating = ref(false)
 
   let updateServiceWorkerFn: ((reloadPage?: boolean) => Promise<void>) | null = null
   let intervalController: { pause: () => void; resume: () => void } | null = null
@@ -144,16 +145,24 @@ export function usePWA() {
   })
 
   const updateApp = async(): Promise<void> => {
+    isUpdating.value = true
     try {
       if (updateServiceWorkerFn) {
-        await updateServiceWorkerFn(true)
+        // Safety Valve: Race the SW update against a 3.5s timeout
+        // This prevents the infinite spinner if the controllerchange event never fires
+        await Promise.race([
+          updateServiceWorkerFn(true),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Update timeout')), 3500))
+        ])
         await nextTick()
       } else {
         window.location.reload()
       }
     } catch(error) {
-      console.error('[PWA] Failed to update app:', error)
+      console.warn('[PWA] Update sequence hung or failed, forcing reload:', error)
       window.location.reload()
+    } finally {
+      isUpdating.value = false
     }
   }
 
@@ -195,6 +204,7 @@ export function usePWA() {
 
     isNewerVersion,
     downloadProgress,
+    isUpdating,
     pauseChecks: () => intervalController?.pause(),
     resumeChecks: () => intervalController?.resume()
   }

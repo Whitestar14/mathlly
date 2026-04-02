@@ -1,12 +1,12 @@
 <template>
-  <div class="h-full bg-card border border-border rounded-2xl flex flex-col relative overflow-hidden group hover:border-primary/50 transition-all duration-300 shadow-sm">
+  <div class="h-full prism-card flex flex-col relative group">
 
     <!-- Clean Search Header -->
     <div class="p-3 border-b border-border/40 bg-card/80 backdrop-blur-md z-20 sticky top-0">
       <BaseInput
         v-model="searchQuery"
         placeholder="Search tools..."
-        class="text-xs bg-muted/30 rounded-lg focus:bg-background border-transparent focus:border-primary/30 transition-all overflow-clip"
+        class="text-xs bg-muted/30 rounded-md focus:bg-background border-transparent focus:border-primary/30 transition-all overflow-clip"
         :icon="Search">
         <template v-if="searchQuery" #suffix>
           <button class="text-muted-foreground hover:text-foreground p-1" @click="searchQuery = ''"><X class="size-3" /></button>
@@ -36,7 +36,7 @@
                 v-for="item in category.items"
                 :key="item.id"
                 :to="item.path"
-                class="group/card relative flex flex-col gap-2 p-3 rounded-xl border border-border/40 bg-card/50 hover:bg-accent/5 hover:border-primary/50 hover:shadow-md transition-all duration-300 overflow-hidden"
+                class="group/card relative flex flex-col gap-2 p-3 rounded-lg border border-border/40 bg-card/50 hover:bg-accent/5 hover:border-primary/50 hover:shadow-md transition-all duration-300 overflow-hidden"
                 :class="{ 'opacity-60 grayscale cursor-not-allowed': item.badge === 'soon' }">
                 <!-- Content -->
                 <div class="relative z-10 flex items-start justify-between">
@@ -90,12 +90,3 @@ const getBadgeVariant = (badge: string) => {
   }
 }
 </script>
-
-<style scoped>
-.fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
-.scroll-mask { mask-image: linear-gradient(to bottom, black 95%, transparent 100%); }
-.custom-scrollbar::-webkit-scrollbar { width: 4px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: oklch(var(--color-border)); border-radius: 4px; }
-</style>

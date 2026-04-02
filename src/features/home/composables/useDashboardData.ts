@@ -7,7 +7,9 @@ import {
   Binary,
   FileJson,
   Rocket,
-  Hash
+  Hash,
+  Diff,
+  Regex
 } from 'lucide-vue-next'
 
 export function useDashboardData() {
@@ -52,6 +54,12 @@ export function useDashboardData() {
     }
     if (path.includes('hash')) {
       return { type: 'hash', label: 'Hash Generator', icon: Hash, detail: 'Generate Hashes' }
+    }
+    if (path.includes('diff')) {
+      return { type: 'diff', label: 'Diff Checker', icon: Diff, detail: 'Compare Texts and Code' }
+    }
+    if (path.includes('regex')) {
+      return { type: 'regex', label: 'Regex Tester', icon: Regex, detail: 'Test Patterns' }
     }
 
     return {

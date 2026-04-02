@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 import { ref } from 'vue'
 import { AlertTriangle, CircleHelp, Download, Upload, Database, Settings2 } from 'lucide-vue-next'
@@ -5,7 +6,7 @@ import { BaseButton, BaseModal, BaseCollapsible, BaseLabel } from '@components/u
 import db, { resetDatabase } from '@services/storage/db'
 import { useToast } from '@composables/ui/useToast'
 import { BackupService } from '@shared/services/backup/BackupService'
-import { downloadBlob } from '@base64/utils/helpers/fileHelpers'
+import { downloadBlob } from '@shared/utils/file/download'
 
 interface Props {
   isVisible: boolean;

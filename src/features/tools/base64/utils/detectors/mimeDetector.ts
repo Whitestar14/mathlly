@@ -52,15 +52,6 @@ export function getMimeTypeExtension(mimeType: string): string {
 }
 
 /**
- * Checks if a MIME type is supported based on known signatures.
- * @param mimeType - The MIME type to check
- * @returns True if supported, false otherwise
- */
-export function isSupportedMimeType(mimeType: string): boolean {
-  return mimeType in MIME_SIGNATURES
-}
-
-/**
  * Returns the default MIME type for unknown binary data.
  * @returns Default MIME type string
  */

@@ -63,6 +63,18 @@ const routes: Array<RouteRecordRaw> = [
     meta: { transition: 'fade', group: 'tools' }
   },
   {
+    path: '/tools/diff',
+    name: 'diff',
+    component: () => import('@features/tools/diff/pages/DiffTool.vue'),
+    meta: { transition: 'fade', group: 'tools' }
+  },
+  {
+    path: '/tools/regex',
+    name: 'regex',
+    component: () => import('@features/tools/regex/pages/RegexTool.vue'),
+    meta: { transition: 'fade', group: 'tools' }
+  },
+  {
     path: '/settings',
     name: 'settings',
     component: () => import('@settings/pages/SettingsPage.vue'),

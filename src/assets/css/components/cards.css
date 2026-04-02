@@ -1,0 +1,14 @@
+@layer components {
+  /* Consolidated Card System */
+  .prism-card {
+    @apply bg-card border border-border rounded-lg overflow-hidden shadow-sm transition-all duration-300;
+  }
+
+  .prism-card-glass {
+    @apply bg-card/50 backdrop-blur-sm border border-border rounded-lg overflow-hidden transition-all duration-300;
+  }
+
+  .prism-card-interactive {
+    @apply hover:border-primary/50 hover:shadow-xl hover:shadow-primary/5 active:scale-[0.99] cursor-pointer;
+  }
+}

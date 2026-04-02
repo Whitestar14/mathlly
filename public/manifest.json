@@ -80,6 +80,20 @@
         "url": "url"
       }
     },
-    "offline_enabled": true
+    "offline_enabled": true,
+    "shortcuts": [
+      {
+        "name": "Diff Checker",
+        "short_name": "Diff",
+        "url": "/tools/diff",
+        "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192" }]
+      },
+      {
+        "name": "Regex Tester",
+        "short_name": "Regex",
+        "url": "/tools/regex",
+        "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192" }]
+      }
+    ]
   }
   

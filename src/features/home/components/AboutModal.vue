@@ -25,9 +25,8 @@
       <div class="relative z-10 flex flex-col items-center text-center p-8 pb-6">
 
         <!-- Logo -->
-        <div class="size-20 mb-6 relative">
-          <div class="absolute inset-0 bg-primary/20 blur-xl rounded-full"></div>
-          <BaseMedia type="svg" :svg-content="PrismSvg" class="relative w-full h-full text-foreground drop-shadow-lg" />
+        <div class="size-16 mb-6 relative">
+          <PrismLogo class="p-2 text-secondary-foreground" />
         </div>
 
         <h2 class="text-2xl font-bold tracking-tight mb-2">Prism</h2>
@@ -77,9 +76,8 @@
 
 <script setup lang="ts">
 import { X, Github, Scale } from 'lucide-vue-next'
-import { BaseModal, BaseBadge, BaseMedia } from '@components/ui'
+import { BaseModal, BaseBadge, PrismLogo } from '@components/ui'
 import { useVersionStore } from '@stores/version'
-import PrismSvg from '@assets/icons/prism-hero.svg?raw'
 
 defineProps<{
   modelValue: boolean

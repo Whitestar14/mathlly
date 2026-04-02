@@ -1,7 +1,9 @@
+
 import { ref, shallowRef, onBeforeUnmount, watch, triggerRef } from 'vue'
 import { useToast } from '@composables/ui/useToast'
 import { useClipboard, useDebounceFn } from '@vueuse/core'
 import JsonWorker from '../services/json.worker?worker'
+import { downloadBlob } from '@shared/utils/file/download'
 
 export type ViewMode = 'tree' | 'code' | 'typescript' | 'xml' | 'csv'
 
@@ -171,14 +173,7 @@ export function useJsonTool() {
     if (!content || !parsed.value) return
 
     const blob = new Blob([content], { type: mime })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `prism_export.${ext}`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    URL.revokeObjectURL(url)
+    downloadBlob(blob, `prism_export.${ext}`)
 
     toast({ title: 'Download Started', description: `Exporting as .${ext}`, type: 'success' })
   }
@@ -192,8 +187,8 @@ export function useJsonTool() {
     viewMode,
     indentation,
     isProcessing,
-    setInput, // New setter that triggers debounce
-    parseJson: parseJsonImmediate, // Direct access if needed
+    setInput,
+    parseJson: parseJsonImmediate,
     formatInput,
     minifyInput,
     typeScriptOutput,
