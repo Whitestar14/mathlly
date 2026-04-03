@@ -1,6 +1,18 @@
 {
   "updates": [
     {
+      "version": "0.17.0",
+      "date": "April 2, 2026",
+      "features": [
+        "@milestone: Added code diff tool and regex checker tool to the Prism Family",
+        "Fixed overflow scrollbar flickering on desktop on hover",
+        "Standardized border radiuses, making rounded-mode in settings generally rounder for modern aesthetic",
+        "Added lazy loaders to a plethora of tools including but not exclusively, Converter, Dashboard, Regex, Diff, QRCode, Base64 and Hash",
+        "Removed the Classic View from app, completing transition to Bento-styled dashboard for quick tool access",
+        "Fixed (once again) the update protocol not firing service worker on server connect"
+      ]
+    },
+    {
       "version": "0.16.0",
       "date": "February 14, 2026",
       "features": [
