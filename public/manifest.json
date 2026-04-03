@@ -1,99 +1,98 @@
 {
-    "name": "Prism",
-    "short_name": "Prism",
-    "description": "A comprehensive suite of mathematical tools designed to streamline your development workflow",
-    "start_url": "/",
-    "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#4f46e5",
-    "orientation": "portrait-primary",
-    "dir": "ltr",
-    "lang": "en-US",
-    "categories": ["productivity", "utilities", "developer tools"],
-    "scope": "/",
-    "prefer_related_applications": false,
-    "icons": [
-      {
-        "src": "img/icons/prism-72x72.png",
-        "sizes": "72x72",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "img/icons/prism-96x96.png",
-        "sizes": "96x96",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "img/icons/prism-128x128.png",
-        "sizes": "128x128",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "img/icons/prism-144x144.png",
-        "sizes": "144x143",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "img/icons/prism-192x192.png",
-        "sizes": "192x190",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "img/icons/prism-256x256.png",
-        "sizes": "256x254",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "img/icons/prism-512x512.png",
-        "sizes": "512x512",
-        "type": "image/png",
-        "purpose": "any"
-      },
-      {
-        "src": "img/icons/maskable-icon.png",
-        "sizes": "512x512",
-        "type": "image/png",
-        "purpose": "maskable"
-      },
-      {
+  "name": "Prism",
+  "short_name": "Prism",
+  "description": "A comprehensive suite of mathematical tools designed to streamline your development workflow",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff00",
+  "orientation": "portrait-primary",
+  "dir": "ltr",
+  "lang": "en-US",
+  "categories": ["productivity", "utilities", "developer tools"],
+  "scope": "/",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "img/icons/prism-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icons/prism-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icons/prism-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icons/prism-144x144.png",
+      "sizes": "144x143",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icons/prism-192x192.png",
+      "sizes": "192x190",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icons/prism-256x256.png",
+      "sizes": "256x254",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icons/prism-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "img/icons/maskable-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
       "src": "img/icons/favicon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"
-      }
-    ],
-    "related_applications": [],
-    "iarc_rating_id": "",
-    "share_target": {
-      "action": "/share-target",
-      "method": "POST",
-      "enctype": "multipart/form-data",
-      "params": {
-        "title": "title",
-        "text": "text",
-        "url": "url"
-      }
+    }
+  ],
+  "related_applications": [],
+  "iarc_rating_id": "",
+  "share_target": {
+    "action": "/share-target",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  },
+  "offline_enabled": true,
+  "shortcuts": [
+    {
+      "name": "Diff Checker",
+      "short_name": "Diff",
+      "url": "/tools/diff",
+      "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192" }]
     },
-    "offline_enabled": true,
-    "shortcuts": [
-      {
-        "name": "Diff Checker",
-        "short_name": "Diff",
-        "url": "/tools/diff",
-        "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192" }]
-      },
-      {
-        "name": "Regex Tester",
-        "short_name": "Regex",
-        "url": "/tools/regex",
-        "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192" }]
-      }
-    ]
-  }
-  
+    {
+      "name": "Regex Tester",
+      "short_name": "Regex",
+      "url": "/tools/regex",
+      "icons": [{ "src": "img/icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
