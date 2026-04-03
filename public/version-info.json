@@ -1,41 +1,46 @@
 {
-  "version": "0.15.2",
-  "date": "February 6, 2026",
+  "version": "0.17.0",
+  "date": "April 2, 2026",
   "features": [
-    "Fixed the parentheses tracking algorithm into a simpler, much more robust parser",
-    "Improved performance in calculator mode by consolidating threading logic",
-    "Enhanced standard mode by implementing wrap functions for square and square root"
+    "Fixed overflow scrollbar flickering on desktop on hover",
+    "Standardized border radiuses, making rounded-mode in settings generally rounder for modern aesthetic",
+    "Added lazy loaders to a plethora of tools including but not exclusively, Converter, Dashboard, Regex, Diff, QRCode, Base64 and Hash",
+    "Removed the Classic View from app, completing transition to Bento-styled dashboard for quick tool access",
+    "Fixed (once again) the update protocol not firing service worker on server connect"
   ],
   "fullFeatures": [
-    "Fixed the parentheses tracking algorithm into a simpler, much more robust parser",
-    "Improved performance in calculator mode by consolidating threading logic",
-    "Enhanced standard mode by implementing wrap functions for square and square root"
+    "@milestone: Added code diff tool and regex checker tool to the Prism Family",
+    "Fixed overflow scrollbar flickering on desktop on hover",
+    "Standardized border radiuses, making rounded-mode in settings generally rounder for modern aesthetic",
+    "Added lazy loaders to a plethora of tools including but not exclusively, Converter, Dashboard, Regex, Diff, QRCode, Base64 and Hash",
+    "Removed the Classic View from app, completing transition to Bento-styled dashboard for quick tool access",
+    "Fixed (once again) the update protocol not firing service worker on server connect"
   ],
   "hasChangelog": true,
   "source": "changelog",
-  "currentDeployedVersion": "0.15.2",
-  "totalUpdates": 43,
+  "currentDeployedVersion": "0.17.0",
+  "totalUpdates": 45,
   "updateType": "patch",
   "versionInfo": {
     "major": 0,
-    "minor": 15,
-    "patch": 2,
+    "minor": 17,
+    "patch": 0,
     "prerelease": null,
     "prereleaseNumber": 0,
     "isBeta": false,
     "isAlpha": false,
     "isStable": true,
-    "raw": "0.15.2"
+    "raw": "0.17.0"
   },
   "currentVersionInfo": {
     "major": 0,
-    "minor": 15,
-    "patch": 2,
+    "minor": 17,
+    "patch": 0,
     "prerelease": null,
     "prereleaseNumber": 0,
     "isBeta": false,
     "isAlpha": false,
     "isStable": true,
-    "raw": "0.15.2"
+    "raw": "0.17.0"
   }
 }
